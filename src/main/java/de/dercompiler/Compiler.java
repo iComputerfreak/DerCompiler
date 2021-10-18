@@ -7,6 +7,9 @@ import de.dercompiler.io.FileResolver;
 import java.io.*;
 
 public class Compiler {
+
+    private static final String compilerName = "DerCompiler";
+
     public static void main(String[] args){
         CommandLineBuilder clb = new CommandLineBuilder();
         clb.parseArguments(args);
@@ -15,8 +18,14 @@ public class Compiler {
 
         FileResolver resolver = new FileResolver(options.relativeRoot());
 
+        if (options.help()) {
+            CommandLineBuilder.printHelp(compilerName);
+            System.exit(0);
+        }
+
         if (options.echo()) {
             if (options.getNumberOfUnparsedArguments() != 1) {
+                System.out.println(options.unparsedArguments()[0] + " " + options.unparsedArguments()[1]);
                 System.out.println("No Input-File!");
                 System.exit(-1);
             }

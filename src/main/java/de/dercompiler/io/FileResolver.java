@@ -9,7 +9,7 @@ public class FileResolver {
 
     {
         try {
-            jarLocation = new File(FileResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            jarLocation = new File(FileResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile();
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

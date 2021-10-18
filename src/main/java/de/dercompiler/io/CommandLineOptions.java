@@ -35,6 +35,8 @@ public class CommandLineOptions {
         return cmd.hasOption(CommandLineStrings.COMMAND_ECHO);
     }
 
+    public boolean help() { return cmd.hasOption(CommandLineStrings.COMMAND_HELP); }
+
     public String[] unparsedArguments() {
         return cmd.getArgs();
     }
@@ -46,4 +48,6 @@ public class CommandLineOptions {
     public long getNumberOfUnparsedArguments() {
         return cmd.getArgList().size();
     }
+
+
 }
