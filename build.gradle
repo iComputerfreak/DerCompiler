@@ -17,7 +17,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'Compiler'
+    mainClass = 'de.dercompiler.Compiler'
 }
 
 
