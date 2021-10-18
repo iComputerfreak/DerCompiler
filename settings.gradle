@@ -1,0 +1,5 @@
+rootProject.name = 'DerCompiler'
+
+include('app')
+
+
