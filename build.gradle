@@ -2,7 +2,7 @@ plugins {
     id 'application'
 }
 
-group 'org.example'
+group 'de.dercompiler'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -19,7 +19,6 @@ dependencies {
 application {
     mainClass = 'de.dercompiler.Compiler'
 }
-
 
 test {
     useJUnitPlatform()
