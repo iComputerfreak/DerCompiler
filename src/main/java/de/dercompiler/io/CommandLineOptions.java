@@ -3,39 +3,26 @@ package de.dercompiler.io;
 import org.apache.commons.cli.CommandLine;
 
 import java.util.List;
+import static de.dercompiler.io.CommandLineStrings.*;
 
 public class CommandLineOptions {
 
-    private static CommandLineOptions clo = null;
-
     private CommandLine cmd;
+    public CommandLineOptions(CommandLine cmd) { this.cmd = cmd; }
 
-    private CommandLineOptions() { }
 
-
-    public static CommandLineOptions getInstance() {
-        if (clo == null) {
-            clo = new CommandLineOptions();
-        }
-        return clo;
-    }
-
-    public void setCommandLine(CommandLine cmd) {
-        this.cmd = cmd;
-    }
-
-    public String relativeRoot() {
-        if (cmd.hasOption(CommandLineStrings.COMMAND_RELATIVE_PATH)) {
-            return cmd.getOptionValue(CommandLineStrings.COMMAND_RELATIVE_PATH);
+    public String root() {
+        if (cmd.hasOption(COMMAND_WORKING_DIR)) {
+            return cmd.getOptionValue(COMMAND_WORKING_DIR);
         }
         return null;
     }
 
     public boolean echo() {
-        return cmd.hasOption(CommandLineStrings.COMMAND_ECHO);
+        return cmd.hasOption(COMMAND_ECHO);
     }
 
-    public boolean help() { return cmd.hasOption(CommandLineStrings.COMMAND_HELP); }
+    public boolean help() { return cmd.hasOption(COMMAND_HELP); }
 
     public String[] unparsedArguments() {
         return cmd.getArgs();

@@ -14,9 +14,9 @@ public class Compiler {
         CommandLineBuilder clb = new CommandLineBuilder();
         clb.parseArguments(args);
 
-        CommandLineOptions options = CommandLineOptions.getInstance();
+        CommandLineOptions options = clb.parseArguments(args);
 
-        FileResolver resolver = new FileResolver(options.relativeRoot());
+        FileResolver resolver = new FileResolver(options.root());
 
         if (options.help()) {
             CommandLineBuilder.printHelp(compilerName);

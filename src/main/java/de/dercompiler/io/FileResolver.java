@@ -21,12 +21,16 @@ public class FileResolver {
         this(null);
     }
 
-    public FileResolver(String relative ) {
-        if (relative == null) {
+    public FileResolver(String path) {
+        if (path == null) {
             baseLocation = jarLocation;
-        }
-        else {
-            baseLocation = jarLocation.toPath().resolve(relative).toFile();
+        } else {
+            File pathFile = new File(path);
+            if (pathFile.isAbsolute()) {
+                baseLocation = pathFile;
+            } else {
+                baseLocation = jarLocation.toPath().resolve(path).toFile();
+            }
         }
     }
 
