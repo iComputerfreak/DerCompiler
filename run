@@ -12,8 +12,5 @@ cd "`dirname "${SCRIPT_PATH}"`" > /dev/null
 SCRIPT_PATH="`pwd`";
 popd  > /dev/null
 
-# Change into the directory of this file
-cd "${SCRIPT_PATH}"
-
 # Run the compiler with the given arguments
-java -jar ./build/libs/DerCompiler-*.jar $*
+java -jar "${SCRIPT_PATH}/build/libs/DerCompiler.jar" --working-directory "${SCRIPT_PATH}" $*

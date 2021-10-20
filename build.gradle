@@ -45,8 +45,11 @@ jar {
         )
     }
     from configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    archiveFileName = 'DerCompiler.jar'
 }
 
 test {
     useJUnitPlatform()
 }
+
+buildDir = "out"
