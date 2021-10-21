@@ -14,9 +14,6 @@ cd "`dirname "${SCRIPT_PATH}"`" > /dev/null
 SCRIPT_PATH="`pwd`";
 popd  > /dev/null
 
-# Change into the directory of this file
-cd "${SCRIPT_PATH}"
-
 # Run the gradle build command using the gradle wrapper
-./gradlew clean
-./gradlew build
+"$SCRIPT_PATH/gradlew" clean --project-dir "$SCRIPT_PATH"
+"$SCRIPT_PATH/gradlew" build --project-dir "$SCRIPT_PATH"
