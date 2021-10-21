@@ -1,13 +1,16 @@
+
 package de.dercompiler;
 
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.AnsiFormat;
 import com.diogonunes.jcolor.Attribute;
+import de.dercompiler.actions.Action;
+import de.dercompiler.actions.CompileAction;
+import de.dercompiler.actions.EchoAction;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.CommandLineOptions;
-import de.dercompiler.io.FileResolver;
 
-import java.io.*;
+import java.io.File;
 
 public class Compiler {
 
@@ -19,37 +22,28 @@ public class Compiler {
 
         CommandLineOptions options = clb.parseArguments(args);
 
-        FileResolver resolver = new FileResolver(options.root());
+        Action action = null;
 
-        if (options.help()) {
-            CommandLineBuilder.printHelp(compilerName);
-            System.exit(0);
-        }
+        boolean showHelp = options.help();
 
         if (options.echo()) {
-            if (options.getNumberOfUnparsedArguments() != 1) {
-                System.out.println(options.unparsedArguments()[0] + " " + options.unparsedArguments()[1]);
-                System.out.println("No Input-File!");
-                System.exit(-1);
+            if (action != null) {
+                System.err.println("Error: Too many actions; can only do one action.");
             }
-            File input = resolver.resolve(options.unparsedArguments()[0]);
-            if (!input.exists()) {
-                System.out.println("Input file (" + input.getAbsolutePath() + ") doesn't exist!");
-                System.exit(-1);
-            }
-            try (BufferedReader br = new BufferedReader(new FileReader(input))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    System.out.println(line);
-                }
-            } catch (IOException e) {
-                System.out.println("Error while reading echoing file!");
-                System.exit(-1);
-            }
-            System.exit(0);
+            File input = options.getFileArgument();
+            action = new EchoAction(input);
         }
 
-        System.out.println("Hello, Compiler!");
+        if (action == null) {
+            File input = options.getFileArgument();
+            action = new CompileAction(input);
+        }
+
+        if (showHelp) {
+            action.help();
+        } else {
+            action.run();
+        }
 
         System.out.println((char)27 + "[33mYELLOW");
 
@@ -89,5 +83,17 @@ public class Compiler {
             e.printStackTrace();
         }
         */
+
+        System.exit(0);
     }
 }
+
+
+
+
+
+
+
+
+
+
