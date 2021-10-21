@@ -57,3 +57,5 @@ test {
 }
 
 buildDir = "out"
+sourceCompatibility = '1.17'
+targetCompatibility = '1.17'
