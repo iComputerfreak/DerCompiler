@@ -1,9 +1,6 @@
 package de.dercompiler.actions;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class EchoAction extends Action {
 
@@ -16,15 +13,10 @@ public class EchoAction extends Action {
     }
 
     public void run() {
-        try (BufferedReader br = new BufferedReader(new FileReader(input))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
+        try (FileInputStream file = new FileInputStream(input)) {
+            file.transferTo(System.out);
         } catch (IOException e) {
-            System.out.println("Error while reading echoing file!");
-            //TODO: Use central error processing
-            System.exit(-1);
+            e.printStackTrace();
         }
         System.exit(0);
     }

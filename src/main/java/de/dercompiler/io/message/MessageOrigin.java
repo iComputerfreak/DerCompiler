@@ -26,6 +26,10 @@ public enum MessageOrigin {
         this.error = error;
     }
 
+    public int getId() {
+        return this.ordinal();
+    }
+
     public String getIdentifier() {
         return identifier;
     }

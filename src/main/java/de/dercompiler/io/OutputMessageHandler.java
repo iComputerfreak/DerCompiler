@@ -3,7 +3,6 @@ package de.dercompiler.io;
 import de.dercompiler.io.message.*;
 
 import java.awt.*;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -11,13 +10,21 @@ import java.io.StringWriter;
 public final class OutputMessageHandler {
 
     private static final String INFO = "info";
-    //                                              "[XXXYYYY] "
+    
+    private static final String INFO_MESSAGE = "info: ";
+    private static final String WARNING_MESSAGE = "warning: ";
+    private static final String ERROR_MESSAGE = "error: ";
+    
+    // X is the origin of the output, Y the reason  "[XXXYYYY] "
     private static final String SKIP_MESSAGE_HEAD = "          ";
 
-    private static IColorizer colorizer = new NoColorColarizer();
-    public static boolean warningAsError = false;
+    private static IColorizer globalColorizer = new NoColorColarizer();
+    private static boolean globalPrintStackTrace = false;
+    private static boolean globalWarningAsError = false;
+    private static final int PREFIX_MULTIPLIER = 10000;
 
     private String ident;
+    private int idPrefix;
 
     private Color textColor;
     private Color infoColor;
@@ -25,6 +32,9 @@ public final class OutputMessageHandler {
     private Color errorColor;
 
     private PrintStream stream;
+    private IColorizer colorizer;
+
+    private boolean printStackTrace;
 
     public OutputMessageHandler(MessageOrigin origin, PrintStream stream) {
         ident = origin.getIdentifier();
@@ -33,7 +43,11 @@ public final class OutputMessageHandler {
         warningColor = origin.getWarningColor();
         errorColor = origin.getErrorColor();
 
+        colorizer = globalColorizer;
         this.stream = stream;
+
+        printStackTrace = globalPrintStackTrace;
+        idPrefix = origin.getId() * PREFIX_MULTIPLIER;
     }
 
     private String formatId(int id) {
@@ -52,66 +66,76 @@ public final class OutputMessageHandler {
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e, Color errorColor) {
         formatMessage(messageHead, messageHeadColor, message, messageColor);
 
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        stream.println(colorizer.colorize(errorColor, sw.toString().replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
+        if (printStackTrace) {
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            stream.println(colorizer.colorize(errorColor, sw.toString().replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
+        }
     }
 
     public void printInfo(String infoMessage) {
-        formatMessage(ident + INFO, infoColor, infoMessage, textColor);
+        formatMessage(ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
     }
 
-    public void printWarning(IWarningId id, String warningMessage) {
-        if (warningAsError) {
+    public void printWarning(IWarningIds id, String warningMessage) {
+        if (globalWarningAsError) {
             printError(id, warningMessage);
         } else {
-            formatMessage(ident + formatId(id.getId()), warningColor, warningMessage, warningColor);
+            formatMessage(ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor);
         }
     }
 
-    public void printWarningWithException(IWarningId id, String warningMessage, Exception e) {
-        if (warningAsError) {
+    public void printWarningWithException(IWarningIds id, String warningMessage, Exception e) {
+        if (globalWarningAsError) {
             printError(id, warningMessage, e);
         } else {
-            formatMessage(ident + formatId(id.getId()), warningColor, warningMessage, warningColor, e, errorColor);
+            formatMessage(ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor, e, errorColor);
         }
     }
 
-    public void printError(IErrorId id, String errorMessage) {
+    public void printError(IErrorIds id, String errorMessage) {
         printErrorAndContinue(id, errorMessage);
-        System.exit(-id.getId());
+        System.exit(-idPrefix - id.getId());
     }
 
-    public void printErrorAndContinue(IErrorId id, String errorMessage) {
-        formatMessage(ident + formatId(id.getId()), errorColor, errorMessage, errorColor);
+    public void printErrorAndContinue(IErrorIds id, String errorMessage) {
+        formatMessage(ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor);
     }
 
-    public void printError(IErrorId id, String errorMessage, Exception e) {
+    public void printError(IErrorIds id, String errorMessage, Exception e) {
         printErrorAndContinue(id, errorMessage, e);
-        System.exit(-id.getId());
+        System.exit(-idPrefix - id.getId());
     }
 
-    public void printErrorAndContinue(IErrorId id, String errorMessage, Exception e) {
-        formatMessage( ident + formatId(id.getId()), errorColor, errorMessage, errorColor, e);
+    public void printErrorAndContinue(IErrorIds id, String errorMessage, Exception e) {
+        formatMessage( ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
     }
 
+    public void noColorOutput() {
+        colorizer = new NoColorColarizer();   
+    }
+    
     public static void useNoColors() {
-        colorizer = new NoColorColarizer();
+        globalColorizer = new NoColorColarizer();
     }
 
     public static void useANSIColors() {
-        colorizer = new ASCIColorizer();
+        globalColorizer = new ASCIColorizer();
     }
 
     public static void use8BitColors() {
-        colorizer = new Colorizer8Bit();
+        globalColorizer = new Colorizer8Bit();
     }
 
     public static void use24BitColors() {
-        colorizer = new Colorizer24Bit();
+        globalColorizer = new Colorizer24Bit();
     }
 
     public static void setErrorAsWarning(boolean active) {
-        warningAsError = active;
+        globalWarningAsError = active;
+    }
+
+    public static void setPrintStackTrace(boolean print) {
+        globalPrintStackTrace = print;
     }
 }

@@ -1,5 +1,5 @@
 package de.dercompiler.io.message;
 
-public interface IWarningId extends IErrorId {
+public interface IWarningIds extends IErrorIds {
     //int getId() inherited from IErrorId
 }

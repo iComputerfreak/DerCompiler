@@ -1,5 +1,5 @@
 package de.dercompiler.io.message;
 
-public interface IErrorId {
+public interface IErrorIds {
     int getId();
 }
