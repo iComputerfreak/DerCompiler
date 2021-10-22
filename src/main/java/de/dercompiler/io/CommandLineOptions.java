@@ -10,11 +10,9 @@ import org.apache.commons.cli.Option;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-<<<<<<< HEAD
 import java.util.Objects;
-=======
 import java.util.ListIterator;
->>>>>>> 97ac62df9aa1582293352af25ee1ccd8d3b357ed
+import java.util.function.Consumer;
 
 import static de.dercompiler.io.CommandLineStrings.*;
 
@@ -148,9 +146,15 @@ public class CommandLineOptions {
     public void finish() {
         if (this.hasUnparsedArgumentLeft()) {
             //TODO: use central error processing
-            System.err.println("Too many arguments. The following arguments could not be processed:");
-            this.unparsedArguments.forEachRemaining(System.out::println);
-            System.exit(-1);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Too many arguments. The following arguments could not be processed:");
+            this.unparsedArguments.forEachRemaining(new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    sb.append("\n" + s);
+                }
+            });
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printError(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
         }
     }
 }
