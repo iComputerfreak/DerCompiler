@@ -24,6 +24,15 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2.3.1
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: gradle
+      
+      - name: Set executable permission
+        run: chmod +x gradlew run build tests.sh
 
       # Runs a single command using the runners shell
       - name: Run tests

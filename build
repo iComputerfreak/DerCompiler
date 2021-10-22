@@ -15,5 +15,8 @@ SCRIPT_PATH="`pwd`";
 popd  > /dev/null
 
 # Run the gradle build command using the gradle wrapper
+echo "Project path: $SCRIPT_PATH"
+echo "Cleaning project..."
 "$SCRIPT_PATH/gradlew" clean --project-dir "$SCRIPT_PATH"
+echo "Building project..."
 "$SCRIPT_PATH/gradlew" build --project-dir "$SCRIPT_PATH"
