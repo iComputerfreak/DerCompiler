@@ -39,6 +39,9 @@ public class Compiler {
             action = new CompileAction(input);
         }
 
+        // Now, all arguments should be processed.
+        options.finish();
+
         if (showHelp) {
             action.help();
         } else {
