@@ -4,18 +4,25 @@ import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 
 import java.awt.*;
+import java.util.Objects;
 
 public class Colorizer24Bit implements IColorizer {
     @Override
     public String colorize(Color foreground, String message) {
-        Attribute fgc = Attribute.TEXT_COLOR(foreground.getRed(), foreground.getGreen(), foreground.getBlue());
-        return Ansi.colorize(message, fgc);
+        return colorize(foreground, null, message);
     }
 
     @Override
     public String colorize(Color foreground, Color background, String message) {
-        Attribute fgc = Attribute.TEXT_COLOR(foreground.getRed(), foreground.getGreen(), foreground.getBlue());
-        Attribute bgc = Attribute.BACK_COLOR(background.getRed(), background.getGreen(), background.getBlue());
-        return Ansi.colorize(message, fgc, bgc);
+        Attribute fgc = null;
+        Attribute bgc = null;
+
+        if (!Objects.isNull(foreground)) {
+            fgc = Attribute.TEXT_COLOR(foreground.getRed(), foreground.getGreen(), foreground.getBlue());
+        }
+        if (!Objects.isNull(background)) {
+            bgc = Attribute.BACK_COLOR(background.getRed(), background.getGreen(), background.getBlue());
+        }
+        return Ansi.colorize(message, ColorizationHelper.removeInvalid(fgc, bgc));
     }
 }

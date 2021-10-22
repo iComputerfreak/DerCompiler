@@ -2,7 +2,7 @@ package de.dercompiler.io.message;
 
 import java.awt.*;
 
-public class NoColorColarizer implements IColorizer {
+public class NoColorColorizer implements IColorizer {
     @Override
     public String colorize(Color foreground, String message) {
         return colorize(foreground, null, message);

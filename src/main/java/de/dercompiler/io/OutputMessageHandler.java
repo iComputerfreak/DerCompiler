@@ -18,7 +18,7 @@ public final class OutputMessageHandler {
     // X is the origin of the output, Y the reason  "[XXXYYYY] "
     private static final String SKIP_MESSAGE_HEAD = "          ";
 
-    private static IColorizer globalColorizer = new NoColorColarizer();
+    private static IColorizer globalColorizer = new NoColorColorizer();
     private static boolean globalPrintStackTrace = false;
     private static boolean globalWarningAsError = false;
     private static final int PREFIX_MULTIPLIER = 10000;
@@ -112,15 +112,15 @@ public final class OutputMessageHandler {
     }
 
     public void noColorOutput() {
-        colorizer = new NoColorColarizer();   
+        colorizer = new NoColorColorizer();
     }
     
     public static void useNoColors() {
-        globalColorizer = new NoColorColarizer();
+        globalColorizer = new NoColorColorizer();
     }
 
     public static void useANSIColors() {
-        globalColorizer = new ASCIColorizer();
+        globalColorizer = new ANSIColorizer();
     }
 
     public static void use8BitColors() {
