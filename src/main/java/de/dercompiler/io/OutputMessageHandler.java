@@ -56,7 +56,7 @@ public final class OutputMessageHandler {
 
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor) {
         stream.print("[" + colorizer.colorize(messageHeadColor, messageHead) + "] ");
-        stream.println(        colorizer.colorize(messageColor, message.replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
+        stream.println(colorizer.colorize(messageColor, message.replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
     }
 
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e) {
@@ -64,12 +64,14 @@ public final class OutputMessageHandler {
     }
 
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e, Color errorColor) {
-        formatMessage(messageHead, messageHeadColor, message, messageColor);
+        formatMessage(messageHead, messageHeadColor, message + "\nexception-message: " + e.getMessage(), messageColor);
 
         if (printStackTrace) {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             stream.println(colorizer.colorize(errorColor, sw.toString().replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
+        } else {
+            stream.println(colorizer.colorize(infoColor, "use option --print-stacktrace, to see the stacktrace of the Exception!"));
         }
     }
 

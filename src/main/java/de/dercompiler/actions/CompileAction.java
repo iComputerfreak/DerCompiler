@@ -1,8 +1,15 @@
 package de.dercompiler.actions;
 
+import de.dercompiler.io.CommandLineBuilder;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+
 import java.io.File;
 
 public class CompileAction extends Action {
+
+    private static final String compilerName = "DerCompiler";
+
     private final File input;
 
     public CompileAction(File input) {
@@ -11,11 +18,17 @@ public class CompileAction extends Action {
 
     @Override
     public void run() {
-        System.out.println("Hallo, Compiler!");
+        OutputMessageHandler omh = new OutputMessageHandler(MessageOrigin.GENERAL, System.out);
+        omh.printInfo("Compiler not Implemented YET!");
     }
 
     @Override
     public void help() {
-        System.err.println("CompileAction::help is not implemented yet.");
+        CommandLineBuilder.printHelp(compilerName);
+    }
+
+    @Override
+    public String actionId() {
+        return "compile";
     }
 }

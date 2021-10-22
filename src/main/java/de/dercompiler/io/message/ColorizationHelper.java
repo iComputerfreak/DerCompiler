@@ -13,6 +13,7 @@ public class ColorizationHelper {
         for (Attribute x : attributes) {
             if (!Objects.isNull(x)) valid.add(x);
         }
-        return (Attribute[]) valid.toArray();
+
+        return valid.toArray(new Attribute[0]);
     }
 }

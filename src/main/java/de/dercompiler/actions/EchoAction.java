@@ -1,6 +1,11 @@
 package de.dercompiler.actions;
 
+import de.dercompiler.general.GeneralErrorIds;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+
 import java.io.*;
+import java.util.Objects;
 
 public class EchoAction extends Action {
 
@@ -13,16 +18,22 @@ public class EchoAction extends Action {
     }
 
     public void run() {
+        if (Objects.isNull(input)) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printError(GeneralErrorIds.MISSING_INPUT_FILE, "No input-file given.");
+        }
         try (FileInputStream file = new FileInputStream(input)) {
             file.transferTo(System.out);
         } catch (IOException e) {
-            e.printStackTrace();
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printError(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong, while reading input-file (" + input.getAbsolutePath() + ")!", e);
         }
-        System.exit(0);
     }
 
     public void help() {
         System.out.println(HELP_TEXT);
-        System.exit(0);
+    }
+
+    @Override
+    public String actionId() {
+        return "echo";
     }
 }

@@ -4,6 +4,8 @@ import de.dercompiler.io.message.IWarningIds;
 
 public enum GeneralWarningIds implements IWarningIds {
 
+    INVALID_COMMAND_LINE_ARGUMENTS(200),
+
     ;
 
     private int id;

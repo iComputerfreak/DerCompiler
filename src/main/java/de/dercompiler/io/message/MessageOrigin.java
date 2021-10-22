@@ -3,9 +3,9 @@ package de.dercompiler.io.message;
 import java.awt.*;
 
 public enum MessageOrigin {
-    GENERAL("COM",new Color(0,0,0), new Color(0,0,0), new Color(0,0,0), new Color(0,0,0)),
-    LEXER("LEX",new Color(0, 0,0), new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),
-    PARSER("PAR",new Color(0, 0,0), new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0))
+    GENERAL("COM", null, new Color(0x20,0x63,0x9B), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+    LEXER("LEX", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),
+    PARSER("PAR", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0))
 
     //add more origins
     ;

@@ -1,9 +1,16 @@
 package de.dercompiler.io;
 
+import de.dercompiler.general.GeneralErrorIds;
+import de.dercompiler.general.GeneralWarningIds;
+import de.dercompiler.io.message.IErrorIds;
+import de.dercompiler.io.message.MessageOrigin;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+
 import static de.dercompiler.io.CommandLineStrings.*;
 
 public class CommandLineOptions {
@@ -30,6 +37,10 @@ public class CommandLineOptions {
 
     public boolean help() { return cmd.hasOption(COMMAND_HELP); }
 
+    public boolean warningsAsError() { return cmd.hasOption(COMMAND_WARNING_AS_ERRORS); }
+
+    public boolean printStacktrace() { return cmd.hasOption(COMMAND_PRINT_STACKTRACE); }
+
     public String[] unparsedArguments() {
         return cmd.getArgs();
     }
@@ -40,6 +51,28 @@ public class CommandLineOptions {
 
     public long getNumberOfUnparsedArguments() {
         return cmd.getArgList().size();
+    }
+
+    public void resolveColorOutput() {
+        //don't print warning message, because may first want to set a color mode
+        String option = hasMoreThanOneOption(false, COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
+        if (Objects.isNull(option)) return;
+        switch (option) {
+            case COMMAND_PRINT_NO_COLOR: {
+                OutputMessageHandler.useNoColors();
+            } break;
+            case COMMAND_PRINT_ANSI_COLOR: {
+                OutputMessageHandler.useANSIColors();
+            } break;
+            case COMMAND_PRINT_8BIT_COLOR: {
+                OutputMessageHandler.use8BitColors();
+            } break;
+            case COMMAND_PRINT_TRUE_COLOR: {
+                OutputMessageHandler.use24BitColors();
+            } break;
+        }
+        //now if we have a warning, we will print it
+        hasMoreThanOneOption(COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
     }
 
     /**
@@ -53,10 +86,33 @@ public class CommandLineOptions {
         }
         File file = resolver.resolve(unparsedArguments()[0]);
         if (!file.exists()) {
-            //TODO: use central error processing
-            System.err.println("Input file (" + file.getAbsolutePath() + ") doesn't exist!");
-            System.exit(-1);
+            OutputMessageHandler omh = new OutputMessageHandler(MessageOrigin.GENERAL, System.err);
+            omh.printError(GeneralErrorIds.IO_EXCEPTION, "Input file (" + file.getAbsolutePath() + ") doesn't exist!");
         }
         return file;
+    }
+
+    private String hasMoreThanOneOption(boolean printError, String... options) {
+        List<String> active = new LinkedList<>();
+        for(String option : options) {
+            if (cmd.hasOption(option)) {
+                active.add(option);
+            }
+        }
+        if (active.size() > 1 && printError) {
+            OutputMessageHandler omh = new OutputMessageHandler(MessageOrigin.GENERAL, System.out);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Following Options are overriding each other:\n");
+            for (String option : active) {
+                sb.append("  --" + option + "\n");
+            }
+            sb.append("option: --" + active.get(0) + " is used as configuration.");
+            omh.printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
+        }
+        return active.size() == 0 ? null : active.get(0);
+    }
+
+    private String hasMoreThanOneOption(String... options) {
+        return hasMoreThanOneOption(true, options);
     }
 }

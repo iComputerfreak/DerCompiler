@@ -14,9 +14,9 @@ public class ANSIColorizer implements IColorizer {
             return 0;
         }
         if (color <= 192) {
-            return -1;
+            return 1;
         }
-        return 1;
+        return 2;
     }
 
     private int convert(Color color) {
@@ -26,16 +26,20 @@ public class ANSIColorizer implements IColorizer {
 
         int result = 0;
         //we have more high-intensity, than standard colors
-        if (red + green + blue > 0) {
+        int compare = 0;
+        if (red == 2 || green == 2 || blue == 2) {
+            compare = 1;
+        }
+        if (red + green + blue > 3) {
             result += 8;
         }
-        if (red != 0) {
+        if (red > compare ) {
             result += 1;
         }
-        if (green != 0) {
+        if (green > compare) {
             result += 2;
         }
-        if (blue != 0) {
+        if (blue > compare) {
             result += 4;
         }
         return result;
@@ -51,6 +55,7 @@ public class ANSIColorizer implements IColorizer {
             case 5: return Attribute.MAGENTA_TEXT();
             case 6: return Attribute.CYAN_TEXT();
             case 7: return Attribute.WHITE_TEXT();
+
             case 8: return Attribute.BRIGHT_BLACK_TEXT();
             case 9: return Attribute.BRIGHT_RED_TEXT();
             case 10: return Attribute.BRIGHT_GREEN_TEXT();
@@ -73,6 +78,7 @@ public class ANSIColorizer implements IColorizer {
             case 5: return Attribute.MAGENTA_BACK();
             case 6: return Attribute.CYAN_BACK();
             case 7: return Attribute.WHITE_BACK();
+
             case 8: return Attribute.BRIGHT_BLACK_BACK();
             case 9: return Attribute.BRIGHT_RED_BACK();
             case 10: return Attribute.BRIGHT_GREEN_BACK();
@@ -95,7 +101,7 @@ public class ANSIColorizer implements IColorizer {
         Attribute fgc = null;
         Attribute bgc = null;
         if (!Objects.isNull(foreground)) {
-            fgc = toBackgroundColor(foreground);
+            fgc = toForegroundColor(foreground);
         }
         if (!Objects.isNull(background)) {
             bgc = toBackgroundColor(background);

@@ -12,6 +12,7 @@ public class FileResolver {
             jarLocation = new File(FileResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile();
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            System.exit(-1);
         }
     }
 
