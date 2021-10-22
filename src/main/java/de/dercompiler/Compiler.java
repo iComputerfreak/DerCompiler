@@ -26,6 +26,9 @@ public class Compiler {
 
         boolean showHelp = options.help();
 
+        // Now, all arguments should be processed.
+        options.finish();
+
         if (showHelp) {
             action.help();
         } else {
