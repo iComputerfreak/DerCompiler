@@ -14,6 +14,11 @@ public class CompilerSetup {
 
     private Action action = null;
 
+    /**
+     * this function is called once at startup of the program, based on the parsed Arguments, it sets global states
+     *
+     * @param options the parsed options
+     */
     public static void setupGlobalValues(CommandLineOptions options) {
         OutputMessageHandler.setErrorAsWarning(options.warningsAsError());
         OutputMessageHandler.setPrintStackTrace(options.printStacktrace());
@@ -24,12 +29,18 @@ public class CompilerSetup {
 
     private void setAction(Action action) {
         if (!Objects.isNull(this.action)) {
-            OutputMessageHandler omh = new OutputMessageHandler(MessageOrigin.GENERAL, System.err);
-            omh.printError(GeneralErrorIds.TO_MANY_ACTIONS ,"Actions " + this.action.actionId() + " and " + action.actionId() + " can't be executed at once");
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err)
+                .printError(GeneralErrorIds.TO_MANY_ACTIONS ,"Actions " + this.action.actionId() + " and " + action.actionId() + " can't be executed at once");
         }
         this.action = action;
     }
 
+    /**
+     * parses the action of the program, we assure only one action is active at a time
+     *
+     * @param options the parsed options
+     * @return the active action
+     */
     public Action parseAction(CommandLineOptions options) {
         if (options.echo()) {
             File input = options.getFileArgument();

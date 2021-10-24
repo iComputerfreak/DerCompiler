@@ -8,6 +8,12 @@ import java.util.Objects;
 
 public class ColorizationHelper {
 
+    /**
+     * removes Attributes that are null
+     *
+     * @param attributes the attributes
+     * @return the non-null attributes
+     */
     public static Attribute[] removeInvalid(Attribute... attributes) {
         List<Attribute> valid = new LinkedList<>();
         for (Attribute x : attributes) {

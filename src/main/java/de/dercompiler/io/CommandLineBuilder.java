@@ -5,8 +5,16 @@ import de.dercompiler.io.message.MessageOrigin;
 import org.apache.commons.cli.*;
 import static de.dercompiler.io.CommandLineStrings.*;
 
+/**
+ * This is the central location for defining commandline arguments, and parse them using the commons-cli api
+ */
 public class CommandLineBuilder {
 
+    /**
+     * adds the commandline-options to the options variable
+     *
+     * @param options the options variable to store all used commandline arguments
+     */
     private static void buildOptions(Options options) {
         //general
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION,COMMAND_ECHO, false, DESCRIPTION_ECHO));
@@ -28,6 +36,12 @@ public class CommandLineBuilder {
 
     }
 
+    /**
+     * parses the commandline arguments based on the arguments handed over.
+     *
+     * @param args the arguments typically passed to the main function
+     * @return the parsed arguments
+     */
     public CommandLineOptions parseArguments(String[] args) {
         Options options = new Options();
         buildOptions(options);
@@ -44,6 +58,11 @@ public class CommandLineBuilder {
         return clo;
     }
 
+    /**
+     * prints the help information to System.out to display how to use the Compiler
+     *
+     * @param compiler the name of the compiler
+     */
     public static void printHelp(String compiler) {
         Options options = new Options();
         buildOptions(options);

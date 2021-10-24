@@ -18,8 +18,8 @@ public class CompileAction extends Action {
 
     @Override
     public void run() {
-        OutputMessageHandler omh = new OutputMessageHandler(MessageOrigin.GENERAL, System.out);
-        omh.printInfo("Compiler not Implemented YET!");
+        new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
+            .printInfo("Compiler not Implemented YET!");
     }
 
     @Override

@@ -2,6 +2,10 @@ package de.dercompiler.io.message;
 
 import java.awt.*;
 
+/**
+ * The MessageOrigin describes the origin of the message and depending on this information generate different error and warning-codes.
+ * Part of the MessageOrigin, is the color-flair of the messages
+ */
 public enum MessageOrigin {
     GENERAL("COM", null, new Color(0x20,0x63,0x9B), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
     LEXER("LEX", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),

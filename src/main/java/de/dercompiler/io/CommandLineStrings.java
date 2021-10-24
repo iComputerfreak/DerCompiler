@@ -1,7 +1,15 @@
 package de.dercompiler.io;
 
+/**
+ * defines all strings used in the Commandline, there are grouped bye there use:
+ *
+ *  1. general unique strings
+ *  2. command
+ *  3. description
+ */
 public class CommandLineStrings {
 
+    //general
     public static final String COMMANDLINE_USING_STRING = "";
 
     //commands
