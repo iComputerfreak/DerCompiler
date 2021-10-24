@@ -30,7 +30,7 @@ public class CompilerSetup {
     private void setAction(Action action) {
         if (!Objects.isNull(this.action)) {
             new OutputMessageHandler(MessageOrigin.GENERAL, System.err)
-                .printError(GeneralErrorIds.TO_MANY_ACTIONS ,"Actions " + this.action.actionId() + " and " + action.actionId() + " can't be executed at once");
+                .printError(GeneralErrorIds.TOO_MANY_ACTIONS,"Actions " + this.action.actionId() + " and " + action.actionId() + " can't be executed at once");
         }
         this.action = action;
     }

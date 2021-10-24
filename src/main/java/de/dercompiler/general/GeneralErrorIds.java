@@ -12,7 +12,7 @@ public enum GeneralErrorIds implements IErrorIds {
     INVALID_WORKING_DIRECTORY(120),
 
     INVALID_COMMAND_LINE_ARGUMENTS(200),
-    TO_MANY_ACTIONS(210),
+    TOO_MANY_ACTIONS(210),
     MISSING_INPUT_FILE(220),
 
     ;
