@@ -4,23 +4,22 @@ import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.message.MessageOrigin;
 
 import java.io.File;
-import java.net.URISyntaxException;
 
 public class FileResolver {
 
-    private static File cwd = new File("").getAbsoluteFile();
+    private static final File cwd = new File("").getAbsoluteFile();
 
-    private File baseLocation;
+    private final File baseLocation;
 
     /**
-     * Constructor, uses cwd as working-directory
+     * Creates a new FileResolver, using the current working directory
      */
     public FileResolver() {
         this(null);
     }
 
     /**
-     * Constructor, sets the working directory for the resolver, depending on the Argument
+     * Creates a new FileResolver using the given working directory
      *
      * @param path if path == null, we use cwd as working-directory
      *             if path is absolute, we use it directly as working-directory
@@ -38,15 +37,15 @@ public class FileResolver {
             }
         }
         if (!baseLocation.isDirectory()) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printError(GeneralErrorIds.INVALID_WORKING_DIRECTORY, "Resolved location(" + baseLocation.toString() + ") is not a directory!");
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_WORKING_DIRECTORY, "Resolved location(" + baseLocation + ") is not a directory!");
         }
     }
 
     /**
-     * resolve a file based on the working-directory we use locally
+     * Resolve a file based on the working-directory we use locally
      *
-     * @param file the relative file location
-     * @return the resolved file
+     * @param file The relative file location
+     * @return The resolved file
      */
     public File resolve(String file) {
         return baseLocation.toPath().resolve(file).toFile();

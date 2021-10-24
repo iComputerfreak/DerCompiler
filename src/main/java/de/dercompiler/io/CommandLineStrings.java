@@ -1,18 +1,18 @@
 package de.dercompiler.io;
 
 /**
- * defines all strings used in the Commandline, there are grouped bye there use:
+ * Defines all strings used in the Commandline, grouped by their use:
  *
  *  1. general unique strings
- *  2. command
- *  3. description
+ *  2. commands
+ *  3. descriptions
  */
 public class CommandLineStrings {
 
-    //general
+    // General
     public static final String COMMANDLINE_USING_STRING = "";
 
-    //commands
+    // Commands
     public static final String COMMAND_NO_SHORT_OPTION = null;
     public static final String COMMAND_ECHO = "echo";
     public static final String COMMAND_HELP = "help";
@@ -28,7 +28,7 @@ public class CommandLineStrings {
     public static final String COMMAND_PRINT_TRUE_COLOR = "true-color";
 
 
-    //descriptions
+    // Descriptions
     public static final String DESCRIPTION_ECHO = "Prints the content of the file";
     public static final String DESCRIPTION_HELP = "Print all options";
     public static final String DESCRIPTION_WORKING_DIR = "Overrides the working directory of the compiler";

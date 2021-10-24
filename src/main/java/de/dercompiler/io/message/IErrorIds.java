@@ -1,12 +1,12 @@
 package de.dercompiler.io.message;
 
 /**
- * Defines the Interface for ErrorIds, it is used to generate exit-codes and ErrorIds based of the MessageOrigin
+ * Defines the interface for ErrorIds, it is used to generate exit codes and ErrorIds based of the message origin
  */
 public interface IErrorIds {
 
     /**
-     * @return the id of the Error
+     * @return The id of the Error
      */
     int getId();
 }
