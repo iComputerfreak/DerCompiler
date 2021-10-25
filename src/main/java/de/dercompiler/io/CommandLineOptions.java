@@ -2,7 +2,6 @@ package de.dercompiler.io;
 
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.general.GeneralWarningIds;
-import de.dercompiler.io.message.IErrorIds;
 import de.dercompiler.io.message.MessageOrigin;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -10,8 +9,8 @@ import org.apache.commons.cli.Option;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static de.dercompiler.io.CommandLineStrings.*;

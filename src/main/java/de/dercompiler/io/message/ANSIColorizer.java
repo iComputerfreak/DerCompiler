@@ -1,7 +1,6 @@
 package de.dercompiler.io.message;
 
 import com.diogonunes.jcolor.Ansi;
-import com.diogonunes.jcolor.AnsiFormat;
 import com.diogonunes.jcolor.Attribute;
 
 import java.awt.*;

@@ -4,7 +4,6 @@ import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.message.MessageOrigin;
 
 import java.io.File;
-import java.net.URISyntaxException;
 
 public class FileResolver {
 
