@@ -103,7 +103,7 @@ public final class OutputMessageHandler {
      * @param errorColor The color of the exception
      */
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e, Color errorColor) {
-        formatMessage(messageHead, messageHeadColor, message + "\nexception-message: " + e.getMessage(), messageColor);
+        formatMessage(messageHead, messageHeadColor, message + "\n" + SKIP_MESSAGE_HEAD + "exception-message: " + e.getMessage(), messageColor);
 
         if (printStackTrace) {
             StringWriter sw = new StringWriter();
