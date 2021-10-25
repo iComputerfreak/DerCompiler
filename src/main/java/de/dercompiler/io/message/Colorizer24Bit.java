@@ -6,7 +6,11 @@ import com.diogonunes.jcolor.Attribute;
 import java.awt.*;
 import java.util.Objects;
 
+/**
+ * Responsible for colorizing messages with 24-bit colors
+ */
 public class Colorizer24Bit implements IColorizer {
+    
     @Override
     public String colorize(Color foreground, String message) {
         return colorize(foreground, null, message);

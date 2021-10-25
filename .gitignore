@@ -6,6 +6,8 @@
 # tests.sh files
 .tests
 
+.idea/codeStyles/codeStyleConfig.xml
+
 # Created by https://www.toptal.com/developers/gitignore/api/java,intellij,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,intellij,gradle
 
@@ -90,7 +92,7 @@ fabric.properties
 
 # *.iml
 # modules.xml
-# .idea/misc.xml
+.idea/misc.xml
 # *.ipr
 
 # Sonarlint plugin

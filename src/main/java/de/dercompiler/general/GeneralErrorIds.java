@@ -17,7 +17,7 @@ public enum GeneralErrorIds implements IErrorIds {
 
     ;
 
-    private int id;
+    private final int id;
 
     GeneralErrorIds(int id) {
         this.id = id;

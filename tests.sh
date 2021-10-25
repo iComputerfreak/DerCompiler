@@ -126,6 +126,10 @@ inc_successes() {
 # Change into the directory of this file, so we can set everything up relative to the script
 cd $(dirname $0)
 LOG_STEPS="`pwd`/tests.log"
+# Clear the log file if it exists already
+if [ -f "$LOG_STEPS" ]; then
+	rm -f "$LOG_STEPS"
+fi
 
 
 ###################################
@@ -200,6 +204,15 @@ try # Change back into .tests
 try cd .tests
 next && inc_successes || inc_failures
 
+# Reset the run path
+RUN_PATH="../run"
+step "Testing calling --echo after the argument"
+try "$RUN_PATH" "Der Compiler/file 4" --echo
+try "$RUN_PATH" "Der Compiler/file1" --echo
+try "$RUN_PATH" "Der Compiler/folder 3/file 5" --echo
+try "$RUN_PATH" "Der Compiler/folder1/file2" --echo
+try "$RUN_PATH" "Der Compiler/folder1/folder2/file3" --echo
+
 
 #################
 ### Next Test ###
@@ -224,6 +237,11 @@ next && inc_successes || inc_failures
 ALL_TESTS=$((FAILED_TESTS+SUCCEEDED_TESTS))
 if [ $FAILED_TESTS -gt 0 ]; then
 	echo "$FAILED_TESTS of $ALL_TESTS tests failed."
+	echo
+	echo "#################"
+	echo "### Error Log ###"
+	echo "#################"
+	cat "$LOG_STEPS"
 	exit 1
 else
 	echo "All tests succeeded."

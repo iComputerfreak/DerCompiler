@@ -11,7 +11,7 @@ public enum GeneralWarningIds implements IWarningIds {
 
     ;
 
-    private int id;
+    private final int id;
 
     GeneralWarningIds(int id) {
         this.id = id;

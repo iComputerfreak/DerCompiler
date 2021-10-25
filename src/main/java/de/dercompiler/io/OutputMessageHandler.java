@@ -27,24 +27,24 @@ public final class OutputMessageHandler {
     private static boolean globalWarningAsError = false;
     private static final int PREFIX_MULTIPLIER = 10000;
 
-    private String ident;
-    private int idPrefix;
+    private final String ident;
+    private final int idPrefix;
 
-    private Color textColor;
-    private Color infoColor;
-    private Color warningColor;
-    private Color errorColor;
+    private final Color textColor;
+    private final Color infoColor;
+    private final Color warningColor;
+    private final Color errorColor;
 
-    private PrintStream stream;
+    private final PrintStream stream;
     private IColorizer colorizer;
 
-    private boolean printStackTrace;
+    private final boolean printStackTrace;
 
     /**
-     * default Class Constructor.
+     * Creates a new OutputMessageHandler with the given origin and stream
      *
-     * @param origin  the origin of the messages
-     * @param stream  the stream to write messages to
+     * @param origin The origin of the messages
+     * @param stream The stream to write messages to
      */
     public OutputMessageHandler(MessageOrigin origin, PrintStream stream) {
         ident = origin.getIdentifier();
@@ -60,19 +60,48 @@ public final class OutputMessageHandler {
         idPrefix = origin.getId() * PREFIX_MULTIPLIER;
     }
 
+    /**
+     * Formats the given ID as a four digit integer number
+     * @param id The ID to format
+     * @return The zero-padded 4-digit number
+     */
     private String formatId(int id) {
         return String.format("%04d", id);
     }
 
+    /**
+     * Formats the given message
+     * @param messageHead The prefix of the message
+     * @param messageHeadColor The color of the message prefix
+     * @param message The message itself
+     * @param messageColor The color of the message
+     */
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor) {
         stream.print("[" + colorizer.colorize(messageHeadColor, messageHead) + "] ");
         stream.println(colorizer.colorize(messageColor, message.replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
     }
 
+    /**
+     * Formats the given message with an exception
+     * @param messageHead The prefix of the message
+     * @param messageHeadColor The color of the message prefix
+     * @param message The message itself
+     * @param messageColor The color of the message
+     * @param e The exception
+     */
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e) {
         formatMessage(messageHead, messageHeadColor, message, messageColor, e, messageColor);
     }
-
+    
+    /**
+     * Formats the given message with an exception
+     * @param messageHead The prefix of the message
+     * @param messageHeadColor The color of the message prefix
+     * @param message The message itself
+     * @param messageColor The color of the message
+     * @param e The exception
+     * @param errorColor The color of the exception
+     */
     private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e, Color errorColor) {
         formatMessage(messageHead, messageHeadColor, message + "\nexception-message: " + e.getMessage(), messageColor);
 
@@ -86,126 +115,126 @@ public final class OutputMessageHandler {
     }
 
     /**
-     * prints a info-message
+     * Prints an info message
      *
-     * @param infoMessage the info-message to print
+     * @param infoMessage The info message to print
      */
     public void printInfo(String infoMessage) {
         formatMessage(ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
     }
 
     /**
-     * prints a warning-message
+     * Prints a warning message
      *
-     * @param id the id of the warning
-     * @param warningMessage the warning-message to print
+     * @param id The id of the warning
+     * @param warningMessage The warning-message to print
      */
     public void printWarning(IWarningIds id, String warningMessage) {
         if (globalWarningAsError) {
-            printError(id, warningMessage);
+            printErrorAndExit(id, warningMessage);
         } else {
             formatMessage(ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor);
         }
     }
 
     /**
-     * prints a warning-message
+     * Prints a warning message
      *
-     * @param id the id of the warning
-     * @param warningMessage the warning-message to print
-     * @param e the exception that may get printed, depending on the global state
+     * @param id The id of the warning
+     * @param warningMessage The warning message to print
+     * @param e The exception that may get printed, depending on the global state
      */
     public void printWarningWithException(IWarningIds id, String warningMessage, Exception e) {
         if (globalWarningAsError) {
-            printError(id, warningMessage, e);
+            printErrorAndExit(id, warningMessage, e);
         } else {
             formatMessage(ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor, e, errorColor);
         }
     }
 
     /**
-     * prints an error-message and exits the program with the generated exit-code
+     * Prints an error message and exits the program with the generated exit code
      *
-     * @param id the id of the warning
-     * @param errorMessage the error-message to print
+     * @param id The id of the warning
+     * @param errorMessage The error message to print
      */
-    public void printError(IErrorIds id, String errorMessage) {
+    public void printErrorAndExit(IErrorIds id, String errorMessage) {
         printErrorAndContinue(id, errorMessage);
         System.exit(-idPrefix - id.getId());
     }
 
     /**
-     * prints an error-message and continues, only call this function, if we know we will print an error-message with printError later.
+     * Prints an error message and continues, only call this function, if we know we will print an error message with printError later.
      *
-     * @param id the id of the warning
-     * @param errorMessage the error-message to print
+     * @param id The id of the warning
+     * @param errorMessage The error message to print
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage) {
         formatMessage(ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor);
     }
 
     /**
-     * prints an error-message and exits the program with the generated exit-code
+     * Prints an error message and exits the program with the generated exit code
      *
-     * @param id the id of the warning
-     * @param errorMessage the error-message to print
-     * @param e the exception that may get printed, depending on the global state
+     * @param id The id of the warning
+     * @param errorMessage The error-message to print
+     * @param e The exception that may get printed, depending on the global state
      */
-    public void printError(IErrorIds id, String errorMessage, Exception e) {
+    public void printErrorAndExit(IErrorIds id, String errorMessage, Exception e) {
         printErrorAndContinue(id, errorMessage, e);
         System.exit(-idPrefix - id.getId());
     }
 
     /**
-     * prints an error-message and continues, only call this function, if we know we will print an error-message with printError later.
+     * Prints an error message and continues, only call this function, if we know we will print an error message with printError later.
      *
-     * @param id the id of the warning
-     * @param errorMessage the error-message to print
-     * @param e the exception that may get printed, depending on the global state
+     * @param id The id of the warning
+     * @param errorMessage The error-message to print
+     * @param e The exception that may get printed, depending on the global state
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage, Exception e) {
         formatMessage( ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
     }
 
     /**
-     * sets no color output for the current object
+     * Sets no color output for the current object
      */
     public void noColorOutput() {
         colorizer = new NoColorColorizer();
     }
 
     /**
-     * sets the global state, all now created Objects will not print colors to their stream
+     * Sets the global state, all now created Objects will not print colors to their stream
      */
     public static void useNoColors() {
         globalColorizer = new NoColorColorizer();
     }
 
     /**
-     * sets the global state, all now created Objects will print ansi colors(4-bit) to their stream
+     * Sets the global state, all now created Objects will print ansi colors (4-bit) to their stream
      */
     public static void useANSIColors() {
         globalColorizer = new ANSIColorizer();
     }
 
     /**
-     * sets the global state, all now created objects will print 8-bit colors (6-value cube) colors to their stream
+     * Sets the global state, all now created objects will print 8-bit colors (6-value cube) colors to their stream
      */
     public static void use8BitColors() {
         globalColorizer = new Colorizer8Bit();
     }
 
     /**
-     * sets the global state, all now created objects will print true color(24-bit) colors to their stream
+     * Sets the global state, all now created objects will print true color (24-bit) colors to their stream
      */
     public static void use24BitColors() {
         globalColorizer = new Colorizer24Bit();
     }
 
     /**
-     * sets the global state, to handle errors as warnings
+     * Sets the global state, to handle errors as warnings
      *
-     * @param active the state, if true, we will interpret errors as warnings
+     * @param active The state, if true, we will interpret errors as warnings
      *                          if false, we will treat errors and warnings normal
      */
     public static void setErrorAsWarning(boolean active) {
@@ -213,9 +242,9 @@ public final class OutputMessageHandler {
     }
 
     /**
-     * sets the global state, so we will print the stacktrace if an exception is available
+     * Sets the global state, so we will print the stacktrace if an exception is available
      *
-     * @param print the state, if true, we will print the stacktrace if a exception is available
+     * @param print The state, if true, we will print the stacktrace if a exception is available
      *                         if false, we will print only print the exception message
      */
     public static void setPrintStackTrace(boolean print) {
