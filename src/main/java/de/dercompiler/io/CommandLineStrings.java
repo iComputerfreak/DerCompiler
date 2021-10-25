@@ -33,11 +33,11 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_HELP = "Print all options";
     public static final String DESCRIPTION_WORKING_DIR = "Overrides the working directory of the compiler";
 
-    public static final String DESCRIPTION_PRINT_STACKTRACE = "Prints the Stacktrace of the error or warning if available";
+    public static final String DESCRIPTION_PRINT_STACKTRACE = "Prints the stacktrace of the error or warning if available";
     public static final String DESCRIPTION_WARNINGS_AS_ERRORS = "All warnings are treated as errors";
 
-    public static final String DESCRIPTION_PRINT_NO_COLOR = "no color output";
-    public static final String DESCRIPTION_PRINT_ANSI_COLOR = "classic 16 color output";
+    public static final String DESCRIPTION_PRINT_NO_COLOR = "No color output";
+    public static final String DESCRIPTION_PRINT_ANSI_COLOR = "Classic 16-bit color output";
     public static final String DESCRIPTION_PRINT_8BIT_COLOR = "8-bit color output";
-    public static final String DESCRIPTION_PRINT_TRUE_COLOR = "true color output";
+    public static final String DESCRIPTION_PRINT_TRUE_COLOR = "True color output";
 }
