@@ -1,4 +1,4 @@
 package de.dercompiler.ast.expression;
 
-public final class DivisionExpression extends IExpression {
+public final class DivisionExpression extends AbstractExpression {
 }
