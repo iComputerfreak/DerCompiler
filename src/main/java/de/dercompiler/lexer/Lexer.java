@@ -1,7 +1,5 @@
 package de.dercompiler.lexer;
 
-import parser.Parser;
-
 import static de.dercompiler.lexer.Token.*;
 
 public class Lexer {

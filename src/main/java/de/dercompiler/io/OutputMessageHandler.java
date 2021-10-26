@@ -6,6 +6,7 @@ import java.awt.*;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 
 /**
  * The OutputMessageHandler provides a generalized interface to handle errors, warning and info messages, if set the
@@ -13,19 +14,22 @@ import java.io.StringWriter;
  */
 public final class OutputMessageHandler {
 
-    private static final String INFO = "info";
-    
+    private static final String INFO = " info";
+    private static final String INTERNAL = "internal";
+
     private static final String INFO_MESSAGE = "info: ";
     private static final String WARNING_MESSAGE = "warning: ";
     private static final String ERROR_MESSAGE = "error: ";
     
-    // X is the origin of the output, Y the reason  "[XXXYYYY] "
-    private static final String SKIP_MESSAGE_HEAD = "          ";
+    // X is the origin of the output, Y the reason  "[XXXYYYYY] "
+    private static final String SKIP_MESSAGE_HEAD = "           ";
 
     private static IColorizer globalColorizer = new NoColorColorizer();
     private static boolean globalPrintStackTrace = false;
     private static boolean globalWarningAsError = false;
-    private static final int PREFIX_MULTIPLIER = 10000;
+    private static final int PREFIX_MULTIPLIER = 100000;
+
+    private static final int CALLER_STACKTRACE = 1;
 
     private final String ident;
     private final int idPrefix;
@@ -61,12 +65,12 @@ public final class OutputMessageHandler {
     }
 
     /**
-     * Formats the given ID as a four digit integer number
+     * Formats the given ID as a 5-digit integer number
      * @param id The ID to format
-     * @return The zero-padded 4-digit number
+     * @return The zero-padded 5-digit number
      */
     private String formatId(int id) {
-        return String.format("%04d", id);
+        return String.format("%05d", id);
     }
 
     /**
@@ -194,6 +198,33 @@ public final class OutputMessageHandler {
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage, Exception e) {
         formatMessage( ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
+    }
+
+    private void internalError(String message, StackTraceElement element) {
+        formatMessage(INTERNAL, errorColor, "Internal Error in " + element.getClassName() + "."
+                + element.getMethodName() + "() in Line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + SKIP_MESSAGE_HEAD + message), errorColor);
+    }
+
+    /**
+     * Prints an internal error, with classname, methode, and line
+     */
+    public void internalError() {
+        //https://stackoverflow.com/questions/7483421/how-to-get-source-file-name-line-number-from-a-java-lang-class-object
+        //we use this to get the classname and the line-count where the error gets printed
+        Exception e = new Exception();
+        internalError(null, e.getStackTrace()[CALLER_STACKTRACE]);
+    }
+
+    /**
+     * Prints an internal error with message, with classname, methode, and line
+     *
+     * @param errorMessage error-message to print
+     */
+    public void internalError(String errorMessage) {
+        //https://stackoverflow.com/questions/7483421/how-to-get-source-file-name-line-number-from-a-java-lang-class-object
+        //we use this to get the classname and the line-count where the error gets printed
+        Exception e = new Exception();
+        internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE]);
     }
 
     /**

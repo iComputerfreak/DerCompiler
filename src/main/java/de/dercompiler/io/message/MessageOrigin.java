@@ -11,7 +11,7 @@ public enum MessageOrigin {
     GENERAL("COM", null, new Color(0x20,0x63,0x9B), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
     /** Errors in the lexer */
     LEXER("LEX", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),
-    /** Errors in the parser */
+    /** Errors in the de.dercompiler.parser */
     PARSER("PAR", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0))
 
     //add more origins
