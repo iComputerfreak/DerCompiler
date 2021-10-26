@@ -1,7 +1,8 @@
-package de.dercompiler.lexer;
+package de.dercompiler.util;
 
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.lexer.LexerErrorIds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +37,12 @@ public class RingBuffer<T> {
     }
 
     public T pop() {
-        if (this.length == 0) {
+        if (this.isEmpty()) {
             new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.BUFFER_UNDERFLOW, "Buffer ran out of elements");
         }
         T res = this.elements.get(nextIndex);
+        // array entry does not need to be "deleted", it will probably be overwritten anyway.
+
         this.nextIndex = (this.nextIndex + 1) % this.capacity;
         this.length--;
         return res;
@@ -47,7 +50,7 @@ public class RingBuffer<T> {
 
     public void push(T element) {
         //must not overwrite
-        if (this.length > 0 && this.nextIndex == this.tailIndex) {
+        if (this.isFull()) {
             new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.BUFFER_OVERFLOW, "Buffer overflow");
         }
 
@@ -55,6 +58,15 @@ public class RingBuffer<T> {
 
         this.tailIndex = (this.tailIndex + 1) % this.capacity;
         this.length++;
+    }
+
+    public boolean isEmpty() {
+        return this.length == 0;
+    }
+
+    public boolean isFull() {
+        // equivalent: !this.isEmpty() && this.nextIndex == this.tailIndex
+        return this.length == this.capacity;
     }
 
 
