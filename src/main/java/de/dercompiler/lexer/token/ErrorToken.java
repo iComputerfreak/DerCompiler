@@ -9,4 +9,9 @@ public class ErrorToken implements IToken {
     public ErrorToken(IErrorIds id) {
         this.error = id;
     }
+
+    @Override
+    public String toString() {
+        return error.toString();
+    }
 }

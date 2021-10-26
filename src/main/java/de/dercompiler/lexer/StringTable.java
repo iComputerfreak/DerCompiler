@@ -16,6 +16,9 @@ public class StringTable {
     }
 
     public static StringTable getInstance() {
+        if (singleton == null) {
+            singleton = new StringTable();
+        }
         return singleton;
     }
 

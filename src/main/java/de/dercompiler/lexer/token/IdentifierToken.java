@@ -21,4 +21,9 @@ public class IdentifierToken implements IToken {
         }
         return token;
     }
+
+    @Override
+    public String toString() {
+        return "identifier %s".formatted(identifier);
+    }
 }

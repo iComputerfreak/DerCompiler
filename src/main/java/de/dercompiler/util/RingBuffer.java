@@ -54,7 +54,13 @@ public class RingBuffer<T> {
             new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.BUFFER_OVERFLOW, "Buffer overflow");
         }
 
-        this.elements.add(this.tailIndex, element);
+        if (this.elements.size() <= tailIndex) {
+            // sets element, shifting all following elements to the right
+            this.elements.add(this.tailIndex, element);
+        } else {
+            // replaces element at position that has been set before
+            this.elements.set(this.tailIndex, element);
+        }
 
         this.tailIndex = (this.tailIndex + 1) % this.capacity;
         this.length++;

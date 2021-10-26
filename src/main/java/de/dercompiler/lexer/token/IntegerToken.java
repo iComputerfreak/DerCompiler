@@ -6,4 +6,9 @@ public class IntegerToken implements IToken {
     public IntegerToken(int value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "integer literal %d".formatted(value);
+    }
 }
