@@ -201,7 +201,7 @@ public final class OutputMessageHandler {
     }
 
     private void internalError(String message, StackTraceElement element) {
-        formatMessage(INTERNAL, errorColor, "Internal Error in " + element.getClassName() + "."
+        formatMessage(INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
                 + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + SKIP_MESSAGE_HEAD + message), errorColor);
         System.exit(-1);
     }
