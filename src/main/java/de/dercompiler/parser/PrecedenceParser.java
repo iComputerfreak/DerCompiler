@@ -1,5 +1,7 @@
 package de.dercompiler.parser;
 
+import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.ExpressionFactory;
 import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.Lexer;
 
@@ -19,25 +21,22 @@ public class PrecedenceParser {
         return 0;
     }
 
-    public void parseExpression() {
-        parseExpression(0);
+    public AbstractExpression parseExpression() {
+        return parseExpression(0);
     }
 
-    private void parseExpression(int minPrec) {
+    private AbstractExpression parseExpression(int minPrec) {
         //result
-        parser.parseUnaryExp();
+        AbstractExpression result = parser.parseUnaryExp();
 
         IToken token = expectOperatorToken();
         int prec;
-        //TODO really smaller? check after tokens get precedence
-        while (!Objects.isNull(token) && (prec = precedenceOfOperation(token)) < minPrec) {
-            //rhs
-            parseExpression(prec + 1);
-            //result = new Ast(operator, result, rhs);
+        while (!Objects.isNull(token) && (prec = precedenceOfOperation(token)) >= minPrec) {
+            AbstractExpression rhs = parseExpression(prec + 1);
+            result = ExpressionFactory.createExpression(token, result, rhs);
             token = expectOperatorToken();
         }
-        //result
-        return;
+        return result;
     }
 
     private IToken expectOperatorToken() {

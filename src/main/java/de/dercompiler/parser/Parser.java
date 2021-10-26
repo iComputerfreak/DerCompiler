@@ -1,5 +1,6 @@
 package de.dercompiler.parser;
 
+import de.dercompiler.ast.expression.AbstractExpression;
 import de.dercompiler.lexer.Lexer;
 
 public class Parser {
@@ -12,8 +13,8 @@ public class Parser {
         precedenceParser = new PrecedenceParser(lexer, this);
     }
 
-    public void parseUnaryExp() {
-
+    public AbstractExpression parseUnaryExp() {
+        return null;
     }
 
 }
