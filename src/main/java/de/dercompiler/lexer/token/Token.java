@@ -1,4 +1,4 @@
-package de.dercompiler.lexer;
+package de.dercompiler.lexer.token;
 
 public enum Token implements IToken {
     T_EOF("EOF"),

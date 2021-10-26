@@ -1,8 +1,6 @@
 package de.dercompiler.lexer;
 
-import parser.Parser;
-
-import static de.dercompiler.lexer.Token.*;
+import de.dercompiler.lexer.token.IToken;
 
 import java.io.File;
 

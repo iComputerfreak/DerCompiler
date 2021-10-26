@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import static de.dercompiler.io.CommandLineStrings.*;
 
@@ -79,7 +78,7 @@ public class CommandLineOptions {
      */
     public void resolveColorOutput() {
         //don't print warning message, because may first want to set a color mode
-        String option = hasMoreThanOneOption(false, COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
+        String option = getActiveOption(false, COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
         if (Objects.isNull(option)) return;
         switch (option) {
             case COMMAND_PRINT_NO_COLOR -> OutputMessageHandler.useNoColors();
@@ -88,7 +87,7 @@ public class CommandLineOptions {
             case COMMAND_PRINT_TRUE_COLOR -> OutputMessageHandler.use24BitColors();
         }
         // Now if we have a warning, we will print it
-        hasMoreThanOneOption(COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
+        getActiveOption(COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
     }
 
     /**
@@ -157,14 +156,14 @@ public class CommandLineOptions {
      * @param options The options to check
      * @return The active option, if there is only one; null if there are multiple
      */
-    private String hasMoreThanOneOption(boolean printError, String... options) {
+    private String getActiveOption(boolean printError, String... options) {
         List<String> active = new LinkedList<>();
         for(String option : options) {
             if (cmd.hasOption(option)) {
                 active.add(option);
             }
         }
-        if (active.size() > 1) {
+        if (printError && active.size() > 1) {
             StringBuilder sb = new StringBuilder();
             sb.append("More than one option:\n");
             for (String option : active) {
@@ -172,7 +171,7 @@ public class CommandLineOptions {
             }
 
             new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
-                    .printErrorAndExit(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
+                    .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
 
 
         }
@@ -184,7 +183,7 @@ public class CommandLineOptions {
      * @param options The options to check
      * @return The active option, if there is only one; null if there are multiple
      */
-    private String hasMoreThanOneOption(String... options) {
-        return hasMoreThanOneOption(true, options);
+    private String getActiveOption(String... options) {
+        return getActiveOption(true, options);
     }
 }
