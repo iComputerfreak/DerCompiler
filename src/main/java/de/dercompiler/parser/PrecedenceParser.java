@@ -1,6 +1,6 @@
 package de.dercompiler.parser;
 
-import de.dercompiler.lexer.IToken;
+import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.Lexer;
 
 public class PrecedenceParser {
