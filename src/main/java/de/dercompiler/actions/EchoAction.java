@@ -18,7 +18,7 @@ public class EchoAction extends Action {
     private final File input;
 
     private final static String HELP_TEXT = "--echo <file>: prints the content of the file to the console.";
-
+    private final static String COMMAND_LINE_NAME = "echo";
     /**
      * Creates a new EchoAction with the given input file
      * @param input The file to print
@@ -43,6 +43,6 @@ public class EchoAction extends Action {
     }
 
     public String actionId() {
-        return "echo";
+        return COMMAND_LINE_NAME;
     }
 }

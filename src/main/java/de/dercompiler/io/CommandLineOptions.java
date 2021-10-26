@@ -46,24 +46,31 @@ public class CommandLineOptions {
     }
 
     /**
-     * @return true, if the EchoAction has to be executed
+     * @return true if the echo command has been given
      */
     public boolean echo() {
         return cmd.hasOption(COMMAND_ECHO);
     }
 
     /**
-     * @return true, if the help hint has to get printed
+     * @return true if the lexTest command has been given
+     */
+    public boolean lexTest() {
+        return cmd.hasOption(COMMAND_LEX_TEST);
+    }
+
+    /**
+     * @return true if the help command has been given
      */
     public boolean help() { return cmd.hasOption(COMMAND_HELP); }
 
     /**
-     * @return true, if warnings should be treated as error
+     * @return true if warnings should be treated as error
      */
     public boolean warningsAsError() { return cmd.hasOption(COMMAND_WARNING_AS_ERRORS); }
 
     /**
-     * @return true, if the stacktrace of exceptions should be printed
+     * @return true if the stacktrace of exceptions should be printed
      */
     public boolean printStacktrace() { return cmd.hasOption(COMMAND_PRINT_STACKTRACE); }
 
@@ -157,15 +164,17 @@ public class CommandLineOptions {
                 active.add(option);
             }
         }
-        if (active.size() > 1 && printError) {
+        if (active.size() > 1) {
             StringBuilder sb = new StringBuilder();
-            sb.append("Following Options are overriding each other:\n");
+            sb.append("More than one option:\n");
             for (String option : active) {
                 sb.append("  --" + option + "\n");
             }
-            sb.append("option: --" + active.get(0) + " is used as configuration.");
+
             new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
-                    .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
+                    .printErrorAndExit(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
+
+
         }
         return active.size() == 0 ? null : active.get(0);
     }

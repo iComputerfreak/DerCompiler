@@ -15,6 +15,7 @@ public class CommandLineStrings {
     // Commands
     public static final String COMMAND_NO_SHORT_OPTION = null;
     public static final String COMMAND_ECHO = "echo";
+    public static final String COMMAND_LEX_TEST = "lexTest";
     public static final String COMMAND_HELP = "help";
     public static final String COMMAND_HELP_SHORT = "h";
     public static final String COMMAND_WORKING_DIR = "working-directory";
@@ -30,6 +31,7 @@ public class CommandLineStrings {
 
     // Descriptions
     public static final String DESCRIPTION_ECHO = "Prints the content of the file";
+    public static final String DESCRIPTION_LEX_TEST = "Prints the sequence of tokens in the file";
     public static final String DESCRIPTION_HELP = "Print all options";
     public static final String DESCRIPTION_WORKING_DIR = "Overrides the working directory of the compiler";
 
