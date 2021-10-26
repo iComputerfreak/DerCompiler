@@ -1,4 +1,4 @@
 package de.dercompiler.ast.expression;
 
-public final class ModuloExpression extends IExpression {
+public final class ModuloExpression extends AbstractExpression {
 }

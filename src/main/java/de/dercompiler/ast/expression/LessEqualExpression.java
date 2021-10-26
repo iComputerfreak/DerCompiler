@@ -1,4 +1,4 @@
 package de.dercompiler.ast.expression;
 
-public final class LessEqualExpression extends IExpression {
+public final class LessEqualExpression extends AbstractExpression {
 }

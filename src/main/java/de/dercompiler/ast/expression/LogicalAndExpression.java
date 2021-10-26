@@ -1,5 +1,5 @@
 package de.dercompiler.ast.expression;
 
-public final class LogicalAndExpression extends IExpression {
+public final class LogicalAndExpression extends AbstractExpression {
 
 }

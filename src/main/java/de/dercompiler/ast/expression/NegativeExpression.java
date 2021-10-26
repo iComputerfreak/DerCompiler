@@ -1,4 +1,4 @@
 package de.dercompiler.ast.expression;
 
-public final class NegativeExpression extends IExpression {
+public final class NegativeExpression extends AbstractExpression {
 }

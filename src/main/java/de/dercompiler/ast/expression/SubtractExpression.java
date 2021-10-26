@@ -1,4 +1,4 @@
 package de.dercompiler.ast.expression;
 
-public final class SubtractExpression extends IExpression {
+public final class SubtractExpression extends AbstractExpression {
 }
