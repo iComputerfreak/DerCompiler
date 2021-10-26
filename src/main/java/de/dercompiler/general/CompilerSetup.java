@@ -54,7 +54,12 @@ public class CompilerSetup {
             File input = options.getFileArgument();
             setAction(new EchoAction(input));
         }
-        
+
+        if (options.lexTest()) {
+            File input = options.getFileArgument();
+            setAction(new EchoAction(input));
+        }
+
         if (Objects.isNull(action)) {
             File input = options.getFileArgument();
             action = new CompileAction(input);

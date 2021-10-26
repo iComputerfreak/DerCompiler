@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import static de.dercompiler.io.CommandLineStrings.*;
 
@@ -46,24 +45,31 @@ public class CommandLineOptions {
     }
 
     /**
-     * @return true, if the EchoAction has to be executed
+     * @return true if the echo command has been given
      */
     public boolean echo() {
         return cmd.hasOption(COMMAND_ECHO);
     }
 
     /**
-     * @return true, if the help hint has to get printed
+     * @return true if the lexTest command has been given
+     */
+    public boolean lexTest() {
+        return cmd.hasOption(COMMAND_LEX_TEST);
+    }
+
+    /**
+     * @return true if the help command has been given
      */
     public boolean help() { return cmd.hasOption(COMMAND_HELP); }
 
     /**
-     * @return true, if warnings should be treated as error
+     * @return true if warnings should be treated as error
      */
     public boolean warningsAsError() { return cmd.hasOption(COMMAND_WARNING_AS_ERRORS); }
 
     /**
-     * @return true, if the stacktrace of exceptions should be printed
+     * @return true if the stacktrace of exceptions should be printed
      */
     public boolean printStacktrace() { return cmd.hasOption(COMMAND_PRINT_STACKTRACE); }
 
@@ -72,7 +78,7 @@ public class CommandLineOptions {
      */
     public void resolveColorOutput() {
         //don't print warning message, because may first want to set a color mode
-        String option = hasMoreThanOneOption(false, COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
+        String option = getActiveOption(false, COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
         if (Objects.isNull(option)) return;
         switch (option) {
             case COMMAND_PRINT_NO_COLOR -> OutputMessageHandler.useNoColors();
@@ -81,7 +87,7 @@ public class CommandLineOptions {
             case COMMAND_PRINT_TRUE_COLOR -> OutputMessageHandler.use24BitColors();
         }
         // Now if we have a warning, we will print it
-        hasMoreThanOneOption(COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
+        getActiveOption(COMMAND_PRINT_NO_COLOR, COMMAND_PRINT_ANSI_COLOR, COMMAND_PRINT_8BIT_COLOR, COMMAND_PRINT_TRUE_COLOR);
     }
 
     /**
@@ -150,22 +156,24 @@ public class CommandLineOptions {
      * @param options The options to check
      * @return The active option, if there is only one; null if there are multiple
      */
-    private String hasMoreThanOneOption(boolean printError, String... options) {
+    private String getActiveOption(boolean printError, String... options) {
         List<String> active = new LinkedList<>();
         for(String option : options) {
             if (cmd.hasOption(option)) {
                 active.add(option);
             }
         }
-        if (active.size() > 1 && printError) {
+        if (printError && active.size() > 1) {
             StringBuilder sb = new StringBuilder();
-            sb.append("Following Options are overriding each other:\n");
+            sb.append("More than one option:\n");
             for (String option : active) {
                 sb.append("  --" + option + "\n");
             }
-            sb.append("option: --" + active.get(0) + " is used as configuration.");
+
             new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
                     .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
+
+
         }
         return active.size() == 0 ? null : active.get(0);
     }
@@ -175,7 +183,7 @@ public class CommandLineOptions {
      * @param options The options to check
      * @return The active option, if there is only one; null if there are multiple
      */
-    private String hasMoreThanOneOption(String... options) {
-        return hasMoreThanOneOption(true, options);
+    private String getActiveOption(String... options) {
+        return getActiveOption(true, options);
     }
 }
