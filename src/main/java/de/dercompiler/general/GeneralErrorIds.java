@@ -6,6 +6,7 @@ import de.dercompiler.io.message.IErrorIds;
  * The ErrorIds for general use and no specific location inside the program
  */
 public enum GeneralErrorIds implements IErrorIds {
+    DO_NOT_USE_RESERVED_FOR_INTERNAL_ERROR(1),
 
     FILE_NOT_FOUND(100),
     IO_EXCEPTION(110),
