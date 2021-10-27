@@ -1,6 +1,8 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.type.BasicType;
+import de.dercompiler.ast.type.Type;
+import de.dercompiler.ast.type.TypeRest;
 
 public abstract sealed class ASTNode
         permits Program, ClassDeclaration, ClassMember, Field, MainMethod, Method, MethodRest,

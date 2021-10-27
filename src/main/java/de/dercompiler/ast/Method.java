@@ -1,8 +1,8 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.lexer.token.IdentifierToken;
+import de.dercompiler.ast.type.Type;
 
-public final class Method {
+public final class Method extends ClassMember {
     // INFO: parameters and methodRest may be null
     public Method(Type type, String identifier, Parameters parameters, MethodRest rest, Block block) {
         
