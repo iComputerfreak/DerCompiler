@@ -46,16 +46,6 @@ public class Lexer {
             } else if (Character.isDigit(currentChar)) {
                 token = this.lexInteger();
                 readNext = false;
-            } else if (currentChar == '/') {
-                readCharacter();
-                readNext = false;
-                if (currentChar == '*') {
-                    readCharacter();
-                    this.skipComment();
-                    continue;
-                } else {
-                    token = this.lexSymbolSequence('/');
-                }
             } else {
                 readNext = false;
                 token = this.lexSymbolSequence(currentChar);
@@ -494,13 +484,18 @@ public class Lexer {
                 return Token.DOT;
 
             case '/':
-                // / or /=, but not /*
+                // /, /= or /*
                 readCharacter();
-                if (currentChar == '=') {
-                    readCharacter();
-                    return Token.DIV_SHORT;
-                } else {
-                    return Token.SLASH;
+                switch (currentChar) {
+                    case '=':
+                        readCharacter();
+                        return Token.DIV_SHORT;
+                    case '*':
+                        readCharacter();
+                        this.skipComment();
+                        return null;
+                    default:
+                        return Token.SLASH;
                 }
 
             case ':':

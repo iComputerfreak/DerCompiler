@@ -58,7 +58,6 @@ public class CompilerSetup {
 
         if (options.lexTest()) {
             File input = options.getFileArgument();
-            System.out.println(input);
             setAction(new LexTestAction(input));
         }
 
