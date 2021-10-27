@@ -3,6 +3,7 @@ package de.dercompiler.general;
 import de.dercompiler.actions.Action;
 import de.dercompiler.actions.CompileAction;
 import de.dercompiler.actions.EchoAction;
+import de.dercompiler.actions.LexTestAction;
 import de.dercompiler.io.CommandLineOptions;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -57,7 +58,8 @@ public class CompilerSetup {
 
         if (options.lexTest()) {
             File input = options.getFileArgument();
-            setAction(new EchoAction(input));
+            System.out.println(input);
+            setAction(new LexTestAction(input));
         }
 
         if (Objects.isNull(action)) {
