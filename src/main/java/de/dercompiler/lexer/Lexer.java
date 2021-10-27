@@ -28,7 +28,6 @@ public class Lexer {
         this.position = new Position();
 
         readCharacter();
-        lex();
     }
 
     private void lex() {
@@ -46,6 +45,7 @@ public class Lexer {
                 readNext = false;
             } else if (Character.isDigit(currentChar)) {
                 token = this.lexInteger();
+                readNext = false;
             } else if (currentChar == '/') {
                 readCharacter();
                 readNext = false;
@@ -670,8 +670,8 @@ public class Lexer {
     }
 
     public IToken nextToken() {
-        IToken res = tokenBuffer.pop();
         this.lex();
+        IToken res = tokenBuffer.pop();
         return res;
     }
 
