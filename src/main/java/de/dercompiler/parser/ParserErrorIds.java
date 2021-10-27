@@ -4,6 +4,8 @@ import de.dercompiler.io.message.IErrorIds;
 
 public enum ParserErrorIds implements IErrorIds {
     TODO(300),
+
+    UNSUPPORTED_OPERATOR_TOKEN(500),
     
     ;
 

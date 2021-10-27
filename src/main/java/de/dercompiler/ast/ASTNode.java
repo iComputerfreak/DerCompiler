@@ -1,10 +1,9 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.expression.AbstractExpression;
 
 public abstract sealed class ASTNode
-        permits Program, ClassDeclaration, ClassMember, Field, MainMethod, Method, MethodRest,
-                Parameters, ParametersRest, Parameter, Type, TypeRest, BasicType, Statement, Block, BlockStatement,
+        permits Statement, Block, BlockStatement,
                 LocalVariableDeclarationStatement, EmptyStatement, WhileStatement, IfStatement, ExpressionStatement,
-                ReturnStatement, PostfixOp, MethodInvocation, FieldAccess, ArrayAccess, Arguments {
+                ReturnStatement, Arguments {
 }

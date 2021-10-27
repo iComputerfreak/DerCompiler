@@ -57,6 +57,13 @@ public enum Token implements IToken {
     WHILE("while"),
 
     // operators and separators
+    //*****************************************************//
+    //    DON'T MOVE ANY OPERATOR OUTSIDE AND KEEP ASSIGN  //
+    //           AND XOR AS FIRST AND LAST ELEMENT!        //
+    //*****************************************************//
+    //otherwise you have to fix Function in PrecedenceParser: expectOperatorToken()
+
+    ASSIGN("="), EQUAL("=="),
     NOT_EQUAL("!="), NOT("!"),
     PLUS("+"), ADD_SHORT("+="), INCREMENT("++"),
     MINUS("-"), SUB_SHORT("-="), DECREMENT("--"),
@@ -64,24 +71,30 @@ public enum Token implements IToken {
     SLASH("/"), DIV_SHORT("/="),
     MODULO_SHORT("%="), PERCENT_SIGN("%"),
 
-    DOT("."), COMMA(","),
-    COLON(":"), SEMICOLON(";"),
-    QUESTION_MARK("?"),
-
     L_SHIFT_SHORT("<<="), L_SHIFT("<<"),
     LESS_THAN_EQUAL("<="), LESS_THAN("<"),
-    EQUAL("=="), ASSIGN("="),
     GREATER_THAN_EQUAL(">="), R_SHIFT_SHORT(">>="),
     R_SHIFT_LOGICAL_SHORT(">>>="), R_SHIFT_LOGICAL(">>>"),
     R_SHIFT(">>"), GREATER_THAN(">"),
 
     OR_SHORT("|="), OR_LAZY("||"), BAR("|"),
     AND_SHORT("&="), AND_LAZY("&&"), AMPERSAND("&"),
+    NOT_LOGICAL("~"),
+
     XOR_SHORT("^="), XOR("^"),
+
+    //*****************************************************//
+    //    DON'T MOVE ANY OPERATOR OUTSIDE AND KEEP ASSIGN  //
+    //           AND XOR AS FIRST AND LAST ELEMENT!        //
+    //*****************************************************//
+
+    DOT("."), COMMA(","),
+    COLON(":"), SEMICOLON(";"),
+    QUESTION_MARK("?"),
 
     L_PAREN("("), R_PAREN(")"),
     L_SQUARE_BRACKET("["), R_SQUARE_BRACKET("]"),
-    L_CURLY_BRACKET("{"), R_CURLY_BRACKET("}"), NOT_LOGICAL("~"),
+    L_CURLY_BRACKET("{"), R_CURLY_BRACKET("}"),
 
     EOF("EOF");
 
