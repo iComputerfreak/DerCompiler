@@ -21,6 +21,10 @@ public class IdentifierToken implements IToken {
         }
         return token;
     }
+    
+    public String getIdentifier() {
+        return this.identifier;
+    }
 
     @Override
     public String toString() {
