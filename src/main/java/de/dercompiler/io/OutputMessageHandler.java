@@ -47,7 +47,7 @@ public final class OutputMessageHandler {
 
     private final boolean printStackTrace;
 
-    private static boolean debug_mode;
+    private static boolean debug_mode = false;
     private static List<DebugEvent> debugEvents = new LinkedList<DebugEvent>();
 
     /**
