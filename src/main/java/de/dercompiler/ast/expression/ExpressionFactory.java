@@ -1,6 +1,5 @@
 package de.dercompiler.ast.expression;
 
-import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.token.Token;
 
@@ -19,7 +18,7 @@ public class ExpressionFactory {
                 case GREATER_THAN -> new GreaterExpression(lhs, rhs);
                 case GREATER_THAN_EQUAL -> new GreaterEqualExpression(lhs, rhs);
                 case PLUS -> new AddExpression(lhs, rhs);
-                //in case your wonder, where NegativeExpression is created, look in Parser.parseUnaryExp
+                //in case your wonder, were NegativeExpression is created, look in Parser.parseUnaryExp
                 case MINUS -> new SubtractExpression(lhs, rhs);
                 case STAR -> new MultiplyExpression(lhs, rhs);
                 case SLASH -> new DivisionExpression(lhs, rhs);

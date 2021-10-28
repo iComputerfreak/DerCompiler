@@ -1,9 +1,7 @@
 package de.dercompiler.ast;
 
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.statement.Statement;
 
-public abstract sealed class ASTNode
-        permits Statement, Block, BlockStatement,
-                LocalVariableDeclarationStatement, EmptyStatement, WhileStatement, IfStatement, ExpressionStatement,
-                ReturnStatement, Arguments {
+public interface ASTNode {
 }
