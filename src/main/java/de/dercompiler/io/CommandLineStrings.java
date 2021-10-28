@@ -28,6 +28,9 @@ public class CommandLineStrings {
     public static final String COMMAND_PRINT_8BIT_COLOR = "8bit-color";
     public static final String COMMAND_PRINT_TRUE_COLOR = "true-color";
 
+    // Options
+    public static final String OPTION_LEX_STRING = "lex-string";
+    public static final String OPTION_LEX_STRING_SHORT = "s";
 
     // Descriptions
     public static final String DESCRIPTION_ECHO = "Prints the content of the file";
@@ -42,4 +45,6 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_ANSI_COLOR = "Classic 16-bit color output";
     public static final String DESCRIPTION_PRINT_8BIT_COLOR = "8-bit color output";
     public static final String DESCRIPTION_PRINT_TRUE_COLOR = "True color output";
+
+    public static final String DESCRIPTION_LEX_STRING = "Lexes a String instead of a file";
 }

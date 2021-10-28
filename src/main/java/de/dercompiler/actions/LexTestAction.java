@@ -5,24 +5,25 @@ import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.token.Token;
 
 import java.io.File;
+import java.io.Reader;
 
 public class LexTestAction extends Action {
 
     public static final String HELP_TEXT = "--lexTest <file>: Generates a sequence of tokens out of the file and prints it to the console.";
     public static final String COMMAND_LINE_NAME = "lexTest";
-    private File input;
+    private Reader reader;
 
     /**
      * Creates a new LexTestAction with the given input file
-     * @param input The file to lex
+     * @param reader The input reader to read characters from
      */
-    public LexTestAction(File input) {
-        this.input = input;
+    public LexTestAction(Reader reader) {
+        this.reader = reader;
     }
 
     @Override
     public void run() {
-        Lexer lexer = new Lexer(this.input);
+        Lexer lexer = new Lexer(this.reader);
         IToken token;
         do {
             token = lexer.nextToken();

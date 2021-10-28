@@ -7,23 +7,21 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.*;
 import de.dercompiler.util.RingBuffer;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 
 public class Lexer {
 
     private static final int SLL_CONSTANT = 4;
     private final RingBuffer<IToken> tokenBuffer;
-    private FileReader reader;
+    private Reader reader;
 
     private final Position position;
     // FileReader.read() returns -1 for EOF, so char is not suitable
     private int currentChar;
 
-    public Lexer(File input) {
-        this.open(input);
+    public Lexer(Reader reader) {
+        this.reader = reader;
         this.tokenBuffer = new RingBuffer<>(SLL_CONSTANT);
         this.position = new Position();
 
@@ -756,12 +754,17 @@ public class Lexer {
         return this.position;
     }
 
-    private void open(File input) {
+    public static Lexer forFile(File file) {
         try {
-            this.reader = new FileReader(input);
-        } catch (IOException e) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
+            return new Lexer(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Could not lex file: file not found or not readable.");
         }
+        return null;
+    }
+
+    public static Lexer forString(String input) {
+        return new Lexer(new StringReader(input));
     }
 
     private class Position {
