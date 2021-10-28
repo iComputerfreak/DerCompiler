@@ -470,7 +470,7 @@ public class Lexer {
                     case '=':
                         readCharacter();
                         return Token.SUB_SHORT;
-                    case '+':
+                    case '-':
                         readCharacter();
                         return Token.DECREMENT;
                     default:
