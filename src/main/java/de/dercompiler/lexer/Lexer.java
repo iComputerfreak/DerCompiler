@@ -670,6 +670,10 @@ public class Lexer {
         return tokenBuffer.peek(lookAhead);
     }
 
+    public TokenOccurrence peek(){
+        return tokenBuffer.peek();
+    }
+
     private void push(TokenOccurrence token) {
         tokenBuffer.push(token);
     }
