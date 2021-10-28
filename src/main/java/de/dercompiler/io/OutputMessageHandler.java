@@ -6,6 +6,8 @@ import java.awt.*;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,6 +36,7 @@ public final class OutputMessageHandler {
     private final String ident;
     private final int idPrefix;
 
+    private final MessageOrigin origin;
     private final Color textColor;
     private final Color infoColor;
     private final Color warningColor;
@@ -44,6 +47,9 @@ public final class OutputMessageHandler {
 
     private final boolean printStackTrace;
 
+    private static boolean debug_mode;
+    private static List<DebugEvent> debugEvents = new LinkedList<DebugEvent>();
+
     /**
      * Creates a new OutputMessageHandler with the given origin and stream
      *
@@ -51,6 +57,7 @@ public final class OutputMessageHandler {
      * @param stream The stream to write messages to
      */
     public OutputMessageHandler(MessageOrigin origin, PrintStream stream) {
+        this.origin = origin;
         ident = origin.getIdentifier();
         textColor = origin.getTextColor();
         infoColor = origin.getInfoColor();
@@ -164,7 +171,11 @@ public final class OutputMessageHandler {
      */
     public void printErrorAndExit(IErrorIds id, String errorMessage) {
         printErrorAndContinue(id, errorMessage);
-        System.exit(-idPrefix - id.getId());
+        if (debug_mode) {
+            debugEvents.add(new DebugEvent(origin, id, errorMessage));
+        } else {
+            System.exit(-idPrefix - id.getId());
+        }
     }
 
     /**
@@ -186,7 +197,11 @@ public final class OutputMessageHandler {
      */
     public void printErrorAndExit(IErrorIds id, String errorMessage, Exception e) {
         printErrorAndContinue(id, errorMessage, e);
-        System.exit(-idPrefix - id.getId());
+        if (debug_mode) {
+            debugEvents.add(new DebugEvent(origin, id, errorMessage));
+        } else {
+            System.exit(-idPrefix - id.getId());
+        }
     }
 
     /**
@@ -281,5 +296,20 @@ public final class OutputMessageHandler {
      */
     public static void setPrintStackTrace(boolean print) {
         globalPrintStackTrace = print;
+    }
+
+
+    //debug
+
+    public static void setDebug() {
+        debug_mode = true;
+    }
+
+    public static List<DebugEvent> getEvents() {
+        return debugEvents;
+    }
+
+    public static void clearDebugEvents() {
+        debugEvents.clear();
     }
 }
