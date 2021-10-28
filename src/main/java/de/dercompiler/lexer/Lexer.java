@@ -75,66 +75,80 @@ public class Lexer {
     private IToken lexIdOrKeyword() {
         switch (currentChar) {
             case 'a':
-                // abstract or assert
                 readCharacter();
+                // a.bstract | a.ssert
                 switch (currentChar) {
                     case 'b':
                         readCharacter();
+                        // ab.stract
                         return compareSuffix(Token.ABSTRACT, 2);
                     case 's':
                         readCharacter();
+                        // as.sert
                         return compareSuffix(Token.ASSERT, 2);
                     default:
                         return parseId("a");
                 }
             case 'b':
-                // boolean, break or byte
                 readCharacter();
+                // b.oolean | b.reak | b.yte
                 switch (currentChar) {
                     case 'o':
                         readCharacter();
+                        // bo.olean
                         return compareSuffix(Token.BOOLEAN_TYPE, 2);
                     case 'r':
                         readCharacter();
+                        // br.eak;
                         return compareSuffix(Token.BREAK, 2);
                     case 'y':
                         readCharacter();
+                        // by.te
                         return compareSuffix(Token.BYTE_TYPE, 2);
                     default:
                         return parseId("b");
                 }
             case 'c':
-                // case, catch, char, class, const or continue
+                // c.ase | c.atch | c.har | c.lass | c.onst | c.ontinue
                 readCharacter();
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // ca.se | ca.tch
                         switch (currentChar) {
                             case 's':
                                 readCharacter();
+                                // cas.e
                                 return compareSuffix(Token.CASE, 3);
                             case 't':
                                 readCharacter();
+                                // cat.ch
                                 return compareSuffix(Token.CATCH, 3);
                             default:
                                 return parseId("ca");
                         }
                     case 'h':
                         readCharacter();
+                        // ch.ar
                         return compareSuffix(Token.CHARACTER_TYPE, 2);
                     case 'l':
                         readCharacter();
+                        // cl.ass
                         return compareSuffix(Token.CLASS, 2);
                     case 'o':
                         readCharacter();
+                        // co.nst | co.ntinue
                         if (currentChar == 'n') {
                             readCharacter();
+                            // con.st | con.tinue
                             switch (currentChar) {
                                 case 's':
                                     readCharacter();
+                                    // cons.t
                                     return compareSuffix(Token.CONST, 4);
                                 case 't':
                                     readCharacter();
+                                    // cont.inue
                                     return compareSuffix(Token.CONTINUE, 4);
                                 default:
                                     return parseId("con");
@@ -145,12 +159,15 @@ public class Lexer {
                 }
             case 'd':
                 readCharacter();
+                // d.efault | d.o | d.ouble
                 switch (currentChar) {
                     case 'e':
                         readCharacter();
+                        // de.fault
                         return compareSuffix(Token.DEFAULT, 2);
                     case 'o':
                         readCharacter();
+                        // do. | do.uble
                         if (!isIdentifierChar(currentChar)) {
                             readCharacter();
                             return Token.DO;
@@ -160,27 +177,34 @@ public class Lexer {
                 }
             case 'e':
                 readCharacter();
+                // e.lse | e.num | e.xtends
                 switch (currentChar) {
                     case 'l':
                         readCharacter();
+                        // el.se
                         return compareSuffix(Token.ELSE, 2);
                     case 'n':
                         readCharacter();
+                        // en.um
                         return compareSuffix(Token.ENUM, 2);
                     case 'x':
                         readCharacter();
+                        // ex.tends
                         return compareSuffix(Token.EXTENDS, 2);
                     default:
                         return parseId("e");
                 }
             case 'f':
                 readCharacter();
+                // f.alse | f.inal | f.inally | f.loat | f.or
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // fa.lse
                         return compareSuffix(Token.FALSE, 2);
                     case 'i':
                         readCharacter();
+                        // fi.nal | fi.nally
                         char[] chars = {'n', 'a', 'l'};
                         for (int i = 0; i < 3; i++) {
                             if (currentChar != chars[i]) {
@@ -188,14 +212,16 @@ public class Lexer {
                             }
                             readCharacter();
                         }
-                        //final or finally
+                        // final. | final.ly
                         if (!isIdentifierChar(currentChar)) return Token.FINAL;
                         else return compareSuffix(Token.FINALLY, 5);
                     case 'l':
                         readCharacter();
+                        // fl.oat
                         return compareSuffix(Token.FLOAT_TYPE, 2);
                     case 'o':
                         readCharacter();
+                        // fo.r
                         return compareSuffix(Token.FOR, 2);
                     default:
                         return parseId("f");
@@ -203,18 +229,23 @@ public class Lexer {
 
             case 'g':
                 readCharacter();
+                // g.oto
                 return compareSuffix(Token.GOTO, 1);
             case 'i':
                 readCharacter();
+                // i.f | i.mplements | i.mport
                 switch (currentChar) {
                     case 'f':
                         readCharacter();
+                        // if.
                         if (!isIdentifierChar(currentChar)) return Token.IF;
                         else return parseId("if");
                     case 'm':
                         readCharacter();
+                        // im.plements | im.port
                         if (currentChar != 'p') return parseId("im");
                         readCharacter();
+                        //imp.lements | imp.ort
                         switch (currentChar) {
                             case 'l':
                                 readCharacter();
@@ -227,12 +258,15 @@ public class Lexer {
                         }
                     case 'n':
                         readCharacter();
+                        // in.stanceof | in.t | in.terface
                         switch (currentChar) {
                             case 's':
                                 readCharacter();
+                                // ins.tanceof
                                 return compareSuffix(Token.INSTANCE_OF, 3);
                             case 't':
                                 readCharacter();
+                                // int. | int.erface
                                 if (!isIdentifierChar(currentChar)) {
                                     return Token.INT_TYPE;
                                 } else {
@@ -246,90 +280,114 @@ public class Lexer {
                 }
             case 'l':
                 readCharacter();
+                // l.ong
                 return compareSuffix(Token.LONG_TYPE, 1);
             case 'n':
                 readCharacter();
+                // n.ative | n.ew | n.ull
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // na.tive
                         return compareSuffix(Token.NATIVE, 2);
                     case 'e':
                         readCharacter();
+                        // ne.w
                         return compareSuffix(Token.NEW, 2);
                     case 'u':
                         readCharacter();
+                        // nu.ll
                         return compareSuffix(Token.NULL, 2);
                     default:
                         return parseId("n");
                 }
             case 'p':
                 readCharacter();
+                // p.ackage | p.rivate | p.rotected | p.ublic
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // p.ackage
                         return compareSuffix(Token.PACKAGE, 2);
                     case 'r':
                         readCharacter();
+                        // pr.ivate | pr.otected
                         switch (currentChar) {
                             case 'i':
                                 readCharacter();
+                                // pri.vate
                                 return compareSuffix(Token.PRIVATE, 3);
                             case 'o':
                                 readCharacter();
+                                //pro.tected
                                 return compareSuffix(Token.PROTECTED, 3);
                             default:
                                 return parseId("pr");
                         }
                     case 'u':
                         readCharacter();
+                        // pu.blic
                         return compareSuffix(Token.PUBLIC, 2);
                     default:
                         parseId("p");
                 }
             case 'r':
                 readCharacter();
+                // r.eturn
                 return compareSuffix(Token.RETURN, 1);
             case 's':
                 readCharacter();
+                // s.hort | s.tatic | s.trictfp | s.uper | s.witch | s.ynchronized
                 switch (currentChar) {
                     case 'h':
                         readCharacter();
+                        // sh.ort
                         return compareSuffix(Token.SHORT_TYPE, 2);
                     case 't':
                         readCharacter();
+                        // st.atic | st.rictfp
                         switch (currentChar) {
                             case 'a':
                                 readCharacter();
+                                // sta.tic
                                 return compareSuffix(Token.STATIC, 3);
                             case 'r':
                                 readCharacter();
+                                // str.ictfp
                                 return compareSuffix(Token.STRICTFP, 3);
                             default:
                                 return parseId("st");
                         }
                     case 'u':
                         readCharacter();
+                        // su.per
                         return compareSuffix(Token.SUPER, 2);
                     case 'w':
                         readCharacter();
+                        // sw.itch
                         return compareSuffix(Token.SWITCH, 2);
                     case 'y':
                         readCharacter();
+                        // sy.nchronized
                         return compareSuffix(Token.SYNCHRONIZED, 2);
                     default:
                         return parseId("s");
                 }
             case 't':
                 readCharacter();
+                // t.his | t.hrow | t.hrows | t.ransient | t.rue | t.ry
                 switch (currentChar) {
                     case 'h':
                         readCharacter();
+                        // th.is | th.row | th.rows
                         switch (currentChar) {
                             case 'i':
                                 readCharacter();
+                                // thi.s
                                 return compareSuffix(Token.THIS, 3);
                             case 'r':
                                 readCharacter();
+                                // thr.ow | thr.ows
                                 char[] chars = {'o', 'w'};
                                 for (int i = 0; i < chars.length; i++) {
                                     if (currentChar != chars[i]) {
@@ -337,7 +395,7 @@ public class Lexer {
                                     }
                                     readCharacter();
                                 }
-                                // throw or throws
+                                // throw. | throw.s
                                 if (!isIdentifierChar(currentChar)) return Token.THROW;
                                 else return compareSuffix(Token.THROWS, 5);
                             default:
@@ -345,15 +403,19 @@ public class Lexer {
                         }
                     case 'r':
                         readCharacter();
+                        // tr.ansient | tr.ue | tr.y
                         switch (currentChar) {
                             case 'a':
                                 readCharacter();
+                                // tra.nsient
                                 return compareSuffix(Token.TRANSIENT, 3);
                             case 'u':
                                 readCharacter();
+                                // tru.e
                                 return compareSuffix(Token.TRUE, 3);
                             case 'y':
                                 readCharacter();
+                                // try.
                                 return compareSuffix(Token.TRY, 3);
                             default:
                                 return parseId("tr");
@@ -363,20 +425,25 @@ public class Lexer {
                 }
             case 'v':
                 readCharacter();
+                // v.oid | v.olatile
                 if (currentChar != 'o') return parseId("v");
                 readCharacter();
+                // vo.id | vo.latile
                 switch (currentChar) {
                     case 'i':
                         readCharacter();
+                        // voi.d
                         return compareSuffix(Token.VOID, 3);
                     case 'l':
                         readCharacter();
+                        // vol.atile
                         return compareSuffix(Token.VOLATILE, 3);
                     default:
                         return parseId("vo");
                 }
             case 'w':
                 readCharacter();
+                // w.hile
                 return compareSuffix(Token.WHILE, 1);
             default:
                 return parseId("");
@@ -421,8 +488,8 @@ public class Lexer {
     private IToken lexSymbolSequence(int prefix) {
         switch (prefix) {
             case '!':
-                // ! or !=
                 readCharacter();
+                // !. | !.=
                 if (currentChar == '=') {
                     readCharacter();
                     return Token.NOT_EQUAL;
@@ -438,8 +505,8 @@ public class Lexer {
                 return Token.R_PAREN;
 
             case '*':
-                // * or *=
                 readCharacter();
+                // *. | *.=
                 if (currentChar == '=') {
                     readCharacter();
                     return Token.MULT_SHORT;
@@ -448,8 +515,8 @@ public class Lexer {
                 }
 
             case '+':
-                // +, ++ or +=
                 readCharacter();
+                // +. | +.+ | +.=
                 switch (currentChar) {
                     case '=':
                         readCharacter();
@@ -466,7 +533,7 @@ public class Lexer {
                 return Token.COMMA;
 
             case '-':
-                // -, -= or --
+                // -. | -.= | -.-
                 readCharacter();
                 switch (currentChar) {
                     case '=':
@@ -484,7 +551,7 @@ public class Lexer {
                 return Token.DOT;
 
             case '/':
-                // /, /= or /*
+                // /. | /.= | /.*
                 readCharacter();
                 switch (currentChar) {
                     case '=':
@@ -507,11 +574,12 @@ public class Lexer {
                 return Token.SEMICOLON;
 
             case '<':
-                // <, <=, << or <<=
+                // <. | <.= | <.< | <.<=
                 readCharacter();
                 switch (currentChar) {
                     case '<':
                         readCharacter();
+                        // <<. | <<.=
                         if (currentChar == '=') {
                             readCharacter();
                             return Token.L_SHIFT_SHORT;
@@ -525,7 +593,7 @@ public class Lexer {
                 }
 
             case '=':
-                // = or ==
+                // =. | =.=
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
@@ -535,17 +603,19 @@ public class Lexer {
                 }
 
             case '>':
-                // >, >=, >>, >>=, >>> or >>>==
                 readCharacter();
+                // >. | >.= | >.> | >.>= | >.>> | >.>>==
                 switch (currentChar) {
                     case '>':
                         readCharacter();
+                        // >>. | >>.= | >>.> | >>.>=
                         switch (currentChar) {
                             case '=':
                                 readCharacter();
                                 return Token.R_SHIFT_SHORT;
                             case '>':
                                 readCharacter();
+                                // >>>. | >>>.=
                                 if (currentChar == '=') {
                                     readCharacter();
                                     return Token.R_SHIFT_LOGICAL_SHORT;
@@ -567,7 +637,7 @@ public class Lexer {
                 return Token.QUESTION_MARK;
 
             case '%':
-                // % or %=
+                // %. | %.=
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
@@ -576,7 +646,7 @@ public class Lexer {
                     return Token.PERCENT_SIGN;
                 }
             case '&':
-                // &, && or &=
+                // &. | &.& | &.=
                 readCharacter();
                 switch (currentChar) {
                     case '&':
@@ -596,7 +666,7 @@ public class Lexer {
                 return Token.R_SQUARE_BRACKET;
 
             case '^':
-                // ^ or ^=
+                // ^ | ^.=
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
@@ -616,7 +686,7 @@ public class Lexer {
                 return Token.NOT_LOGICAL;
 
             case '|':
-                // |, || or |=
+                // |. - |.| - |.=
                 readCharacter();
                 switch (currentChar) {
                     case '|':
@@ -672,6 +742,10 @@ public class Lexer {
 
     public IToken peek(int lookAhead) {
         return tokenBuffer.peek(lookAhead);
+    }
+
+    public IToken peek() {
+        return tokenBuffer.peek(0);
     }
 
     private void push(IToken token) {
