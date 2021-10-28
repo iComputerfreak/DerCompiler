@@ -1,8 +1,11 @@
 package de.dercompiler.ast.expression;
 
-public final class NewObjectExpression extends UnaryExpression {
+import de.dercompiler.ast.type.CustomType;
 
-    public NewObjectExpression(AbstractExpression encapsulated) {
-        super(encapsulated);
+public final class NewObjectExpression extends PrimaryExpression {
+
+    private CustomType type;
+    public NewObjectExpression(CustomType type) {
+        this.type = type;
     }
 }

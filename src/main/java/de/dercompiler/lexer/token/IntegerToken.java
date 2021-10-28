@@ -1,6 +1,6 @@
 package de.dercompiler.lexer.token;
 
-public class IntegerToken implements IToken {
+public final class IntegerToken implements IToken {
     private int value;
 
     public IntegerToken(int value) {
@@ -10,5 +10,9 @@ public class IntegerToken implements IToken {
     @Override
     public String toString() {
         return "integer literal %d".formatted(value);
+    }
+
+    public int getValue() {
+        return value;
     }
 }

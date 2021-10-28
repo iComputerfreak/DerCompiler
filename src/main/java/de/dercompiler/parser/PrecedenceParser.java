@@ -11,8 +11,8 @@ import java.util.Objects;
 
 public class PrecedenceParser {
 
-    Lexer lexer;
-    Parser parser;
+    private Lexer lexer;
+    private Parser parser;
 
     public PrecedenceParser(Lexer lexer, Parser parser) {
         this.lexer = lexer;
@@ -42,7 +42,7 @@ public class PrecedenceParser {
 
     private AbstractExpression parseExpression(int minPrec) {
 
-        AbstractExpression result = parser.parseUnaryExp();
+        AbstractExpression result = parser.parseUnaryExpression();
         IToken token = expectOperatorToken();
         int prec;
         while (!Objects.isNull(token) && (prec = precedenceOfOperation(token)) >= minPrec) {

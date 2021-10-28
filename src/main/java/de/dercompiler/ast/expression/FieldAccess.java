@@ -2,7 +2,9 @@ package de.dercompiler.ast.expression;
 
 public final class FieldAccess extends PostfixExpression {
 
-    public FieldAccess(AbstractExpression encapsulated) {
+    String fieldName;
+    public FieldAccess(AbstractExpression encapsulated, String fieldName) {
         super(encapsulated);
+        this.fieldName = fieldName;
     }
 }

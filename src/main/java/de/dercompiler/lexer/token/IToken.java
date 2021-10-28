@@ -1,6 +1,6 @@
 package de.dercompiler.lexer.token;
 
-public interface IToken {
+public sealed interface IToken permits ErrorToken, IdentifierToken, IntegerToken, Token {
 
     public String toString();
 

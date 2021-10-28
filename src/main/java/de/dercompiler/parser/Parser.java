@@ -1,16 +1,17 @@
 package de.dercompiler.parser;
 
 import de.dercompiler.ast.*;
-import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.type.BasicType;
+import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.ast.type.TypeRest;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
-import de.dercompiler.lexer.LexerErrorIds;
 import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.token.IdentifierToken;
+import de.dercompiler.lexer.token.IntegerToken;
 import de.dercompiler.lexer.token.Token;
 
 import java.util.ArrayList;
@@ -157,8 +158,183 @@ public class Parser {
         return null;
     }
 
-    public AbstractExpression parseUnaryExp() {
-        return null;
+    public AbstractExpression parseExpression() {
+        return precedenceParser.parseExpression();
+    }
+
+    public AbstractExpression parseUnaryExpression() {
+        IToken token = lexer.nextToken();
+        if (nextIsPrimary(lexer.peek(0))) {
+            return parsePrimaryExpression();
+        }
+        if (token instanceof Token t) {
+            switch (t) {
+                case QUESTION_MARK: {
+                    lexer.nextToken();
+                    return new LogicalNotExpression(parseUnaryExpression());
+                }
+                case MINUS: {
+                    lexer.nextToken();
+                    return new NegativeExpression(parseUnaryExpression());
+                }
+            }
+        }
+        logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation!");
+        return new ErrorExpression();
+    }
+
+    public AbstractExpression parsePostfixExpression() {
+        AbstractExpression expression = parsePrimaryExpression();
+        IToken token;
+        while ((token = lexer.peek(0)) instanceof Token t) {
+            switch (t) {
+                case DOT: {
+                    if(lexer.peek(2) instanceof Token t2 && t2 == L_PAREN) {
+                        expression = parseMethodInvocation(expression);
+                    } else {
+                        expression = parseFieldAccess(expression);
+                    }
+                }
+                case L_SQUARE_BRACKET: {
+                    expression = parseFieldAccess(expression);
+                }
+                default: {
+                    return expression;
+                }
+            }
+        }
+        return expression;
+    }
+
+    public AbstractExpression parseMethodInvocation(AbstractExpression expression) {
+        expect(DOT);
+        IdentifierToken ident = expectIdentifier();
+        expect(L_PAREN);
+        Arguments arguments = parseArguments();
+        expect(R_PAREN);
+        return new MethodeInvocationOnObject(expression, arguments);
+    }
+
+    public Arguments parseArguments() {
+        Arguments arguments = new Arguments();
+        IToken token = lexer.peek(0);
+
+        if (token instanceof Token t && t == R_PAREN) return arguments;
+
+        do {
+            arguments.addArgument(parseExpression());
+            if ((token = lexer.peek(0)) instanceof Token t && t != R_PAREN) {
+                expect(COMMA);
+            } else {
+                break;
+            }
+        } while(true);
+        //token is at this point one behind the lexer, if we removed last a comma, we miss at leased one Argument
+        if (token instanceof Token t && t == COMMA) {
+            logger.printErrorAndExit(ParserErrorIds.EXPECTED_ARGUMENT, "Argument expect after Token \",\"!" + lexer.getPosition());
+        }
+        return arguments;
+    }
+
+    public AbstractExpression parseFieldAccess(AbstractExpression expression) {
+        expect(DOT);
+        IdentifierToken ident = expectIdentifier();
+        return new FieldAccess(expression, ident.getIdentifier());
+    }
+
+    public AbstractExpression parseArrayAccess(AbstractExpression expression) {
+        expect(L_SQUARE_BRACKET);
+        AbstractExpression arrayPosition = parseExpression();
+        expect(R_SQUARE_BRACKET);
+        return new ArrayAccess(expression, arrayPosition);
+    }
+
+    private boolean nextIsPrimary(IToken token) {
+        if (token instanceof IntegerToken) return true;
+        if (token instanceof IdentifierToken) return true;
+        if (token instanceof Token t) {
+            return switch (t) {
+                case NULL, FALSE, TRUE, THIS, NEW, L_PAREN -> true;
+                default -> false;
+            };
+        }
+        //this should not be possible, because all instances of IToken are checked
+        return false;
+    }
+
+    public AbstractExpression parsePrimaryExpression() {
+        AbstractExpression expression = new ErrorExpression();
+        IToken token = lexer.peek(0);
+        if (token instanceof IdentifierToken ident) {
+            if (lexer.peek(1) instanceof Token t && t == L_PAREN) {
+                expect(L_PAREN);
+                Arguments arguments = parseArguments();
+                expect(R_PAREN);
+                //we create a ThisValue out of nowhere, because methods only can be invoked on other objects or the own object(this)
+                expression = new MethodeInvocationOnObject(new ThisValue(), arguments);
+            } else {
+                expression = new Variable(ident.getIdentifier());
+            }
+        }
+        if (token instanceof IntegerToken i) {
+            expression = new IntegerValue(i.getValue());
+        }
+        if (token instanceof Token t) {
+            switch(t) {
+                case NULL: {
+                    expression = new NullValue();
+                } break;
+                case FALSE: {
+                    expression = new BooleanValue(false);
+                } break;
+                case TRUE: {
+                    expression = new BooleanValue(true);
+                } break;
+                case THIS: {
+                    expression = new ThisValue();
+                } break;
+                case L_PAREN: {
+                    expect(L_PAREN);
+                    expression = parseExpression();
+                    expect(R_PAREN);
+                } break;
+                case NEW: {
+                    if (lexer.peek(2) instanceof Token t2) {
+                        if (t2 == L_PAREN) {
+                            expression = parseNewObjectExpression();
+                        } else if (t2 == L_SQUARE_BRACKET) {
+                            expression = parseNewArrayExpression();
+                        } else {
+                            logger.printErrorAndExit(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected a object instantiation, in line " + lexer.getPosition() + "!");
+                        }
+                    }
+                }
+                default: {
+                    logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary-type, no primary type starts with token: " + lexer.peek(0) + " in line: " + lexer.getPosition() + "!");
+                }
+            }
+        }
+        return expression;
+    }
+
+    public AbstractExpression parseNewArrayExpression() {
+        expect(NEW);
+        BasicType type = parseBasicType();
+        int dimension = 0;
+        do {
+            expect(L_SQUARE_BRACKET);
+            expect(R_SQUARE_BRACKET);
+            dimension++;
+        } while (lexer.peek(0) == L_SQUARE_BRACKET);
+        return new NewArrayExpression(type, dimension);
+    }
+
+    public AbstractExpression parseNewObjectExpression() {
+        expect(NEW);
+        IdentifierToken ident = expectIdentifier();
+        expect(L_PAREN);
+        expect(R_PAREN);
+        return new NewObjectExpression(new CustomType(ident.getIdentifier()));
     }
 
 }

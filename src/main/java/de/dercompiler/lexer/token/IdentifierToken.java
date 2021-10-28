@@ -2,7 +2,7 @@ package de.dercompiler.lexer.token;
 
 import de.dercompiler.lexer.StringTable;
 
-public class IdentifierToken implements IToken {
+public final class IdentifierToken implements IToken {
     private String identifier;
 
     private IdentifierToken(String identifier) {

@@ -1,8 +1,14 @@
 package de.dercompiler.ast.expression;
 
-public final class NewArrayExpression extends UnaryExpression {
+import de.dercompiler.ast.type.BasicType;
 
-    public NewArrayExpression(AbstractExpression encapsulated) {
-        super(encapsulated);
+public final class NewArrayExpression extends PrimaryExpression {
+
+    private BasicType type;
+    int dimension;
+
+    public NewArrayExpression(BasicType type, int dimension) {
+        this.type = type;
+        this.dimension = dimension;
     }
 }
