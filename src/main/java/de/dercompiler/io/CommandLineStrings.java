@@ -28,6 +28,7 @@ public class CommandLineStrings {
     public static final String COMMAND_PRINT_8BIT_COLOR = "8bit-color";
     public static final String COMMAND_PRINT_TRUE_COLOR = "true-color";
 
+    public static final String OPTION_PRINT_POSITION = "print-position";
 
     // Descriptions
     public static final String DESCRIPTION_ECHO = "Prints the content of the file";
@@ -42,4 +43,6 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_ANSI_COLOR = "Classic 16-bit color output";
     public static final String DESCRIPTION_PRINT_8BIT_COLOR = "8-bit color output";
     public static final String DESCRIPTION_PRINT_TRUE_COLOR = "True color output";
+
+    public static final String DESCRIPTION_PRINT_POSITION = "(--lexTest) Prints the positions of the token occurrences";
 }

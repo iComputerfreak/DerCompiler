@@ -22,6 +22,9 @@ public class CommandLineBuilder {
         options.addOption(new Option(COMMAND_HELP_SHORT, COMMAND_HELP, false, DESCRIPTION_HELP)); // --help, -h
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_WORKING_DIR, true, DESCRIPTION_WORKING_DIR)); // --working-directory
 
+        // options
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_POSITION, false, DESCRIPTION_PRINT_POSITION));
+
         // colors
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_NO_COLOR, false, DESCRIPTION_PRINT_NO_COLOR)); // --no-color
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_ANSI_COLOR, false, DESCRIPTION_PRINT_ANSI_COLOR)); // --ansi-color
