@@ -732,7 +732,7 @@ public class Lexer {
             case -1: return true;
             case 0:
                 long longValue = Long.valueOf(valueString);
-                return MIN_INT <= longValue && longValue <= MAX_INT;
+                return longValue <= -((long) MIN_INT);
             case 1:
             default: return false;
         }
