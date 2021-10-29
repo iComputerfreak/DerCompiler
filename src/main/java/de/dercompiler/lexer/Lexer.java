@@ -585,6 +585,7 @@ public class Lexer {
                             return Token.L_SHIFT;
                         }
                     case '=':
+                        readCharacter();
                         return Token.LESS_THAN_EQUAL;
                     default:
                         return Token.LESS_THAN;
