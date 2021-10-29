@@ -58,8 +58,9 @@ public class CompilerSetup {
 
         if (options.lexTest()) {
             File input = options.getFileArgument();
-            System.out.println(input);
-            setAction(new LexTestAction(input));
+            setAction(new LexTestAction(input, options.printPosition()));
+        } else if (options.printPosition()) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lexText");
         }
 
         if (Objects.isNull(action)) {

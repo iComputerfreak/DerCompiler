@@ -15,7 +15,8 @@ import java.io.IOException;
 public class Lexer {
 
     private static final int SLL_CONSTANT = 4;
-    private final RingBuffer<IToken> tokenBuffer;
+    private final RingBuffer<TokenOccurrence> tokenBuffer;
+
     private FileReader reader;
 
     private final Position position;
@@ -32,37 +33,24 @@ public class Lexer {
 
     private void lex() {
         IToken token = null;
-        boolean readNext = true;
+        Position currentPosition = null;
+
         while (token == null) {
-            readNext = true;
             while (Character.isWhitespace(currentChar)) {
                 readCharacter();
             }
+            currentPosition = getPosition();
             if (currentChar == -1) {
                 token = Token.EOF;
             } else if (Character.isAlphabetic(currentChar) || currentChar == '_') {
                 token = this.lexIdOrKeyword();
-                readNext = false;
             } else if (Character.isDigit(currentChar)) {
                 token = this.lexInteger();
-                readNext = false;
-            } else if (currentChar == '/') {
-                readCharacter();
-                readNext = false;
-                if (currentChar == '*') {
-                    readCharacter();
-                    this.skipComment();
-                    continue;
-                } else {
-                    token = this.lexSymbolSequence('/');
-                }
             } else {
-                readNext = false;
                 token = this.lexSymbolSequence(currentChar);
             }
         }
-        push(token);
-        if (readNext) readCharacter();
+        push(new TokenOccurrence(token, currentPosition));
 
     }
 
@@ -482,7 +470,7 @@ public class Lexer {
                     case '=':
                         readCharacter();
                         return Token.SUB_SHORT;
-                    case '+':
+                    case '-':
                         readCharacter();
                         return Token.DECREMENT;
                     default:
@@ -494,13 +482,18 @@ public class Lexer {
                 return Token.DOT;
 
             case '/':
-                // / or /=, but not /*
+                // /, /= or /*
                 readCharacter();
-                if (currentChar == '=') {
-                    readCharacter();
-                    return Token.DIV_SHORT;
-                } else {
-                    return Token.SLASH;
+                switch (currentChar) {
+                    case '=':
+                        readCharacter();
+                        return Token.DIV_SHORT;
+                    case '*':
+                        readCharacter();
+                        this.skipComment();
+                        return null;
+                    default:
+                        return Token.SLASH;
                 }
 
             case ':':
@@ -647,7 +640,6 @@ public class Lexer {
         }
         String valueString = intBuilder.toString();
         if (valueString.startsWith("0") && valueString.length() > 1) {
-            //TODO: Maybe return special "ErrorToken"
             new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndContinue(LexerErrorIds.INVALID_INTEGER_LITERAL, "Invalid integer literal: starts with 0 but is not 0");
             return new ErrorToken(LexerErrorIds.INVALID_INTEGER_LITERAL);
         }
@@ -669,22 +661,25 @@ public class Lexer {
         }
     }
 
-    public IToken nextToken() {
+    public TokenOccurrence nextToken() {
         this.lex();
-        IToken res = tokenBuffer.pop();
-        return res;
+        return tokenBuffer.pop();
     }
 
-    public IToken peek(int lookAhead) {
+    public TokenOccurrence peek(int lookAhead) {
         return tokenBuffer.peek(lookAhead);
     }
 
-    private void push(IToken token) {
+    public TokenOccurrence peek(){
+        return tokenBuffer.peek();
+    }
+
+    private void push(TokenOccurrence token) {
         tokenBuffer.push(token);
     }
 
     public Position getPosition() {
-        return this.position;
+        return this.position.copy();
     }
 
     private void open(File input) {
@@ -695,22 +690,61 @@ public class Lexer {
         }
     }
 
-    private class Position {
+    static class Position {
         private int line;
         private int column;
 
         Position() {
-            this.line = 0;
+            // after reading first character, position is at 1:1 and from then on it is correct
+            this.line = 1;
             this.column = 0;
+        }
+
+        Position(int line, int column) {
+            this.line = line;
+            this.column = column;
         }
 
         public void newLine() {
             this.line++;
-            this.column = 0;
+            this.column = 1;
         }
 
         public void advance() {
             this.column++;
+        }
+
+        public int getLine() {
+            return line;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+
+        @Override
+        public String toString() {
+            return "%d:%d".formatted(this.line, this.column);
+        }
+
+        public Position copy() {
+            return new ImmutablePosition(this.line, this.column);
+        }
+    }
+
+    static class ImmutablePosition extends Position {
+        ImmutablePosition(int line, int column) {
+            super(line, column);
+        }
+
+        @Override
+        public void advance() {
+            new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("Cannot advance an immutable Position.");
+        }
+
+        @Override
+        public void newLine() {
+            new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("Cannot advance an immutable Position.");
         }
     }
 }
