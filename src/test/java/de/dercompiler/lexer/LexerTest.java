@@ -39,7 +39,7 @@ public class LexerTest {
                     int lineNr = 1;
                     while ((line = reader.readLine()) != null) {
                         // The next lexer token has to match the output line
-                        IToken t = l.nextToken();
+                        IToken t = l.nextToken().type();
                         assertEquals(line, t.toString(), "in line " + lineNr);
                         lineNr += 1;
                     }

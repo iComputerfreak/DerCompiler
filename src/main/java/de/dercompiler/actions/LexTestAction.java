@@ -1,7 +1,7 @@
 package de.dercompiler.actions;
 
 import de.dercompiler.lexer.Lexer;
-import de.dercompiler.lexer.token.IToken;
+import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.Token;
 
 import java.io.File;
@@ -12,6 +12,7 @@ public class LexTestAction extends Action {
     public static final String HELP_TEXT = "--lexTest <file>: Generates a sequence of tokens out of the file and prints it to the console.";
     public static final String COMMAND_LINE_NAME = "lexTest";
     private Reader reader;
+    private boolean printPosition;
 
     /**
      * Creates a new LexTestAction with the given input file
@@ -24,11 +25,17 @@ public class LexTestAction extends Action {
     @Override
     public void run() {
         Lexer lexer = new Lexer(this.reader);
-        IToken token;
+        TokenOccurrence token;
         do {
             token = lexer.nextToken();
-            System.out.println(token);
-        } while (token != Token.EOF);
+            String output = this.printPosition ? "%6s %s".formatted(token.position(), token.type())
+                    : token.type().toString();
+            System.out.println(output);
+        } while (token.type() != Token.EOF);
+    }
+
+    public void setPrintPosition(boolean printPosition) {
+        this.printPosition = printPosition;
     }
 
     @Override

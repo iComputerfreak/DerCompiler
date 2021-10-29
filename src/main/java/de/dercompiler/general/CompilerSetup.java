@@ -72,7 +72,13 @@ public class CompilerSetup {
                     new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
                 }
             }
-            setAction(new LexTestAction(reader));
+            LexTestAction action = new LexTestAction(reader);
+            action.setPrintPosition(options.printPosition());
+            setAction(action);
+        } else if (options.printPosition()) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lextext");
+        } else if (options.lexString()) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --lexString only works with --lextext");
         }
 
         if (Objects.isNull(action)) {

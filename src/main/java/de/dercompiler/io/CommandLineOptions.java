@@ -66,6 +66,13 @@ public class CommandLineOptions {
     }
 
     /**
+     * @return true if the lexTest printPosition option has been given
+     */
+    public boolean printPosition() {
+        return cmd.hasOption(OPTION_PRINT_POSITION);
+    }
+
+    /**
      * @return true if the help command has been given
      */
     public boolean help() { return cmd.hasOption(COMMAND_HELP); }
