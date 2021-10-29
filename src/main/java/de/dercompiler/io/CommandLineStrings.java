@@ -15,7 +15,7 @@ public class CommandLineStrings {
     // Commands
     public static final String COMMAND_NO_SHORT_OPTION = null;
     public static final String COMMAND_ECHO = "echo";
-    public static final String COMMAND_LEX_TEST = "lexTest";
+    public static final String COMMAND_LEX_TEST = "lextest";
     public static final String COMMAND_HELP = "help";
     public static final String COMMAND_HELP_SHORT = "h";
     public static final String COMMAND_WORKING_DIR = "working-directory";
