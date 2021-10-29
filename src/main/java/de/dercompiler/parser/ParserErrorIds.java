@@ -3,8 +3,6 @@ package de.dercompiler.parser;
 import de.dercompiler.io.message.IErrorIds;
 
 public enum ParserErrorIds implements IErrorIds {
-    TODO(300),
-
     UNSUPPORTED_OPERATOR_TOKEN(500),
 
     EXPECTED_PRIMARY_EXPRESSION(600),
@@ -14,6 +12,8 @@ public enum ParserErrorIds implements IErrorIds {
     EXPECTED_CLASS_DECLARATION(640),
     EXPECTED_PUBLIC_KEYWORD(650),
     EXPECTED_BASIC_TYPE(660),
+    EXPECTED_TOKEN(670),
+    EXPECTED_IDENTIFIER(680),
     
     ;
     

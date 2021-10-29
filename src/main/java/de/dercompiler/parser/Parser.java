@@ -223,7 +223,7 @@ public class Parser {
     private void expect(Token t) {
         // TODO: Read position and add it to the error output
         if (lexer.nextToken().type() != t) {
-            logger.printErrorAndExit(ParserErrorIds.TODO, "Expected " + t.toString() + ".");
+            logger.printErrorAndExit(ParserErrorIds.EXPECTED_TOKEN, "Expected " + t.toString() + ".");
         }
     }
 
@@ -237,7 +237,7 @@ public class Parser {
         if (t.type() instanceof IdentifierToken) {
             return (IdentifierToken) t.type();
         }
-        logger.printErrorAndExit(ParserErrorIds.TODO, "Identifier expected.");
+        logger.printErrorAndExit(ParserErrorIds.EXPECTED_IDENTIFIER, "Identifier expected.");
         return null;
     }
 
