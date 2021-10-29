@@ -705,20 +705,43 @@ public class Lexer {
 
     private IToken lexInteger() {
         StringBuilder intBuilder = new StringBuilder();
+        if (currentChar == '0') {
+            readCharacter();
+            return new IntegerToken("0");
+        }
+
         while (Character.isDigit(currentChar)) {
             intBuilder.append((char) currentChar);
             readCharacter();
         }
         String valueString = intBuilder.toString();
-        if (valueString.startsWith("0") && valueString.length() > 1) {
-            //TODO: Maybe return special "ErrorToken"
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndContinue(LexerErrorIds.INVALID_INTEGER_LITERAL, "Invalid integer literal: starts with 0 but is not 0");
+
+        if (!isInIntegerRange(valueString)) {
+            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndContinue(LexerErrorIds.INVALID_INTEGER_LITERAL, "Invalid integer literal: outside of valid integer range");
             return new ErrorToken(LexerErrorIds.INVALID_INTEGER_LITERAL);
         }
-        int value = Integer.parseInt(valueString);
-        return new IntegerToken(value);
+        return new IntegerToken(valueString);
     }
 
+    private static boolean isInIntegerRange(String valueString) {
+        int MAX_INT = Integer.MAX_VALUE;
+        int MIN_INT = Integer.MIN_VALUE;
+        int MAX_LENGTH = String.valueOf(MAX_INT).length();
+        int length = valueString.length();
+
+        switch (Integer.signum(Integer.compare(length, MAX_LENGTH))) {
+            case -1: return true;
+            case 0:
+                long longValue = Long.valueOf(valueString);
+                return longValue <= -((long) MIN_INT);
+            case 1:
+            default: return false;
+        }
+    }
+
+    /**
+     *  "Consumes" the currentChar and reads another one from the Reader.
+     */
     private void readCharacter() {
         try {
             int oldChar = currentChar;
