@@ -1,22 +1,27 @@
 package de.dercompiler.lexer;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.IToken;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
-import java.net.URL;
-import java.util.Iterator;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LexerTest {
-    
+
     @BeforeAll
     static void setup() {
         // Runs before each test
     }
-    
+
     @Test
     void testCases() {
         try {
@@ -32,9 +37,9 @@ public class LexerTest {
                     System.out.println("Testing file " + filename);
                     Lexer l = Lexer.forFile(new File(file.getPath()));
                     // Look for the output file
-                    URL outputFile = this.getClass().getClassLoader().getResource("lexer/" + filename + ".out");
+                    URI outputFile = this.getClass().getClassLoader().getResource("lexer/" + filename + ".out").toURI();
                     BufferedReader reader = new BufferedReader(new FileReader(outputFile.getPath()));
-                    
+
                     String line = null;
                     int lineNr = 1;
                     while ((line = reader.readLine()) != null) {
@@ -50,13 +55,20 @@ public class LexerTest {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (URISyntaxException e) {
+            new OutputMessageHandler(MessageOrigin.TEST, System.err).internalError("Error converting test file path to URI");
         }
     }
-    
+
     private static File[] getResourceFolderFiles(String folder) {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        URL url = loader.getResource(folder);
-        String path = url.getPath();
-        return new File(path).listFiles();
+        try {
+            ClassLoader loader = LexerTest.class.getClassLoader();
+            URI uri = loader.getResource(folder).toURI();
+            String path = uri.getPath();
+            return new File(path).listFiles();
+        } catch (URISyntaxException e) {
+            new OutputMessageHandler(MessageOrigin.TEST, System.err).internalError("Error converting test file path to URI");
+            return null;
+        }
     }
 }

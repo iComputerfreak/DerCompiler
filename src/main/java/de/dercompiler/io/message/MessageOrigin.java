@@ -12,8 +12,9 @@ public enum MessageOrigin {
     /** Errors in the lexer */
     LEXER("LEX", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),
     /** Errors in the de.dercompiler.parser */
-    PARSER("PAR", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0))
-
+    PARSER("PAR", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),
+    /** Errors in tests that are not related to the tested component */
+    TEST("TST", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0))
     //add more origins
     ;
 
