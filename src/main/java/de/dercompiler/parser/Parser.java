@@ -246,17 +246,17 @@ public class Parser {
     }
 
     public AbstractExpression parseUnaryExpression() {
-        IToken token = lexer.nextToken();
-        if (nextIsPrimary(lexer.peek(0))) {
+        IToken token = lexer.nextToken().type();
+        if (nextIsPrimary(lexer.peek().type())) {
             return parsePrimaryExpression();
         }
         if (token instanceof Token t) {
             switch (t) {
-                case QUESTION_MARK: {
+                case QUESTION_MARK -> {
                     lexer.nextToken();
                     return new LogicalNotExpression(parseUnaryExpression());
                 }
-                case MINUS: {
+                case MINUS -> {
                     lexer.nextToken();
                     return new NegativeExpression(parseUnaryExpression());
                 }
@@ -269,10 +269,10 @@ public class Parser {
     public AbstractExpression parsePostfixExpression() {
         AbstractExpression expression = parsePrimaryExpression();
         IToken token;
-        while ((token = lexer.peek(0)) instanceof Token t) {
+        while ((token = lexer.peek().type()) instanceof Token t) {
             switch (t) {
                 case DOT: {
-                    if(lexer.peek(2) instanceof Token t2 && t2 == L_PAREN) {
+                    if(lexer.peek(2).type() instanceof Token t2 && t2 == L_PAREN) {
                         expression = parseMethodInvocation(expression);
                     } else {
                         expression = parseFieldAccess(expression);
@@ -300,13 +300,13 @@ public class Parser {
 
     public Arguments parseArguments() {
         Arguments arguments = new Arguments();
-        IToken token = lexer.peek(0);
+        IToken token = lexer.peek().type();
 
         if (token instanceof Token t && t == R_PAREN) return arguments;
 
         do {
             arguments.addArgument(parseExpression());
-            if ((token = lexer.peek(0)) instanceof Token t && t != R_PAREN) {
+            if ((token = lexer.peek().type()) instanceof Token t && t != R_PAREN) {
                 expect(COMMA);
             } else {
                 break;
@@ -347,9 +347,9 @@ public class Parser {
 
     public AbstractExpression parsePrimaryExpression() {
         AbstractExpression expression = new ErrorExpression();
-        IToken token = lexer.peek(0);
+        IToken token = lexer.peek().type();
         if (token instanceof IdentifierToken ident) {
-            if (lexer.peek(1) instanceof Token t && t == L_PAREN) {
+            if (lexer.peek(1).type() == L_PAREN) {
                 expect(L_PAREN);
                 Arguments arguments = parseArguments();
                 expect(R_PAREN);
@@ -382,7 +382,7 @@ public class Parser {
                     expect(R_PAREN);
                 } break;
                 case NEW: {
-                    if (lexer.peek(2) instanceof Token t2) {
+                    if (lexer.peek(2).type() instanceof Token t2) {
                         if (t2 == L_PAREN) {
                             expression = parseNewObjectExpression();
                         } else if (t2 == L_SQUARE_BRACKET) {
@@ -408,7 +408,7 @@ public class Parser {
             expect(L_SQUARE_BRACKET);
             expect(R_SQUARE_BRACKET);
             dimension++;
-        } while (lexer.peek(0) == L_SQUARE_BRACKET);
+        } while (lexer.peek().type() == L_SQUARE_BRACKET);
         return new NewArrayExpression(type, dimension);
     }
 

@@ -11,8 +11,8 @@ import java.util.Objects;
 
 public class PrecedenceParser {
 
-    private Lexer lexer;
-    private Parser parser;
+    private final Lexer lexer;
+    private final Parser parser;
 
     public PrecedenceParser(Lexer lexer, Parser parser) {
         this.lexer = lexer;
@@ -58,7 +58,7 @@ public class PrecedenceParser {
     }
 
     private IToken expectOperatorToken() {
-        IToken token = lexer.peek(0);
+        IToken token = lexer.peek().type();
         if (token instanceof Token t && Token.ASSIGN.ordinal() <= t.ordinal() && t.ordinal() <= Token.XOR.ordinal()) {
             lexer.nextToken();
             return token;
