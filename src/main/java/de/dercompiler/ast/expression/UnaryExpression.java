@@ -1,6 +1,6 @@
 package de.dercompiler.ast.expression;
 
-public sealed class UnaryExpression extends AbstractExpression permits LogicalNotExpression, MethodeInvocationOnObject, NegativeExpression, PostfixExpression {
+public sealed class UnaryExpression extends AbstractExpression permits LogicalNotExpression, MethodInvocationOnObject, NegativeExpression, PostfixExpression {
 
     private AbstractExpression encapsulated;
 

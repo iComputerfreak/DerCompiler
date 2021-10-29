@@ -2,13 +2,12 @@ package de.dercompiler.parser;
 
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.*;
-import de.dercompiler.ast.type.BasicType;
-import de.dercompiler.ast.type.CustomType;
-import de.dercompiler.ast.type.Type;
-import de.dercompiler.ast.type.TypeRest;
+import de.dercompiler.ast.statement.BasicBlock;
+import de.dercompiler.ast.type.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.token.IdentifierToken;
 import de.dercompiler.lexer.token.IntegerToken;
@@ -32,25 +31,29 @@ public class Parser {
     }
     
     public Program parseProgram() {
+        // ClassDeclaration*
         List<ClassDeclaration> classes = new ArrayList<>();
-        while (lexer.nextToken() == CLASS) {
+        while (lexer.peek().type() == CLASS) {
             classes.add(parseClassDeclaration());
         }
-        if (lexer.nextToken() != EOF) {
-            logger.printErrorAndExit(ParserErrorIds.TODO, "Expected class declaration");
+        if (lexer.nextToken().type() != EOF) {
+            logger.printErrorAndExit(ParserErrorIds.EXPECTED_CLASS_DECLARATION, "Expected class declaration");
         }
         return new Program(classes);
     }
     
     public ClassDeclaration parseClassDeclaration() {
+        // class IDENT { ClassMember* }
         expect(CLASS);
         IdentifierToken identifier = expectIdentifier();
         expect(L_CURLY_BRACKET);
         List<ClassMember> members = new ArrayList<>();
         // While our next token is not the '}' token
-        while (lexer.peek(0) != R_CURLY_BRACKET) {
+        while (lexer.peek().type() != R_CURLY_BRACKET) {
             members.add(parseClassMember());
         }
+        // Consume the R_CURLY_BRACKET
+        lexer.nextToken();
         return new ClassDeclaration(identifier.getIdentifier(), members);
     }
     
@@ -58,88 +61,168 @@ public class Parser {
         // MainMethod ->    public static void IDENT ( Type IDENT )
         // Field ->         public Type IDENT ;
         // Method ->        public Type IDENT ( Parameters? ) MethodRest? Block
-        if (lexer.peek(0) == PUBLIC) {
+        if (lexer.peek().type() == PUBLIC) {
             // MainMethod
-            if (lexer.peek(1) == STATIC) {
+            if (lexer.peek(1).type() == STATIC) {
                 return parseMainMethod();
             }
             // Check if a Type token follows
-            IToken type = lexer.peek(1);
+            IToken type = lexer.peek(1).type();
             if (type == INT_TYPE || type == BOOLEAN_TYPE || type == VOID || type instanceof IdentifierToken) {
-                if (lexer.peek(2) instanceof IdentifierToken) {
+                if (lexer.peek(2).type() instanceof IdentifierToken) {
                     // Field
-                    if (lexer.peek(3) == SEMICOLON) {
+                    if (lexer.peek(3).type() == SEMICOLON) {
                         return parseField();
                     }
                     // Method
-                    if (lexer.peek(3) == L_PAREN) {
+                    if (lexer.peek(3).type() == L_PAREN) {
                         return parseMethod();
                     }
                 }
             }
         }
-        // TODO: Error message
-        logger.printErrorAndExit(ParserErrorIds.TODO, "TODO");
-        return null;
-    }
-    
-    public MainMethod parseMainMethod() {
-        // TODO: Implement
+        logger.printErrorAndExit(ParserErrorIds.EXPECTED_PUBLIC_KEYWORD, "Expected 'public' keyword");
         return null;
     }
     
     public Field parseField() {
-        // TODO: Implement
-        return null;
+        // public Type IDENT ;
+        expect(PUBLIC);
+        Type type = parseType();
+        IdentifierToken fieldName = expectIdentifier();
+        expect(SEMICOLON);
+        return new Field(type, fieldName.getIdentifier());
+    }
+    
+    public MainMethod parseMainMethod() {
+        // public static void IDENT ( Type IDENT ) MethodRest? Block
+        expect(PUBLIC);
+        expect(STATIC);
+        expect(VOID);
+        IdentifierToken name = expectIdentifier();
+        expect(L_PAREN);
+        Type paramType = parseType();
+        IdentifierToken paramName = expectIdentifier();
+        expect(R_PAREN);
+        MethodRest methodRest = null;
+        if (lexer.peek().type() == THROWS) {
+            methodRest = parseMethodRest();
+        }
+        BasicBlock block = parseBasicBlock();
+        return new MainMethod(name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
     
     public Method parseMethod() {
-        // TODO: Implement
-        return null;
+        // public Type IDENT ( Parameters? ) MethodRest? Block
+        expect(PUBLIC);
+        Type type = parseType();
+        IdentifierToken ident = expectIdentifier();
+        expect(L_PAREN);
+        // Check if we have parameters
+        // First2(Parameters) = First2(Parameter) = First2(Type) u {IDENT} = First2(BasicType) x {IDENT}
+        // = {int IDENT, boolean IDENT, void IDENT, IDENT IDENT}
+        IToken t = lexer.peek().type();
+        Parameters params = null;
+        if (t == INT_TYPE || t == BOOLEAN_TYPE || t == VOID || t instanceof IdentifierToken) {
+            if (lexer.peek(1).type() instanceof IdentifierToken) {
+                params = parseParameters();
+            }
+        }
+        expect(R_PAREN);
+        MethodRest methodRest = null;
+        if (lexer.peek().type() == THROWS) {
+            methodRest = parseMethodRest();
+        }
+        BasicBlock block = parseBasicBlock();
+        return new Method(type, ident.getIdentifier(), params, methodRest, block);
     }
     
     public MethodRest parseMethodRest() {
-        // TODO: Implement
-        return null;
+        // throws IDENT
+        expect(THROWS);
+        IdentifierToken ident = expectIdentifier();
+        return new MethodRest(ident.getIdentifier());
     }
 
     public Parameters parseParameters() {
-        // TODO: Implement
-        return null;
+        // Parameter ParametersRest
+        Parameter p = parseParameter();
+        ParametersRest rest = parseParametersRest();
+        return new Parameters(p, rest);
     }
 
     public ParametersRest parseParametersRest() {
-        // TODO: Implement
+        // (, Parameter ParametersRest)?
+        if (lexer.peek().type() == COMMA) {
+            expect(COMMA);
+            Parameter p = parseParameter();
+            ParametersRest rest = parseParametersRest();
+            return new ParametersRest(p, rest);
+        }
+        // If there is no rest, we return null
         return null;
     }
 
     public Parameter parseParameter() {
-        // TODO: Implement
-        return null;
+        // Type IDENT
+        Type type = parseType();
+        IdentifierToken ident = expectIdentifier();
+        return new Parameter(type, ident.getIdentifier());
     }
 
     public Type parseType() {
-        // TODO: Implement
-        return null;
+        // BasicType TypeRest
+        BasicType type = parseBasicType();
+        TypeRest rest = parseTypeRest();
+        return new Type(type, rest);
     }
     
     public TypeRest parseTypeRest() {
-        // TODO: Implement
+        // ([] TypeRest)?
+        if (lexer.peek().type() == L_SQUARE_BRACKET) {
+            expect(L_SQUARE_BRACKET);
+            expect(R_SQUARE_BRACKET);
+            TypeRest rest = parseTypeRest();
+            return new TypeRest(rest);
+        }
+        // If there is no rest, we return null
         return null;
     }
     
     public BasicType parseBasicType() {
+        // int | boolean | void | IDENT
+        IToken t = lexer.nextToken().type();
+        if (t instanceof IdentifierToken ident) {
+            return new CustomType(ident.getIdentifier());
+        }
+        if (t instanceof Token token) {
+            switch (token) {
+                case INT_TYPE:
+                    return new IntType();
+                case BOOLEAN_TYPE:
+                    return new BooleanType();
+                case VOID:
+                    return new VoidType();
+            }
+        }
+        logger.printErrorAndExit(ParserErrorIds.EXPECTED_BASIC_TYPE,
+                "Expected 'int', 'boolean', 'void' or an identifier.");
+        return null;
+    }
+    
+    public BasicBlock parseBasicBlock() {
         // TODO: Implement
         return null;
     }
 
     /**
-     * Checks, if the lexer's next token matches with the given token. Otherwise, prints an error and exits the program.
+     * Checks, if the lexer's next token matches with the given token and consumes it.
+     * Otherwise, prints an error and exits the program.
      * @param t The token to check for.
      */
     private void expect(Token t) {
         // TODO: Read position and add it to the error output
-        if (lexer.nextToken() != t) {
+        if (lexer.nextToken().type() != t) {
             logger.printErrorAndExit(ParserErrorIds.TODO, "Expected " + t.toString() + ".");
         }
     }
@@ -150,9 +233,9 @@ public class Parser {
      */
     private IdentifierToken expectIdentifier() {
         // TODO: Read position and add it to the error output
-        IToken t = lexer.nextToken();
-        if (t instanceof IdentifierToken) {
-            return (IdentifierToken) t;
+        TokenOccurrence t = lexer.nextToken();
+        if (t.type() instanceof IdentifierToken) {
+            return (IdentifierToken) t.type();
         }
         logger.printErrorAndExit(ParserErrorIds.TODO, "Identifier expected.");
         return null;
@@ -212,7 +295,7 @@ public class Parser {
         expect(L_PAREN);
         Arguments arguments = parseArguments();
         expect(R_PAREN);
-        return new MethodeInvocationOnObject(expression, arguments);
+        return new MethodInvocationOnObject(expression, arguments);
     }
 
     public Arguments parseArguments() {
@@ -271,7 +354,7 @@ public class Parser {
                 Arguments arguments = parseArguments();
                 expect(R_PAREN);
                 //we create a ThisValue out of nowhere, because methods only can be invoked on other objects or the own object(this)
-                expression = new MethodeInvocationOnObject(new ThisValue(), arguments);
+                expression = new MethodInvocationOnObject(new ThisValue(), arguments);
             } else {
                 expression = new Variable(ident.getIdentifier());
             }

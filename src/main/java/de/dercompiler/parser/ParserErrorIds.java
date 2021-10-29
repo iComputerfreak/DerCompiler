@@ -11,9 +11,12 @@ public enum ParserErrorIds implements IErrorIds {
     EXPECTED_ARGUMENT(610),
     EXPECTED_OBJECT_INSTANTIATION(620),
     EXPECTED_PRIMARY_TYPE(630),
+    EXPECTED_CLASS_DECLARATION(640),
+    EXPECTED_PUBLIC_KEYWORD(650),
+    EXPECTED_BASIC_TYPE(660),
     
     ;
-
+    
     private final int id;
 
     ParserErrorIds(int id) {
