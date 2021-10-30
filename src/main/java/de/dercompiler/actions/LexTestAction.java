@@ -1,10 +1,8 @@
 package de.dercompiler.actions;
-
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.Token;
 
-import java.io.File;
 import java.io.Reader;
 
 public class LexTestAction extends Action {
@@ -15,7 +13,8 @@ public class LexTestAction extends Action {
     private boolean printPosition;
 
     /**
-     * Creates a new LexTestAction with the given input file
+     * Creates a new LexTestAction with the given input reader
+     *
      * @param reader The input reader to read characters from
      */
     public LexTestAction(Reader reader) {

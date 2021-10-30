@@ -8,6 +8,7 @@ import de.dercompiler.lexer.token.*;
 import de.dercompiler.util.RingBuffer;
 
 import java.io.*;
+import java.text.ParseException;
 
 
 public class Lexer {
@@ -55,7 +56,7 @@ public class Lexer {
     private void skipComment() {
         while (true) {
             if (currentChar == -1) {
-                new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.UNCLOSED_COMMENT, "Unclosed comment, expected '*/'");
+                fail(LexerErrorIds.UNCLOSED_COMMENT, "Unclosed comment, expected '*/'");
             }
             if (currentChar != '*') {
                 readCharacter();
@@ -695,7 +696,7 @@ public class Lexer {
                         return Token.BAR;
                 }
             default:
-                new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.UNKNOWN_SYMBOL, "Unknown symbol: %c".formatted(currentChar));
+                fail(LexerErrorIds.UNKNOWN_SYMBOL, "Unknown symbol: %c".formatted(currentChar));
                 return new ErrorToken(LexerErrorIds.UNKNOWN_SYMBOL);
         }
     }
@@ -755,6 +756,11 @@ public class Lexer {
      */
     public Position getPosition() {
         return this.position.copy();
+    }
+
+    void fail(LexerErrorIds id, String message) {
+        OutputMessageHandler handler = new OutputMessageHandler(MessageOrigin.LEXER, System.err);
+        handler.printErrorAndExit(id, message);
     }
 
     public static Lexer forFile(File file) {
@@ -827,4 +833,5 @@ public class Lexer {
             new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("Cannot advance an immutable Position.");
         }
     }
+
 }

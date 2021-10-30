@@ -3,6 +3,7 @@ package de.dercompiler.lexer;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.IToken;
+import de.dercompiler.lexer.token.Token;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LexerTest {
 
@@ -29,13 +31,11 @@ public class LexerTest {
             for (File file : getResourceFolderFiles("lexer")) {
                 String filename = file.getName();
                 // Skip output files for now (and any other files that are not test cases)
-                if (!filename.endsWith(".mj")) {
-                    continue;
-                }
+
+                System.out.println("Testing file " + filename);
+                Lexer l = TestLexer.forFile(new File(file.getPath()));
                 // Tests that should succeed
                 if (filename.endsWith(".valid.mj")) {
-                    System.out.println("Testing file " + filename);
-                    Lexer l = Lexer.forFile(new File(file.getPath()));
                     // Look for the output file
                     URI outputFile = this.getClass().getClassLoader().getResource("lexer/" + filename + ".out").toURI();
                     BufferedReader reader = new BufferedReader(new FileReader(outputFile.getPath()));
@@ -52,6 +52,15 @@ public class LexerTest {
                 // TODO: Test .invalid.mj files
                 // We currently can't test them as unit tests, since they immediately exit the program on error
                 // Maybe we need to add them to the tests.sh and check for a non-zero exit code
+                else if (filename.endsWith(".invalid.mj")) {
+                    // Make sure that the test really fails
+                    assertThrows(TestLexer.LexerException.class, () -> {
+                        TokenOccurrence token;
+                        do {
+                            token = l.nextToken();
+                        } while (token.type() != Token.EOF);
+                    });
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -65,10 +74,13 @@ public class LexerTest {
             ClassLoader loader = LexerTest.class.getClassLoader();
             URI uri = loader.getResource(folder).toURI();
             String path = uri.getPath();
-            return new File(path).listFiles();
+            return new File(path).listFiles((file -> {
+                String pathName = file.toString();
+                return pathName.endsWith(".valid.mj") || pathName.endsWith(".invalid.mj");
+            }));
         } catch (URISyntaxException e) {
             new OutputMessageHandler(MessageOrigin.TEST, System.err).internalError("Error converting test file path to URI");
-            return null;
+            return new File[]{};
         }
     }
 }
