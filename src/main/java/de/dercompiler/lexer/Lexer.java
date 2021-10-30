@@ -165,7 +165,6 @@ public class Lexer {
                         readCharacter();
                         // do. | do.uble
                         if (!isIdentifierChar(currentChar)) {
-                            readCharacter();
                             return Token.DO;
                         } else return compareSuffix(Token.DOUBLE_TYPE, 2);
                     default:
