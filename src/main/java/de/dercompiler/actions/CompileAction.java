@@ -1,5 +1,7 @@
 package de.dercompiler.actions;
 
+import de.dercompiler.general.GeneralErrorIds;
+import de.dercompiler.general.GeneralWarningIds;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -27,10 +29,20 @@ public class CompileAction extends Action {
     public void run() {
         new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
             .printInfo("Compiler not Implemented YET!");
+        for (MessageOrigin origin : MessageOrigin.values()) {
+            new OutputMessageHandler(origin, System.out)
+                    .printInfo(origin.name());
+        }
+        System.out.println();
+        new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
+                .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, "warning");
+        new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
+                .printErrorAndContinue(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "error");
     }
 
     public void help() {
         CommandLineBuilder.printHelp(compilerName);
+
     }
 
     public String actionId() {

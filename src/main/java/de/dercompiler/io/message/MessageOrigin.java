@@ -6,15 +6,29 @@ import java.awt.*;
  * The MessageOrigin describes the origin of the message and depending on this information generate different error and warning-codes.
  * Part of the MessageOrigin, is the color-flair of the messages
  */
+
+
 public enum MessageOrigin {
     /** Common errors */
-    GENERAL("COM", null, new Color(0x20,0x63,0x9B), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+    GENERAL("COM", null, new Color(0x18,0xA3,0x6B), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
     /** Errors in the lexer */
-    LEXER("LEX", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),
+    LEXER("LEX", null, new Color(0x31,0x8A,0xE8), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
     /** Errors in the de.dercompiler.parser */
-    PARSER("PAR", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0)),
+    PARSER("PAR", null, new Color(0x20,0x63,0x9B), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+    /** Errors in the de.dercompiler.ast */
+    AST("AST", null, new Color(0x68,0x5F,0xD3), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+
+    ATR_GRM("ATR", null, new Color(0xDD, 0x50, 0xAF), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+
+    TRANSFORM("TRF", null, new Color(0xFC, 0x5B, 0x63), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+
+    ANALYSIS("ANA", null, new Color(0xFF, 0xA7, 0x5C), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+
+    CODE_GENERATION("GEN", null, new Color(0x9A, 0xE5, 0x53), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+
+
     /** Errors in tests that are not related to the tested component */
-    TEST("TST", null, new Color(0, 0, 0), new Color(0,0,0), new Color(0,0,0))
+    TEST("TST", null, new Color(0x9C,0x5F,0x0C), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B))
     //add more origins
     ;
 
@@ -83,4 +97,5 @@ public enum MessageOrigin {
     public Color getErrorColor() {
         return error;
     }
+
 }
