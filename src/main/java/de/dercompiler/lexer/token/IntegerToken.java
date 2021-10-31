@@ -1,5 +1,10 @@
 package de.dercompiler.lexer.token;
 
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+
+import java.util.Objects;
+
 /**
  * Represents an Integer literal Token and its literal value.
  * Parsing the value is delegated to later stages where the sign of the integer is clear.
@@ -8,6 +13,9 @@ public class IntegerToken implements IToken {
     private String value;
 
     public IntegerToken(String value) {
+        if (Objects.isNull(value) || value.length() == 0) {
+            new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("IntegerToken(value) called with empty or null value");
+        }
         this.value = value;
     }
 

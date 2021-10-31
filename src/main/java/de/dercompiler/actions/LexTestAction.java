@@ -4,6 +4,7 @@ import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.Token;
 
 import java.io.Reader;
+import java.util.EnumSet;
 
 public class LexTestAction extends Action {
 
@@ -46,4 +47,5 @@ public class LexTestAction extends Action {
     public String actionId() {
         return COMMAND_LINE_NAME;
     }
+
 }

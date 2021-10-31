@@ -8,9 +8,10 @@ import de.dercompiler.lexer.token.*;
 import de.dercompiler.util.RingBuffer;
 
 import java.io.*;
-import java.text.ParseException;
 
-
+/**
+ * Represents a Lexer for MiniJava. It transforms a character input source into a buffered sequence of {@link IToken}s, which allows for a certain lookahead.
+ */
 public class Lexer {
 
     private static final int SLL_CONSTANT = 4;
@@ -22,6 +23,11 @@ public class Lexer {
     // FileReader.read() returns -1 for EOF, so char is not suitable
     private int currentChar;
 
+    /**
+     * Creates a new {@link Lexer} for the input that the given reader produces.
+     *
+     * @param reader Source reader for character input
+     */
     public Lexer(Reader reader) {
         this.reader = reader;
         this.tokenBuffer = new RingBuffer<>(SLL_CONSTANT);
@@ -30,6 +36,9 @@ public class Lexer {
         readCharacter();
     }
 
+    /**
+     * Lexes the input at the current position until an {@link IToken} is produced and saved into the buffer.
+     */
     private void lex() {
         IToken token = null;
         Position currentPosition = null;
@@ -46,29 +55,51 @@ public class Lexer {
             } else if (Character.isDigit(currentChar)) {
                 token = this.lexInteger();
             } else {
-                token = this.lexSymbolSequence(currentChar);
+                token = this.lexSymbolSequence();
             }
         }
         push(new TokenOccurrence(token, currentPosition));
 
     }
 
+    /**
+     * Reads through the input until *&#47; is recognized.
+     */
     private void skipComment() {
         while (true) {
             if (currentChar == -1) {
                 fail(LexerErrorIds.UNCLOSED_COMMENT, "Unclosed comment, expected '*/'");
             }
+
+            if (currentChar == '/') {
+                readCharacter();
+                // /.*
+                if (currentChar == '*') {
+                    // do not readCharacter here yet; might be beginning of */
+                    // /*. | *./
+                    new OutputMessageHandler(MessageOrigin.LEXER, System.out).printWarning(LexerWarningIds.NESTED_COMMENT, "Nested opened comments are not supported and ignored; there are no levels of 'comment depth'.");
+                }
+            }
+
             if (currentChar != '*') {
                 readCharacter();
                 continue;
             }
-
             readCharacter();
-            if (currentChar == '/') break;
+            // *./
+            if (currentChar == '/') {
+                // */.
+                break;
+            }
         }
         readCharacter();
     }
 
+    /**
+     * Lexes an identifier or alphabetic keyword (as opposed to a symbolic operator or separator).
+     *
+     * @return an IToken representing the current identifier or keyword
+     */
     private IToken lexIdOrKeyword() {
         switch (currentChar) {
             case 'a':
@@ -447,6 +478,13 @@ public class Lexer {
 
     }
 
+    /**
+     * Checks whether the String keyword represented by the given Token follows. If so, returns that token. If not, parses an IdentifierToken.
+     *
+     * @param successToken a token that the following input is checked against
+     * @param pos          position of currentChar inside the keyword, i.e. number of characters of the keyword that have already been read
+     * @return successToken, if the keyword is read successfully, or else an IdentifierToken for the current identifier
+     */
     private IToken compareSuffix(Token successToken, int pos) {
         String keyword = successToken.toString();
         for (int i = pos; i < keyword.length(); i++) {
@@ -462,8 +500,14 @@ public class Lexer {
         return successToken;
     }
 
-    private IToken parseId(String keyword) {
-        StringBuilder sb = new StringBuilder(keyword);
+    /**
+     * Parses an identifier from the input, producing an IdentifierToken.
+     *
+     * @param prefix The beginning of the identifier
+     * @return an {@link IdentifierToken} for the current identifier
+     */
+    private IdentifierToken parseId(String prefix) {
+        StringBuilder sb = new StringBuilder(prefix);
         while (isIdentifierChar(currentChar)) {
             sb.append((char) currentChar);
             readCharacter();
@@ -481,8 +525,13 @@ public class Lexer {
         return Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
     }
 
-    private IToken lexSymbolSequence(int prefix) {
-        switch (prefix) {
+    /**
+     * Lexes an operator or separator, assuming currentChar is not a whitespace or alphanumerical character.
+     *
+     * @return a {@link Token} representing the following operator or separator, if successful.
+     */
+    private IToken lexSymbolSequence() {
+        switch (currentChar) {
             case '!':
                 readCharacter();
                 // !. | !.=
@@ -701,6 +750,12 @@ public class Lexer {
         }
     }
 
+    /**
+     * Lexes an integer, i.e. 0 or a sequence of digits that does not start with 0, assuming that currentChar is already a digit.
+     * Any limitations on the length or the value of the integer are not put into place at this point.
+     *
+     * @return an {@link IntegerToken} representing the following integer.
+     */
     private IToken lexInteger() {
         StringBuilder intBuilder = new StringBuilder();
         if (currentChar == '0') {
@@ -718,7 +773,7 @@ public class Lexer {
     }
 
     /**
-     *  "Consumes" the currentChar and reads another one from the Reader.
+     * "Consumes" the currentChar and reads another one from the {@link Reader}.
      */
     private void readCharacter() {
         try {
@@ -734,15 +789,30 @@ public class Lexer {
         }
     }
 
+    /**
+     * Removes the next {@link TokenOccurrence} from the buffer and returns it.
+     *
+     * @return the next {@link TokenOccurrence}
+     */
     public TokenOccurrence nextToken() {
         this.lex();
         return tokenBuffer.pop();
     }
 
+    /**
+     * Returns the n-th {@link TokenOccurrence} from the buffer without removing it from the buffer.
+     *
+     * @return the n-th {@link TokenOccurrence}
+     */
     public TokenOccurrence peek(int lookAhead) {
         return tokenBuffer.peek(lookAhead);
     }
 
+    /**
+     * Returns the next {@link TokenOccurrence} from the buffer without removing it from the buffer.
+     *
+     * @return the next {@link TokenOccurrence}
+     */
     public TokenOccurrence peek() {
         return tokenBuffer.peek(0);
     }
@@ -763,6 +833,12 @@ public class Lexer {
         handler.printErrorAndExit(id, message);
     }
 
+    /**
+     * Creates a {@link Lexer} that lexes the given {@link File}.
+     *
+     * @param file The {@link File} to lex
+     * @return A {@link Lexer} for the file
+     */
     public static Lexer forFile(File file) {
         try {
             return new Lexer(new FileReader(file));
@@ -772,10 +848,19 @@ public class Lexer {
         return null;
     }
 
+    /**
+     * Creates a {@link Lexer} that lexes the given {@link String}.
+     *
+     * @param input The {@link String} to lex
+     * @return A {@link Lexer} for the input
+     */
     public static Lexer forString(String input) {
         return new Lexer(new StringReader(input));
     }
 
+    /**
+     * Represents the position of a {@link Reader} in a source, counted as lines and columns. The initial Position is 1:1.
+     */
     static class Position {
         private int line;
         private int column;
