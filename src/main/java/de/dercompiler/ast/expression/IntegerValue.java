@@ -2,9 +2,9 @@ package de.dercompiler.ast.expression;
 
 public final class IntegerValue extends PrimaryExpression {
 
-    private int value;
+    private String value;
 
-    public IntegerValue(int value) {
+    public IntegerValue(String value) {
         this.value = value;
     }
 }

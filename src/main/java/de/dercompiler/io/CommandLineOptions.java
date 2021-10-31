@@ -59,6 +59,13 @@ public class CommandLineOptions {
     }
 
     /**
+     * @return true if -s option has been given
+     */
+    public boolean lexString() {
+        return cmd.hasOption(OPTION_LEX_STRING_SHORT);
+    }
+
+    /**
      * @return true if the lexTest printPosition option has been given
      */
     public boolean printPosition() {
@@ -69,6 +76,10 @@ public class CommandLineOptions {
      * @return true if the help command has been given
      */
     public boolean help() { return cmd.hasOption(COMMAND_HELP); }
+
+    public String getOptionArgument(String optionName) {
+        return cmd.getOptionValue(optionName);
+    }
 
     /**
      * @return true if warnings should be treated as error
@@ -142,6 +153,25 @@ public class CommandLineOptions {
      */
     public File getFileArgument() {
         return this.getFileArgument(null);
+    }
+
+    public String getStringArgument(String optionName) {
+        String arg;
+        if (!Objects.isNull(optionName)) {
+            arg = cmd.getOptionValue(optionName);
+        } else {
+            arg = this.getNextUnparsedArgument();
+        }
+
+        if (Objects.isNull(arg)) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Missing String argument");
+        }
+
+        return arg;
+    }
+
+    public String getStringArgument() {
+        return this.getStringArgument(null);
     }
 
     /**

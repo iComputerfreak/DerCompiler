@@ -7,30 +7,38 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.*;
 import de.dercompiler.util.RingBuffer;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
-
+/**
+ * Represents a Lexer for MiniJava. It transforms a character input source into a buffered sequence of {@link IToken}s, which allows for a certain lookahead.
+ */
 public class Lexer {
 
     private static final int SLL_CONSTANT = 4;
     private final RingBuffer<TokenOccurrence> tokenBuffer;
 
-    private FileReader reader;
+    private Reader reader;
 
     private final Position position;
     // FileReader.read() returns -1 for EOF, so char is not suitable
     private int currentChar;
 
-    public Lexer(File input) {
-        this.open(input);
+    /**
+     * Creates a new {@link Lexer} for the input that the given reader produces.
+     *
+     * @param reader Source reader for character input
+     */
+    public Lexer(Reader reader) {
+        this.reader = reader;
         this.tokenBuffer = new RingBuffer<>(SLL_CONSTANT);
         this.position = new Position();
 
         readCharacter();
     }
 
+    /**
+     * Lexes the input at the current position until an {@link IToken} is produced and saved into the buffer.
+     */
     private void lex() {
         IToken token = null;
         Position currentPosition = null;
@@ -47,92 +55,128 @@ public class Lexer {
             } else if (Character.isDigit(currentChar)) {
                 token = this.lexInteger();
             } else {
-                token = this.lexSymbolSequence(currentChar);
+                token = this.lexSymbolSequence();
             }
         }
         push(new TokenOccurrence(token, currentPosition));
 
     }
 
+    /**
+     * Reads through the input until *&#47; is recognized.
+     */
     private void skipComment() {
         while (true) {
             if (currentChar == -1) {
-                new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.UNCLOSED_COMMENT, "Unclosed comment, expected '*/'");
+                fail(LexerErrorIds.UNCLOSED_COMMENT, "Unclosed comment, expected '*/'");
             }
+
+            if (currentChar == '/') {
+                readCharacter();
+                // /.*
+                if (currentChar == '*') {
+                    // do not readCharacter here yet; might be beginning of */
+                    // /*. | *./
+                    new OutputMessageHandler(MessageOrigin.LEXER, System.out).printWarning(LexerWarningIds.NESTED_COMMENT, "Nested opened comments are not supported and ignored; there are no levels of 'comment depth'.");
+                }
+            }
+
             if (currentChar != '*') {
                 readCharacter();
                 continue;
             }
-
             readCharacter();
-            if (currentChar == '/') break;
+            // *./
+            if (currentChar == '/') {
+                // */.
+                break;
+            }
         }
         readCharacter();
     }
 
+    /**
+     * Lexes an identifier or alphabetic keyword (as opposed to a symbolic operator or separator).
+     *
+     * @return an IToken representing the current identifier or keyword
+     */
     private IToken lexIdOrKeyword() {
         switch (currentChar) {
             case 'a':
-                // abstract or assert
                 readCharacter();
+                // a.bstract | a.ssert
                 switch (currentChar) {
                     case 'b':
                         readCharacter();
+                        // ab.stract
                         return compareSuffix(Token.ABSTRACT, 2);
                     case 's':
                         readCharacter();
+                        // as.sert
                         return compareSuffix(Token.ASSERT, 2);
                     default:
                         return parseId("a");
                 }
             case 'b':
-                // boolean, break or byte
                 readCharacter();
+                // b.oolean | b.reak | b.yte
                 switch (currentChar) {
                     case 'o':
                         readCharacter();
+                        // bo.olean
                         return compareSuffix(Token.BOOLEAN_TYPE, 2);
                     case 'r':
                         readCharacter();
+                        // br.eak;
                         return compareSuffix(Token.BREAK, 2);
                     case 'y':
                         readCharacter();
+                        // by.te
                         return compareSuffix(Token.BYTE_TYPE, 2);
                     default:
                         return parseId("b");
                 }
             case 'c':
-                // case, catch, char, class, const or continue
+                // c.ase | c.atch | c.har | c.lass | c.onst | c.ontinue
                 readCharacter();
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // ca.se | ca.tch
                         switch (currentChar) {
                             case 's':
                                 readCharacter();
+                                // cas.e
                                 return compareSuffix(Token.CASE, 3);
                             case 't':
                                 readCharacter();
+                                // cat.ch
                                 return compareSuffix(Token.CATCH, 3);
                             default:
                                 return parseId("ca");
                         }
                     case 'h':
                         readCharacter();
+                        // ch.ar
                         return compareSuffix(Token.CHARACTER_TYPE, 2);
                     case 'l':
                         readCharacter();
+                        // cl.ass
                         return compareSuffix(Token.CLASS, 2);
                     case 'o':
                         readCharacter();
+                        // co.nst | co.ntinue
                         if (currentChar == 'n') {
                             readCharacter();
+                            // con.st | con.tinue
                             switch (currentChar) {
                                 case 's':
                                     readCharacter();
+                                    // cons.t
                                     return compareSuffix(Token.CONST, 4);
                                 case 't':
                                     readCharacter();
+                                    // cont.inue
                                     return compareSuffix(Token.CONTINUE, 4);
                                 default:
                                     return parseId("con");
@@ -143,14 +187,16 @@ public class Lexer {
                 }
             case 'd':
                 readCharacter();
+                // d.efault | d.o | d.ouble
                 switch (currentChar) {
                     case 'e':
                         readCharacter();
+                        // de.fault
                         return compareSuffix(Token.DEFAULT, 2);
                     case 'o':
                         readCharacter();
+                        // do. | do.uble
                         if (!isIdentifierChar(currentChar)) {
-                            readCharacter();
                             return Token.DO;
                         } else return compareSuffix(Token.DOUBLE_TYPE, 2);
                     default:
@@ -158,27 +204,34 @@ public class Lexer {
                 }
             case 'e':
                 readCharacter();
+                // e.lse | e.num | e.xtends
                 switch (currentChar) {
                     case 'l':
                         readCharacter();
+                        // el.se
                         return compareSuffix(Token.ELSE, 2);
                     case 'n':
                         readCharacter();
+                        // en.um
                         return compareSuffix(Token.ENUM, 2);
                     case 'x':
                         readCharacter();
+                        // ex.tends
                         return compareSuffix(Token.EXTENDS, 2);
                     default:
                         return parseId("e");
                 }
             case 'f':
                 readCharacter();
+                // f.alse | f.inal | f.inally | f.loat | f.or
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // fa.lse
                         return compareSuffix(Token.FALSE, 2);
                     case 'i':
                         readCharacter();
+                        // fi.nal | fi.nally
                         char[] chars = {'n', 'a', 'l'};
                         for (int i = 0; i < 3; i++) {
                             if (currentChar != chars[i]) {
@@ -186,14 +239,16 @@ public class Lexer {
                             }
                             readCharacter();
                         }
-                        //final or finally
+                        // final. | final.ly
                         if (!isIdentifierChar(currentChar)) return Token.FINAL;
                         else return compareSuffix(Token.FINALLY, 5);
                     case 'l':
                         readCharacter();
+                        // fl.oat
                         return compareSuffix(Token.FLOAT_TYPE, 2);
                     case 'o':
                         readCharacter();
+                        // fo.r
                         return compareSuffix(Token.FOR, 2);
                     default:
                         return parseId("f");
@@ -201,18 +256,23 @@ public class Lexer {
 
             case 'g':
                 readCharacter();
+                // g.oto
                 return compareSuffix(Token.GOTO, 1);
             case 'i':
                 readCharacter();
+                // i.f | i.mplements | i.mport
                 switch (currentChar) {
                     case 'f':
                         readCharacter();
+                        // if.
                         if (!isIdentifierChar(currentChar)) return Token.IF;
                         else return parseId("if");
                     case 'm':
                         readCharacter();
+                        // im.plements | im.port
                         if (currentChar != 'p') return parseId("im");
                         readCharacter();
+                        //imp.lements | imp.ort
                         switch (currentChar) {
                             case 'l':
                                 readCharacter();
@@ -225,12 +285,15 @@ public class Lexer {
                         }
                     case 'n':
                         readCharacter();
+                        // in.stanceof | in.t | in.terface
                         switch (currentChar) {
                             case 's':
                                 readCharacter();
+                                // ins.tanceof
                                 return compareSuffix(Token.INSTANCE_OF, 3);
                             case 't':
                                 readCharacter();
+                                // int. | int.erface
                                 if (!isIdentifierChar(currentChar)) {
                                     return Token.INT_TYPE;
                                 } else {
@@ -244,90 +307,114 @@ public class Lexer {
                 }
             case 'l':
                 readCharacter();
+                // l.ong
                 return compareSuffix(Token.LONG_TYPE, 1);
             case 'n':
                 readCharacter();
+                // n.ative | n.ew | n.ull
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // na.tive
                         return compareSuffix(Token.NATIVE, 2);
                     case 'e':
                         readCharacter();
+                        // ne.w
                         return compareSuffix(Token.NEW, 2);
                     case 'u':
                         readCharacter();
+                        // nu.ll
                         return compareSuffix(Token.NULL, 2);
                     default:
                         return parseId("n");
                 }
             case 'p':
                 readCharacter();
+                // p.ackage | p.rivate | p.rotected | p.ublic
                 switch (currentChar) {
                     case 'a':
                         readCharacter();
+                        // p.ackage
                         return compareSuffix(Token.PACKAGE, 2);
                     case 'r':
                         readCharacter();
+                        // pr.ivate | pr.otected
                         switch (currentChar) {
                             case 'i':
                                 readCharacter();
+                                // pri.vate
                                 return compareSuffix(Token.PRIVATE, 3);
                             case 'o':
                                 readCharacter();
+                                //pro.tected
                                 return compareSuffix(Token.PROTECTED, 3);
                             default:
                                 return parseId("pr");
                         }
                     case 'u':
                         readCharacter();
+                        // pu.blic
                         return compareSuffix(Token.PUBLIC, 2);
                     default:
                         parseId("p");
                 }
             case 'r':
                 readCharacter();
+                // r.eturn
                 return compareSuffix(Token.RETURN, 1);
             case 's':
                 readCharacter();
+                // s.hort | s.tatic | s.trictfp | s.uper | s.witch | s.ynchronized
                 switch (currentChar) {
                     case 'h':
                         readCharacter();
+                        // sh.ort
                         return compareSuffix(Token.SHORT_TYPE, 2);
                     case 't':
                         readCharacter();
+                        // st.atic | st.rictfp
                         switch (currentChar) {
                             case 'a':
                                 readCharacter();
+                                // sta.tic
                                 return compareSuffix(Token.STATIC, 3);
                             case 'r':
                                 readCharacter();
+                                // str.ictfp
                                 return compareSuffix(Token.STRICTFP, 3);
                             default:
                                 return parseId("st");
                         }
                     case 'u':
                         readCharacter();
+                        // su.per
                         return compareSuffix(Token.SUPER, 2);
                     case 'w':
                         readCharacter();
+                        // sw.itch
                         return compareSuffix(Token.SWITCH, 2);
                     case 'y':
                         readCharacter();
+                        // sy.nchronized
                         return compareSuffix(Token.SYNCHRONIZED, 2);
                     default:
                         return parseId("s");
                 }
             case 't':
                 readCharacter();
+                // t.his | t.hrow | t.hrows | t.ransient | t.rue | t.ry
                 switch (currentChar) {
                     case 'h':
                         readCharacter();
+                        // th.is | th.row | th.rows
                         switch (currentChar) {
                             case 'i':
                                 readCharacter();
+                                // thi.s
                                 return compareSuffix(Token.THIS, 3);
                             case 'r':
                                 readCharacter();
+                                // thr.ow | thr.ows
                                 char[] chars = {'o', 'w'};
                                 for (int i = 0; i < chars.length; i++) {
                                     if (currentChar != chars[i]) {
@@ -335,7 +422,7 @@ public class Lexer {
                                     }
                                     readCharacter();
                                 }
-                                // throw or throws
+                                // throw. | throw.s
                                 if (!isIdentifierChar(currentChar)) return Token.THROW;
                                 else return compareSuffix(Token.THROWS, 5);
                             default:
@@ -343,15 +430,19 @@ public class Lexer {
                         }
                     case 'r':
                         readCharacter();
+                        // tr.ansient | tr.ue | tr.y
                         switch (currentChar) {
                             case 'a':
                                 readCharacter();
+                                // tra.nsient
                                 return compareSuffix(Token.TRANSIENT, 3);
                             case 'u':
                                 readCharacter();
+                                // tru.e
                                 return compareSuffix(Token.TRUE, 3);
                             case 'y':
                                 readCharacter();
+                                // try.
                                 return compareSuffix(Token.TRY, 3);
                             default:
                                 return parseId("tr");
@@ -361,20 +452,25 @@ public class Lexer {
                 }
             case 'v':
                 readCharacter();
+                // v.oid | v.olatile
                 if (currentChar != 'o') return parseId("v");
                 readCharacter();
+                // vo.id | vo.latile
                 switch (currentChar) {
                     case 'i':
                         readCharacter();
+                        // voi.d
                         return compareSuffix(Token.VOID, 3);
                     case 'l':
                         readCharacter();
+                        // vol.atile
                         return compareSuffix(Token.VOLATILE, 3);
                     default:
                         return parseId("vo");
                 }
             case 'w':
                 readCharacter();
+                // w.hile
                 return compareSuffix(Token.WHILE, 1);
             default:
                 return parseId("");
@@ -382,6 +478,13 @@ public class Lexer {
 
     }
 
+    /**
+     * Checks whether the String keyword represented by the given Token follows. If so, returns that token. If not, parses an IdentifierToken.
+     *
+     * @param successToken a token that the following input is checked against
+     * @param pos          position of currentChar inside the keyword, i.e. number of characters of the keyword that have already been read
+     * @return successToken, if the keyword is read successfully, or else an IdentifierToken for the current identifier
+     */
     private IToken compareSuffix(Token successToken, int pos) {
         String keyword = successToken.toString();
         for (int i = pos; i < keyword.length(); i++) {
@@ -397,8 +500,14 @@ public class Lexer {
         return successToken;
     }
 
-    private IToken parseId(String keyword) {
-        StringBuilder sb = new StringBuilder(keyword);
+    /**
+     * Parses an identifier from the input, producing an IdentifierToken.
+     *
+     * @param prefix The beginning of the identifier
+     * @return an {@link IdentifierToken} for the current identifier
+     */
+    private IdentifierToken parseId(String prefix) {
+        StringBuilder sb = new StringBuilder(prefix);
         while (isIdentifierChar(currentChar)) {
             sb.append((char) currentChar);
             readCharacter();
@@ -416,11 +525,16 @@ public class Lexer {
         return Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
     }
 
-    private IToken lexSymbolSequence(int prefix) {
-        switch (prefix) {
+    /**
+     * Lexes an operator or separator, assuming currentChar is not a whitespace or alphanumerical character.
+     *
+     * @return a {@link Token} representing the following operator or separator, if successful.
+     */
+    private IToken lexSymbolSequence() {
+        switch (currentChar) {
             case '!':
-                // ! or !=
                 readCharacter();
+                // !. | !.=
                 if (currentChar == '=') {
                     readCharacter();
                     return Token.NOT_EQUAL;
@@ -436,8 +550,8 @@ public class Lexer {
                 return Token.R_PAREN;
 
             case '*':
-                // * or *=
                 readCharacter();
+                // *. | *.=
                 if (currentChar == '=') {
                     readCharacter();
                     return Token.MULT_SHORT;
@@ -446,8 +560,8 @@ public class Lexer {
                 }
 
             case '+':
-                // +, ++ or +=
                 readCharacter();
+                // +. | +.+ | +.=
                 switch (currentChar) {
                     case '=':
                         readCharacter();
@@ -464,7 +578,7 @@ public class Lexer {
                 return Token.COMMA;
 
             case '-':
-                // -, -= or --
+                // -. | -.= | -.-
                 readCharacter();
                 switch (currentChar) {
                     case '=':
@@ -482,7 +596,7 @@ public class Lexer {
                 return Token.DOT;
 
             case '/':
-                // /, /= or /*
+                // /. | /.= | /.*
                 readCharacter();
                 switch (currentChar) {
                     case '=':
@@ -505,11 +619,12 @@ public class Lexer {
                 return Token.SEMICOLON;
 
             case '<':
-                // <, <=, << or <<=
+                // <. | <.= | <.< | <.<=
                 readCharacter();
                 switch (currentChar) {
                     case '<':
                         readCharacter();
+                        // <<. | <<.=
                         if (currentChar == '=') {
                             readCharacter();
                             return Token.L_SHIFT_SHORT;
@@ -517,13 +632,14 @@ public class Lexer {
                             return Token.L_SHIFT;
                         }
                     case '=':
+                        readCharacter();
                         return Token.LESS_THAN_EQUAL;
                     default:
                         return Token.LESS_THAN;
                 }
 
             case '=':
-                // = or ==
+                // =. | =.=
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
@@ -533,17 +649,19 @@ public class Lexer {
                 }
 
             case '>':
-                // >, >=, >>, >>=, >>> or >>>==
                 readCharacter();
+                // >. | >.= | >.> | >.>= | >.>> | >.>>==
                 switch (currentChar) {
                     case '>':
                         readCharacter();
+                        // >>. | >>.= | >>.> | >>.>=
                         switch (currentChar) {
                             case '=':
                                 readCharacter();
                                 return Token.R_SHIFT_SHORT;
                             case '>':
                                 readCharacter();
+                                // >>>. | >>>.=
                                 if (currentChar == '=') {
                                     readCharacter();
                                     return Token.R_SHIFT_LOGICAL_SHORT;
@@ -565,7 +683,7 @@ public class Lexer {
                 return Token.QUESTION_MARK;
 
             case '%':
-                // % or %=
+                // %. | %.=
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
@@ -574,7 +692,7 @@ public class Lexer {
                     return Token.PERCENT_SIGN;
                 }
             case '&':
-                // &, && or &=
+                // &. | &.& | &.=
                 readCharacter();
                 switch (currentChar) {
                     case '&':
@@ -594,7 +712,7 @@ public class Lexer {
                 return Token.R_SQUARE_BRACKET;
 
             case '^':
-                // ^ or ^=
+                // ^ | ^.=
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
@@ -614,7 +732,7 @@ public class Lexer {
                 return Token.NOT_LOGICAL;
 
             case '|':
-                // |, || or |=
+                // |. - |.| - |.=
                 readCharacter();
                 switch (currentChar) {
                     case '|':
@@ -627,26 +745,36 @@ public class Lexer {
                         return Token.BAR;
                 }
             default:
-                new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.UNKNOWN_SYMBOL, "Unknown symbol: %c".formatted(currentChar));
+                fail(LexerErrorIds.UNKNOWN_SYMBOL, "Unknown symbol: %c".formatted(currentChar));
                 return new ErrorToken(LexerErrorIds.UNKNOWN_SYMBOL);
         }
     }
 
+    /**
+     * Lexes an integer, i.e. 0 or a sequence of digits that does not start with 0, assuming that currentChar is already a digit.
+     * Any limitations on the length or the value of the integer are not put into place at this point.
+     *
+     * @return an {@link IntegerToken} representing the following integer.
+     */
     private IToken lexInteger() {
         StringBuilder intBuilder = new StringBuilder();
+        if (currentChar == '0') {
+            readCharacter();
+            return new IntegerToken("0");
+        }
+
         while (Character.isDigit(currentChar)) {
             intBuilder.append((char) currentChar);
             readCharacter();
         }
         String valueString = intBuilder.toString();
-        if (valueString.startsWith("0") && valueString.length() > 1) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndContinue(LexerErrorIds.INVALID_INTEGER_LITERAL, "Invalid integer literal: starts with 0 but is not 0");
-            return new ErrorToken(LexerErrorIds.INVALID_INTEGER_LITERAL);
-        }
-        int value = Integer.parseInt(valueString);
-        return new IntegerToken(value);
+
+        return new IntegerToken(valueString);
     }
 
+    /**
+     * "Consumes" the currentChar and reads another one from the {@link Reader}.
+     */
     private void readCharacter() {
         try {
             int oldChar = currentChar;
@@ -661,35 +789,78 @@ public class Lexer {
         }
     }
 
+    /**
+     * Removes the next {@link TokenOccurrence} from the buffer and returns it.
+     *
+     * @return the next {@link TokenOccurrence}
+     */
     public TokenOccurrence nextToken() {
         this.lex();
         return tokenBuffer.pop();
     }
 
+    /**
+     * Returns the n-th {@link TokenOccurrence} from the buffer without removing it from the buffer.
+     *
+     * @return the n-th {@link TokenOccurrence}
+     */
     public TokenOccurrence peek(int lookAhead) {
         return tokenBuffer.peek(lookAhead);
     }
 
-    public TokenOccurrence peek(){
-        return tokenBuffer.peek();
+    /**
+     * Returns the next {@link TokenOccurrence} from the buffer without removing it from the buffer.
+     *
+     * @return the next {@link TokenOccurrence}
+     */
+    public TokenOccurrence peek() {
+        return tokenBuffer.peek(0);
     }
 
     private void push(TokenOccurrence token) {
         tokenBuffer.push(token);
     }
 
+    /**
+     * @return the position of the next char of the input stream
+     */
     public Position getPosition() {
         return this.position.copy();
     }
 
-    private void open(File input) {
-        try {
-            this.reader = new FileReader(input);
-        } catch (IOException e) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
-        }
+    void fail(LexerErrorIds id, String message) {
+        OutputMessageHandler handler = new OutputMessageHandler(MessageOrigin.LEXER, System.err);
+        handler.printErrorAndExit(id, message);
     }
 
+    /**
+     * Creates a {@link Lexer} that lexes the given {@link File}.
+     *
+     * @param file The {@link File} to lex
+     * @return A {@link Lexer} for the file
+     */
+    public static Lexer forFile(File file) {
+        try {
+            return new Lexer(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Could not lex file: file not found or not readable.");
+        }
+        return null;
+    }
+
+    /**
+     * Creates a {@link Lexer} that lexes the given {@link String}.
+     *
+     * @param input The {@link String} to lex
+     * @return A {@link Lexer} for the input
+     */
+    public static Lexer forString(String input) {
+        return new Lexer(new StringReader(input));
+    }
+
+    /**
+     * Represents the position of a {@link Reader} in a source, counted as lines and columns. The initial Position is 1:1.
+     */
     public static class Position {
         private int line;
         private int column;
@@ -747,4 +918,5 @@ public class Lexer {
             new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("Cannot advance an immutable Position.");
         }
     }
+
 }

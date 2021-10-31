@@ -1,31 +1,30 @@
 package de.dercompiler.actions;
-
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.Token;
 
-import java.io.File;
+import java.io.Reader;
+import java.util.EnumSet;
 
 public class LexTestAction extends Action {
 
     public static final String HELP_TEXT = "--lexTest <file>: Generates a sequence of tokens out of the file and prints it to the console.";
     public static final String COMMAND_LINE_NAME = "lexTest";
-    private final boolean printPosition;
-    private File input;
+    private Reader reader;
+    private boolean printPosition;
 
     /**
-     * Creates a new LexTestAction with the given input file
-     * @param input The file to lex
-     * @param printPosition If true, the positions of the tokens are printed out.
+     * Creates a new LexTestAction with the given input reader
+     *
+     * @param reader The input reader to read characters from
      */
-    public LexTestAction(File input, boolean printPosition) {
-        this.input = input;
-        this.printPosition = printPosition;
+    public LexTestAction(Reader reader) {
+        this.reader = reader;
     }
 
     @Override
     public void run() {
-        Lexer lexer = new Lexer(this.input);
+        Lexer lexer = new Lexer(this.reader);
         TokenOccurrence token;
         do {
             token = lexer.nextToken();
@@ -33,6 +32,10 @@ public class LexTestAction extends Action {
                     : token.type().toString();
             System.out.println(output);
         } while (token.type() != Token.EOF);
+    }
+
+    public void setPrintPosition(boolean printPosition) {
+        this.printPosition = printPosition;
     }
 
     @Override
@@ -44,4 +47,5 @@ public class LexTestAction extends Action {
     public String actionId() {
         return COMMAND_LINE_NAME;
     }
+
 }

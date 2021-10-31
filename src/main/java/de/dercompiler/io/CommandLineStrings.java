@@ -15,7 +15,7 @@ public class CommandLineStrings {
     // Commands
     public static final String COMMAND_NO_SHORT_OPTION = null;
     public static final String COMMAND_ECHO = "echo";
-    public static final String COMMAND_LEX_TEST = "lexTest";
+    public static final String COMMAND_LEX_TEST = "lextest";
     public static final String COMMAND_HELP = "help";
     public static final String COMMAND_HELP_SHORT = "h";
     public static final String COMMAND_WORKING_DIR = "working-directory";
@@ -28,6 +28,9 @@ public class CommandLineStrings {
     public static final String COMMAND_PRINT_8BIT_COLOR = "8bit-color";
     public static final String COMMAND_PRINT_TRUE_COLOR = "true-color";
 
+    // Options
+    public static final String OPTION_LEX_STRING = "lex-string";
+    public static final String OPTION_LEX_STRING_SHORT = "s";
     public static final String OPTION_PRINT_POSITION = "print-position";
 
     // Descriptions
@@ -44,5 +47,6 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_8BIT_COLOR = "8-bit color output";
     public static final String DESCRIPTION_PRINT_TRUE_COLOR = "True color output";
 
-    public static final String DESCRIPTION_PRINT_POSITION = "(--lexTest) Prints the positions of the token occurrences";
+    public static final String DESCRIPTION_LEX_STRING = "(--lextest) Lexes a String instead of a file";
+    public static final String DESCRIPTION_PRINT_POSITION = "(--lextest) Prints the positions of the token occurrences";
 }

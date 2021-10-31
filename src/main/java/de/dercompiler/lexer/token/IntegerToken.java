@@ -1,18 +1,30 @@
 package de.dercompiler.lexer.token;
 
-public final class IntegerToken implements IToken {
-    private int value;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 
-    public IntegerToken(int value) {
+import java.util.Objects;
+
+/**
+ * Represents an Integer literal Token and its literal value.
+ * Parsing the value is delegated to later stages where the sign of the integer is clear.
+ */
+public final class IntegerToken implements IToken {
+    private String value;
+
+    public IntegerToken(String value) {
+        if (Objects.isNull(value) || value.length() == 0) {
+            new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("IntegerToken(value) called with empty or null value");
+        }
         this.value = value;
     }
 
     @Override
     public String toString() {
-        return "integer literal %d".formatted(value);
+        return "integer literal %s".formatted(value);
     }
 
-    public int getValue() {
+    public String getValue() {
         return value;
     }
 }

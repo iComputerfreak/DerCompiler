@@ -5,10 +5,11 @@ import de.dercompiler.actions.CompileAction;
 import de.dercompiler.actions.EchoAction;
 import de.dercompiler.actions.LexTestAction;
 import de.dercompiler.io.CommandLineOptions;
+import de.dercompiler.io.CommandLineStrings;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
-import java.io.File;
+import java.io.*;
 import java.util.Objects;
 
 public class CompilerSetup {
@@ -34,12 +35,13 @@ public class CompilerSetup {
     /**
      * Sets the given action as active for this setup.
      * If there is an action set already, this function prints an error and ignores the given action.
+     *
      * @param action The action to set
      */
     private void setAction(Action action) {
         if (!Objects.isNull(this.action)) {
             new OutputMessageHandler(MessageOrigin.GENERAL, System.err)
-                .printErrorAndExit(GeneralErrorIds.TOO_MANY_ACTIONS,"Actions " + this.action.actionId() + " and " + action.actionId() + " cannot be executed at the same time");
+                    .printErrorAndExit(GeneralErrorIds.TOO_MANY_ACTIONS, "Actions " + this.action.actionId() + " and " + action.actionId() + " cannot be executed at the same time");
         }
         this.action = action;
     }
@@ -57,10 +59,26 @@ public class CompilerSetup {
         }
 
         if (options.lexTest()) {
-            File input = options.getFileArgument();
-            setAction(new LexTestAction(input, options.printPosition()));
+            Reader reader = null;
+            if (options.lexString()) {
+                String inputString = options.getStringArgument(CommandLineStrings.OPTION_LEX_STRING);
+                reader = new StringReader(inputString);
+            } else {
+                File input = options.getFileArgument();
+
+                try {
+                    reader = new FileReader(input);
+                } catch (IOException e) {
+                    new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
+                }
+            }
+            LexTestAction action = new LexTestAction(reader);
+            action.setPrintPosition(options.printPosition());
+            setAction(action);
         } else if (options.printPosition()) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lexText");
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lextext");
+        } else if (options.lexString()) {
+            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --lexString only works with --lextext");
         }
 
         if (Objects.isNull(action)) {
