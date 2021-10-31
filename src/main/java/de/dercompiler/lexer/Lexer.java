@@ -690,7 +690,7 @@ public class Lexer {
         }
     }
 
-    static class Position {
+    public static class Position {
         private int line;
         private int column;
 

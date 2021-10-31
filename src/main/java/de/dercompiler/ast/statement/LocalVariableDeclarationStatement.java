@@ -16,8 +16,4 @@ public final class LocalVariableDeclarationStatement extends Statement {
         this.identifier = identifier;
         this.valueExpression = valueExpression;
     }
-
-    public LocalVariableDeclarationStatement(Type type, String identifier) {
-        this(type, identifier, null);
-    }
 }

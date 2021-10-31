@@ -11,11 +11,11 @@ import java.util.Objects;
 
 public class PrecedenceParser {
 
-    private final Lexer lexer;
+    private final LexerWrapper lexer;
     private final Parser parser;
 
     public PrecedenceParser(Lexer lexer, Parser parser) {
-        this.lexer = lexer;
+        this.lexer = new LexerWrapper(lexer);
         this.parser = parser;
     }
 
@@ -46,11 +46,13 @@ public class PrecedenceParser {
         IToken token = expectOperatorToken();
         int prec;
         while (!Objects.isNull(token) && (prec = precedenceOfOperation(token)) >= minPrec) {
+            if (prec == -1) {
+                handleError(token);
+            }
             AbstractExpression rhs = parseExpression(prec + 1);
             result = ExpressionFactory.createExpression(token, result, rhs);
             if (Objects.isNull(result)) {
-                new OutputMessageHandler(MessageOrigin.PARSER, System.err)
-                        .printErrorAndExit(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN,"Token " + token + " is not supported. No Expression could be created!");
+                handleError(token);
             }
             token = expectOperatorToken();
         }
@@ -58,11 +60,16 @@ public class PrecedenceParser {
     }
 
     private IToken expectOperatorToken() {
-        IToken token = lexer.peek().type();
+        IToken token = lexer.peek();
         if (token instanceof Token t && Token.ASSIGN.ordinal() <= t.ordinal() && t.ordinal() <= Token.XOR.ordinal()) {
             lexer.nextToken();
             return token;
         }
         return null;
+    }
+
+    private void handleError(IToken token) {
+        new OutputMessageHandler(MessageOrigin.PARSER, System.err)
+                .printErrorAndExit(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN,"Token " + token + " is not supported. No Expression could be created!");
     }
 }
