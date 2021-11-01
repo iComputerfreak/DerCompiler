@@ -795,6 +795,9 @@ public class Lexer {
      * @return the next {@link TokenOccurrence}
      */
     public TokenOccurrence nextToken() {
+        if (tokenBuffer.isEmpty()) {
+            this.lex();
+        }
         TokenOccurrence next = tokenBuffer.pop();
         this.lex();
         return next;
