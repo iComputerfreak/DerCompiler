@@ -795,8 +795,9 @@ public class Lexer {
      * @return the next {@link TokenOccurrence}
      */
     public TokenOccurrence nextToken() {
+        TokenOccurrence next = tokenBuffer.pop();
         this.lex();
-        return tokenBuffer.pop();
+        return next;
     }
 
     /**
@@ -805,6 +806,9 @@ public class Lexer {
      * @return the n-th {@link TokenOccurrence}
      */
     public TokenOccurrence peek(int lookAhead) {
+        while (lookAhead < tokenBuffer.getCapacity() && lookAhead + 1 > tokenBuffer.getLength()) {
+            lex();
+        }
         return tokenBuffer.peek(lookAhead);
     }
 
@@ -814,7 +818,10 @@ public class Lexer {
      * @return the next {@link TokenOccurrence}
      */
     public TokenOccurrence peek() {
-        return tokenBuffer.peek(0);
+        if (tokenBuffer.isEmpty()) {
+            lex();
+        }
+        return tokenBuffer.peek();
     }
 
     private void push(TokenOccurrence token) {
