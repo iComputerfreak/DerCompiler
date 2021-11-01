@@ -342,8 +342,8 @@ public class Parser {
     }
 
     public AbstractExpression parseUnaryExpression() {
-        IToken token = wlexer.nextToken();
-        if (isPrimary(wlexer.peek())) {
+        IToken token = wlexer.peek();
+        if (isPrimary(token)) {
             return parsePostfixExpression();
         }
         if (token instanceof Token t) {
@@ -356,6 +356,10 @@ public class Parser {
                     wlexer.nextToken();
                     return new NegativeExpression(parseUnaryExpression());
                 }
+                case DECREMENT -> {
+                    wlexer.nextToken();
+                    return new NegativeExpression(new NegativeExpression(parseUnaryExpression()));
+                }
             }
         }
         logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation!");
@@ -364,7 +368,6 @@ public class Parser {
 
     public AbstractExpression parsePostfixExpression() {
         AbstractExpression expression = parsePrimaryExpression();
-        IToken token;
 
         while (wlexer.peek() instanceof Token t) {
             switch (t) {
@@ -376,7 +379,7 @@ public class Parser {
                     }
                 }
                 case L_SQUARE_BRACKET -> {
-                    expression = parseFieldAccess(expression);
+                    expression = parseArrayAccess(expression);
                 }
                 default -> {
                     return expression;
@@ -399,13 +402,13 @@ public class Parser {
         Arguments arguments = new Arguments();
         IToken token = wlexer.peek();
 
-        if (token instanceof Token t && t == R_PAREN) return arguments;
+        if (token == R_PAREN) return arguments;
 
         do {
             arguments.addArgument(parseExpression());
             if (wlexer.peek() != R_PAREN) {
                 expect(COMMA);
-                if (wlexer.peek()  == COMMA) {
+                if (wlexer.peek() == COMMA) {
                     logger.printErrorAndExit(ParserErrorIds.EXPECTED_ARGUMENT, "Argument expect after Token \",\"!" + wlexer.position());
                 }
             } else {
@@ -471,12 +474,10 @@ public class Parser {
             } else {
                 expression = new Variable(ident.getIdentifier());
             }
-        }
-        if (token instanceof IntegerToken i) {
+        } else if (token instanceof IntegerToken i) {
             wlexer.nextToken();
             expression = new IntegerValue(i.getValue());
-        }
-        if (token instanceof Token t) {
+        } else if (token instanceof Token t) {
             switch(t) {
                 case NULL: {
                     wlexer.nextToken();

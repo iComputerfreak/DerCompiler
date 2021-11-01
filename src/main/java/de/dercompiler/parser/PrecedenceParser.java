@@ -43,8 +43,9 @@ public class PrecedenceParser {
     private AbstractExpression parseExpression(int minPrec) {
 
         AbstractExpression result = parser.parseUnaryExpression();
+        int prec = precedenceOfOperation(lexer.peek());
+        if (prec < 0) return result;
         IToken token = expectOperatorToken();
-        int prec;
         while (!Objects.isNull(token) && (prec = precedenceOfOperation(token)) >= minPrec) {
             if (prec == -1) {
                 handleError(token);

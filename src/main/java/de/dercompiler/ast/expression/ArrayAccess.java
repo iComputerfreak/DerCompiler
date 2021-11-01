@@ -17,7 +17,7 @@ public final class ArrayAccess extends PostfixExpression {
     public boolean syntaxEqual(ASTNode other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof ArrayAccess aa) {
-            return arrayPosition == aa.arrayPosition && syntaxEqualEncapsulated(aa);
+            return arrayPosition.syntaxEqual(aa.arrayPosition) && syntaxEqualEncapsulated(aa);
         }
         return false;
     }

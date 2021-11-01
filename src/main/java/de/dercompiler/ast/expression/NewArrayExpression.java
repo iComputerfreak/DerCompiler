@@ -14,6 +14,7 @@ public final class NewArrayExpression extends PrimaryExpression {
 
     public NewArrayExpression(BasicType type, AbstractExpression size, int dimension) {
         this.type = type;
+        this.size = size;
         this.dimension = dimension;
     }
 
