@@ -90,6 +90,8 @@ public class CompilerSetup {
                 reader = new FileReader(input);
             } catch (IOException e) {
                 new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
+            } catch (NullPointerException e) {
+                new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.MISSING_INPUT_FILE, "An argument is missing its corresponding input", e);
             }
         }
         return reader;
