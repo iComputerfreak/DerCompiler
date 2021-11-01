@@ -1,4 +1,6 @@
 package de.dercompiler.ast.type;
 
-public abstract sealed class BasicType permits IntType, BooleanType, VoidType, CustomType {
+import de.dercompiler.ast.ASTNode;
+
+public abstract sealed class BasicType implements ASTNode permits IntType, BooleanType, VoidType, CustomType {
 }
