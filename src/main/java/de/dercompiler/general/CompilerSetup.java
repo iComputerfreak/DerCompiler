@@ -1,9 +1,6 @@
 package de.dercompiler.general;
 
-import de.dercompiler.actions.Action;
-import de.dercompiler.actions.CompileAction;
-import de.dercompiler.actions.EchoAction;
-import de.dercompiler.actions.LexTestAction;
+import de.dercompiler.actions.*;
 import de.dercompiler.io.CommandLineOptions;
 import de.dercompiler.io.CommandLineStrings;
 import de.dercompiler.io.OutputMessageHandler;
@@ -59,26 +56,18 @@ public class CompilerSetup {
         }
 
         if (options.lexTest()) {
-            Reader reader = null;
-            if (options.lexString()) {
-                String inputString = options.getStringArgument(CommandLineStrings.OPTION_LEX_STRING);
-                reader = new StringReader(inputString);
-            } else {
-                File input = options.getFileArgument();
-
-                try {
-                    reader = new FileReader(input);
-                } catch (IOException e) {
-                    new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
-                }
-            }
+            Reader reader = getReaderFromArgs(options);
             LexTestAction action = new LexTestAction(reader);
             action.setPrintPosition(options.printPosition());
             setAction(action);
         } else if (options.printPosition()) {
             new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lextext");
-        } else if (options.lexString()) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --lexString only works with --lextext");
+        }
+
+        if (options.parseTest()) {
+            Reader reader = getReaderFromArgs(options);
+            ParseTestAction action = new ParseTestAction(reader);
+            setAction(action);
         }
 
         if (Objects.isNull(action)) {
@@ -87,5 +76,22 @@ public class CompilerSetup {
         }
 
         return action;
+    }
+
+    private Reader getReaderFromArgs(CommandLineOptions options) {
+        Reader reader = null;
+        if (options.lexString()) {
+            String inputString = options.getStringArgument(CommandLineStrings.OPTION_LEX_STRING);
+            reader = new StringReader(inputString);
+        } else {
+            File input = options.getFileArgument();
+
+            try {
+                reader = new FileReader(input);
+            } catch (IOException e) {
+                new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
+            }
+        }
+        return reader;
     }
 }

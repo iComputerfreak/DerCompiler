@@ -52,7 +52,7 @@ public class CommandLineOptions {
     }
 
     /**
-     * @return true if the lexTest command has been given
+     * @return true if the lextest command has been given
      */
     public boolean lexTest() {
         return cmd.hasOption(COMMAND_LEX_TEST);
@@ -63,6 +63,13 @@ public class CommandLineOptions {
      */
     public boolean lexString() {
         return cmd.hasOption(OPTION_LEX_STRING_SHORT);
+    }
+
+    /**
+     * @return true if the parsetest command has been given
+     */
+    public boolean parseTest() {
+        return cmd.hasOption(COMMAND_PARSE_TEST);
     }
 
     /**

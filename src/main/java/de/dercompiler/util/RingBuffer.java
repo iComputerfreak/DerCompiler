@@ -75,5 +75,11 @@ public class RingBuffer<T> {
         return this.length == this.capacity;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
 
+    public int getLength() {
+        return length;
+    }
 }
