@@ -461,7 +461,8 @@ public class Parser {
         AbstractExpression expression = new ErrorExpression();
         IToken token = wlexer.peek();
         if (token instanceof IdentifierToken ident) {
-            if (wlexer.peek(1) == L_PAREN) {
+            wlexer.nextToken();
+            if (wlexer.peek() == L_PAREN) {
                 expect(L_PAREN);
                 Arguments arguments = parseArguments();
                 expect(R_PAREN);
@@ -472,20 +473,25 @@ public class Parser {
             }
         }
         if (token instanceof IntegerToken i) {
+            wlexer.nextToken();
             expression = new IntegerValue(i.getValue());
         }
         if (token instanceof Token t) {
             switch(t) {
                 case NULL: {
+                    wlexer.nextToken();
                     expression = new NullValue();
                 } break;
                 case FALSE: {
+                    wlexer.nextToken();
                     expression = new BooleanValue(false);
                 } break;
                 case TRUE: {
+                    wlexer.nextToken();
                     expression = new BooleanValue(true);
                 } break;
                 case THIS: {
+                    wlexer.nextToken();
                     expression = new ThisValue();
                 } break;
                 case L_PAREN: {
@@ -503,7 +509,7 @@ public class Parser {
                             logger.printErrorAndExit(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected a object instantiation, in line " + wlexer.position() + "!");
                         }
                     }
-                }
+                } break;
                 default: {
                     logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary-type, no primary type starts with token: " + wlexer.peek(0) + " in line: " + wlexer.position() + "!");
                 }
@@ -515,13 +521,16 @@ public class Parser {
     public AbstractExpression parseNewArrayExpression() {
         expect(NEW);
         BasicType type = parseBasicType();
-        int dimension = 0;
-        do {
+        int dimension =0;
+        expect(L_SQUARE_BRACKET);
+        AbstractExpression size = parseExpression();
+        expect(R_SQUARE_BRACKET);
+        while (wlexer.peek() == L_SQUARE_BRACKET) {
             expect(L_SQUARE_BRACKET);
             expect(R_SQUARE_BRACKET);
             dimension++;
-        } while (wlexer.peek() == L_SQUARE_BRACKET);
-        return new NewArrayExpression(type, dimension);
+        }
+        return new NewArrayExpression(type, size, dimension);
     }
 
     public AbstractExpression parseNewObjectExpression() {

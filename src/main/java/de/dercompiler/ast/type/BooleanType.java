@@ -9,6 +9,6 @@ public final class BooleanType extends BasicType {
     @Override
     public boolean syntaxEqual(ASTNode other) {
         // TODO implement
-        return false;
+        return true;
     }
 }

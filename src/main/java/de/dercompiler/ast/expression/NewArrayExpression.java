@@ -9,9 +9,10 @@ import java.util.Objects;
 public final class NewArrayExpression extends PrimaryExpression {
 
     private BasicType type;
-    int dimension;
+    private AbstractExpression size;
+    private int dimension;
 
-    public NewArrayExpression(BasicType type, int dimension) {
+    public NewArrayExpression(BasicType type, AbstractExpression size, int dimension) {
         this.type = type;
         this.dimension = dimension;
     }
@@ -21,7 +22,8 @@ public final class NewArrayExpression extends PrimaryExpression {
         if (Objects.isNull(other)) return false;
         if (other instanceof NewArrayExpression nae) {
             return type.syntaxEqual(nae.type)
-                    && dimension == nae.dimension;
+                    && dimension == nae.dimension
+                    && size.syntaxEqual(nae.size);
         }
         return false;
     }

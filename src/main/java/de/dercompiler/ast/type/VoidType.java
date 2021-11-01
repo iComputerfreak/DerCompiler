@@ -8,6 +8,6 @@ public final class VoidType extends BasicType {
     @Override
     public boolean syntaxEqual(ASTNode other) {
         // TODO implement
-        return false;
+        return true;
     }
 }

@@ -9,6 +9,6 @@ public final class Type implements ASTNode {
     @Override
     public boolean syntaxEqual(ASTNode other) {
         // TODO implement
-        return false;
+        return true;
     }
 }
