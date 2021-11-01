@@ -7,6 +7,7 @@ import java.io.Reader;
 
 public class ParseTestAction extends Action {
 
+    private static final String ACTION_ID = "parsetest";
     private final Reader reader;
 
     /**
@@ -33,6 +34,6 @@ public class ParseTestAction extends Action {
 
     @Override
     public String actionId() {
-        return null;
+        return ACTION_ID;
     }
 }
