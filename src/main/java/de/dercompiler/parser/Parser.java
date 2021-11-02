@@ -176,20 +176,19 @@ public class Parser {
     public Type parseType() {
         // BasicType TypeRest
         BasicType type = parseBasicType();
-        TypeRest rest = parseTypeRest();
-        return new Type(type, rest);
+        int dimension = parseTypeRest();
+        return new Type(type, dimension);
     }
     
-    public TypeRest parseTypeRest() {
+    public int parseTypeRest() {
         // ([] TypeRest)?
         if (lexer.peek().type() == L_SQUARE_BRACKET) {
             expect(L_SQUARE_BRACKET);
             expect(R_SQUARE_BRACKET);
-            TypeRest rest = parseTypeRest();
-            return new TypeRest(rest);
+            return parseTypeRest() + 1;
         }
         // If there is no rest, we return null
-        return null;
+        return 0;
     }
     
     public BasicType parseBasicType() {
