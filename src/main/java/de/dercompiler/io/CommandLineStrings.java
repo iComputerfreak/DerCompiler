@@ -34,6 +34,12 @@ public class CommandLineStrings {
     public static final String OPTION_LEX_STRING_SHORT = "s";
     public static final String OPTION_PRINT_POSITION = "print-position";
 
+    public static final String OPTION_PARSE_METHOD = "method";
+    public static final String OPTION_PARSE_STATEMENT = "statement";
+    public static final String OPTION_PARSE_EXPRESSION = "expression";
+
+
+
     // Descriptions
     public static final String DESCRIPTION_ECHO = "Prints the content of the file";
     public static final String DESCRIPTION_LEX_TEST = "Prints the sequence of tokens in the input";

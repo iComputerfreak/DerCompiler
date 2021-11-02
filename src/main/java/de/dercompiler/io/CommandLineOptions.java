@@ -231,4 +231,7 @@ public class CommandLineOptions {
         return getActiveOption(true, options);
     }
 
+    public String getActiveParseTestOption() {
+        return getActiveOption(OPTION_PARSE_METHOD, OPTION_PARSE_STATEMENT, OPTION_PARSE_EXPRESSION);
+    }
 }

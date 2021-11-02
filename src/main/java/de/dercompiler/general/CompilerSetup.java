@@ -66,7 +66,8 @@ public class CompilerSetup {
 
         if (options.parseTest()) {
             Reader reader = getReaderFromArgs(options);
-            ParseTestAction action = new ParseTestAction(reader);
+            String parseTestOption = options.getActiveParseTestOption();
+            ParseTestAction action = new ParseTestAction(reader, parseTestOption);
             setAction(action);
         }
 
