@@ -22,14 +22,14 @@ public class PrecedenceParser {
     private int precedenceOfOperation(IToken token) {
         if (token instanceof Token t) {
             return switch (t) {
-                case ASSIGN -> 6;
-                case OR_LAZY -> 5;
-                case AND_LAZY -> 4;
+                case ASSIGN -> 0;
+                case OR_LAZY -> 1;
+                case AND_LAZY -> 2;
                 case EQUAL, NOT_EQUAL -> 3;
-                case LESS_THAN, LESS_THAN_EQUAL, GREATER_THAN, GREATER_THAN_EQUAL -> 2;
+                case LESS_THAN, LESS_THAN_EQUAL, GREATER_THAN, GREATER_THAN_EQUAL -> 4;
                 //in case your wonder, were NegativeExpression is created, look in Parser.parseUnaryExp()
-                case PLUS, MINUS -> 1;
-                case STAR, SLASH, PERCENT_SIGN -> 0;
+                case PLUS, MINUS -> 5;
+                case STAR, SLASH, PERCENT_SIGN -> 6;
                 default -> -1;
             };
         }
@@ -44,7 +44,7 @@ public class PrecedenceParser {
 
         AbstractExpression result = parser.parseUnaryExpression();
         int prec = precedenceOfOperation(lexer.peek());
-        if (prec < 0) return result;
+        if (prec < minPrec) return result;
         IToken token = expectOperatorToken();
         while (!Objects.isNull(token) && (prec = precedenceOfOperation(token)) >= minPrec) {
             if (prec == -1) {
