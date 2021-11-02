@@ -252,24 +252,30 @@ public class Parser {
     }
 
     public Statement parseBlockStatement() {
-        IToken token = wlexer.peek();
-        boolean possible_expression = isExpression(token);
-        boolean possible_type = isType(token);
-        //= token instanceof IdentifierToken
-        if (possible_expression && possible_type) {
-            //when ident[] varname -> variableDeclaration
-            //when ident[expr] -> expression
-            if (wlexer.peek(1) instanceof IdentifierToken || (wlexer.peek(1) == L_SQUARE_BRACKET && wlexer.peek(2) == R_SQUARE_BRACKET)) {
-                return parseVariableDeclaration();
+        expect(L_CURLY_BRACKET);
+        IToken token;
+        LinkedList<Statement> statements = new LinkedList<>();
+        while((token = wlexer.peek()) != R_CURLY_BRACKET) {
+            boolean possible_expression = isExpression(token);
+            boolean possible_type = isType(token);
+            //= token instanceof IdentifierToken
+            if (possible_expression && possible_type) {
+                //when ident[] varname -> variableDeclaration
+                //when ident[expr] -> expression
+                if (wlexer.peek(1) instanceof IdentifierToken || (wlexer.peek(1) == L_SQUARE_BRACKET && wlexer.peek(2) == R_SQUARE_BRACKET)) {
+                    statements.addLast(parseVariableDeclaration());
+                } else {
+                    statements.addLast(parseStatement());
+                }
+            } else if (possible_type) {
+                statements.addLast(parseVariableDeclaration());
             } else {
-                return parseStatement();
+                //fuse statement possible_expression and non_primary because it is one call
+                statements.addLast(parseStatement());
             }
-        } else if (possible_type) {
-            return parseVariableDeclaration();
-        } else {
-            //fuse statement possible_expression and non_primary because it is one call
-            return parseStatement();
         }
+        expect(R_CURLY_BRACKET);
+        return new BasicBlock(statements);
     }
 
     public Statement parseVariableDeclaration() {
@@ -277,7 +283,9 @@ public class Parser {
         IdentifierToken ident = expectIdentifier();
         AbstractExpression expression = new UninitializedValue();
         if (wlexer.peek() == ASSIGN) {
+            expect(ASSIGN);
             expression = parseExpression();
+            expect(SEMICOLON);
         } else {
             expect(SEMICOLON);
         }
@@ -289,7 +297,7 @@ public class Parser {
         if (token instanceof Token t) {
             return switch (t) {
                 case L_CURLY_BRACKET -> parseBlockStatement();
-                case SEMICOLON -> new EmptyStatement();
+                case SEMICOLON -> wlexer.consumeToken(new EmptyStatement());
                 case IF -> parseIfStatement();
                 case WHILE -> parseWhileStatement();
                 case RETURN -> parseReturnStatement();
@@ -323,6 +331,7 @@ public class Parser {
     }
 
     public Statement parseReturnStatement() {
+        expect(RETURN);
         AbstractExpression returnExpression = new VoidExpression();
         if (wlexer.peek() != SEMICOLON)  {
             returnExpression = parseExpression();

@@ -25,7 +25,7 @@ public final class LocalVariableDeclarationStatement extends Statement {
         if (other instanceof LocalVariableDeclarationStatement lvds) {
             return type.syntaxEqual(lvds.type)
                     && identifier.equals(lvds.identifier)
-                    && valueExpression.syntaxEqual(valueExpression);
+                    && valueExpression.syntaxEqual(lvds.valueExpression);
         }
         return false;
     }
