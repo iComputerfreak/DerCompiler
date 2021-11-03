@@ -113,7 +113,6 @@ public class ParserTestExpressions {
             "!foo",
             "!true",
             "-foo",
-            "---4",
             "foo",
             "123"
         };
@@ -121,7 +120,6 @@ public class ParserTestExpressions {
             new LogicalNotExpression(new Variable("foo")),
             new LogicalNotExpression(new BooleanValue(true)),
             new NegativeExpression(new Variable("foo")),
-            new NegativeExpression(new NegativeExpression(new NegativeExpression(new IntegerValue("4")))),
             new Variable("foo"),
             new IntegerValue("123")
         };
