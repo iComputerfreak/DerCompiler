@@ -184,6 +184,7 @@ public class Lexer {
                         } else {
                             return parseId("co");
                         }
+                    default: return parseId("c");
                 }
             case 'd':
                 readCharacter();
@@ -356,7 +357,7 @@ public class Lexer {
                         // pu.blic
                         return compareSuffix(Token.PUBLIC, 2);
                     default:
-                        parseId("p");
+                        return parseId("p");
                 }
             case 'r':
                 readCharacter();
