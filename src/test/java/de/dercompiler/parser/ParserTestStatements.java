@@ -183,8 +183,7 @@ public class ParserTestStatements {
             "a;",
             "foo + foo;",
             "foo.bar();",
-                //TODO add, but doesn't work currently because of a lexer bug
-            //"a = b[i] + c.d;",
+            "a = b[i] + c.d;",
         };
         Variable a = new Variable("a");
         Variable b = new Variable("b");
@@ -197,10 +196,10 @@ public class ParserTestStatements {
             new ExpressionStatement(a),
             new ExpressionStatement(new AddExpression(foo, foo)),
             new ExpressionStatement(new MethodInvocationOnObject(foo, bar.getName(), new Arguments())),
-          /*  new ExpressionStatement(new AssignmentExpression(a, new AddExpression(
+            new ExpressionStatement(new AssignmentExpression(a, new AddExpression(
                     new ArrayAccess(b, i),
                     new FieldAccess(c, d.getName())
-            ))),*/
+            )))
         };
         testLexstringEqualASTNode(expr, expr_expected);
     }
