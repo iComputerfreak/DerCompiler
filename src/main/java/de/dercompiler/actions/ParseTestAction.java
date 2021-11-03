@@ -1,5 +1,6 @@
 package de.dercompiler.actions;
 
+import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 
@@ -10,24 +11,24 @@ import static de.dercompiler.io.CommandLineStrings.*;
 public class ParseTestAction extends Action {
 
     private static final String ACTION_ID = "parsetest";
-    private final Reader reader;
+    private final Source source;
     private final String entryPoint;
 
     /**
-     * Creates a new LexTestAction with the given input reader
+     * Creates a new LexTestAction with the given input source
      *
-     * @param reader The input reader to read characters from
+     * @param source The input source to read characters from
      * @param entryPoint The level of the grammar to enter the parsing process
      */
-    public ParseTestAction(Reader reader, String entryPoint) {
-        this.reader = reader;
+    public ParseTestAction(Source source, String entryPoint) {
+        this.source = source;
         this.entryPoint = entryPoint;
     }
 
 
     @Override
     public void run() {
-        Lexer lexer = new Lexer(reader);
+        Lexer lexer = new Lexer(source);
         Parser parser = new Parser(lexer);
         if (this.entryPoint == null) {
             parser.parseProgram();
@@ -39,7 +40,7 @@ public class ParseTestAction extends Action {
                 parser.parseMethod();
                 break;
             case OPTION_PARSE_STATEMENT:
-                parser.parseStatement();
+                parser.parseBlockStatement();
                 break;
             case OPTION_PARSE_EXPRESSION:
                 parser.parseExpression();
