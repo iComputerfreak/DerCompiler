@@ -125,7 +125,7 @@ public class Parser {
         // First2(Parameters) = First2(Parameter) = First2(Type) u {IDENT} = First2(BasicType) x {IDENT}
         // = {int IDENT, boolean IDENT, void IDENT, IDENT IDENT}
         IToken t = lexer.peek().type();
-        Parameters params = null;
+        LinkedList<Parameter> params = new LinkedList<>();
         if (t == INT_TYPE || t == BOOLEAN_TYPE || t == VOID || t instanceof IdentifierToken) {
             if (lexer.peek(1).type() instanceof IdentifierToken) {
                 params = parseParameters();
@@ -147,23 +147,22 @@ public class Parser {
         return new MethodRest(ident.getIdentifier());
     }
 
-    public Parameters parseParameters() {
+    public LinkedList<Parameter> parseParameters() {
         // Parameter ParametersRest
-        Parameter p = parseParameter();
-        ParametersRest rest = parseParametersRest();
-        return new Parameters(p, rest);
+        LinkedList<Parameter> params = new LinkedList<>();
+        params.addLast(parseParameter());
+        return parseParametersRest(params);
     }
 
-    public ParametersRest parseParametersRest() {
+    public LinkedList<Parameter> parseParametersRest(LinkedList<Parameter> parameters) {
         // (, Parameter ParametersRest)?
         if (lexer.peek().type() == COMMA) {
             expect(COMMA);
-            Parameter p = parseParameter();
-            ParametersRest rest = parseParametersRest();
-            return new ParametersRest(p, rest);
+            parameters.addLast(parseParameter());
+            return parseParametersRest(parameters);
         }
         // If there is no rest, we return null
-        return null;
+        return parameters;
     }
 
     public Parameter parseParameter() {
