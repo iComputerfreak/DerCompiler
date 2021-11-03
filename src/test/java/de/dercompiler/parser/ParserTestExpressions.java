@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserTestExpressions {
 
+    private ParserTestHelper pth = new ParserTestHelper();
+
     @BeforeAll
     static void setup() {
         OutputMessageHandler.setDebug();
@@ -31,31 +33,8 @@ public class ParserTestExpressions {
         OutputMessageHandler.clearDebugEvents();
     }
 
-    private void testSyntaxEqual(String expression, ASTNode created, ASTNode compare, Lexer lexer) {
-        boolean equal = created.syntaxEqual(compare);
-        if (!equal) {
-            System.err.println("error: " + expression);
-            created.syntaxEqual(compare);
-        }
-        assertTrue(equal);
-        assertEquals(lexer.peek().type(), Token.EOF);
-    }
-
-    private interface ParserFunction {
-        public ASTNode parse(Parser parser);
-    }
-
-    private void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes, ParserFunction func) {
-        assert(strings.length == nodes.length);
-        Iterator<String> lexValue = Arrays.stream(strings).iterator();
-        Iterator<ASTNode> expected = Arrays.stream(nodes).iterator();
-        while(lexValue.hasNext()) {
-            String lexString = lexValue.next();
-            Lexer lexer = Lexer.forString(lexString);
-            Parser parser = new Parser(lexer);
-            ASTNode created = func.parse(parser);
-            testSyntaxEqual(lexString, created, expected.next(), lexer);
-        }
+    private void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes, ParserTestHelper.ParserFunction func) {
+        pth.testLexstringEqualASTNode(strings, nodes, func);
     }
 
     @Test
