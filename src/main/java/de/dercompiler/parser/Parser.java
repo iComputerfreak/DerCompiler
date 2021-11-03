@@ -388,10 +388,6 @@ public class Parser {
                     wlexer.nextToken();
                     return new NegativeExpression(parseUnaryExpression());
                 }
-                case DECREMENT -> {
-                    wlexer.nextToken();
-                    return new NegativeExpression(new NegativeExpression(parseUnaryExpression()));
-                }
             }
         }
         lexer.printSourceText(lexer.peek().position());
