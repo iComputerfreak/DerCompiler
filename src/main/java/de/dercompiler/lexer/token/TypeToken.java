@@ -21,4 +21,9 @@ public enum TypeToken implements IToken {
     public String getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return getId();
+    }
 }

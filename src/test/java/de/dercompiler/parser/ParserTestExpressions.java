@@ -38,8 +38,8 @@ public class ParserTestExpressions {
     }
 
     @Test
-    @DisplayName("precidence complicated")
-    void precidence_complicated() {
+    @DisplayName("precedence complicated")
+    void precedence_complicated() {
         String[] pc = {
                 "foo = bar + baz",
                 "foo = bar + baz * foo",
@@ -67,9 +67,9 @@ public class ParserTestExpressions {
     }
 
     @Test
-    @DisplayName("precidence")
-    void precidence() {
-        String[] precidence = {
+    @DisplayName("precedence")
+    void precedence() {
+        String[] precedence = {
                 "foo = bar",
                 "foo || bar",
                 "foo && bar",
@@ -87,7 +87,7 @@ public class ParserTestExpressions {
         };
         Variable foo = new Variable("foo");
         Variable bar = new Variable("bar");
-        ASTNode[] precidence_expected = {
+        ASTNode[] precedence_expected = {
                 new AssignmentExpression(foo, bar),
                 new LogicalOrExpression(foo, bar),
                 new LogicalAndExpression(foo, bar),
@@ -103,7 +103,7 @@ public class ParserTestExpressions {
                 new DivisionExpression(foo, bar),
                 new ModuloExpression(foo, bar)
         };
-        testLexstringEqualASTNode(precidence, precidence_expected, Parser::parseExpression);
+        testLexstringEqualASTNode(precedence, precedence_expected, Parser::parseExpression);
     }
 
     @Test
@@ -130,9 +130,9 @@ public class ParserTestExpressions {
     }
 
     @Test
-    @DisplayName("Posfix Expression")
-    void posfix() {
-        String[] posfix = {
+    @DisplayName("Postfix Expression")
+    void postfix() {
+        String[] postfix = {
                 "foo.bar()",
                 "foo.bar",
                 "foo[3]"
@@ -143,7 +143,7 @@ public class ParserTestExpressions {
                 new ArrayAccess(new Variable("foo"), new IntegerValue("3"))
         };
 
-        testLexstringEqualASTNode(posfix, posfix_expected, Parser::parsePostfixExpression);
+        testLexstringEqualASTNode(postfix, posfix_expected, Parser::parsePostfixExpression);
     }
 
     @Test

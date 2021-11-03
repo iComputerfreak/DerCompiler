@@ -1,18 +1,18 @@
 package de.dercompiler.lexer;
 
-import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 
-import java.io.*;
+import java.io.File;
 
 /**
  *  Represents a {@link Lexer} with little extra functionality for testing, leaving the core functionality untouched.
  */
 public class TestLexer extends Lexer {
 
-    public TestLexer(Reader reader) {
-        super(reader);
+    public TestLexer(Source source) {
+        super(source);
     }
 
     public void fail(LexerErrorIds id, String message) {
@@ -21,16 +21,11 @@ public class TestLexer extends Lexer {
     }
 
     public static TestLexer forFile(File file) {
-        try {
-            return new TestLexer(new FileReader(file));
-        } catch (FileNotFoundException e) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Could not lex file: file not found or not readable.");
-        }
-        return null;
+        return new TestLexer(Source.forFile(file));
     }
 
     public static TestLexer forString(String input) {
-        return new TestLexer(new StringReader(input));
+        return new TestLexer(Source.forString(input));
     }
 
     public static class LexerException extends RuntimeException {
