@@ -19,6 +19,6 @@ public final class CustomType extends BasicType {
         // We actually want to compare the String instances here, not the contents,
         // since it is faster and through the string table, we ensure that equal strings also use the same instance
         // noinspection StringEquality
-        return super.syntaxEqual(other) && (other instanceof CustomType type2) && type2.identifier == this.identifier;
+        return super.syntaxEqual(other) && (other instanceof CustomType type2) && this.identifier.equals(type2.identifier);
     }
 }

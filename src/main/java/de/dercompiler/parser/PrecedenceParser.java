@@ -24,13 +24,17 @@ public class PrecedenceParser {
         return parseExpression(0);
     }
 
+    private int operatorPrecedence(IToken token) {
+        if (token instanceof OperatorToken ot) return ot.getPrecedence();
+        return -1;
+    }
+
     private AbstractExpression parseExpression(int minPrec) {
 
         AbstractExpression result = parser.parseUnaryExpression();
+        int prec = operatorPrecedence(lexer.peek());
+        if (prec < minPrec) return result;
         OperatorToken token = expectOperatorToken();
-        if (Objects.isNull(token)) return result;
-
-        int prec;
         while (!Objects.isNull(token) && (prec = token.getPrecedence()) >= minPrec) {
             if (prec == -1) {
                 handleError(token);

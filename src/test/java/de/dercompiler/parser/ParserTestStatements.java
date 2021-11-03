@@ -50,6 +50,70 @@ public class ParserTestStatements {
     }
 
     @Test
+    @DisplayName("parse random code of the Parser")
+    void testRandomCodesniped() {
+        String[] code = {
+              """
+              {
+                  Type type = parseType();
+                  IdentifierToken ident = expectIdentifier();
+                  AbstractExpression expression = new UninitializedValue();
+                  if (wlexer.peek() == ASSIGN) {
+                      expect(ASSIGN);
+                      expression = parseExpression();
+                      expect(SEMICOLON);
+                  } else {
+                      expect(SEMICOLON);
+                  }
+                  return createLocalVariableDeclarationStatement(type, ident.getIdentifier(), expression);
+              }
+              """
+        };
+        Variable Type = new Variable("Type");
+        Variable type = new Variable("type");
+        Variable parseType = new Variable("parseType");
+        Variable IdentifierToken = new Variable("IdentifierToken");
+        Variable expectIdentifier = new Variable("expectIdentifier");
+        Variable ident = new Variable("ident");
+        Variable AbstractExpression = new Variable("AbstractExpression");
+        Variable expression = new Variable("expression");
+        Variable UninitalizedValue = new Variable("UninitializedValue");
+        Variable wlexer = new Variable("wlexer");
+        Variable peek = new Variable("peek");
+        Variable expect = new Variable("expect");
+        Variable parseExpression = new Variable("parseExpression");
+        Variable assign = new Variable("ASSIGN");
+        Variable semicolon = new Variable("SEMICOLON");
+        Variable createLocalVariableDeclarationStatement = new Variable("createLocalVariableDeclarationStatement");
+        Variable getIdentifier = new Variable("getIdentifier");
+        ASTNode[] code_expected = {
+            new BasicBlock(Arrays.asList(
+                    new LocalVariableDeclarationStatement(new Type(new CustomType(Type.getName()), null), type.getName(), new MethodInvocationOnObject(new ThisValue(), parseType.getName(), new Arguments())),
+                    new LocalVariableDeclarationStatement(new Type(new CustomType(IdentifierToken.getName()), null), ident.getName(),new MethodInvocationOnObject(new ThisValue(), expectIdentifier.getName(), new Arguments())),
+                    new LocalVariableDeclarationStatement(new Type(new CustomType(AbstractExpression.getName()), null), expression.getName(), new NewObjectExpression(new CustomType(UninitalizedValue.getName()))),
+                    new IfStatement(
+                            new EqualExpression(new MethodInvocationOnObject(wlexer, peek.getName(), new Arguments()), assign),
+                            new BasicBlock(Arrays.asList(
+                                    new ExpressionStatement(new MethodInvocationOnObject(new ThisValue(), expect.getName(), new Arguments(Arrays.asList(assign)))),
+                                    new ExpressionStatement(new AssignmentExpression(expression, new MethodInvocationOnObject(new ThisValue(), parseExpression.getName(), new Arguments()))),
+                                    new ExpressionStatement(new MethodInvocationOnObject(new ThisValue(), expect.getName(), new Arguments(Arrays.asList(semicolon))))
+                            )),
+                            new BasicBlock(Arrays.asList(
+                                    new ExpressionStatement(new MethodInvocationOnObject(new ThisValue(), expect.getName(), new Arguments(Arrays.asList(semicolon))))
+                            ))
+                    ),
+                    new ReturnStatement(new MethodInvocationOnObject(new ThisValue(), createLocalVariableDeclarationStatement.getName(), new Arguments(Arrays.asList(
+                            type,
+                            new MethodInvocationOnObject(ident, getIdentifier.getName(), new Arguments()),
+                            expression
+                        )))
+                    )
+            ))
+        };
+        testLexstringEqualASTNode(code, code_expected);
+    }
+
+    @Test
     @DisplayName("block statement")
     void testBlockStatement() {
         String[] blocks = {
