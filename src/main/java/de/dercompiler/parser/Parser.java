@@ -84,12 +84,12 @@ public class Parser {
         IToken type = lexer.peek(1).type();
         if (!(type instanceof TypeToken || type instanceof IdentifierToken)) {
             lexer.printSourceText(lexer.peek(1).position());
-            logger.printErrorAndExit(ParserErrorIds.EXPECTED_BASIC_TYPE, "Expected a type but found '%s'".formatted(lexer.peek(1)));
+            logger.printErrorAndExit(ParserErrorIds.EXPECTED_BASIC_TYPE, "Expected a type but found '%s'".formatted(lexer.peek(1).type()));
             return null;
         }
         if (!(lexer.peek(2).type() instanceof IdentifierToken)) {
             lexer.printSourceText(lexer.peek(2).position());
-            logger.printErrorAndExit(ParserErrorIds.EXPECTED_IDENTIFIER, "Expected identifier but found '%s'".formatted(lexer.peek(2)));
+            logger.printErrorAndExit(ParserErrorIds.EXPECTED_IDENTIFIER, "Expected identifier but found '%s'".formatted(lexer.peek(2).type()));
             return null;
         }
 
@@ -217,8 +217,10 @@ public class Parser {
 
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
-        SourcePosition pos = lexer.getPosition();
-        IToken t = lexer.nextToken().type();
+        TokenOccurrence tokenOccurrence = lexer.nextToken();
+        IToken t = tokenOccurrence.type();
+        SourcePosition pos = tokenOccurrence.position();
+
         if (t instanceof IdentifierToken ident) {
             return new CustomType(pos, ident.getIdentifier());
         }
@@ -233,7 +235,7 @@ public class Parser {
             }
         }
 
-        lexer.printSourceText(lexer.peek().position());
+        lexer.printSourceText(pos);
         logger.printErrorAndExit(ParserErrorIds.EXPECTED_BASIC_TYPE,
                 "Expected 'int', 'boolean', 'void' or an identifier, but got '%s'".formatted(t));
         return null;
@@ -401,7 +403,7 @@ public class Parser {
             }
         }
         lexer.printSourceText(lexer.peek().position());
-        logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation!");
+        logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation, but got '%s'".formatted(lexer.peek().type()));
         return new ErrorExpression(pos);
     }
 
@@ -450,8 +452,8 @@ public class Parser {
             if (wlexer.peek() != R_PAREN) {
                 expect(COMMA);
                 if (wlexer.peek() == COMMA) {
-                    lexer.printSourceText(lexer.getPosition());
-                    logger.printErrorAndExit(ParserErrorIds.EXPECTED_ARGUMENT, "Argument expect after Token \",\"!");
+                    lexer.printSourceText(lexer.peek().position());
+                    logger.printErrorAndExit(ParserErrorIds.EXPECTED_ARGUMENT, "Argument expected after Token \",\"!");
                 }
             } else {
                 break;
@@ -557,7 +559,7 @@ public class Parser {
                             expression = parseNewArrayExpression();
                         } else {
                             lexer.printSourceText(lexer.getPosition());
-                            logger.printErrorAndExit(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected a object instantiation");
+                            logger.printErrorAndExit(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected an object instantiation");
                         }
                     }
                 }

@@ -857,7 +857,7 @@ public class Lexer {
         while (this.position.getLine() < position.getLine()) {
             this.readCharacter();
         }
-        StringBuilder line = new StringBuilder("At %s:\n".formatted(position.toString()));
+        StringBuilder line = new StringBuilder("At line %s:\n".formatted(position.toString()));
         while (currentChar != '\n' && (this.position.column == 0 || currentChar != -1)) {
             line.append((char) currentChar);
             this.readCharacter();
@@ -869,7 +869,7 @@ public class Lexer {
             line.append(" ");
         }
         line.append("^");
-        System.out.println(line.toString());
+        System.err.println(line.toString());
 
         // reset
         while (this.position.getLine() < currentPosition.getLine() || this.position.getColumn() < currentPosition.getColumn()) {

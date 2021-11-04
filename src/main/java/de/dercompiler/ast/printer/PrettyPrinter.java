@@ -30,7 +30,7 @@ public class PrettyPrinter {
             printClassMember(member, sb, indent + 1);
         }
         sb.append(" ".repeat(indent * TAB_SIZE));
-        sb.append("}");
+        sb.append("}\n");
     }
 
     private void printClassMember(ClassMember member, StringBuilder sb, int indent) {
@@ -39,8 +39,28 @@ public class PrettyPrinter {
         } else if (member instanceof Method m) {
             printMethod(m, sb, indent);
         } else if (member instanceof MainMethod main) {
-            printClassMember(main, sb, indent);
+            printMainMethod(main, sb, indent);
         }
+    }
+
+    private void printMainMethod(MainMethod main, StringBuilder sb, int indent) {
+        sb.append(" ".repeat(indent * TAB_SIZE));
+        sb.append("public static void ");
+        sb.append(main.getIdentifier());
+
+        sb.append("(");
+
+        printType(main.getParameterType(), sb);
+            sb.append(" ");
+        sb.append(main.getParameterName());
+
+        sb.append(") ");
+        printMethodRest(main.getMethodRest(), sb);
+        sb.append("{\n");
+
+        printBasicBlock(main.getBlock(), sb, indent + 1);
+        sb.append(" ".repeat(indent * TAB_SIZE));
+        sb.append("}\n");
     }
 
     private void printField(Field f, StringBuilder sb, int indent) {
@@ -143,6 +163,7 @@ public class PrettyPrinter {
     private void printIfStatement(IfStatement ifElse, StringBuilder sb, int indent) {
         sb.append("if (");
         printExpression(ifElse.getCondition(), sb);
+        sb.append(") ");
         printStatement(ifElse.getThenStatement(), sb, indent, false);
         if (ifElse.hasElse()) {
             sb.append(" else ");
