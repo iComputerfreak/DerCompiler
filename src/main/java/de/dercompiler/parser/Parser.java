@@ -271,30 +271,26 @@ public class Parser {
     }
 
     public Statement parseBlockStatement() {
-        expect(L_CURLY_BRACKET);
-        IToken token;
-        LinkedList<Statement> statements = new LinkedList<>();
-        while ((token = wlexer.peek()) != R_CURLY_BRACKET) {
-            boolean possible_expression = isExpression(token);
-            boolean possible_type = isType(token);
-            //= token instanceof IdentifierToken
-            if (possible_expression && possible_type) {
-                //when ident[] varname -> variableDeclaration
-                //when ident[expr] -> expression
-                if (wlexer.peek(1) instanceof IdentifierToken || (wlexer.peek(1) == L_SQUARE_BRACKET && wlexer.peek(2) == R_SQUARE_BRACKET)) {
-                    statements.addLast(parseVariableDeclaration());
-                } else {
-                    statements.addLast(parseStatement());
-                }
-            } else if (possible_type) {
-                statements.addLast(parseVariableDeclaration());
+        IToken token = wlexer.peek();
+        Statement statement = new ErrorStatement();
+        boolean possible_expression = isExpression(token);
+        boolean possible_type = isType(token);
+        //= token instanceof IdentifierToken
+        if (possible_expression && possible_type) {
+            //when ident[] varname -> variableDeclaration
+            //when ident[expr] -> expression
+            if (wlexer.peek(1) instanceof IdentifierToken || (wlexer.peek(1) == L_SQUARE_BRACKET && wlexer.peek(2) == R_SQUARE_BRACKET)) {
+                statement = parseVariableDeclaration();
             } else {
-                //fuse statement possible_expression and non_primary because it is one call
-                statements.addLast(parseStatement());
+                statement = parseStatement();
             }
+        } else if (possible_type) {
+            statement = parseVariableDeclaration();
+        } else {
+            //fuse statement possible_expression and non_primary because it is one call
+            statement = parseStatement();
         }
-        expect(R_CURLY_BRACKET);
-        return new BasicBlock(statements);
+        return statement;
     }
 
     public Statement parseVariableDeclaration() {
