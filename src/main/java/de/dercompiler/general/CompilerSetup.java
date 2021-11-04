@@ -4,6 +4,7 @@ import de.dercompiler.actions.*;
 import de.dercompiler.io.CommandLineOptions;
 import de.dercompiler.io.CommandLineStrings;
 import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 
 import java.io.*;
@@ -56,8 +57,8 @@ public class CompilerSetup {
         }
 
         if (options.lexTest()) {
-            Reader reader = getReaderFromArgs(options);
-            LexTestAction action = new LexTestAction(reader);
+            Source src = getSourceFromArgs(options);
+            LexTestAction action = new LexTestAction(src);
             action.setPrintPosition(options.printPosition());
             setAction(action);
         } else if (options.printPosition()) {
@@ -65,9 +66,9 @@ public class CompilerSetup {
         }
 
         if (options.parseTest()) {
-            Reader reader = getReaderFromArgs(options);
+            Source src = getSourceFromArgs(options);
             String parseTestOption = options.getActiveParseTestOption();
-            ParseTestAction action = new ParseTestAction(reader, parseTestOption);
+            ParseTestAction action = new ParseTestAction(src, parseTestOption);
             setAction(action);
         }
 
@@ -79,22 +80,20 @@ public class CompilerSetup {
         return action;
     }
 
-    private Reader getReaderFromArgs(CommandLineOptions options) {
-        Reader reader = null;
+    private Source getSourceFromArgs(CommandLineOptions options) {
+        Source src = null;
         if (options.lexString()) {
             String inputString = options.getStringArgument(CommandLineStrings.OPTION_LEX_STRING);
-            reader = new StringReader(inputString);
+            src = Source.forString(inputString);
         } else {
             File input = options.getFileArgument();
 
             try {
-                reader = new FileReader(input);
-            } catch (IOException e) {
-                new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong while reading input file (" + input.getAbsolutePath() + ")!", e);
+                src = Source.forFile(input);
             } catch (NullPointerException e) {
                 new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.MISSING_INPUT_FILE, "An argument is missing its corresponding input", e);
             }
         }
-        return reader;
+        return src;
     }
 }

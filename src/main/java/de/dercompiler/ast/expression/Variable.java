@@ -11,6 +11,8 @@ public final class Variable extends PrimaryExpression {
         this.name = name;
     }
 
+    public String getName() { return name; }
+
     @Override
     public boolean syntaxEqual(ASTNode other) {
         if (Objects.isNull(other)) return false;

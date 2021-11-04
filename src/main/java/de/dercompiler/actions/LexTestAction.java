@@ -1,30 +1,28 @@
 package de.dercompiler.actions;
+import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.Token;
-
-import java.io.Reader;
-import java.util.EnumSet;
 
 public class LexTestAction extends Action {
 
     public static final String HELP_TEXT = "--lexTest <file>: Generates a sequence of tokens out of the file and prints it to the console.";
     public static final String COMMAND_LINE_NAME = "lexTest";
-    private Reader reader;
+    private Source source;
     private boolean printPosition;
 
     /**
-     * Creates a new LexTestAction with the given input reader
+     * Creates a new LexTestAction with the given input source
      *
-     * @param reader The input reader to read characters from
+     * @param source The input source to read characters from
      */
-    public LexTestAction(Reader reader) {
-        this.reader = reader;
+    public LexTestAction(Source source) {
+        this.source = source;
     }
 
     @Override
     public void run() {
-        Lexer lexer = new Lexer(this.reader);
+        Lexer lexer = new Lexer(this.source);
         TokenOccurrence token;
         do {
             token = lexer.nextToken();

@@ -3,11 +3,14 @@ package de.dercompiler.lexer;
 
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.*;
 import de.dercompiler.util.RingBuffer;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 
 /**
  * Represents a Lexer for MiniJava. It transforms a character input source into a buffered sequence of {@link IToken}s, which allows for a certain lookahead.
@@ -16,8 +19,8 @@ public class Lexer {
 
     private static final int SLL_CONSTANT = 4;
     private final RingBuffer<TokenOccurrence> tokenBuffer;
-
     private Reader reader;
+    private Source source;
 
     private final Position position;
     // FileReader.read() returns -1 for EOF, so char is not suitable
@@ -26,10 +29,11 @@ public class Lexer {
     /**
      * Creates a new {@link Lexer} for the input that the given reader produces.
      *
-     * @param reader Source reader for character input
+     * @param source Source for character input
      */
-    public Lexer(Reader reader) {
-        this.reader = reader;
+    public Lexer(Source source) {
+        this.source = source;
+        this.reader = source.getNewReader();
         this.tokenBuffer = new RingBuffer<>(SLL_CONSTANT);
         this.position = new Position();
 
@@ -124,7 +128,7 @@ public class Lexer {
                     case 'o':
                         readCharacter();
                         // bo.olean
-                        return compareSuffix(Token.BOOLEAN_TYPE, 2);
+                        return compareSuffix(TypeToken.BOOLEAN_TYPE, 2);
                     case 'r':
                         readCharacter();
                         // br.eak;
@@ -132,7 +136,7 @@ public class Lexer {
                     case 'y':
                         readCharacter();
                         // by.te
-                        return compareSuffix(Token.BYTE_TYPE, 2);
+                        return compareSuffix(TypeToken.BYTE_TYPE, 2);
                     default:
                         return parseId("b");
                 }
@@ -158,7 +162,7 @@ public class Lexer {
                     case 'h':
                         readCharacter();
                         // ch.ar
-                        return compareSuffix(Token.CHARACTER_TYPE, 2);
+                        return compareSuffix(TypeToken.CHARACTER_TYPE, 2);
                     case 'l':
                         readCharacter();
                         // cl.ass
@@ -184,6 +188,8 @@ public class Lexer {
                         } else {
                             return parseId("co");
                         }
+                    default:
+                        return parseId("c");
                 }
             case 'd':
                 readCharacter();
@@ -198,7 +204,7 @@ public class Lexer {
                         // do. | do.uble
                         if (!isIdentifierChar(currentChar)) {
                             return Token.DO;
-                        } else return compareSuffix(Token.DOUBLE_TYPE, 2);
+                        } else return compareSuffix(TypeToken.DOUBLE_TYPE, 2);
                     default:
                         return parseId("d");
                 }
@@ -245,7 +251,7 @@ public class Lexer {
                     case 'l':
                         readCharacter();
                         // fl.oat
-                        return compareSuffix(Token.FLOAT_TYPE, 2);
+                        return compareSuffix(TypeToken.FLOAT_TYPE, 2);
                     case 'o':
                         readCharacter();
                         // fo.r
@@ -295,7 +301,7 @@ public class Lexer {
                                 readCharacter();
                                 // int. | int.erface
                                 if (!isIdentifierChar(currentChar)) {
-                                    return Token.INT_TYPE;
+                                    return TypeToken.INT_TYPE;
                                 } else {
                                     return compareSuffix(Token.INTERFACE, 3);
                                 }
@@ -308,7 +314,7 @@ public class Lexer {
             case 'l':
                 readCharacter();
                 // l.ong
-                return compareSuffix(Token.LONG_TYPE, 1);
+                return compareSuffix(TypeToken.LONG_TYPE, 1);
             case 'n':
                 readCharacter();
                 // n.ative | n.ew | n.ull
@@ -356,7 +362,7 @@ public class Lexer {
                         // pu.blic
                         return compareSuffix(Token.PUBLIC, 2);
                     default:
-                        parseId("p");
+                        return parseId("p");
                 }
             case 'r':
                 readCharacter();
@@ -369,7 +375,7 @@ public class Lexer {
                     case 'h':
                         readCharacter();
                         // sh.ort
-                        return compareSuffix(Token.SHORT_TYPE, 2);
+                        return compareSuffix(TypeToken.SHORT_TYPE, 2);
                     case 't':
                         readCharacter();
                         // st.atic | st.rictfp
@@ -460,7 +466,7 @@ public class Lexer {
                     case 'i':
                         readCharacter();
                         // voi.d
-                        return compareSuffix(Token.VOID, 3);
+                        return compareSuffix(TypeToken.VOID_TYPE, 3);
                     case 'l':
                         readCharacter();
                         // vol.atile
@@ -485,7 +491,7 @@ public class Lexer {
      * @param pos          position of currentChar inside the keyword, i.e. number of characters of the keyword that have already been read
      * @return successToken, if the keyword is read successfully, or else an IdentifierToken for the current identifier
      */
-    private IToken compareSuffix(Token successToken, int pos) {
+    private IToken compareSuffix(IToken successToken, int pos) {
         String keyword = successToken.toString();
         for (int i = pos; i < keyword.length(); i++) {
             if (keyword.charAt(i) != currentChar) {
@@ -537,9 +543,9 @@ public class Lexer {
                 // !. | !.=
                 if (currentChar == '=') {
                     readCharacter();
-                    return Token.NOT_EQUAL;
+                    return OperatorToken.NOT_EQUAL;
                 } else {
-                    return Token.NOT;
+                    return OperatorToken.NOT;
                 }
 
             case '(':
@@ -554,9 +560,9 @@ public class Lexer {
                 // *. | *.=
                 if (currentChar == '=') {
                     readCharacter();
-                    return Token.MULT_SHORT;
+                    return OperatorToken.MULT_SHORT;
                 } else {
-                    return Token.STAR;
+                    return OperatorToken.STAR;
                 }
 
             case '+':
@@ -565,12 +571,12 @@ public class Lexer {
                 switch (currentChar) {
                     case '=':
                         readCharacter();
-                        return Token.ADD_SHORT;
+                        return OperatorToken.ADD_SHORT;
                     case '+':
                         readCharacter();
-                        return Token.INCREMENT;
+                        return OperatorToken.INCREMENT;
                     default:
-                        return Token.PLUS;
+                        return OperatorToken.PLUS;
                 }
 
             case ',':
@@ -583,12 +589,12 @@ public class Lexer {
                 switch (currentChar) {
                     case '=':
                         readCharacter();
-                        return Token.SUB_SHORT;
+                        return OperatorToken.SUB_SHORT;
                     case '-':
                         readCharacter();
-                        return Token.DECREMENT;
+                        return OperatorToken.DECREMENT;
                     default:
-                        return Token.MINUS;
+                        return OperatorToken.MINUS;
                 }
 
             case '.':
@@ -601,13 +607,13 @@ public class Lexer {
                 switch (currentChar) {
                     case '=':
                         readCharacter();
-                        return Token.DIV_SHORT;
+                        return OperatorToken.DIV_SHORT;
                     case '*':
                         readCharacter();
                         this.skipComment();
                         return null;
                     default:
-                        return Token.SLASH;
+                        return OperatorToken.SLASH;
                 }
 
             case ':':
@@ -627,15 +633,15 @@ public class Lexer {
                         // <<. | <<.=
                         if (currentChar == '=') {
                             readCharacter();
-                            return Token.L_SHIFT_SHORT;
+                            return OperatorToken.L_SHIFT_SHORT;
                         } else {
-                            return Token.L_SHIFT;
+                            return OperatorToken.L_SHIFT;
                         }
                     case '=':
                         readCharacter();
-                        return Token.LESS_THAN_EQUAL;
+                        return OperatorToken.LESS_THAN_EQUAL;
                     default:
-                        return Token.LESS_THAN;
+                        return OperatorToken.LESS_THAN;
                 }
 
             case '=':
@@ -643,9 +649,9 @@ public class Lexer {
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
-                    return Token.EQUAL;
+                    return OperatorToken.EQUAL;
                 } else {
-                    return Token.ASSIGN;
+                    return OperatorToken.ASSIGN;
                 }
 
             case '>':
@@ -658,24 +664,24 @@ public class Lexer {
                         switch (currentChar) {
                             case '=':
                                 readCharacter();
-                                return Token.R_SHIFT_SHORT;
+                                return OperatorToken.R_SHIFT_SHORT;
                             case '>':
                                 readCharacter();
                                 // >>>. | >>>.=
                                 if (currentChar == '=') {
                                     readCharacter();
-                                    return Token.R_SHIFT_LOGICAL_SHORT;
+                                    return OperatorToken.R_SHIFT_LOGICAL_SHORT;
                                 } else {
-                                    return Token.R_SHIFT_LOGICAL;
+                                    return OperatorToken.R_SHIFT_LOGICAL;
                                 }
                             default:
-                                return Token.R_SHIFT;
+                                return OperatorToken.R_SHIFT;
                         }
                     case '=':
                         readCharacter();
-                        return Token.GREATER_THAN_EQUAL;
+                        return OperatorToken.GREATER_THAN_EQUAL;
                     default:
-                        return Token.GREATER_THAN;
+                        return OperatorToken.GREATER_THAN;
                 }
 
             case '?':
@@ -687,9 +693,9 @@ public class Lexer {
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
-                    return Token.MODULO_SHORT;
+                    return OperatorToken.MODULO_SHORT;
                 } else {
-                    return Token.PERCENT_SIGN;
+                    return OperatorToken.PERCENT_SIGN;
                 }
             case '&':
                 // &. | &.& | &.=
@@ -697,12 +703,12 @@ public class Lexer {
                 switch (currentChar) {
                     case '&':
                         readCharacter();
-                        return Token.AND_LAZY;
+                        return OperatorToken.AND_LAZY;
                     case '=':
                         readCharacter();
-                        return Token.AND_SHORT;
+                        return OperatorToken.AND_SHORT;
                     default:
-                        return Token.AMPERSAND;
+                        return OperatorToken.AMPERSAND;
                 }
             case '[':
                 readCharacter();
@@ -716,9 +722,9 @@ public class Lexer {
                 readCharacter();
                 if (currentChar == '=') {
                     readCharacter();
-                    return Token.XOR_SHORT;
+                    return OperatorToken.XOR_SHORT;
                 } else {
-                    return Token.XOR;
+                    return OperatorToken.XOR;
                 }
 
             case '{':
@@ -729,7 +735,7 @@ public class Lexer {
                 return Token.R_CURLY_BRACKET;
             case '~':
                 readCharacter();
-                return Token.NOT_LOGICAL;
+                return OperatorToken.NOT_LOGICAL;
 
             case '|':
                 // |. - |.| - |.=
@@ -737,12 +743,12 @@ public class Lexer {
                 switch (currentChar) {
                     case '|':
                         readCharacter();
-                        return Token.OR_LAZY;
+                        return OperatorToken.OR_LAZY;
                     case '=':
                         readCharacter();
-                        return Token.OR_SHORT;
+                        return OperatorToken.OR_SHORT;
                     default:
-                        return Token.BAR;
+                        return OperatorToken.BAR;
                 }
             default:
                 fail(LexerErrorIds.UNKNOWN_SYMBOL, "Unknown symbol: %c".formatted(currentChar));
@@ -843,6 +849,34 @@ public class Lexer {
         handler.printErrorAndExit(id, message);
     }
 
+    public void printSourceText(Position position) {
+        Position currentPosition = getPosition().copy();
+        this.reader = this.source.getNewReader();
+        this.position.reset();
+        this.readCharacter();
+        while (this.position.getLine() < position.getLine()) {
+            this.readCharacter();
+        }
+        StringBuilder line = new StringBuilder("At %s:\n".formatted(position.toString()));
+        while (currentChar != '\n' && (this.position.column == 0 || currentChar != -1)) {
+            line.append((char) currentChar);
+            this.readCharacter();
+        }
+
+        line.append("\n");
+
+        for (int col = 0; col < position.getColumn() - 1; col++) {
+            line.append(" ");
+        }
+        line.append("^");
+        System.out.println(line.toString());
+
+        // reset
+        while (this.position.getLine() < currentPosition.getLine() || this.position.getColumn() < currentPosition.getColumn()) {
+            this.readCharacter();
+        }
+    }
+
     /**
      * Creates a {@link Lexer} that lexes the given {@link File}.
      *
@@ -850,12 +884,7 @@ public class Lexer {
      * @return A {@link Lexer} for the file
      */
     public static Lexer forFile(File file) {
-        try {
-            return new Lexer(new FileReader(file));
-        } catch (FileNotFoundException e) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Could not lex file: file not found or not readable.");
-        }
-        return null;
+        return new Lexer(Source.forFile(file));
     }
 
     /**
@@ -865,7 +894,7 @@ public class Lexer {
      * @return A {@link Lexer} for the input
      */
     public static Lexer forString(String input) {
-        return new Lexer(new StringReader(input));
+        return new Lexer(Source.forString(input));
     }
 
     /**
@@ -911,6 +940,11 @@ public class Lexer {
         public Position copy() {
             return new ImmutablePosition(this.line, this.column);
         }
+
+        private void reset() {
+            this.line = 1;
+            this.column = 0;
+        }
     }
 
     static class ImmutablePosition extends Position {
@@ -927,6 +961,8 @@ public class Lexer {
         public void newLine() {
             new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("Cannot advance an immutable Position.");
         }
+
+
     }
 
 }

@@ -1,11 +1,12 @@
 package de.dercompiler.parser;
 
-import de.dercompiler.ast.expression.*;
+import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.ExpressionFactory;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.Lexer;
-import de.dercompiler.lexer.token.Token;
+import de.dercompiler.lexer.token.IToken;
+import de.dercompiler.lexer.token.OperatorToken;
 
 import java.util.Objects;
 
@@ -19,34 +20,22 @@ public class PrecedenceParser {
         this.parser = parser;
     }
 
-    private int precedenceOfOperation(IToken token) {
-        if (token instanceof Token t) {
-            return switch (t) {
-                case ASSIGN -> 0;
-                case OR_LAZY -> 1;
-                case AND_LAZY -> 2;
-                case EQUAL, NOT_EQUAL -> 3;
-                case LESS_THAN, LESS_THAN_EQUAL, GREATER_THAN, GREATER_THAN_EQUAL -> 4;
-                //in case your wonder, were NegativeExpression is created, look in Parser.parseUnaryExp()
-                case PLUS, MINUS -> 5;
-                case STAR, SLASH, PERCENT_SIGN -> 6;
-                default -> -1;
-            };
-        }
-        return -1;
-    }
-
     public AbstractExpression parseExpression() {
         return parseExpression(0);
+    }
+
+    private int operatorPrecedence(IToken token) {
+        if (token instanceof OperatorToken ot) return ot.getPrecedence();
+        return -1;
     }
 
     private AbstractExpression parseExpression(int minPrec) {
 
         AbstractExpression result = parser.parseUnaryExpression();
-        int prec = precedenceOfOperation(lexer.peek());
+        int prec = operatorPrecedence(lexer.peek());
         if (prec < minPrec) return result;
-        IToken token = expectOperatorToken();
-        while (!Objects.isNull(token) && (prec = precedenceOfOperation(token)) >= minPrec) {
+        OperatorToken token = expectOperatorToken();
+        while (!Objects.isNull(token) && (prec = token.getPrecedence()) >= minPrec) {
             if (prec == -1) {
                 handleError(token);
             }
@@ -60,17 +49,17 @@ public class PrecedenceParser {
         return result;
     }
 
-    private IToken expectOperatorToken() {
+    private OperatorToken expectOperatorToken() {
         IToken token = lexer.peek();
-        if (token instanceof Token t && Token.ASSIGN.ordinal() <= t.ordinal() && t.ordinal() <= Token.XOR.ordinal()) {
+        if (token instanceof OperatorToken op) {
             lexer.nextToken();
-            return token;
+            return op;
         }
         return null;
     }
 
     private void handleError(IToken token) {
         new OutputMessageHandler(MessageOrigin.PARSER, System.err)
-                .printErrorAndExit(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN,"Token " + token + " is not supported. No Expression could be created!");
+                .printErrorAndExit(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported. No Expression could be created!");
     }
 }

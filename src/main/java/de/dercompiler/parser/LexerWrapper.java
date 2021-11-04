@@ -27,4 +27,9 @@ public class LexerWrapper {
     public Lexer.Position position() {
         return lexer.getPosition();
     }
+
+    public <T> T consumeToken(T passthrough) {
+        nextToken();
+        return passthrough;
+    }
 }
