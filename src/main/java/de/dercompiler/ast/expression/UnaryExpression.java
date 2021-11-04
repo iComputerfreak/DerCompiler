@@ -9,6 +9,6 @@ public abstract sealed class UnaryExpression extends AbstractExpression permits 
     }
 
     protected boolean syntaxEqualEncapsulated(UnaryExpression other) {
-        return encapsulated.syntaxEqual(other.encapsulated);
+        return encapsulated.syntaxEquals(other.encapsulated);
     }
 }

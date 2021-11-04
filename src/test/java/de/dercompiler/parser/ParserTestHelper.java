@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ParserTestHelper {
 
     private void testSyntaxEqual(String expression, ASTNode created, ASTNode compare, Lexer lexer) {
-        boolean equal = created.syntaxEqual(compare);
+        boolean equal = created.syntaxEquals(compare);
         if (!equal) {
             System.err.println("error: " + expression);
-            created.syntaxEqual(compare);
+            created.syntaxEquals(compare);
         }
         assertTrue(equal);
         assertEquals(lexer.peek().type(), Token.EOF);

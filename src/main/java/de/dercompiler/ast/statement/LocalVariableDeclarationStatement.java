@@ -1,10 +1,9 @@
 package de.dercompiler.ast.statement;
 
-import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.SyntaxEquatable;
 import de.dercompiler.ast.expression.AbstractExpression;
 import de.dercompiler.ast.type.Type;
 
-import java.beans.Expression;
 import java.util.Objects;
 
 public final class LocalVariableDeclarationStatement extends Statement {
@@ -20,12 +19,12 @@ public final class LocalVariableDeclarationStatement extends Statement {
     }
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
+    public boolean syntaxEquals(SyntaxEquatable other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof LocalVariableDeclarationStatement lvds) {
-            return type.syntaxEqual(lvds.type)
+            return type.syntaxEquals(lvds.type)
                     && identifier.equals(lvds.identifier)
-                    && valueExpression.syntaxEqual(lvds.valueExpression);
+                    && valueExpression.syntaxEquals(lvds.valueExpression);
         }
         return false;
     }

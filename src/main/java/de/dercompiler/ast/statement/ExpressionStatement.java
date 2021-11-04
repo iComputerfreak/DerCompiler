@@ -1,6 +1,6 @@
 package de.dercompiler.ast.statement;
 
-import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.SyntaxEquatable;
 import de.dercompiler.ast.expression.AbstractExpression;
 
 import java.util.Objects;
@@ -14,10 +14,10 @@ public final class ExpressionStatement extends Statement {
     }
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
+    public boolean syntaxEquals(SyntaxEquatable other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof ExpressionStatement es) {
-            return expressionRoot.syntaxEqual(es.expressionRoot);
+            return expressionRoot.syntaxEquals(es.expressionRoot);
         }
         return false;
     }

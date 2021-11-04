@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.SyntaxEquatable;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -25,7 +26,7 @@ public class Arguments implements ASTNode {
     }
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
+    public boolean syntaxEquals(SyntaxEquatable other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof Arguments a) {
             if (a.arguments.size() != arguments.size()) return false;
@@ -35,7 +36,7 @@ public class Arguments implements ASTNode {
             while (itThis.hasNext()) {
                 AbstractExpression expThis = itThis.next();
                 AbstractExpression expO = itO.next();
-                result &= expThis.syntaxEqual(expO);
+                result &= expThis.syntaxEquals(expO);
             }
             return result;
         }

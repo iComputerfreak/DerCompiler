@@ -1,8 +1,7 @@
 package de.dercompiler.ast.expression;
 
-import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.SyntaxEquatable;
 import de.dercompiler.ast.type.BasicType;
-import de.dercompiler.ast.type.Type;
 
 import java.util.Objects;
 
@@ -19,12 +18,12 @@ public final class NewArrayExpression extends PrimaryExpression {
     }
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
+    public boolean syntaxEquals(SyntaxEquatable other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof NewArrayExpression nae) {
-            return type.syntaxEqual(nae.type)
+            return type.syntaxEquals(nae.type)
                     && dimension == nae.dimension
-                    && size.syntaxEqual(nae.size);
+                    && size.syntaxEquals(nae.size);
         }
         return false;
     }

@@ -1,14 +1,13 @@
 package de.dercompiler.ast.type;
 
-import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.type.BasicType;
+import de.dercompiler.ast.SyntaxEquatable;
 
 public final class BooleanType extends BasicType {
     
     public BooleanType() {}
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
-        return super.syntaxEqual(other) && (other instanceof BooleanType);
+    public boolean syntaxEquals(SyntaxEquatable other) {
+        return other instanceof BooleanType;
     }
 }

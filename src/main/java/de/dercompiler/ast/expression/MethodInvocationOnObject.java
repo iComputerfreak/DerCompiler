@@ -1,6 +1,6 @@
 package de.dercompiler.ast.expression;
 
-import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.SyntaxEquatable;
 
 import java.util.Objects;
 
@@ -16,11 +16,11 @@ public final class MethodInvocationOnObject extends UnaryExpression {
     }
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
+    public boolean syntaxEquals(SyntaxEquatable other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof MethodInvocationOnObject mioo) {
             return functionName.equals(mioo.functionName)
-                    && arguments.syntaxEqual(mioo.arguments)
+                    && arguments.syntaxEquals(mioo.arguments)
                     && syntaxEqualEncapsulated(mioo);
         }
         return false;

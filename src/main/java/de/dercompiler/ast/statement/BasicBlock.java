@@ -1,6 +1,6 @@
 package de.dercompiler.ast.statement;
 
-import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.SyntaxEquatable;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,7 +27,7 @@ public final class BasicBlock extends Statement {
     }
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
+    public boolean syntaxEquals(SyntaxEquatable other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof BasicBlock bb) {
             boolean result = true;
@@ -37,7 +37,7 @@ public final class BasicBlock extends Statement {
             while(itThis.hasNext()) {
                 Statement sttThis = itThis.next();
                 Statement sttO = itO.next();
-                result &= sttThis.syntaxEqual(sttO);
+                result &= sttThis.syntaxEquals(sttO);
             }
             return result;
         }

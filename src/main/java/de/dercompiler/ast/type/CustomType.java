@@ -1,6 +1,6 @@
 package de.dercompiler.ast.type;
 
-import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.SyntaxEquatable;
 
 public final class CustomType extends BasicType {
     
@@ -15,10 +15,10 @@ public final class CustomType extends BasicType {
     }
 
     @Override
-    public boolean syntaxEqual(ASTNode other) {
-        // We actually want to compare the String instances here, not the contents,
-        // since it is faster and through the string table, we ensure that equal strings also use the same instance
-        // noinspection StringEquality
-        return super.syntaxEqual(other) && (other instanceof CustomType type2) && this.identifier.equals(type2.identifier);
+    public boolean syntaxEquals(SyntaxEquatable other) {
+        if (other instanceof CustomType otherType) {
+            return this.identifier.equals(otherType.identifier);
+        }
+        return false;
     }
 }
