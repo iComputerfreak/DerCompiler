@@ -311,7 +311,7 @@ public class Parser {
         IToken token = wlexer.peek();
         if (token instanceof Token t) {
             return switch (t) {
-                case L_CURLY_BRACKET -> parseBlockStatement();
+                case L_CURLY_BRACKET -> parseBasicBlock();
                 case SEMICOLON -> wlexer.consumeToken(new EmptyStatement());
                 case IF -> parseIfStatement();
                 case WHILE -> parseWhileStatement();
