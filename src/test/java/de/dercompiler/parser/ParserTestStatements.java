@@ -36,10 +36,10 @@ public class ParserTestStatements {
                 "boolean bar = !true;",
                 "foo bar = new foo();",
         };
-        Type Int = new Type(new IntType(), null);
-        Type bool = new Type(new BooleanType(), null);
+        Type Int = new Type(new IntType(), 0);
+        Type bool = new Type(new BooleanType(), 0);
         Variable foo = new Variable("foo");
-        Type fooType = new Type(new CustomType(foo.getName()), null);
+        Type fooType = new Type(new CustomType(foo.getName()), 0);
         Variable bar = new Variable("bar");
         ASTNode[] locals_expected = {
             new LocalVariableDeclarationStatement(Int, foo.getName(), new IntegerValue("0")),
@@ -88,9 +88,9 @@ public class ParserTestStatements {
         Variable getIdentifier = new Variable("getIdentifier");
         ASTNode[] code_expected = {
             new BasicBlock(Arrays.asList(
-                    new LocalVariableDeclarationStatement(new Type(new CustomType(Type.getName()), null), type.getName(), new MethodInvocationOnObject(new ThisValue(), parseType.getName(), new Arguments())),
-                    new LocalVariableDeclarationStatement(new Type(new CustomType(IdentifierToken.getName()), null), ident.getName(),new MethodInvocationOnObject(new ThisValue(), expectIdentifier.getName(), new Arguments())),
-                    new LocalVariableDeclarationStatement(new Type(new CustomType(AbstractExpression.getName()), null), expression.getName(), new NewObjectExpression(new CustomType(UninitalizedValue.getName()))),
+                    new LocalVariableDeclarationStatement(new Type(new CustomType(Type.getName()), 0), type.getName(), new MethodInvocationOnObject(new ThisValue(), parseType.getName(), new Arguments())),
+                    new LocalVariableDeclarationStatement(new Type(new CustomType(IdentifierToken.getName()), 0), ident.getName(),new MethodInvocationOnObject(new ThisValue(), expectIdentifier.getName(), new Arguments())),
+                    new LocalVariableDeclarationStatement(new Type(new CustomType(AbstractExpression.getName()), 0), expression.getName(), new NewObjectExpression(new CustomType(UninitalizedValue.getName()))),
                     new IfStatement(
                             new EqualExpression(new MethodInvocationOnObject(wlexer, peek.getName(), new Arguments()), assign),
                             new BasicBlock(Arrays.asList(
@@ -131,7 +131,7 @@ public class ParserTestStatements {
                         new ExpressionStatement(new AssignmentExpression(foo, bar))
                 ))),
                 new BasicBlock(new LinkedList<>(Arrays.asList(
-                        new LocalVariableDeclarationStatement(new Type(new IntType(), null), i.getName(), zero),
+                        new LocalVariableDeclarationStatement(new Type(new IntType(), 0), i.getName(), zero),
                         new WhileStatement(new LessExpression(i, new IntegerValue("10")), new BasicBlock(
                                 new LinkedList<>(Arrays.asList(new ExpressionStatement(
                                     new AssignmentExpression(i, new AddExpression(i, new IntegerValue("1")))

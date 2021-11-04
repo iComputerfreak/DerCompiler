@@ -112,6 +112,7 @@ public class ParserTestExpressions {
         String[] unary = {
             "!foo",
             "!true",
+            "!!true",
             "-foo",
             "foo",
             "123"
@@ -119,6 +120,7 @@ public class ParserTestExpressions {
         ASTNode[] unary_expected = {
             new LogicalNotExpression(new Variable("foo")),
             new LogicalNotExpression(new BooleanValue(true)),
+            new LogicalNotExpression(new LogicalNotExpression(new BooleanValue(true))),
             new NegativeExpression(new Variable("foo")),
             new Variable("foo"),
             new IntegerValue("123")

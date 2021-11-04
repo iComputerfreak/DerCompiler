@@ -31,7 +31,7 @@ public class Parser {
         this.precedenceParser = new PrecedenceParser(lexer, this);
         this.logger = new OutputMessageHandler(MessageOrigin.PARSER, System.err);
     }
-
+    
     public Program parseProgram() {
         // ClassDeclaration*
         List<ClassDeclaration> classes = new ArrayList<>();
@@ -45,7 +45,7 @@ public class Parser {
         }
         return new Program(classes);
     }
-
+    
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
         expect(CLASS);
@@ -60,7 +60,7 @@ public class Parser {
         lexer.nextToken();
         return new ClassDeclaration(identifier.getIdentifier(), members);
     }
-
+    
     public ClassMember parseClassMember() {
         // MainMethod ->    public static void IDENT ( Type IDENT )
         // Field ->         public Type IDENT ;
@@ -102,10 +102,8 @@ public class Parser {
         lexer.printSourceText(lexer.peek(3).position());
         logger.printErrorAndExit(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()));
         return null;
-
-
     }
-
+    
     public Field parseField() {
         // public Type IDENT ;
         expect(PUBLIC);
@@ -114,7 +112,7 @@ public class Parser {
         expect(SEMICOLON);
         return new Field(type, fieldName.getIdentifier());
     }
-
+    
     public MainMethod parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
         expect(PUBLIC);
@@ -132,7 +130,7 @@ public class Parser {
         BasicBlock block = parseBasicBlock();
         return new MainMethod(name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
-
+    
     public Method parseMethod() {
         // public Type IDENT ( Parameters? ) MethodRest? Block
         expect(PUBLIC);
@@ -143,7 +141,7 @@ public class Parser {
         // First2(Parameters) = First2(Parameter) = First2(Type) u {IDENT} = First2(BasicType) x {IDENT}
         // = {int IDENT, boolean IDENT, void IDENT, IDENT IDENT}
         IToken t = lexer.peek().type();
-        Parameters params = null;
+        LinkedList<Parameter> params = new LinkedList<>();
         if (t instanceof TypeToken || t instanceof IdentifierToken) {
             if (lexer.peek(1).type() instanceof IdentifierToken) {
                 params = parseParameters();
@@ -157,7 +155,7 @@ public class Parser {
         BasicBlock block = parseBasicBlock();
         return new Method(type, ident.getIdentifier(), params, methodRest, block);
     }
-
+    
     public MethodRest parseMethodRest() {
         // throws IDENT
         expect(THROWS);
@@ -165,23 +163,22 @@ public class Parser {
         return new MethodRest(ident.getIdentifier());
     }
 
-    public Parameters parseParameters() {
+    public LinkedList<Parameter> parseParameters() {
         // Parameter ParametersRest
-        Parameter p = parseParameter();
-        ParametersRest rest = parseParametersRest();
-        return new Parameters(p, rest);
+        LinkedList<Parameter> params = new LinkedList<>();
+        params.addLast(parseParameter());
+        return parseParametersRest(params);
     }
 
-    public ParametersRest parseParametersRest() {
+    public LinkedList<Parameter> parseParametersRest(LinkedList<Parameter> parameters) {
         // (, Parameter ParametersRest)?
         if (lexer.peek().type() == COMMA) {
             expect(COMMA);
-            Parameter p = parseParameter();
-            ParametersRest rest = parseParametersRest();
-            return new ParametersRest(p, rest);
+            parameters.addLast(parseParameter());
+            return parseParametersRest(parameters);
         }
-        // If there is no rest, we return null
-        return null;
+        // If there is no rest, we return the parameters parsed until now
+        return parameters;
     }
 
     public Parameter parseParameter() {
@@ -194,22 +191,21 @@ public class Parser {
     public Type parseType() {
         // BasicType TypeRest
         BasicType type = parseBasicType();
-        TypeRest rest = parseTypeRest();
-        return new Type(type, rest);
+        int dimension = parseTypeRest();
+        return new Type(type, dimension);
     }
-
-    public TypeRest parseTypeRest() {
+    
+    public int parseTypeRest() {
         // ([] TypeRest)?
         if (lexer.peek().type() == L_SQUARE_BRACKET) {
             expect(L_SQUARE_BRACKET);
             expect(R_SQUARE_BRACKET);
-            TypeRest rest = parseTypeRest();
-            return new TypeRest(rest);
+            return parseTypeRest() + 1;
         }
         // If there is no rest, we return null
-        return null;
+        return 0;
     }
-
+    
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
         IToken t = lexer.nextToken().type();
