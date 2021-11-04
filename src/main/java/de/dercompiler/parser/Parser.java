@@ -161,7 +161,7 @@ public class Parser {
             parameters.addLast(parseParameter());
             return parseParametersRest(parameters);
         }
-        // If there is no rest, we return null
+        // If there is no rest, we return the parameters parsed until now
         return parameters;
     }
 

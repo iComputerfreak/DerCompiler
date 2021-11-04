@@ -6,19 +6,19 @@ public final class Type implements ASTNode {
 
     private final BasicType basicType;
     // INFO: typeRest may be null
-    private final int dimension;
+    private final int arrayDimension;
     
-    public Type(BasicType basicType, int dimension) {
+    public Type(BasicType basicType, int arrayDimension) {
         this.basicType = basicType;
-        this.dimension = dimension;
+        this.arrayDimension = arrayDimension;
     }
 
     public BasicType getBasicType() {
         return basicType;
     }
 
-    public int getDimension() {
-        return dimension;
+    public int getArrayDimension() {
+        return arrayDimension;
     }
 
     @Override
@@ -29,6 +29,6 @@ public final class Type implements ASTNode {
         if (!this.basicType.syntaxEqual(otherType.basicType)) {
             return false;
         }
-        return this.dimension == otherType.dimension;
+        return this.arrayDimension == otherType.arrayDimension;
     }
 }
