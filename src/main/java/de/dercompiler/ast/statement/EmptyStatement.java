@@ -1,13 +1,14 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class EmptyStatement extends Statement {
 
-    public EmptyStatement() {
-
+    public EmptyStatement(SourcePosition position) {
+        super(position);
     }
 
     @Override

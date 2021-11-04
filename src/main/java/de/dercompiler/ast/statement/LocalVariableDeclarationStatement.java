@@ -3,6 +3,7 @@ package de.dercompiler.ast.statement;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
@@ -12,7 +13,8 @@ public final class LocalVariableDeclarationStatement extends Statement {
     String identifier;
     AbstractExpression valueExpression;
 
-    public LocalVariableDeclarationStatement(Type type, String identifier, AbstractExpression valueExpression) {
+    public LocalVariableDeclarationStatement(SourcePosition position, Type type, String identifier, AbstractExpression valueExpression) {
+        super(position);
         this.type = type;
         this.identifier = identifier;
         this.valueExpression = valueExpression;

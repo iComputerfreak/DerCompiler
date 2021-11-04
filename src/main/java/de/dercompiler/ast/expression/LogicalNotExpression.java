@@ -1,13 +1,14 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class LogicalNotExpression extends UnaryExpression {
 
-    public LogicalNotExpression(AbstractExpression encapsulated) {
-        super(encapsulated);
+    public LogicalNotExpression(SourcePosition position, AbstractExpression encapsulated) {
+        super(position, encapsulated);
     }
 
     @Override

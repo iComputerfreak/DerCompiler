@@ -2,6 +2,7 @@ package de.dercompiler.parser;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.Token;
 
 import java.util.Arrays;
@@ -11,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ParserTestHelper {
+
+    public static SourcePosition DEFAULT_POS = Lexer.forString("").getPosition();
 
     private void testSyntaxEqual(String expression, ASTNode created, ASTNode compare, Lexer lexer) {
         boolean equal = created.syntaxEquals(compare);

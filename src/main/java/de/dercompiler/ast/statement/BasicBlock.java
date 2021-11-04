@@ -1,6 +1,7 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,12 +12,12 @@ public final class BasicBlock extends Statement {
 
     private LinkedList<Statement> statements;
 
-    public BasicBlock() {
-        statements = new LinkedList<>();
+    public BasicBlock(SourcePosition position) {
+        super(position);statements = new LinkedList<>();
     }
 
-    public BasicBlock(List<Statement> statements) {
-        this();
+    public BasicBlock(SourcePosition position, List<Statement> statements) {
+        this(position);
         for(Statement s : statements) {
             this.statements.addLast(s);
         }

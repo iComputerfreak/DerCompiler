@@ -1,5 +1,6 @@
 package de.dercompiler.parser;
 
+import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.type.CustomType;
@@ -45,19 +46,19 @@ public class ParserTestExpressions {
                 "foo = bar + baz * foo",
                 "foo = foo % 5 == 0 || bar != baz && baz * baz / baz <= baz"
         };
-        Variable foo = new Variable("foo");
-        Variable bar = new Variable("bar");
-        Variable baz = new Variable("baz");
+        Variable foo = new Variable(DEFAULT_POS,"foo");
+        Variable bar = new Variable(DEFAULT_POS,"bar");
+        Variable baz = new Variable(DEFAULT_POS,"baz");
 
         ASTNode[] pc_expected = {
-                new AssignmentExpression(foo, new AddExpression(bar, baz)),
-                new AssignmentExpression(foo, new AddExpression(bar, new MultiplyExpression(baz, foo))),
-                new AssignmentExpression(foo, new LogicalOrExpression(
-                        new EqualExpression(new ModuloExpression(foo, new IntegerValue("5")), new IntegerValue("0")),
-                        new LogicalAndExpression(
-                                new NotEqualExpression(bar, baz),
-                                new LessEqualExpression(
-                                    new DivisionExpression(new MultiplyExpression(baz, baz), baz),
+                new AssignmentExpression(DEFAULT_POS,foo, new AddExpression(DEFAULT_POS, bar, baz)),
+                new AssignmentExpression(DEFAULT_POS,foo, new AddExpression(DEFAULT_POS,bar, new MultiplyExpression(DEFAULT_POS, baz, foo))),
+                new AssignmentExpression(DEFAULT_POS,foo, new LogicalOrExpression(DEFAULT_POS,
+                        new EqualExpression(DEFAULT_POS, new ModuloExpression(DEFAULT_POS,foo, new IntegerValue(DEFAULT_POS,"5")), new IntegerValue(DEFAULT_POS,"0")),
+                        new LogicalAndExpression(DEFAULT_POS,
+                                new NotEqualExpression(DEFAULT_POS,bar, baz),
+                                new LessEqualExpression(DEFAULT_POS,
+                                    new DivisionExpression(DEFAULT_POS,new MultiplyExpression(DEFAULT_POS, baz, baz), baz),
                                     baz
                                 )
                         )
@@ -85,23 +86,23 @@ public class ParserTestExpressions {
                 "foo / bar",
                 "foo % bar",
         };
-        Variable foo = new Variable("foo");
-        Variable bar = new Variable("bar");
+        Variable foo = new Variable(DEFAULT_POS, "foo");
+        Variable bar = new Variable(DEFAULT_POS, "bar");
         ASTNode[] precedence_expected = {
-                new AssignmentExpression(foo, bar),
-                new LogicalOrExpression(foo, bar),
-                new LogicalAndExpression(foo, bar),
-                new EqualExpression(foo, bar),
-                new NotEqualExpression(foo, bar),
-                new LessExpression(foo, bar),
-                new LessEqualExpression(foo, bar),
-                new GreaterExpression(foo, bar),
-                new GreaterEqualExpression(foo, bar),
-                new AddExpression(foo, bar),
-                new SubtractExpression(foo, bar),
-                new MultiplyExpression(foo, bar),
-                new DivisionExpression(foo, bar),
-                new ModuloExpression(foo, bar)
+                new AssignmentExpression(DEFAULT_POS, foo, bar),
+                new LogicalOrExpression(DEFAULT_POS, foo, bar),
+                new LogicalAndExpression(DEFAULT_POS, foo, bar),
+                new EqualExpression(DEFAULT_POS, foo, bar),
+                new NotEqualExpression(DEFAULT_POS, foo, bar),
+                new LessExpression(DEFAULT_POS, foo, bar),
+                new LessEqualExpression(DEFAULT_POS, foo, bar),
+                new GreaterExpression(DEFAULT_POS, foo, bar),
+                new GreaterEqualExpression(DEFAULT_POS, foo, bar),
+                new AddExpression(DEFAULT_POS, foo, bar),
+                new SubtractExpression(DEFAULT_POS, foo, bar),
+                new MultiplyExpression(DEFAULT_POS, foo, bar),
+                new DivisionExpression(DEFAULT_POS, foo, bar),
+                new ModuloExpression(DEFAULT_POS, foo, bar)
         };
         testLexstringEqualASTNode(precedence, precedence_expected, Parser::parseExpression);
     }
@@ -118,12 +119,12 @@ public class ParserTestExpressions {
             "123"
         };
         ASTNode[] unary_expected = {
-            new LogicalNotExpression(new Variable("foo")),
-            new LogicalNotExpression(new BooleanValue(true)),
-            new LogicalNotExpression(new LogicalNotExpression(new BooleanValue(true))),
-            new NegativeExpression(new Variable("foo")),
-            new Variable("foo"),
-            new IntegerValue("123")
+            new LogicalNotExpression(DEFAULT_POS, new Variable(DEFAULT_POS, "foo")),
+            new LogicalNotExpression(DEFAULT_POS, new BooleanValue(DEFAULT_POS, true)),
+            new LogicalNotExpression(DEFAULT_POS, new LogicalNotExpression(DEFAULT_POS, new BooleanValue(DEFAULT_POS, true))),
+            new NegativeExpression(DEFAULT_POS, new Variable(DEFAULT_POS, "foo")),
+            new Variable(DEFAULT_POS, "foo"),
+            new IntegerValue(DEFAULT_POS, "123")
         };
 
         testLexstringEqualASTNode(unary, unary_expected, Parser::parseUnaryExpression);
@@ -138,9 +139,9 @@ public class ParserTestExpressions {
                 "foo[3]"
         };
         ASTNode[] posfix_expected = new ASTNode[]{
-                new MethodInvocationOnObject(new Variable("foo"), "bar", new Arguments()),
-                new FieldAccess(new Variable("foo"), "bar"),
-                new ArrayAccess(new Variable("foo"), new IntegerValue("3"))
+                new MethodInvocationOnObject(DEFAULT_POS, new Variable(DEFAULT_POS, "foo"), "bar", new Arguments(DEFAULT_POS)),
+                new FieldAccess(DEFAULT_POS, new Variable(DEFAULT_POS, "foo"), "bar"),
+                new ArrayAccess(DEFAULT_POS, new Variable(DEFAULT_POS, "foo"), new IntegerValue(DEFAULT_POS, "3"))
         };
 
         testLexstringEqualASTNode(postfix, posfix_expected, Parser::parsePostfixExpression);
@@ -151,19 +152,19 @@ public class ParserTestExpressions {
     void primary() {
         String[] primary = {"null", "false", "true", "0", "123", "var", "foo()", "foo(true, 3)", "this", "(5)", "new foo()", "new int[2]", "new int[2][][]"};
         ASTNode[] primary_expected = new ASTNode[]{
-                new NullValue(),
-                new BooleanValue(false),
-                new BooleanValue(true),
-                new IntegerValue("0"),
-                new IntegerValue("123"),
-                new Variable("var"),
-                new MethodInvocationOnObject(new ThisValue(), "foo", new Arguments()),
-                new MethodInvocationOnObject(new ThisValue(), "foo", new Arguments(Stream.of(new BooleanValue(true), new IntegerValue("3")).collect(Collectors.toList()))),
-                new ThisValue(),
-                new IntegerValue("5"),
-                new NewObjectExpression(new CustomType("foo")),
-                new NewArrayExpression(new IntType(), new IntegerValue("2"), 0),
-                new NewArrayExpression(new IntType(), new IntegerValue("2"), 2)
+                new NullValue(DEFAULT_POS),
+                new BooleanValue(DEFAULT_POS, false),
+                new BooleanValue(DEFAULT_POS, true),
+                new IntegerValue(DEFAULT_POS, "0"),
+                new IntegerValue(DEFAULT_POS, "123"),
+                new Variable(DEFAULT_POS, "var"),
+                new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), "foo", new Arguments(DEFAULT_POS)),
+                new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), "foo", new Arguments(DEFAULT_POS, Stream.of(new BooleanValue(DEFAULT_POS, true), new IntegerValue(DEFAULT_POS, "3")).collect(Collectors.toList()))),
+                new ThisValue(DEFAULT_POS),
+                new IntegerValue(DEFAULT_POS, "5"),
+                new NewObjectExpression(DEFAULT_POS, new CustomType(DEFAULT_POS,  "foo")),
+                new NewArrayExpression(DEFAULT_POS, new IntType(DEFAULT_POS), new IntegerValue(DEFAULT_POS, "2"), 0),
+                new NewArrayExpression(DEFAULT_POS, new IntType(DEFAULT_POS), new IntegerValue(DEFAULT_POS, "2"), 2)
         };
 
         testLexstringEqualASTNode(primary, primary_expected, Parser::parsePrimaryExpression);

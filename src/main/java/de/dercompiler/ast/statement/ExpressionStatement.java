@@ -2,6 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
@@ -9,7 +10,8 @@ public final class ExpressionStatement extends Statement {
 
     AbstractExpression expressionRoot;
 
-    public ExpressionStatement(AbstractExpression expression) {
+    public ExpressionStatement(SourcePosition position, AbstractExpression expression) {
+        super(position);
         expressionRoot = expression;
     }
 

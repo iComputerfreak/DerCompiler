@@ -2,12 +2,13 @@ package de.dercompiler.ast;
 
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.util.Utils;
 
 import java.util.List;
 
 public final class Method extends ClassMember {
-    
+
     private final Type type;
     private final String identifier;
     private final List<Parameter> parameters;
@@ -15,7 +16,8 @@ public final class Method extends ClassMember {
     private final BasicBlock block;
     
     // INFO: methodRest may be null
-    public Method(Type type, String identifier, List<Parameter> parameters, MethodRest rest, BasicBlock block) {
+    public Method(SourcePosition position, Type type, String identifier, List<Parameter> parameters, MethodRest rest, BasicBlock block) {
+        super(position);
         this.type = type;
         this.identifier = identifier;
         this.parameters = parameters;

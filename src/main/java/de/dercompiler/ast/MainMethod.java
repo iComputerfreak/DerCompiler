@@ -2,9 +2,10 @@ package de.dercompiler.ast;
 
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.lexer.SourcePosition;
 
 public final class MainMethod extends ClassMember {
-    
+
     private final String identifier;
     private final Type parameterType;
     private final String parameterName;
@@ -12,7 +13,8 @@ public final class MainMethod extends ClassMember {
     private final BasicBlock block;
     
     // INFO: methodRest may be null
-    public MainMethod(String identifier, Type parameterType, String parameterName, MethodRest methodRest, BasicBlock block) {
+    public MainMethod(SourcePosition position, String identifier, Type parameterType, String parameterName, MethodRest methodRest, BasicBlock block) {
+        super(position);
         this.identifier = identifier;
         this.parameterType = parameterType;
         this.parameterName = parameterName;

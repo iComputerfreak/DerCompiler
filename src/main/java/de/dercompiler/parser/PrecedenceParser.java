@@ -1,10 +1,12 @@
 package de.dercompiler.parser;
 
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.ErrorExpression;
 import de.dercompiler.ast.expression.ExpressionFactory;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.token.OperatorToken;
 
@@ -32,30 +34,23 @@ public class PrecedenceParser {
     private AbstractExpression parseExpression(int minPrec) {
 
         AbstractExpression result = parser.parseUnaryExpression();
-        int prec = operatorPrecedence(lexer.peek());
-        if (prec < minPrec) return result;
-        OperatorToken token = expectOperatorToken();
-        while (!Objects.isNull(token) && (prec = token.getPrecedence()) >= minPrec) {
+        IToken token = lexer.peek();
+        SourcePosition pos = lexer.position();
+        int prec;
+        while (token instanceof OperatorToken op && (prec = op.getPrecedence()) >= minPrec) {
             if (prec == -1) {
                 handleError(token);
             }
+            token = lexer.nextToken();
             AbstractExpression rhs = parseExpression(prec + 1);
-            result = ExpressionFactory.createExpression(token, result, rhs);
-            if (Objects.isNull(result)) {
+            result = ExpressionFactory.createExpression(op, pos, result, rhs);
+            if (result instanceof ErrorExpression) {
                 handleError(token);
             }
-            token = expectOperatorToken();
+            token = lexer.peek();
+            pos = lexer.position();
         }
         return result;
-    }
-
-    private OperatorToken expectOperatorToken() {
-        IToken token = lexer.peek();
-        if (token instanceof OperatorToken op) {
-            lexer.nextToken();
-            return op;
-        }
-        return null;
     }
 
     private void handleError(IToken token) {

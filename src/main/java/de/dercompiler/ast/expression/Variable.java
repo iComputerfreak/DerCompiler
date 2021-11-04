@@ -1,13 +1,15 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class Variable extends PrimaryExpression {
 
     private String name;
-    public Variable(String name) {
+    public Variable(SourcePosition position, String name) {
+        super(position);
         this.name = name;
     }
 

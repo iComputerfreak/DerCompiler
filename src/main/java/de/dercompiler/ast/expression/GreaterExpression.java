@@ -1,12 +1,13 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class GreaterExpression extends BinaryExpression {
-    public GreaterExpression(AbstractExpression lhs, AbstractExpression rhs) {
-        super(lhs, rhs);
+    public GreaterExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+        super(position, lhs, rhs);
     }
 
     @Override

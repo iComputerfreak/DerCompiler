@@ -1,13 +1,14 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class MultiplyExpression extends BinaryExpression {
 
-    public MultiplyExpression(AbstractExpression lhs, AbstractExpression rhs) {
-        super(lhs, rhs);
+    public MultiplyExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+        super(position, lhs, rhs);
     }
 
     @Override

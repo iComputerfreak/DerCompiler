@@ -1,13 +1,15 @@
 package de.dercompiler.ast;
 
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.lexer.SourcePosition;
 
 public final class Field extends ClassMember {
-    
+
     private final Type type;
     private final String identifier;
 
-    public Field(Type type, String identifier) {
+    public Field(SourcePosition position, Type type, String identifier) {
+        super(position);
         this.type = type;
         this.identifier = identifier;
     }

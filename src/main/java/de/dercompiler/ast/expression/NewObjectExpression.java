@@ -2,13 +2,15 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.type.CustomType;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class NewObjectExpression extends PrimaryExpression {
 
     private CustomType type;
-    public NewObjectExpression(CustomType type) {
+    public NewObjectExpression(SourcePosition position, CustomType type) {
+        super(position);
         this.type = type;
     }
 

@@ -217,7 +217,11 @@ public final class OutputMessageHandler {
     public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, SourcePosition position) {
         printErrorAndContinue(id, errorMessage);
         lexer.printSourceText(position);
-        System.exit(-idPrefix - id.getId());
+        if (debug_mode) {
+            debugEvents.add(new DebugEvent(origin, id, errorMessage));
+        } else {
+            System.exit(-idPrefix - id.getId());
+        }
     }
 
     private void internalError(String message, StackTraceElement element) {

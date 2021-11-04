@@ -1,13 +1,14 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class ModuloExpression extends BinaryExpression {
 
-    public ModuloExpression(AbstractExpression lhs, AbstractExpression rhs) {
-        super(lhs, rhs);
+    public ModuloExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+        super(position, lhs, rhs);
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
@@ -9,7 +10,8 @@ public final class ReturnStatement extends Statement {
 
     AbstractExpression returnExpression;
 
-    public ReturnStatement(AbstractExpression returnExpression) {
+    public ReturnStatement(SourcePosition position, AbstractExpression returnExpression) {
+        super(position);
         this.returnExpression = returnExpression;
     }
 

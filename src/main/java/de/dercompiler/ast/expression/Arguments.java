@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,11 +11,15 @@ import java.util.Objects;
 public class Arguments implements ASTNode {
 
     private LinkedList<AbstractExpression> arguments;
+    private SourcePosition position;
 
-    public Arguments() { arguments = new LinkedList<>(); }
+    public Arguments(SourcePosition position) {
+        this.position = position;
+        this.arguments = new LinkedList<>();
+    }
 
-    public Arguments(List<AbstractExpression> arguments) {
-        this();
+    public Arguments(SourcePosition position, List<AbstractExpression> arguments) {
+        this(position);
         for (AbstractExpression ae : arguments) {
             this.arguments.addLast(ae);
         }
@@ -40,5 +45,10 @@ public class Arguments implements ASTNode {
             return result;
         }
         return false;
+    }
+
+    @Override
+    public SourcePosition getSourcePosition() {
+        return position;
     }
 }

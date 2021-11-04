@@ -1,14 +1,15 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
 public final class FieldAccess extends PostfixExpression {
 
     String fieldName;
-    public FieldAccess(AbstractExpression encapsulated, String fieldName) {
-        super(encapsulated);
+    public FieldAccess(SourcePosition position, AbstractExpression encapsulated, String fieldName) {
+        super(position, encapsulated);
         this.fieldName = fieldName;
     }
 

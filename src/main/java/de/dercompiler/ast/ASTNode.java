@@ -6,6 +6,6 @@ public interface ASTNode {
 
     boolean syntaxEquals(ASTNode other);
 
-    //SourcePosition getSourcePosition();
+    SourcePosition getSourcePosition();
 
 }

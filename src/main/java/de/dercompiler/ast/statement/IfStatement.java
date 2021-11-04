@@ -2,6 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
@@ -11,7 +12,8 @@ public final class IfStatement extends Statement {
     Statement thenStatement;
     Statement elseStatement;
 
-    public IfStatement(AbstractExpression condition, Statement thenStatement, Statement elseStatement) {
+    public IfStatement(SourcePosition position, AbstractExpression condition, Statement thenStatement, Statement elseStatement) {
+        super(position);
         this.condition = condition;
         this.thenStatement = thenStatement;
         this.elseStatement = elseStatement;

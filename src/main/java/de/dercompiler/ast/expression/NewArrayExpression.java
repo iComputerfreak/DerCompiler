@@ -2,6 +2,7 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.type.BasicType;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
@@ -11,7 +12,8 @@ public final class NewArrayExpression extends PrimaryExpression {
     private AbstractExpression size;
     private int dimension;
 
-    public NewArrayExpression(BasicType type, AbstractExpression size, int dimension) {
+    public NewArrayExpression(SourcePosition position, BasicType type, AbstractExpression size, int dimension) {
+        super(position);
         this.type = type;
         this.size = size;
         this.dimension = dimension;

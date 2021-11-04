@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;
+
 public class ParserTestStatements {
 
     private static ParserTestHelper pth = new ParserTestHelper();
@@ -36,15 +38,15 @@ public class ParserTestStatements {
                 "boolean bar = !true;",
                 "foo bar = new foo();",
         };
-        Type Int = new Type(new IntType(), 0);
-        Type bool = new Type(new BooleanType(), 0);
-        Variable foo = new Variable("foo");
-        Type fooType = new Type(new CustomType(foo.getName()), 0);
-        Variable bar = new Variable("bar");
+        Type Int = new Type(DEFAULT_POS, new IntType(DEFAULT_POS), 0);
+        Type bool = new Type(DEFAULT_POS, new BooleanType(DEFAULT_POS), 0);
+        Variable foo = new Variable(DEFAULT_POS, "foo");
+        Type fooType = new Type(DEFAULT_POS, new CustomType(DEFAULT_POS, foo.getName()), 0);
+        Variable bar = new Variable(DEFAULT_POS, "bar");
         ASTNode[] locals_expected = {
-            new LocalVariableDeclarationStatement(Int, foo.getName(), new IntegerValue("0")),
-            new LocalVariableDeclarationStatement(bool, bar.getName(), new LogicalNotExpression(new BooleanValue(true))),
-            new LocalVariableDeclarationStatement(fooType, bar.getName(), new NewObjectExpression((CustomType) fooType.getBasicType()))
+            new LocalVariableDeclarationStatement(DEFAULT_POS, Int, foo.getName(), new IntegerValue(DEFAULT_POS, "0")),
+            new LocalVariableDeclarationStatement(DEFAULT_POS, bool, bar.getName(), new LogicalNotExpression(DEFAULT_POS, new BooleanValue(DEFAULT_POS, true))),
+            new LocalVariableDeclarationStatement(DEFAULT_POS, fooType, bar.getName(), new NewObjectExpression(DEFAULT_POS, (CustomType) fooType.getBasicType()))
         };
         pth.testLexstringEqualASTNode(locals, locals_expected, Parser::parseVariableDeclaration);
     }
@@ -69,42 +71,42 @@ public class ParserTestStatements {
               }
               """
         };
-        Variable Type = new Variable("Type");
-        Variable type = new Variable("type");
-        Variable parseType = new Variable("parseType");
-        Variable IdentifierToken = new Variable("IdentifierToken");
-        Variable expectIdentifier = new Variable("expectIdentifier");
-        Variable ident = new Variable("ident");
-        Variable AbstractExpression = new Variable("AbstractExpression");
-        Variable expression = new Variable("expression");
-        Variable UninitalizedValue = new Variable("UninitializedValue");
-        Variable wlexer = new Variable("wlexer");
-        Variable peek = new Variable("peek");
-        Variable expect = new Variable("expect");
-        Variable parseExpression = new Variable("parseExpression");
-        Variable assign = new Variable("ASSIGN");
-        Variable semicolon = new Variable("SEMICOLON");
-        Variable createLocalVariableDeclarationStatement = new Variable("createLocalVariableDeclarationStatement");
-        Variable getIdentifier = new Variable("getIdentifier");
+        Variable Type = new Variable(DEFAULT_POS, "Type");
+        Variable type = new Variable(DEFAULT_POS, "type");
+        Variable parseType = new Variable(DEFAULT_POS, "parseType");
+        Variable IdentifierToken = new Variable(DEFAULT_POS, "IdentifierToken");
+        Variable expectIdentifier = new Variable(DEFAULT_POS, "expectIdentifier");
+        Variable ident = new Variable(DEFAULT_POS, "ident");
+        Variable AbstractExpression = new Variable(DEFAULT_POS, "AbstractExpression");
+        Variable expression = new Variable(DEFAULT_POS, "expression");
+        Variable UninitalizedValue = new Variable(DEFAULT_POS, "UninitializedValue");
+        Variable wlexer = new Variable(DEFAULT_POS, "wlexer");
+        Variable peek = new Variable(DEFAULT_POS, "peek");
+        Variable expect = new Variable(DEFAULT_POS, "expect");
+        Variable parseExpression = new Variable(DEFAULT_POS, "parseExpression");
+        Variable assign = new Variable(DEFAULT_POS, "ASSIGN");
+        Variable semicolon = new Variable(DEFAULT_POS, "SEMICOLON");
+        Variable createLocalVariableDeclarationStatement = new Variable(DEFAULT_POS, "createLocalVariableDeclarationStatement");
+        Variable getIdentifier = new Variable(DEFAULT_POS, "getIdentifier");
         ASTNode[] code_expected = {
-            new BasicBlock(Arrays.asList(
-                    new LocalVariableDeclarationStatement(new Type(new CustomType(Type.getName()), 0), type.getName(), new MethodInvocationOnObject(new ThisValue(), parseType.getName(), new Arguments())),
-                    new LocalVariableDeclarationStatement(new Type(new CustomType(IdentifierToken.getName()), 0), ident.getName(),new MethodInvocationOnObject(new ThisValue(), expectIdentifier.getName(), new Arguments())),
-                    new LocalVariableDeclarationStatement(new Type(new CustomType(AbstractExpression.getName()), 0), expression.getName(), new NewObjectExpression(new CustomType(UninitalizedValue.getName()))),
-                    new IfStatement(
-                            new EqualExpression(new MethodInvocationOnObject(wlexer, peek.getName(), new Arguments()), assign),
-                            new BasicBlock(Arrays.asList(
-                                    new ExpressionStatement(new MethodInvocationOnObject(new ThisValue(), expect.getName(), new Arguments(Arrays.asList(assign)))),
-                                    new ExpressionStatement(new AssignmentExpression(expression, new MethodInvocationOnObject(new ThisValue(), parseExpression.getName(), new Arguments()))),
-                                    new ExpressionStatement(new MethodInvocationOnObject(new ThisValue(), expect.getName(), new Arguments(Arrays.asList(semicolon))))
+            new BasicBlock(DEFAULT_POS, Arrays.asList(
+                    new LocalVariableDeclarationStatement(DEFAULT_POS, new Type(DEFAULT_POS, new CustomType(DEFAULT_POS, Type.getName()), 0), type.getName(), new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), parseType.getName(), new Arguments(DEFAULT_POS))),
+                    new LocalVariableDeclarationStatement(DEFAULT_POS, new Type(DEFAULT_POS, new CustomType(DEFAULT_POS, IdentifierToken.getName()), 0), ident.getName(),new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), expectIdentifier.getName(), new Arguments(DEFAULT_POS))),
+                    new LocalVariableDeclarationStatement(DEFAULT_POS, new Type(DEFAULT_POS, new CustomType(DEFAULT_POS, AbstractExpression.getName()), 0), expression.getName(), new NewObjectExpression(DEFAULT_POS, new CustomType(DEFAULT_POS, UninitalizedValue.getName()))),
+                    new IfStatement(DEFAULT_POS,
+                            new EqualExpression(DEFAULT_POS, new MethodInvocationOnObject(DEFAULT_POS, wlexer, peek.getName(), new Arguments(DEFAULT_POS)), assign),
+                            new BasicBlock(DEFAULT_POS, Arrays.asList(
+                                    new ExpressionStatement(DEFAULT_POS, new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), expect.getName(), new Arguments(DEFAULT_POS, Arrays.asList(assign)))),
+                                    new ExpressionStatement(DEFAULT_POS, new AssignmentExpression(DEFAULT_POS, expression, new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), parseExpression.getName(), new Arguments(DEFAULT_POS)))),
+                                    new ExpressionStatement(DEFAULT_POS, new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), expect.getName(), new Arguments(DEFAULT_POS, Arrays.asList(semicolon))))
                             )),
-                            new BasicBlock(Arrays.asList(
-                                    new ExpressionStatement(new MethodInvocationOnObject(new ThisValue(), expect.getName(), new Arguments(Arrays.asList(semicolon))))
+                            new BasicBlock(DEFAULT_POS, Arrays.asList(
+                                    new ExpressionStatement(DEFAULT_POS, new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), expect.getName(), new Arguments(DEFAULT_POS, Arrays.asList(semicolon))))
                             ))
                     ),
-                    new ReturnStatement(new MethodInvocationOnObject(new ThisValue(), createLocalVariableDeclarationStatement.getName(), new Arguments(Arrays.asList(
+                    new ReturnStatement(DEFAULT_POS, new MethodInvocationOnObject(DEFAULT_POS, new ThisValue(DEFAULT_POS), createLocalVariableDeclarationStatement.getName(), new Arguments(DEFAULT_POS, Arrays.asList(
                             type,
-                            new MethodInvocationOnObject(ident, getIdentifier.getName(), new Arguments()),
+                            new MethodInvocationOnObject(DEFAULT_POS, ident, getIdentifier.getName(), new Arguments(DEFAULT_POS)),
                             expression
                         )))
                     )
@@ -121,20 +123,20 @@ public class ParserTestStatements {
                 "{foo = bar;}",
                 "{int i = 0; while (i < 10) {i = i + 1;}}",
         };
-        Variable i = new Variable("i");
-        Variable foo = new Variable("foo");
-        Variable bar = new Variable("bar");
-        IntegerValue zero = new IntegerValue("0");
+        Variable i = new Variable(DEFAULT_POS, "i");
+        Variable foo = new Variable(DEFAULT_POS, "foo");
+        Variable bar = new Variable(DEFAULT_POS, "bar");
+        IntegerValue zero = new IntegerValue(DEFAULT_POS, "0");
         ASTNode[] blocks_expected = {
-                new BasicBlock(),
-                new BasicBlock(new LinkedList<>(Arrays.asList(
-                        new ExpressionStatement(new AssignmentExpression(foo, bar))
+                new BasicBlock(DEFAULT_POS),
+                new BasicBlock(DEFAULT_POS, new LinkedList<>(Arrays.asList(
+                        new ExpressionStatement(DEFAULT_POS, new AssignmentExpression(DEFAULT_POS, foo, bar))
                 ))),
-                new BasicBlock(new LinkedList<>(Arrays.asList(
-                        new LocalVariableDeclarationStatement(new Type(new IntType(), 0), i.getName(), zero),
-                        new WhileStatement(new LessExpression(i, new IntegerValue("10")), new BasicBlock(
-                                new LinkedList<>(Arrays.asList(new ExpressionStatement(
-                                    new AssignmentExpression(i, new AddExpression(i, new IntegerValue("1")))
+                new BasicBlock(DEFAULT_POS, new LinkedList<>(Arrays.asList(
+                        new LocalVariableDeclarationStatement(DEFAULT_POS, new Type(DEFAULT_POS, new IntType(DEFAULT_POS), 0), i.getName(), zero),
+                        new WhileStatement(DEFAULT_POS, new LessExpression(DEFAULT_POS, i, new IntegerValue(DEFAULT_POS, "10")), new BasicBlock(DEFAULT_POS,
+                                new LinkedList<>(Arrays.asList( new ExpressionStatement(DEFAULT_POS,
+                                        new AssignmentExpression(DEFAULT_POS, i, new AddExpression(DEFAULT_POS, i, new IntegerValue(DEFAULT_POS, "1")))
                                 )))
                         ))
                )))
@@ -150,12 +152,12 @@ public class ParserTestStatements {
             "return foo;",
             "return foo + bar;"
         };
-        Variable foo = new Variable("foo");
-        Variable bar = new Variable("bar");
+        Variable foo = new Variable(DEFAULT_POS, "foo");
+        Variable bar = new Variable(DEFAULT_POS, "bar");
         ASTNode[] returns_expected = {
-            new ReturnStatement(new VoidExpression()),
-            new ReturnStatement(foo),
-            new ReturnStatement(new AddExpression(foo, bar))
+            new ReturnStatement(DEFAULT_POS, new VoidExpression(DEFAULT_POS)),
+            new ReturnStatement(DEFAULT_POS, foo),
+            new ReturnStatement(DEFAULT_POS, new AddExpression(DEFAULT_POS, foo, bar))
         };
         testLexstringEqualASTNode(returns, returns_expected);
     }
@@ -167,11 +169,11 @@ public class ParserTestStatements {
                 "while(true);",
                 "while(true)while(true);",
         };
-        AbstractExpression cond = new BooleanValue(true);
-        Statement empty = new EmptyStatement();
+        AbstractExpression cond = new BooleanValue(DEFAULT_POS, true);
+        Statement empty = new EmptyStatement(DEFAULT_POS);
         ASTNode[] whiles_expected = {
-            new WhileStatement(cond, empty),
-            new WhileStatement(cond, new WhileStatement(cond, empty))
+            new WhileStatement(DEFAULT_POS, cond, empty),
+            new WhileStatement(DEFAULT_POS, cond, new WhileStatement(DEFAULT_POS, cond, empty))
         };
         testLexstringEqualASTNode(whiles, whiles_expected);
     }
@@ -185,20 +187,20 @@ public class ParserTestStatements {
             "foo.bar();",
             "a = b[i] + c.d;",
         };
-        Variable a = new Variable("a");
-        Variable b = new Variable("b");
-        Variable c = new Variable("c");
-        Variable d = new Variable("d");
-        Variable i = new Variable("i");
-        Variable foo = new Variable("foo");
-        Variable bar = new Variable("bar");
+        Variable a = new Variable(DEFAULT_POS, "a");
+        Variable b = new Variable(DEFAULT_POS, "b");
+        Variable c = new Variable(DEFAULT_POS, "c");
+        Variable d = new Variable(DEFAULT_POS, "d");
+        Variable i = new Variable(DEFAULT_POS, "i");
+        Variable foo = new Variable(DEFAULT_POS, "foo");
+        Variable bar = new Variable(DEFAULT_POS, "bar");
         ASTNode[] expr_expected = {
-            new ExpressionStatement(a),
-            new ExpressionStatement(new AddExpression(foo, foo)),
-            new ExpressionStatement(new MethodInvocationOnObject(foo, bar.getName(), new Arguments())),
-            new ExpressionStatement(new AssignmentExpression(a, new AddExpression(
-                    new ArrayAccess(b, i),
-                    new FieldAccess(c, d.getName())
+            new ExpressionStatement(DEFAULT_POS, a),
+            new ExpressionStatement(DEFAULT_POS, new AddExpression(DEFAULT_POS, foo, foo)),
+            new ExpressionStatement(DEFAULT_POS, new MethodInvocationOnObject(DEFAULT_POS, foo, bar.getName(), new Arguments(DEFAULT_POS))),
+            new ExpressionStatement(DEFAULT_POS, new AssignmentExpression(DEFAULT_POS, a, new AddExpression(DEFAULT_POS,
+                    new ArrayAccess(DEFAULT_POS, b, i),
+                    new FieldAccess(DEFAULT_POS, c, d.getName())
             )))
         };
         testLexstringEqualASTNode(expr, expr_expected);
@@ -213,13 +215,13 @@ public class ParserTestStatements {
             "if (true) if (true);",
             "if (true) if (true); else;",
         };
-        AbstractExpression cond = new BooleanValue(true);
-        Statement empty = new EmptyStatement();
+        AbstractExpression cond = new BooleanValue(DEFAULT_POS, true);
+        Statement empty = new EmptyStatement(DEFAULT_POS);
         ASTNode[] ifs_expected = {
-            new IfStatement(cond, empty, null),
-            new IfStatement(cond, empty, empty),
-            new IfStatement(cond, new IfStatement(cond, empty, null), null),
-            new IfStatement(cond, new IfStatement(cond, empty, empty), null),
+            new IfStatement(DEFAULT_POS, cond, empty, null),
+            new IfStatement(DEFAULT_POS, cond, empty, empty),
+            new IfStatement(DEFAULT_POS, cond, new IfStatement(DEFAULT_POS, cond, empty, null), null),
+            new IfStatement(DEFAULT_POS, cond, new IfStatement(DEFAULT_POS, cond, empty, empty), null),
         };
         testLexstringEqualASTNode(ifs, ifs_expected);
     }
@@ -228,7 +230,7 @@ public class ParserTestStatements {
     @DisplayName("empty statement")
     void testEmptyStatement() {
         String[] empty = {";"};
-        ASTNode[] empty_expected = {new EmptyStatement()};
+        ASTNode[] empty_expected = {new EmptyStatement(DEFAULT_POS)};
         testLexstringEqualASTNode(empty, empty_expected);
     }
 }

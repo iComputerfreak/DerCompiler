@@ -7,6 +7,7 @@ import de.dercompiler.ast.type.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.*;
 
@@ -34,6 +35,7 @@ public class Parser {
     
     public Program parseProgram() {
         // ClassDeclaration*
+        SourcePosition pos = lexer.getPosition();
         List<ClassDeclaration> classes = new ArrayList<>();
         while (lexer.peek().type() == CLASS) {
             classes.add(parseClassDeclaration());
@@ -43,11 +45,12 @@ public class Parser {
             lexer.printSourceText(next.position());
             logger.printErrorAndExit(ParserErrorIds.EXPECTED_CLASS_DECLARATION, "Expected class declaration, but found " + next.type());
         }
-        return new Program(classes);
+        return new Program(pos, classes);
     }
     
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
+        SourcePosition pos = lexer.getPosition();
         expect(CLASS);
         IdentifierToken identifier = expectIdentifier();
         expect(L_CURLY_BRACKET);
@@ -58,7 +61,7 @@ public class Parser {
         }
         // Consume the R_CURLY_BRACKET
         lexer.nextToken();
-        return new ClassDeclaration(identifier.getIdentifier(), members);
+        return new ClassDeclaration(pos, identifier.getIdentifier(), members);
     }
     
     public ClassMember parseClassMember() {
@@ -106,15 +109,17 @@ public class Parser {
     
     public Field parseField() {
         // public Type IDENT ;
+        SourcePosition pos = lexer.getPosition();
         expect(PUBLIC);
         Type type = parseType();
         IdentifierToken fieldName = expectIdentifier();
         expect(SEMICOLON);
-        return new Field(type, fieldName.getIdentifier());
+        return new Field(pos, type, fieldName.getIdentifier());
     }
     
     public MainMethod parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
+        SourcePosition pos = lexer.getPosition();
         expect(PUBLIC);
         expect(STATIC);
         expect(VOID_TYPE);
@@ -128,11 +133,12 @@ public class Parser {
             methodRest = parseMethodRest();
         }
         BasicBlock block = parseBasicBlock();
-        return new MainMethod(name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
+        return new MainMethod(pos, name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
     
     public Method parseMethod() {
-        // public Type IDENT ( Parameters? ) MethodRest? Block
+        // public Type IDENT ( Parameters? ) MethodRest? Block\
+        SourcePosition pos = lexer.getPosition();
         expect(PUBLIC);
         Type type = parseType();
         IdentifierToken ident = expectIdentifier();
@@ -153,14 +159,15 @@ public class Parser {
             methodRest = parseMethodRest();
         }
         BasicBlock block = parseBasicBlock();
-        return new Method(type, ident.getIdentifier(), params, methodRest, block);
+        return new Method(pos, type, ident.getIdentifier(), params, methodRest, block);
     }
     
     public MethodRest parseMethodRest() {
         // throws IDENT
         expect(THROWS);
+        SourcePosition pos = lexer.getPosition();
         IdentifierToken ident = expectIdentifier();
-        return new MethodRest(ident.getIdentifier());
+        return new MethodRest(pos, ident.getIdentifier());
     }
 
     public LinkedList<Parameter> parseParameters() {
@@ -183,16 +190,18 @@ public class Parser {
 
     public Parameter parseParameter() {
         // Type IDENT
+        SourcePosition pos = lexer.getPosition();
         Type type = parseType();
         IdentifierToken ident = expectIdentifier();
-        return new Parameter(type, ident.getIdentifier());
+        return new Parameter(pos, type, ident.getIdentifier());
     }
 
     public Type parseType() {
         // BasicType TypeRest
+        SourcePosition pos = lexer.getPosition();
         BasicType type = parseBasicType();
         int dimension = parseTypeRest();
-        return new Type(type, dimension);
+        return new Type(pos, type, dimension);
     }
     
     public int parseTypeRest() {
@@ -208,18 +217,19 @@ public class Parser {
     
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
+        SourcePosition pos = lexer.getPosition();
         IToken t = lexer.nextToken().type();
         if (t instanceof IdentifierToken ident) {
-            return new CustomType(ident.getIdentifier());
+            return new CustomType(pos, ident.getIdentifier());
         }
         if (t instanceof TypeToken type) {
             switch (type) {
                 case INT_TYPE:
-                    return new IntType();
+                    return new IntType(pos);
                 case BOOLEAN_TYPE:
-                    return new BooleanType();
+                    return new BooleanType(pos);
                 case VOID_TYPE:
-                    return new VoidType();
+                    return new VoidType(pos);
             }
         }
 
@@ -261,18 +271,19 @@ public class Parser {
     //since here we use wlexer instead of lexer
 
     public BasicBlock parseBasicBlock() {
+        SourcePosition pos = wlexer.position();
         LinkedList<Statement> statements = new LinkedList<>();
         expect(L_CURLY_BRACKET);
         while (wlexer.peek() != R_CURLY_BRACKET) {
             statements.addLast(parseBlockStatement());
         }
         expect(R_CURLY_BRACKET);
-        return new BasicBlock(statements);
+        return new BasicBlock(pos, statements);
     }
 
     public Statement parseBlockStatement() {
         IToken token = wlexer.peek();
-        Statement statement = new ErrorStatement();
+        Statement statement;
         boolean possible_expression = isExpression(token);
         boolean possible_type = isType(token);
         //= token instanceof IdentifierToken
@@ -294,9 +305,10 @@ public class Parser {
     }
 
     public Statement parseVariableDeclaration() {
+        SourcePosition pos = wlexer.position();
         Type type = parseType();
         IdentifierToken ident = expectIdentifier();
-        AbstractExpression expression = new UninitializedValue();
+        AbstractExpression expression = new UninitializedValue(pos);
         if (wlexer.peek() == ASSIGN) {
             expect(ASSIGN);
             expression = parseExpression();
@@ -304,15 +316,16 @@ public class Parser {
         } else {
             expect(SEMICOLON);
         }
-        return new LocalVariableDeclarationStatement(type, ident.getIdentifier(), expression);
+        return new LocalVariableDeclarationStatement(pos, type, ident.getIdentifier(), expression);
     }
 
     public Statement parseStatement() {
+        SourcePosition pos = wlexer.position();
         IToken token = wlexer.peek();
         if (token instanceof Token t) {
             return switch (t) {
                 case L_CURLY_BRACKET -> parseBasicBlock();
-                case SEMICOLON -> wlexer.consumeToken(new EmptyStatement());
+                case SEMICOLON -> wlexer.consumeToken(new EmptyStatement(pos));
                 case IF -> parseIfStatement();
                 case WHILE -> parseWhileStatement();
                 case RETURN -> parseReturnStatement();
@@ -323,6 +336,7 @@ public class Parser {
     }
 
     public Statement parseIfStatement() {
+        SourcePosition pos = wlexer.position();
         expect(IF);
         expect(L_PAREN);
         AbstractExpression condition = parseExpression();
@@ -333,32 +347,35 @@ public class Parser {
             expect(ELSE);
             elseStatement = parseStatement();
         }
-        return new IfStatement(condition, thenStatement, elseStatement);
+        return new IfStatement(pos, condition, thenStatement, elseStatement);
     }
 
     public Statement parseWhileStatement() {
+        SourcePosition pos = wlexer.position();
         expect(WHILE);
         expect(L_PAREN);
         AbstractExpression condition = parseExpression();
         expect(R_PAREN);
         Statement loop = parseStatement();
-        return new WhileStatement(condition, loop);
+        return new WhileStatement(pos, condition, loop);
     }
 
     public Statement parseReturnStatement() {
+        SourcePosition pos = wlexer.position();
         expect(RETURN);
-        AbstractExpression returnExpression = new VoidExpression();
+        AbstractExpression returnExpression = new VoidExpression(pos);
         if (wlexer.peek() != SEMICOLON) {
             returnExpression = parseExpression();
         }
         expect(SEMICOLON);
-        return new ReturnStatement(returnExpression);
+        return new ReturnStatement(pos, returnExpression);
     }
 
     public Statement parseExpressionStatement() {
+        SourcePosition pos = wlexer.position();
         AbstractExpression expression = parseExpression();
         expect(SEMICOLON);
-        return new ExpressionStatement(expression);
+        return new ExpressionStatement(pos, expression);
     }
 
     public AbstractExpression parseExpression() {
@@ -366,6 +383,7 @@ public class Parser {
     }
 
     public AbstractExpression parseUnaryExpression() {
+        SourcePosition pos = wlexer.position();
         IToken token = wlexer.peek();
         if (isPrimary(token)) {
             return parsePostfixExpression();
@@ -374,17 +392,17 @@ public class Parser {
             switch (t) {
                 case NOT -> {
                     wlexer.nextToken();
-                    return new LogicalNotExpression(parseUnaryExpression());
+                    return new LogicalNotExpression(pos, parseUnaryExpression());
                 }
                 case MINUS -> {
                     wlexer.nextToken();
-                    return new NegativeExpression(parseUnaryExpression());
+                    return new NegativeExpression(pos, parseUnaryExpression());
                 }
             }
         }
         lexer.printSourceText(lexer.peek().position());
         logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation!");
-        return new ErrorExpression();
+        return new ErrorExpression(pos);
     }
 
     public AbstractExpression parsePostfixExpression() {
@@ -411,16 +429,18 @@ public class Parser {
     }
 
     public AbstractExpression parseMethodInvocation(AbstractExpression expression) {
+        SourcePosition pos = wlexer.position();
         expect(DOT);
         IdentifierToken ident = expectIdentifier();
         expect(L_PAREN);
         Arguments arguments = parseArguments();
         expect(R_PAREN);
-        return new MethodInvocationOnObject(expression, ident.getIdentifier(), arguments);
+        return new MethodInvocationOnObject(pos, expression, ident.getIdentifier(), arguments);
     }
 
     public Arguments parseArguments() {
-        Arguments arguments = new Arguments();
+        SourcePosition pos = wlexer.position();
+        Arguments arguments = new Arguments(pos);
         IToken token = wlexer.peek();
 
         if (token == R_PAREN) return arguments;
@@ -441,16 +461,18 @@ public class Parser {
     }
 
     public AbstractExpression parseFieldAccess(AbstractExpression expression) {
+        SourcePosition pos = wlexer.position();
         expect(DOT);
         IdentifierToken ident = expectIdentifier();
-        return new FieldAccess(expression, ident.getIdentifier());
+        return new FieldAccess(pos, expression, ident.getIdentifier());
     }
 
     public AbstractExpression parseArrayAccess(AbstractExpression expression) {
+        SourcePosition pos = wlexer.position();
         expect(L_SQUARE_BRACKET);
         AbstractExpression arrayPosition = parseExpression();
         expect(R_SQUARE_BRACKET);
-        return new ArrayAccess(expression, arrayPosition);
+        return new ArrayAccess(pos, expression, arrayPosition);
     }
 
     private boolean isExpression(IToken token) {
@@ -482,7 +504,8 @@ public class Parser {
     }
 
     public AbstractExpression parsePrimaryExpression() {
-        AbstractExpression expression = new ErrorExpression();
+        SourcePosition pos = wlexer.position();
+        AbstractExpression expression = new ErrorExpression(pos);
         IToken token = wlexer.peek();
         if (token instanceof IdentifierToken ident) {
             wlexer.nextToken();
@@ -491,33 +514,33 @@ public class Parser {
                 Arguments arguments = parseArguments();
                 expect(R_PAREN);
                 //we create a ThisValue out of nowhere, because methods only can be invoked on other objects or the own object(this)
-                expression = new MethodInvocationOnObject(new ThisValue(), ident.getIdentifier(), arguments);
+                expression = new MethodInvocationOnObject(pos, new ThisValue(pos), ident.getIdentifier(), arguments);
             } else {
-                expression = new Variable(ident.getIdentifier());
+                expression = new Variable(pos, ident.getIdentifier());
             }
         } else if (token instanceof IntegerToken i) {
             wlexer.nextToken();
-            expression = new IntegerValue(i.getValue());
+            expression = new IntegerValue(pos, i.getValue());
         } else if (token instanceof Token t) {
             switch (t) {
                 case NULL: {
                     wlexer.nextToken();
-                    expression = new NullValue();
+                    expression = new NullValue(pos);
                 }
                 break;
                 case FALSE: {
                     wlexer.nextToken();
-                    expression = new BooleanValue(false);
+                    expression = new BooleanValue(pos, false);
                 }
                 break;
                 case TRUE: {
                     wlexer.nextToken();
-                    expression = new BooleanValue(true);
+                    expression = new BooleanValue(pos, true);
                 }
                 break;
                 case THIS: {
                     wlexer.nextToken();
-                    expression = new ThisValue();
+                    expression = new ThisValue(pos);
                 }
                 break;
                 case L_PAREN: {
@@ -549,6 +572,7 @@ public class Parser {
     }
 
     public AbstractExpression parseNewArrayExpression() {
+        SourcePosition pos = wlexer.position();
         expect(NEW);
         BasicType type = parseBasicType();
         int dimension = 0;
@@ -560,15 +584,17 @@ public class Parser {
             expect(R_SQUARE_BRACKET);
             dimension++;
         }
-        return new NewArrayExpression(type, size, dimension);
+        return new NewArrayExpression(pos, type, size, dimension);
     }
 
     public AbstractExpression parseNewObjectExpression() {
+        SourcePosition pos = wlexer.position();
         expect(NEW);
+        SourcePosition typePos = wlexer.position();
         IdentifierToken ident = expectIdentifier();
         expect(L_PAREN);
         expect(R_PAREN);
-        return new NewObjectExpression(new CustomType(ident.getIdentifier()));
+        return new NewObjectExpression(pos, new CustomType(typePos, ident.getIdentifier()));
     }
 
 }
