@@ -214,7 +214,8 @@ public final class OutputMessageHandler {
     }
 
     public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, Lexer.Position position) {
-
+        printErrorAndContinue(id, errorMessage);
+        lexer.printSourceText(position);
     }
 
     private void internalError(String message, StackTraceElement element) {
