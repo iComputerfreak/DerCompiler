@@ -1,0 +1,8 @@
+class PrivateMember {
+
+    int[][][] test;
+	
+	public int foo() {
+        {}{}{{}}
+    }
+}
