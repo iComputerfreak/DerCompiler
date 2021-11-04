@@ -1,6 +1,7 @@
 package de.dercompiler.parser;
 
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.IToken;
 
 public class LexerWrapper {
@@ -24,7 +25,7 @@ public class LexerWrapper {
         return lexer.peek(position).type();
     }
 
-    public Lexer.Position position() {
+    public SourcePosition position() {
         return lexer.getPosition();
     }
 

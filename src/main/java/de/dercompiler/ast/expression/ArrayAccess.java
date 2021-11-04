@@ -1,6 +1,6 @@
 package de.dercompiler.ast.expression;
 
-import de.dercompiler.ast.SyntaxEquatable;
+import de.dercompiler.ast.ASTNode;
 
 import java.util.Objects;
 
@@ -14,7 +14,7 @@ public final class ArrayAccess extends PostfixExpression {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof ArrayAccess aa) {
             return arrayPosition.syntaxEquals(aa.arrayPosition) && syntaxEqualEncapsulated(aa);

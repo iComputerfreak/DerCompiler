@@ -1,3 +1,11 @@
 package de.dercompiler.ast;
 
-public interface ASTNode extends SyntaxEquatable {}
+import de.dercompiler.lexer.SourcePosition;
+
+public interface ASTNode {
+
+    boolean syntaxEquals(ASTNode other);
+
+    //SourcePosition getSourcePosition();
+
+}

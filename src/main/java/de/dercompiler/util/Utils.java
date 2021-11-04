@@ -1,13 +1,13 @@
 package de.dercompiler.util;
 
-import de.dercompiler.ast.SyntaxEquatable;
+import de.dercompiler.ast.ASTNode;
 
 import java.util.Iterator;
 import java.util.List;
 
 public class Utils {
     
-    public static <E1 extends SyntaxEquatable, E2 extends SyntaxEquatable> boolean syntaxEquals(List<E1> first, List<E2> second) {
+    public static <E1 extends ASTNode, E2 extends ASTNode> boolean syntaxEquals(List<E1> first, List<E2> second) {
         // both are null => equal
         if (first == null && second == null) {
             return true;

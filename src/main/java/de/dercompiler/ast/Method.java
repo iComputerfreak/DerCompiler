@@ -44,7 +44,7 @@ public final class Method extends ClassMember {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Method otherMethod) {
             return this.type.syntaxEquals(otherMethod.type)
                     && this.identifier.equals(otherMethod.identifier)

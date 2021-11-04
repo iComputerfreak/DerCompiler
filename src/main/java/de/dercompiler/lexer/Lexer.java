@@ -45,7 +45,7 @@ public class Lexer {
      */
     private void lex() {
         IToken token = null;
-        Position currentPosition = null;
+        SourcePosition currentPosition = null;
 
         while (token == null) {
             while (Character.isWhitespace(currentChar)) {
@@ -840,7 +840,7 @@ public class Lexer {
     /**
      * @return the position of the next char of the input stream
      */
-    public Position getPosition() {
+    public SourcePosition getPosition() {
         return this.position.copy();
     }
 
@@ -849,8 +849,8 @@ public class Lexer {
         handler.printErrorAndExit(id, message);
     }
 
-    public void printSourceText(Position position) {
-        Position currentPosition = getPosition().copy();
+    public void printSourceText(SourcePosition position) {
+        SourcePosition currentPosition = getPosition().copy();
         this.reader = this.source.getNewReader();
         this.position.reset();
         this.readCharacter();
@@ -900,19 +900,13 @@ public class Lexer {
     /**
      * Represents the position of a {@link Reader} in a source, counted as lines and columns. The initial Position is 1:1.
      */
-    public static class Position {
-        private int line;
-        private int column;
+    static class Position extends SourcePosition {
 
-        Position() {
-            // after reading first character, position is at 1:1 and from then on it is correct
+        Position() { super(); }
+
+        private void reset() {
             this.line = 1;
             this.column = 0;
-        }
-
-        Position(int line, int column) {
-            this.line = line;
-            this.column = column;
         }
 
         public void newLine() {
@@ -923,46 +917,6 @@ public class Lexer {
         public void advance() {
             this.column++;
         }
-
-        public int getLine() {
-            return line;
-        }
-
-        public int getColumn() {
-            return column;
-        }
-
-        @Override
-        public String toString() {
-            return "%d:%d".formatted(this.line, this.column);
-        }
-
-        public Position copy() {
-            return new ImmutablePosition(this.line, this.column);
-        }
-
-        private void reset() {
-            this.line = 1;
-            this.column = 0;
-        }
-    }
-
-    static class ImmutablePosition extends Position {
-        ImmutablePosition(int line, int column) {
-            super(line, column);
-        }
-
-        @Override
-        public void advance() {
-            new OutputMessageHandler(MessageOrigin.LEXER).internalError("Cannot advance an immutable Position.");
-        }
-
-        @Override
-        public void newLine() {
-            new OutputMessageHandler(MessageOrigin.LEXER).internalError("Cannot advance an immutable Position.");
-        }
-
-
     }
 
 }

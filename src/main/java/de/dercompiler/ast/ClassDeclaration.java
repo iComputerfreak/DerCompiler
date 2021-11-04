@@ -23,7 +23,7 @@ public final class ClassDeclaration implements ASTNode {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof ClassDeclaration otherClass) {
             return this.identifier.equals(otherClass.identifier)
                     && Utils.syntaxEquals(this.members, otherClass.members);

@@ -1,7 +1,6 @@
 package de.dercompiler.ast.type;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.SyntaxEquatable;
 
 public final class Type implements ASTNode {
 
@@ -23,7 +22,7 @@ public final class Type implements ASTNode {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Type otherType) {
             return this.basicType.syntaxEquals(otherType.basicType)
                     && this.arrayDimension == otherType.arrayDimension; 

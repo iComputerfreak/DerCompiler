@@ -13,7 +13,7 @@ public final class MethodRest implements ASTNode {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof MethodRest otherRest) {
             return this.identifier.equals(otherRest.identifier);
         }

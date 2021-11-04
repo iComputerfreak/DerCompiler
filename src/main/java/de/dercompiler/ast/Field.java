@@ -21,7 +21,7 @@ public final class Field extends ClassMember {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Field otherField) {
             return this.type.syntaxEquals(otherField.type)
                     && this.identifier.equals(otherField.identifier);

@@ -41,7 +41,7 @@ public final class MainMethod extends ClassMember {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof MainMethod otherMain) {
             return this.identifier.equals(otherMain.identifier)
                     && this.parameterType.syntaxEquals(otherMain.parameterType)

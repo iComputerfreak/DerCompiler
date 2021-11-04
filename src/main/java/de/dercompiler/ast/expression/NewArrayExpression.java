@@ -1,6 +1,6 @@
 package de.dercompiler.ast.expression;
 
-import de.dercompiler.ast.SyntaxEquatable;
+import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.type.BasicType;
 
 import java.util.Objects;
@@ -18,7 +18,7 @@ public final class NewArrayExpression extends PrimaryExpression {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof NewArrayExpression nae) {
             return type.syntaxEquals(nae.type)

@@ -2,6 +2,7 @@ package de.dercompiler.io;
 
 import de.dercompiler.io.message.*;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.SourcePosition;
 
 import java.awt.*;
 import java.io.PrintStream;
@@ -213,7 +214,7 @@ public final class OutputMessageHandler {
         formatMessage( System.err, ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
     }
 
-    public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, Lexer.Position position) {
+    public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, SourcePosition position) {
         printErrorAndContinue(id, errorMessage);
         lexer.printSourceText(position);
         System.exit(-idPrefix - id.getId());

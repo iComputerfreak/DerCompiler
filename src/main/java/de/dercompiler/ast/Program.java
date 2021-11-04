@@ -17,7 +17,7 @@ public final class Program implements ASTNode {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Program otherProgram) {
             return Utils.syntaxEquals(this.classes, otherProgram.classes);
         }

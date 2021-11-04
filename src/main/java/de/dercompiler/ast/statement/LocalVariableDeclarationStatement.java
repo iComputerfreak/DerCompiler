@@ -1,6 +1,6 @@
 package de.dercompiler.ast.statement;
 
-import de.dercompiler.ast.SyntaxEquatable;
+import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
 import de.dercompiler.ast.type.Type;
 
@@ -19,7 +19,7 @@ public final class LocalVariableDeclarationStatement extends Statement {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof LocalVariableDeclarationStatement lvds) {
             return type.syntaxEquals(lvds.type)

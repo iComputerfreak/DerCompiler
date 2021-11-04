@@ -21,7 +21,7 @@ public final class Parameter implements ASTNode {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Parameter otherParam) {
             return this.type.syntaxEquals(otherParam.type)
                     && this.identifier.equals(otherParam.identifier);

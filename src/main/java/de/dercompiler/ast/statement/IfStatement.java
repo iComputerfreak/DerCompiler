@@ -1,6 +1,6 @@
 package de.dercompiler.ast.statement;
 
-import de.dercompiler.ast.SyntaxEquatable;
+import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
 
 import java.util.Objects;
@@ -22,7 +22,7 @@ public final class IfStatement extends Statement {
     }
 
     @Override
-    public boolean syntaxEquals(SyntaxEquatable other) {
+    public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof IfStatement is) {
             boolean result = condition.syntaxEquals(is.condition) && thenStatement.syntaxEquals(is.thenStatement);
