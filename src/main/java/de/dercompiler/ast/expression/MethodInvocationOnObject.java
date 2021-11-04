@@ -26,4 +26,16 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         }
         return false;
     }
+
+    public Arguments getArguments() {
+        return arguments;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public AbstractExpression getReferenceObject() {
+        return this.encapsulated;
+    }
 }

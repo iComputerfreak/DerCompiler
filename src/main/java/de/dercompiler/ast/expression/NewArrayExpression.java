@@ -29,4 +29,16 @@ public final class NewArrayExpression extends PrimaryExpression {
         }
         return false;
     }
+
+    public BasicType getType() {
+        return type;
+    }
+
+    public AbstractExpression getSize() {
+        return size;
+    }
+
+    public int getDimension() {
+        return dimension;
+    }
 }

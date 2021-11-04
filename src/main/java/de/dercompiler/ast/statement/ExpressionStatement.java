@@ -15,6 +15,10 @@ public final class ExpressionStatement extends Statement {
         expressionRoot = expression;
     }
 
+    public AbstractExpression getExpression() {
+        return expressionRoot;
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;

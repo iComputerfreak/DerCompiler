@@ -2,8 +2,11 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.lexer.token.OperatorToken;
 
 import java.util.Objects;
+
+import static de.dercompiler.lexer.token.OperatorToken.NOT_EQUAL;
 
 public final class NotEqualExpression extends BinaryExpression {
     public NotEqualExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
@@ -17,5 +20,10 @@ public final class NotEqualExpression extends BinaryExpression {
             return syntaxEqualLhsRhs(nee);
         }
         return false;
+    }
+
+    @Override
+    public OperatorToken getOperator() {
+        return NOT_EQUAL;
     }
 }

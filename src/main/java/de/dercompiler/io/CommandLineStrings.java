@@ -38,6 +38,8 @@ public class CommandLineStrings {
     public static final String OPTION_PARSE_STATEMENT = "statement";
     public static final String OPTION_PARSE_EXPRESSION = "expression";
 
+    public static final String OPTION_PRETTY_PRINT = "pretty-print";
+
 
 
     // Descriptions
@@ -57,4 +59,6 @@ public class CommandLineStrings {
 
     public static final String DESCRIPTION_LEX_STRING = "(--lextest) Lexes a String instead of a file";
     public static final String DESCRIPTION_PRINT_POSITION = "(--lextest) Prints the positions of the token occurrences";
+    public static final String DESCRIPTION_PRETTY_PRINT = "(--parsetest) Pretty prints the constructed AST as code.";
+
 }

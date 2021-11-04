@@ -32,7 +32,7 @@ public class Parser {
         this.precedenceParser = new PrecedenceParser(lexer, this);
         this.logger = new OutputMessageHandler(MessageOrigin.PARSER);
     }
-    
+
     public Program parseProgram() {
         // ClassDeclaration*
         SourcePosition pos = lexer.getPosition();
@@ -47,7 +47,7 @@ public class Parser {
         }
         return new Program(pos, classes);
     }
-    
+
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
         SourcePosition pos = lexer.getPosition();
@@ -63,7 +63,7 @@ public class Parser {
         lexer.nextToken();
         return new ClassDeclaration(pos, identifier.getIdentifier(), members);
     }
-    
+
     public ClassMember parseClassMember() {
         // MainMethod ->    public static void IDENT ( Type IDENT )
         // Field ->         public Type IDENT ;
@@ -106,7 +106,7 @@ public class Parser {
         logger.printErrorAndExit(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()));
         return null;
     }
-    
+
     public Field parseField() {
         // public Type IDENT ;
         SourcePosition pos = lexer.getPosition();
@@ -116,7 +116,7 @@ public class Parser {
         expect(SEMICOLON);
         return new Field(pos, type, fieldName.getIdentifier());
     }
-    
+
     public MainMethod parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
         SourcePosition pos = lexer.getPosition();
@@ -135,7 +135,7 @@ public class Parser {
         BasicBlock block = parseBasicBlock();
         return new MainMethod(pos, name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
-    
+
     public Method parseMethod() {
         // public Type IDENT ( Parameters? ) MethodRest? Block\
         SourcePosition pos = lexer.getPosition();
@@ -161,7 +161,7 @@ public class Parser {
         BasicBlock block = parseBasicBlock();
         return new Method(pos, type, ident.getIdentifier(), params, methodRest, block);
     }
-    
+
     public MethodRest parseMethodRest() {
         // throws IDENT
         expect(THROWS);
@@ -203,7 +203,7 @@ public class Parser {
         int dimension = parseTypeRest();
         return new Type(pos, type, dimension);
     }
-    
+
     public int parseTypeRest() {
         // ([] TypeRest)?
         if (lexer.peek().type() == L_SQUARE_BRACKET) {
@@ -214,7 +214,7 @@ public class Parser {
         // If there is no rest, we return null
         return 0;
     }
-    
+
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
         SourcePosition pos = lexer.getPosition();

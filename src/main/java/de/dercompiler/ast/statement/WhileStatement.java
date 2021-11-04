@@ -17,6 +17,14 @@ public final class WhileStatement extends Statement {
         this.statement = statement;
     }
 
+    public AbstractExpression getCondition() {
+        return condition;
+    }
+
+    public Statement getStatement() {
+        return statement;
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;

@@ -2,8 +2,11 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.lexer.token.OperatorToken;
 
 import java.util.Objects;
+
+import static de.dercompiler.lexer.token.OperatorToken.EQUAL;
 
 public final class EqualExpression extends BinaryExpression {
 
@@ -18,5 +21,10 @@ public final class EqualExpression extends BinaryExpression {
             return syntaxEqualLhsRhs(ee);
         }
         return false;
+    }
+
+    @Override
+    public OperatorToken getOperator() {
+        return EQUAL;
     }
 }

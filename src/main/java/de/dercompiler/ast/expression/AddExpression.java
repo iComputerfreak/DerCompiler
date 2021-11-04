@@ -1,9 +1,12 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
+
+import static de.dercompiler.lexer.token.OperatorToken.PLUS;
 
 public final class AddExpression extends BinaryExpression {
 
@@ -19,5 +22,10 @@ public final class AddExpression extends BinaryExpression {
             return syntaxEqualLhsRhs(ae);
         }
         return false;
+    }
+
+    @Override
+    public OperatorToken getOperator() {
+        return PLUS;
     }
 }

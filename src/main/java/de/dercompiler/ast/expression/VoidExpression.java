@@ -5,7 +5,7 @@ import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
-public final class VoidExpression extends AbstractExpression{
+public final class VoidExpression extends AbstractExpression {
 
     public VoidExpression(SourcePosition position) {
         super(position);

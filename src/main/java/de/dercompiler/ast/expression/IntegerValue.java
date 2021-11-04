@@ -22,4 +22,9 @@ public final class IntegerValue extends PrimaryExpression {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

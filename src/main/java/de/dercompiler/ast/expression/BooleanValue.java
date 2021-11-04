@@ -22,4 +22,8 @@ public final class BooleanValue extends PrimaryExpression {
         }
         return false;
     }
+
+    public boolean getValue() {
+        return value;
+    }
 }

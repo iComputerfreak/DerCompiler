@@ -23,6 +23,18 @@ public final class IfStatement extends Statement {
         return Objects.nonNull(elseStatement);
     }
 
+    public AbstractExpression getCondition() {
+        return condition;
+    }
+
+    public Statement getThenStatement() {
+        return thenStatement;
+    }
+
+    public Statement getElseStatement() {
+        return elseStatement;
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;

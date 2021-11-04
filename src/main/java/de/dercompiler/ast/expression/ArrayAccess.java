@@ -7,19 +7,23 @@ import java.util.Objects;
 
 public final class ArrayAccess extends PostfixExpression {
 
-    private AbstractExpression arrayPosition;
+    private AbstractExpression index;
 
-    public ArrayAccess(SourcePosition position, AbstractExpression encapsulated, AbstractExpression arrayPosition) {
+    public ArrayAccess(SourcePosition position, AbstractExpression encapsulated, AbstractExpression index) {
         super(position, encapsulated);
-        this.arrayPosition = arrayPosition;
+        this.index = index;
     }
 
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof ArrayAccess aa) {
-            return arrayPosition.syntaxEquals(aa.arrayPosition) && syntaxEqualEncapsulated(aa);
+            return index.syntaxEquals(aa.index) && syntaxEqualEncapsulated(aa);
         }
         return false;
+    }
+
+    public AbstractExpression getIndex() {
+        return index;
     }
 }

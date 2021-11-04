@@ -4,7 +4,7 @@ import de.dercompiler.lexer.SourcePosition;
 
 public abstract sealed class UnaryExpression extends AbstractExpression permits LogicalNotExpression, MethodInvocationOnObject, NegativeExpression, PostfixExpression {
 
-    private AbstractExpression encapsulated;
+    protected AbstractExpression encapsulated;
 
     public UnaryExpression(SourcePosition position, AbstractExpression encapsulated) {
         super(position);
@@ -13,5 +13,9 @@ public abstract sealed class UnaryExpression extends AbstractExpression permits 
 
     protected boolean syntaxEqualEncapsulated(UnaryExpression other) {
         return encapsulated.syntaxEquals(other.encapsulated);
+    }
+
+    public AbstractExpression getEncapsulated() {
+        return encapsulated;
     }
 }

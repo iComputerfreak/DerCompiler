@@ -21,4 +21,8 @@ public final class FieldAccess extends PostfixExpression {
         }
         return false;
     }
+
+    public String getFieldName() {
+        return fieldName;
+    }
 }

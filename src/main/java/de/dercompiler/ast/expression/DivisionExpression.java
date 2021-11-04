@@ -2,8 +2,11 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.lexer.token.OperatorToken;
 
 import java.util.Objects;
+
+import static de.dercompiler.lexer.token.OperatorToken.SLASH;
 
 public final class DivisionExpression extends BinaryExpression {
 
@@ -18,5 +21,10 @@ public final class DivisionExpression extends BinaryExpression {
             return syntaxEqualLhsRhs(de);
         }
         return false;
+    }
+
+    @Override
+    public OperatorToken getOperator() {
+        return SLASH;
     }
 }

@@ -7,8 +7,10 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 
-import java.io.*;
+import java.io.File;
 import java.util.Objects;
+
+import static de.dercompiler.io.CommandLineStrings.OPTION_PRETTY_PRINT;
 
 public class CompilerSetup {
 
@@ -65,17 +67,27 @@ public class CompilerSetup {
             new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lextext");
         }
 
+        String parseOption = options.getActiveParseTestOption();
         if (options.parseTest()) {
             Source src = getSourceFromArgs(options);
-            String parseTestOption = options.getActiveParseTestOption();
+            String parseTestOption = parseOption;
             ParseTestAction action = new ParseTestAction(src, parseTestOption);
+            action.setPrint(options.prettyPrint());
             setAction(action);
+        } else {
+            if (Objects.isNull(parseOption) && options.prettyPrint()) {
+                parseOption = OPTION_PRETTY_PRINT;
+            }
+            if (!Objects.isNull(parseOption)) {
+                new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --'%s' only works with --parsetest".formatted(parseOption));
+            }
         }
 
         if (Objects.isNull(action)) {
             File input = options.getFileArgument();
             action = new CompileAction(input);
         }
+
 
         return action;
     }

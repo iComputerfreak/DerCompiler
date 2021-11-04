@@ -22,4 +22,8 @@ public final class NewObjectExpression extends PrimaryExpression {
         }
         return false;
     }
+
+    public CustomType getType() {
+        return type;
+    }
 }

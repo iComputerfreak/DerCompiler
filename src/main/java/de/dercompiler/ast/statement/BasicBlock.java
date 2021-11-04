@@ -27,6 +27,10 @@ public final class BasicBlock extends Statement {
         statements.addLast(statement);
     }
 
+    public List<Statement> getStatements() {
+        return statements;
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;

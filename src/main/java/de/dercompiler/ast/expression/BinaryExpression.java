@@ -2,6 +2,8 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.lexer.SourcePosition;
 
+import de.dercompiler.lexer.token.OperatorToken;
+
 public abstract sealed class BinaryExpression extends AbstractExpression permits AssignmentExpression, AddExpression, DivisionExpression, EqualExpression, GreaterEqualExpression, GreaterExpression, LessEqualExpression, LessExpression, LogicalAndExpression, LogicalOrExpression, ModuloExpression, MultiplyExpression, SubtractExpression, NotEqualExpression {
 
     private AbstractExpression lhs;
@@ -16,4 +18,14 @@ public abstract sealed class BinaryExpression extends AbstractExpression permits
     protected boolean syntaxEqualLhsRhs(BinaryExpression other) {
         return lhs.syntaxEquals(other.lhs) && rhs.syntaxEquals(other.rhs);
     }
+
+    public AbstractExpression getLhs() {
+        return lhs;
+    }
+
+    public AbstractExpression getRhs() {
+        return rhs;
+    }
+
+    public abstract OperatorToken getOperator();
 }

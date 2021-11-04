@@ -51,4 +51,12 @@ public class Arguments implements ASTNode {
     public SourcePosition getSourcePosition() {
         return position;
     }
+
+    public int getLength() {
+        return arguments.size();
+    }
+
+    public AbstractExpression get(int index) {
+        return arguments.get(index);
+    }
 }

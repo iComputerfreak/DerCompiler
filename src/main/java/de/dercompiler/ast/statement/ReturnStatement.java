@@ -15,6 +15,10 @@ public final class ReturnStatement extends Statement {
         this.returnExpression = returnExpression;
     }
 
+    public AbstractExpression getExpression() {
+        return returnExpression;
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;

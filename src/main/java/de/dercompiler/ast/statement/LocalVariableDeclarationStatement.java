@@ -20,6 +20,18 @@ public final class LocalVariableDeclarationStatement extends Statement {
         this.valueExpression = valueExpression;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public AbstractExpression getExpression() {
+        return valueExpression;
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
