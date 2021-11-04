@@ -1,6 +1,0 @@
-class PrivateMember {
-
-    private int foo() {
-        return 0;
-    }
-}
