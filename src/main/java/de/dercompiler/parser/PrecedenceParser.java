@@ -59,7 +59,7 @@ public class PrecedenceParser {
     }
 
     private void handleError(IToken token) {
-        new OutputMessageHandler(MessageOrigin.PARSER, System.err)
+        new OutputMessageHandler(MessageOrigin.PARSER)
                 .printErrorAndExit(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported. No Expression could be created!");
     }
 }

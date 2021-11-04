@@ -16,7 +16,7 @@ public class TestLexer extends Lexer {
     }
 
     public void fail(LexerErrorIds id, String message) {
-        new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndContinue(id, message);
+        new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndContinue(id, message);
         throw new LexerException(message);
     }
 

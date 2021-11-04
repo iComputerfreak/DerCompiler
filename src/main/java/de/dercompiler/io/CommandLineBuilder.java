@@ -60,7 +60,7 @@ public class CommandLineBuilder {
         try {
             clo = new CommandLineOptions(clp.parse(options, args, false));
         } catch (ParseException e) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err)
+            new OutputMessageHandler(MessageOrigin.GENERAL)
                     .printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Some arguments caused the CommandlineParser to stop working!", e);
         }
         // Can't return 0, when error, we exit the program

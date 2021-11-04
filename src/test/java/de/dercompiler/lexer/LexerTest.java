@@ -65,7 +65,7 @@ public class LexerTest {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {
-            new OutputMessageHandler(MessageOrigin.TEST, System.err).internalError("Error converting test file path to URI");
+            new OutputMessageHandler(MessageOrigin.TEST).internalError("Error converting test file path to URI");
         }
     }
 
@@ -79,7 +79,7 @@ public class LexerTest {
                 return pathName.endsWith(".valid.mj") || pathName.endsWith(".invalid.mj");
             }));
         } catch (URISyntaxException e) {
-            new OutputMessageHandler(MessageOrigin.TEST, System.err).internalError("Error converting test file path to URI");
+            new OutputMessageHandler(MessageOrigin.TEST).internalError("Error converting test file path to URI");
             return new File[]{};
         }
     }

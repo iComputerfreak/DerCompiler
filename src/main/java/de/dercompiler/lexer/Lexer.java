@@ -81,7 +81,7 @@ public class Lexer {
                 if (currentChar == '*') {
                     // do not readCharacter here yet; might be beginning of */
                     // /*. | *./
-                    new OutputMessageHandler(MessageOrigin.LEXER, System.out).printWarning(LexerWarningIds.NESTED_COMMENT, "Nested opened comments are not supported and ignored; there are no levels of 'comment depth'.");
+                    new OutputMessageHandler(MessageOrigin.LEXER).printWarning(LexerWarningIds.NESTED_COMMENT, "Nested opened comments are not supported and ignored; there are no levels of 'comment depth'.");
                 }
             }
 
@@ -791,7 +791,7 @@ public class Lexer {
                 this.position.advance();
             }
         } catch (IOException e) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(GeneralErrorIds.IO_EXCEPTION, "Error while reading input file.", e);
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(GeneralErrorIds.IO_EXCEPTION, "Error while reading input file.", e);
         }
     }
 
@@ -845,7 +845,7 @@ public class Lexer {
     }
 
     void fail(LexerErrorIds id, String message) {
-        OutputMessageHandler handler = new OutputMessageHandler(MessageOrigin.LEXER, System.err);
+        OutputMessageHandler handler = new OutputMessageHandler(MessageOrigin.LEXER);
         handler.printErrorAndExit(id, message);
     }
 
@@ -954,12 +954,12 @@ public class Lexer {
 
         @Override
         public void advance() {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("Cannot advance an immutable Position.");
+            new OutputMessageHandler(MessageOrigin.LEXER).internalError("Cannot advance an immutable Position.");
         }
 
         @Override
         public void newLine() {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("Cannot advance an immutable Position.");
+            new OutputMessageHandler(MessageOrigin.LEXER).internalError("Cannot advance an immutable Position.");
         }
 
 

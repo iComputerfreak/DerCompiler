@@ -37,7 +37,7 @@ public class FileResolver {
             }
         }
         if (!baseLocation.isDirectory()) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_WORKING_DIRECTORY, "Resolved location(" + baseLocation + ") is not a directory!");
+            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.INVALID_WORKING_DIRECTORY, "Resolved location(" + baseLocation + ") is not a directory!");
         }
     }
 

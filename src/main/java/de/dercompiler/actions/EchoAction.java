@@ -29,12 +29,12 @@ public class EchoAction extends Action {
 
     public void run() {
         if (Objects.isNull(input)) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.MISSING_INPUT_FILE, "No input-file given.");
+            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.MISSING_INPUT_FILE, "No input-file given.");
         }
         try (FileInputStream file = new FileInputStream(input)) {
             file.transferTo(System.out);
         } catch (IOException e) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong, while reading input-file (" + input.getAbsolutePath() + ")!", e);
+            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong, while reading input-file (" + input.getAbsolutePath() + ")!", e);
         }
     }
 

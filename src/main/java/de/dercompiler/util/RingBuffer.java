@@ -28,9 +28,9 @@ public class RingBuffer<T> {
 
     public T peek(int lookAhead) {
         if (lookAhead >= this.capacity) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.BUFFER_TOO_SMALL, "Buffer too small; cannot look ahead %d items".formatted(lookAhead));
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(LexerErrorIds.BUFFER_TOO_SMALL, "Buffer too small; cannot look ahead %d items".formatted(lookAhead));
         } else if (this.length < (lookAhead - 1)) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.BUFFER_TOO_MUCH_LOOKAHEAD, "Buffer has not enough items; cannot look ahead %d positions".formatted(lookAhead));
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(LexerErrorIds.BUFFER_TOO_MUCH_LOOKAHEAD, "Buffer has not enough items; cannot look ahead %d positions".formatted(lookAhead));
         }
 
         return this.elements.get((this.nextIndex + lookAhead) % this.capacity);
@@ -38,7 +38,7 @@ public class RingBuffer<T> {
 
     public T pop() {
         if (this.isEmpty()) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.BUFFER_UNDERFLOW, "Buffer ran out of elements");
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(LexerErrorIds.BUFFER_UNDERFLOW, "Buffer ran out of elements");
         }
         T res = this.elements.get(nextIndex);
         // array entry does not need to be "deleted", it will probably be overwritten anyway.
@@ -51,7 +51,7 @@ public class RingBuffer<T> {
     public void push(T element) {
         //must not overwrite
         if (this.isFull()) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.BUFFER_OVERFLOW, "Buffer overflow");
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(LexerErrorIds.BUFFER_OVERFLOW, "Buffer overflow");
         }
 
         if (this.elements.size() <= tailIndex) {

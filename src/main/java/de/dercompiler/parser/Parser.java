@@ -29,7 +29,7 @@ public class Parser {
         this.lexer = lexer;
         this.wlexer = new LexerWrapper(lexer);
         this.precedenceParser = new PrecedenceParser(lexer, this);
-        this.logger = new OutputMessageHandler(MessageOrigin.PARSER, System.err);
+        this.logger = new OutputMessageHandler(MessageOrigin.PARSER);
     }
     
     public Program parseProgram() {

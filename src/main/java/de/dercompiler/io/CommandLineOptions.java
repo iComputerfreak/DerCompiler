@@ -148,7 +148,7 @@ public class CommandLineOptions {
 
         File file = resolver.resolve(path);
         if (!file.exists()) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err)
+            new OutputMessageHandler(MessageOrigin.GENERAL)
                 .printErrorAndExit(GeneralErrorIds.IO_EXCEPTION, "Input file (" + file.getAbsolutePath() + ") doesn't exist!");
         }
         return file;
@@ -171,7 +171,7 @@ public class CommandLineOptions {
         }
 
         if (Objects.isNull(arg)) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Missing String argument");
+            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Missing String argument");
         }
 
         return arg;
@@ -189,7 +189,7 @@ public class CommandLineOptions {
             StringBuilder sb = new StringBuilder();
             sb.append("Too many arguments. The following arguments could not be processed:");
             this.unparsedArguments.forEachRemaining(s -> sb.append("\n - " + s));
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err)
+            new OutputMessageHandler(MessageOrigin.GENERAL)
                     .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
         }
     }
@@ -214,7 +214,7 @@ public class CommandLineOptions {
                 sb.append("  --" + option + "\n");
             }
 
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
+            new OutputMessageHandler(MessageOrigin.GENERAL)
                     .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
 
 

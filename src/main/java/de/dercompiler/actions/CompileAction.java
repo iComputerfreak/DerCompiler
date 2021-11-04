@@ -27,16 +27,16 @@ public class CompileAction extends Action {
     }
 
     public void run() {
-        new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
+        new OutputMessageHandler(MessageOrigin.GENERAL)
             .printInfo("Compiler not Implemented YET!");
         for (MessageOrigin origin : MessageOrigin.values()) {
-            new OutputMessageHandler(origin, System.out)
+            new OutputMessageHandler(origin)
                     .printInfo(origin.name());
         }
         System.out.println();
-        new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
+        new OutputMessageHandler(MessageOrigin.GENERAL)
                 .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, "warning");
-        new OutputMessageHandler(MessageOrigin.GENERAL, System.out)
+        new OutputMessageHandler(MessageOrigin.GENERAL)
                 .printErrorAndContinue(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "error");
     }
 

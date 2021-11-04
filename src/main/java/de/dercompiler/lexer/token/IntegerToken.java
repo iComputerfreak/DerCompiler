@@ -14,7 +14,7 @@ public final class IntegerToken implements IToken {
 
     public IntegerToken(String value) {
         if (Objects.isNull(value) || value.length() == 0) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).internalError("IntegerToken(value) called with empty or null value");
+            new OutputMessageHandler(MessageOrigin.LEXER).internalError("IntegerToken(value) called with empty or null value");
         }
         this.value = value;
     }

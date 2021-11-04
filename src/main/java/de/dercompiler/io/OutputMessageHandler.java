@@ -1,6 +1,7 @@
 package de.dercompiler.io;
 
 import de.dercompiler.io.message.*;
+import de.dercompiler.lexer.Lexer;
 
 import java.awt.*;
 import java.io.PrintStream;
@@ -42,7 +43,6 @@ public final class OutputMessageHandler {
     private final Color warningColor;
     private final Color errorColor;
 
-    private final PrintStream stream;
     private IColorizer colorizer;
 
     private final boolean printStackTrace;
@@ -54,9 +54,8 @@ public final class OutputMessageHandler {
      * Creates a new OutputMessageHandler with the given origin and stream
      *
      * @param origin The origin of the messages
-     * @param stream The stream to write messages to
      */
-    public OutputMessageHandler(MessageOrigin origin, PrintStream stream) {
+    public OutputMessageHandler(MessageOrigin origin) {
         this.origin = origin;
         ident = origin.getIdentifier();
         textColor = origin.getTextColor();
@@ -65,7 +64,6 @@ public final class OutputMessageHandler {
         errorColor = origin.getErrorColor();
 
         colorizer = globalColorizer;
-        this.stream = stream;
 
         printStackTrace = globalPrintStackTrace;
         idPrefix = origin.getId() * PREFIX_MULTIPLIER;
@@ -87,7 +85,7 @@ public final class OutputMessageHandler {
      * @param message The message itself
      * @param messageColor The color of the message
      */
-    private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor) {
+    private void formatMessage(PrintStream stream, String messageHead, Color messageHeadColor, String message, Color messageColor) {
         stream.print("[" + colorizer.colorize(messageHeadColor, messageHead) + "] ");
         stream.println(colorizer.colorize(messageColor, message.replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
     }
@@ -100,8 +98,8 @@ public final class OutputMessageHandler {
      * @param messageColor The color of the message
      * @param e The exception
      */
-    private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e) {
-        formatMessage(messageHead, messageHeadColor, message, messageColor, e, messageColor);
+    private void formatMessage(PrintStream stream, String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e) {
+        formatMessage(stream, messageHead, messageHeadColor, message, messageColor, e, messageColor);
     }
     
     /**
@@ -113,8 +111,8 @@ public final class OutputMessageHandler {
      * @param e The exception
      * @param errorColor The color of the exception
      */
-    private void formatMessage(String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e, Color errorColor) {
-        formatMessage(messageHead, messageHeadColor, message + "\n" + SKIP_MESSAGE_HEAD + "exception-message: " + e.getMessage(), messageColor);
+    private void formatMessage(PrintStream stream, String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e, Color errorColor) {
+        formatMessage(stream, messageHead, messageHeadColor, message + "\n" + SKIP_MESSAGE_HEAD + "exception-message: " + e.getMessage(), messageColor);
 
         if (printStackTrace) {
             StringWriter sw = new StringWriter();
@@ -131,7 +129,7 @@ public final class OutputMessageHandler {
      * @param infoMessage The info message to print
      */
     public void printInfo(String infoMessage) {
-        formatMessage(ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
+        formatMessage(System.out, ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
     }
 
     /**
@@ -144,7 +142,7 @@ public final class OutputMessageHandler {
         if (globalWarningAsError) {
             printErrorAndExit(id, warningMessage);
         } else {
-            formatMessage(ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor);
+            formatMessage(System.err, ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor);
         }
     }
 
@@ -159,7 +157,7 @@ public final class OutputMessageHandler {
         if (globalWarningAsError) {
             printErrorAndExit(id, warningMessage, e);
         } else {
-            formatMessage(ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor, e, errorColor);
+            formatMessage(System.err, ident + formatId(id.getId()), warningColor, WARNING_MESSAGE + warningMessage, warningColor, e, errorColor);
         }
     }
 
@@ -185,7 +183,7 @@ public final class OutputMessageHandler {
      * @param errorMessage The error message to print
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage) {
-        formatMessage(ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor);
+        formatMessage(System.err, ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor);
     }
 
     /**
@@ -212,11 +210,15 @@ public final class OutputMessageHandler {
      * @param e The exception that may get printed, depending on the global state
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage, Exception e) {
-        formatMessage( ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
+        formatMessage( System.err, ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
+    }
+
+    public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, Lexer.Position position) {
+
     }
 
     private void internalError(String message, StackTraceElement element) {
-        formatMessage(INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
+        formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
                 + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + SKIP_MESSAGE_HEAD + message), errorColor);
         System.exit(-1);
     }

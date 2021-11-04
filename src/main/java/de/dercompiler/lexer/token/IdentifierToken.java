@@ -16,7 +16,7 @@ public final class IdentifierToken implements IToken {
 
     public static IdentifierToken forIdentifier(String identifier) {
         if (Objects.isNull(identifier) || identifier.length() == 0) {
-            new OutputMessageHandler(MessageOrigin.LEXER, System.err).printErrorAndExit(LexerErrorIds.INVALID_IDENTIFIER, "IdentifierToken(value) called with empty or null value");
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(LexerErrorIds.INVALID_IDENTIFIER, "IdentifierToken(value) called with empty or null value");
         }
         IdentifierToken token;
 

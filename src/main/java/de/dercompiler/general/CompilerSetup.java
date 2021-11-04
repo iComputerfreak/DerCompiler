@@ -38,7 +38,7 @@ public class CompilerSetup {
      */
     private void setAction(Action action) {
         if (!Objects.isNull(this.action)) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err)
+            new OutputMessageHandler(MessageOrigin.GENERAL)
                     .printErrorAndExit(GeneralErrorIds.TOO_MANY_ACTIONS, "Actions " + this.action.actionId() + " and " + action.actionId() + " cannot be executed at the same time");
         }
         this.action = action;
@@ -62,7 +62,7 @@ public class CompilerSetup {
             action.setPrintPosition(options.printPosition());
             setAction(action);
         } else if (options.printPosition()) {
-            new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lextext");
+            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --print-position only works with --lextext");
         }
 
         if (options.parseTest()) {
@@ -91,7 +91,7 @@ public class CompilerSetup {
             try {
                 src = Source.forFile(input);
             } catch (NullPointerException e) {
-                new OutputMessageHandler(MessageOrigin.GENERAL, System.err).printErrorAndExit(GeneralErrorIds.MISSING_INPUT_FILE, "An argument is missing its corresponding input", e);
+                new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.MISSING_INPUT_FILE, "An argument is missing its corresponding input", e);
             }
         }
         return src;
