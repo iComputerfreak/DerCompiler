@@ -360,10 +360,8 @@ public class Parser {
             if (wlexer.peek() == ASSIGN) {
                 expect(ASSIGN);
                 expression = parseExpression();
-                expect(SEMICOLON);
-            } else {
-                expect(SEMICOLON);
             }
+            expect(SEMICOLON);
         } catch (ExpectedTokenError e) {
             return new ErrorStatement(pos);
         }
@@ -661,9 +659,7 @@ public class Parser {
                         }
                     }
                 }
-                default -> {
-                    logger.printParserError(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary type, no primary type starts with token: " + wlexer.peek(0), lexer, lexer.peek().position());
-                }
+                default -> logger.printParserError(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary type, no primary type starts with token: " + wlexer.peek(0), lexer, lexer.peek().position());
             }
         }
         return expression;
