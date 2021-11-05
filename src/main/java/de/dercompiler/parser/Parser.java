@@ -91,8 +91,8 @@ public class Parser {
         // Now we have to decide if we need to parse Field or Method
         // Since the Type can have unlimited tokens (due to array types), we need to parse the full type now
         // First we consume the public token that is still remaining
-        Type type = null;
-        IdentifierToken identifier = null;
+        Type type;
+        IdentifierToken identifier;
         try {
             expect(PUBLIC);
             type = parseType();
@@ -129,9 +129,9 @@ public class Parser {
     public ClassMember parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
         SourcePosition pos = lexer.getPosition();
-        IdentifierToken name = null;
-        Type paramType = null;
-        IdentifierToken paramName = null;
+        IdentifierToken name;
+        Type paramType;
+        IdentifierToken paramName;
         try {
             expect(PUBLIC);
             expect(STATIC);
@@ -155,8 +155,8 @@ public class Parser {
     
     public ClassMember parseFullMethod() {
         SourcePosition pos = lexer.getPosition();
-        Type type = null;
-        IdentifierToken identifier = null;
+        Type type;
+        IdentifierToken identifier;
         try {
             expect(PUBLIC);
             type = parseType();
@@ -172,7 +172,7 @@ public class Parser {
         // We already parsed "public Type IDENT"
         // public Type IDENT ( Parameters? ) MethodRest? Block\
         SourcePosition pos = lexer.getPosition();
-        LinkedList<Parameter> params = null;
+        LinkedList<Parameter> params;
         try {
             expect(L_PAREN);
             // Check if we have parameters
@@ -200,8 +200,8 @@ public class Parser {
 
     public MethodRest parseMethodRest() {
         // throws IDENT
-        SourcePosition pos = null;
-        IdentifierToken ident = null;
+        SourcePosition pos;
+        IdentifierToken ident;
         try {
             expect(THROWS);
             pos = lexer.getPosition();
@@ -217,7 +217,7 @@ public class Parser {
         // Type IDENT
         SourcePosition pos = lexer.getPosition();
         Type type = parseType();
-        IdentifierToken ident = null;
+        IdentifierToken ident;
         try {
             ident = expectIdentifier();
         } catch (ExpectedTokenError e) {
@@ -352,8 +352,8 @@ public class Parser {
     public Statement parseVariableDeclaration() {
         SourcePosition pos = wlexer.position();
         Type type = parseType();
-        IdentifierToken ident = null;
-        AbstractExpression expression = null;
+        IdentifierToken ident;
+        AbstractExpression expression;
         try {
             ident = expectIdentifier();
             expression = new UninitializedValue(pos);
@@ -388,9 +388,9 @@ public class Parser {
 
     public Statement parseIfStatement() {
         SourcePosition pos = wlexer.position();
-        AbstractExpression condition = null;
-        Statement thenStatement = null;
-        Statement elseStatement = null;
+        AbstractExpression condition;
+        Statement thenStatement;
+        Statement elseStatement;
         try {
             expect(IF);
             expect(L_PAREN);
@@ -410,7 +410,7 @@ public class Parser {
 
     public Statement parseWhileStatement() {
         SourcePosition pos = wlexer.position();
-        AbstractExpression condition = null;
+        AbstractExpression condition;
         try {
             expect(WHILE);
             expect(L_PAREN);
@@ -450,7 +450,7 @@ public class Parser {
         try {
             expect(SEMICOLON);
         } catch (ExpectedTokenError e) {
-            return new ErrorStatement(pos);
+            return new ErrorStatement(pos2);
         }
         return new ExpressionStatement(pos, expression);
     }
@@ -494,9 +494,7 @@ public class Parser {
                         expression = parseFieldAccess(expression);
                     }
                 }
-                case L_SQUARE_BRACKET -> {
-                    expression = parseArrayAccess(expression);
-                }
+                case L_SQUARE_BRACKET -> expression = parseArrayAccess(expression);
                 default -> {
                     return expression;
                 }
@@ -507,8 +505,8 @@ public class Parser {
 
     public AbstractExpression parseMethodInvocation(AbstractExpression expression) {
         SourcePosition pos = wlexer.position();
-        IdentifierToken ident = null;
-        Arguments arguments = null;
+        IdentifierToken ident;
+        Arguments arguments;
         try {
             expect(DOT);
             ident = expectIdentifier();
@@ -551,7 +549,7 @@ public class Parser {
 
     public AbstractExpression parseFieldAccess(AbstractExpression expression) {
         SourcePosition pos = wlexer.position();
-        IdentifierToken ident = null;
+        IdentifierToken ident;
         try {
             expect(DOT);
             ident = expectIdentifier();
@@ -563,7 +561,7 @@ public class Parser {
 
     public AbstractExpression parseArrayAccess(AbstractExpression expression) {
         SourcePosition pos = wlexer.position();
-        AbstractExpression arrayPosition = null;
+        AbstractExpression arrayPosition;
         try {
             expect(L_SQUARE_BRACKET);
             arrayPosition = parseExpression();
@@ -629,27 +627,23 @@ public class Parser {
             expression = new IntegerValue(pos, i.getValue());
         } else if (token instanceof Token t) {
             switch (t) {
-                case NULL: {
+                case NULL -> {
                     wlexer.nextToken();
                     expression = new NullValue(pos);
                 }
-                break;
-                case FALSE: {
+                case FALSE -> {
                     wlexer.nextToken();
                     expression = new BooleanValue(pos, false);
                 }
-                break;
-                case TRUE: {
+                case TRUE -> {
                     wlexer.nextToken();
                     expression = new BooleanValue(pos, true);
                 }
-                break;
-                case THIS: {
+                case THIS -> {
                     wlexer.nextToken();
                     expression = new ThisValue(pos);
                 }
-                break;
-                case L_PAREN: {
+                case L_PAREN -> {
                     try {
                         expect(L_PAREN);
                         expression = parseExpression();
@@ -658,8 +652,7 @@ public class Parser {
                         //do nothing errorExpression is already set
                     }
                 }
-                break;
-                case NEW: {
+                case NEW -> {
                     if (wlexer.peek(2) instanceof Token t2) {
                         if (t2 == L_PAREN) {
                             expression = parseNewObjectExpression();
@@ -671,8 +664,7 @@ public class Parser {
                         }
                     }
                 }
-                break;
-                default: {
+                default -> {
                     lexer.printSourceText(lexer.getPosition());
                     logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary type, no primary type starts with token: " + wlexer.peek(0));
                 }
@@ -683,9 +675,9 @@ public class Parser {
 
     public AbstractExpression parseNewArrayExpression() {
         SourcePosition pos = wlexer.position();
-        BasicType type = null;
-        int dimension = 0;
-        AbstractExpression size = null;
+        BasicType type;
+        int dimension;
+        AbstractExpression size;
         try {
             expect(NEW);
             type = parseBasicType();
@@ -706,8 +698,8 @@ public class Parser {
 
     public AbstractExpression parseNewObjectExpression() {
         SourcePosition pos = wlexer.position();
-        SourcePosition typePos = null;
-        IdentifierToken ident = null;
+        SourcePosition typePos;
+        IdentifierToken ident;
         try {
             expect(NEW);
             typePos = wlexer.position();
