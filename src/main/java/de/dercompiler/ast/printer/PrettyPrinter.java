@@ -98,7 +98,7 @@ public class PrettyPrinter {
         }
         sb.append(") ");
 
-        printMethodRest(m.getRest());
+        printMethodRest(m.getMethodRest());
 
         printBasicBlock(m.getBlock(), indent);
         sb.append("\n");

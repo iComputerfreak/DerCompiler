@@ -163,8 +163,8 @@ public class ParserTestExpressions {
                 new ThisValue(DEFAULT_POS),
                 new IntegerValue(DEFAULT_POS, "5"),
                 new NewObjectExpression(DEFAULT_POS, new CustomType(DEFAULT_POS,  "foo")),
-                new NewArrayExpression(DEFAULT_POS, new IntType(DEFAULT_POS), new IntegerValue(DEFAULT_POS, "2"), 0),
-                new NewArrayExpression(DEFAULT_POS, new IntType(DEFAULT_POS), new IntegerValue(DEFAULT_POS, "2"), 2)
+                new NewArrayExpression(DEFAULT_POS, new IntType(DEFAULT_POS), new IntegerValue(DEFAULT_POS, "2"), 1),
+                new NewArrayExpression(DEFAULT_POS, new IntType(DEFAULT_POS), new IntegerValue(DEFAULT_POS, "2"), 3)
         };
 
         testLexstringEqualASTNode(primary, primary_expected, Parser::parsePrimaryExpression);

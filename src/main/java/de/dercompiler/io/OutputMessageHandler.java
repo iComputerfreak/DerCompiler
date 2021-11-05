@@ -3,6 +3,7 @@ package de.dercompiler.io;
 import de.dercompiler.io.message.*;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.util.ErrorStatus;
 
 import java.awt.*;
 import java.io.PrintStream;
@@ -185,6 +186,7 @@ public final class OutputMessageHandler {
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage) {
         formatMessage(System.err, ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor);
+        ErrorStatus.reportError(-idPrefix - id.getId());
     }
 
     /**
@@ -212,6 +214,7 @@ public final class OutputMessageHandler {
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage, Exception e) {
         formatMessage( System.err, ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
+        ErrorStatus.reportError(-idPrefix - id.getId());
     }
 
     public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, SourcePosition position) {
@@ -220,6 +223,8 @@ public final class OutputMessageHandler {
         if (debug_mode) {
             debugEvents.add(new DebugEvent(origin, id, errorMessage));
         } else {
+            ErrorStatus.reportError(-idPrefix - id.getId());
+            //TODO remove after added ankermengen
             System.exit(-idPrefix - id.getId());
         }
     }
