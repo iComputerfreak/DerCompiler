@@ -3,8 +3,6 @@ package de.dercompiler.ast.type;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
 
-import static de.dercompiler.lexer.token.TypeToken.INT_TYPE;
-
 public final class CustomType extends BasicType {
     
     private final String identifier;

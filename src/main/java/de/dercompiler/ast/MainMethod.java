@@ -1,5 +1,6 @@
 package de.dercompiler.ast;
 
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
@@ -59,5 +60,10 @@ public final class MainMethod extends ClassMember {
                     && this.block.syntaxEquals(otherMain.block);
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitMainMethod(this);
     }
 }

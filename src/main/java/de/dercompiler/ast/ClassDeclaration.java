@@ -1,5 +1,7 @@
 package de.dercompiler.ast;
 
+import de.dercompiler.ast.expression.Variable;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.util.Utils;
 
@@ -14,6 +16,7 @@ public final class ClassDeclaration extends ASTNode {
         super(position);
         this.identifier = identifier;
         this.members = members;
+        this.members.sort(new ClassMember.Comparator()::compare);
     }
 
     public String getIdentifier() {
@@ -31,5 +34,10 @@ public final class ClassDeclaration extends ASTNode {
                     && Utils.syntaxEquals(this.members, otherClass.members);
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitClassDeclaration(this);
     }
 }

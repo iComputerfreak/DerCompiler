@@ -1,6 +1,7 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Iterator;
@@ -47,5 +48,10 @@ public final class BasicBlock extends Statement {
             return result;
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitBasicBlock(this);
     }
 }

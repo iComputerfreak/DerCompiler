@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -25,5 +26,10 @@ public final class ArrayAccess extends PostfixExpression {
 
     public AbstractExpression getIndex() {
         return index;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitArrayAccess(this);
     }
 }

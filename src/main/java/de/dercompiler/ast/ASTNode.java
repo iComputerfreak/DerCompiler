@@ -1,5 +1,6 @@
 package de.dercompiler.ast;
 
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 public abstract class ASTNode {
@@ -18,4 +19,5 @@ public abstract class ASTNode {
         return this.sourcePosition;
     }
 
+    public abstract void accept(ASTNodeVisitor astNodeVisitor);
 }

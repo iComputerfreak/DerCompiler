@@ -3,8 +3,6 @@ package de.dercompiler.io.message;
 import com.diogonunes.jcolor.Attribute;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 public class ColorizationHelper {

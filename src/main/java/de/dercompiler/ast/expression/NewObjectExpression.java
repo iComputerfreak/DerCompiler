@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -25,5 +26,10 @@ public final class NewObjectExpression extends PrimaryExpression {
 
     public CustomType getType() {
         return type;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitNewObjectExpression(this);
     }
 }

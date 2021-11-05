@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -40,5 +41,10 @@ public final class NewArrayExpression extends PrimaryExpression {
 
     public int getDimension() {
         return dimension;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitNewArrayExpression(this);
     }
 }

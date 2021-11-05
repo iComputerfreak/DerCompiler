@@ -2,6 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -50,5 +51,10 @@ public final class IfStatement extends Statement {
             }
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitIfStatement(this);
     }
 }

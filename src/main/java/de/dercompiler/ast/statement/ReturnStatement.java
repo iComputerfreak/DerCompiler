@@ -2,6 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -26,5 +27,10 @@ public final class ReturnStatement extends Statement {
             return returnExpression.syntaxEquals(rs.returnExpression);
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitReturnStatement(this);
     }
 }

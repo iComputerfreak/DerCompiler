@@ -20,4 +20,6 @@ public final class IntType extends BasicType {
     public String toString() {
         return INT_TYPE.getId();
     }
+
+
 }
