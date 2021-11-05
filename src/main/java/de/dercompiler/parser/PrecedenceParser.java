@@ -26,11 +26,6 @@ public class PrecedenceParser {
         return parseExpression(0);
     }
 
-    private int operatorPrecedence(IToken token) {
-        if (token instanceof OperatorToken ot) return ot.getPrecedence();
-        return -1;
-    }
-
     private AbstractExpression parseExpression(int minPrec) {
 
         AbstractExpression result = parser.parseUnaryExpression();

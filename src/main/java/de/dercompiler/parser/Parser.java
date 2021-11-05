@@ -14,6 +14,7 @@ import de.dercompiler.lexer.token.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import static de.dercompiler.lexer.token.OperatorToken.*;
 import static de.dercompiler.lexer.token.Token.*;
@@ -38,12 +39,15 @@ public class Parser {
         SourcePosition pos = lexer.getPosition();
         List<ClassDeclaration> classes = new ArrayList<>();
         while (lexer.peek().type() == CLASS) {
-            classes.add(parseClassDeclaration());
+            ClassDeclaration cd = parseClassDeclaration();
+            if (!Objects.isNull(cd)) {
+                classes.add(cd);
+            }
         }
         TokenOccurrence next = lexer.nextToken();
         if (next.type() != EOF) {
             lexer.printSourceText(next.position());
-            logger.printErrorAndExit(ParserErrorIds.EXPECTED_CLASS_DECLARATION, "Expected class declaration, but found " + next.type());
+            logger.printParserError(ParserErrorIds.EXPECTED_CLASS_DECLARATION, "Expected class declaration, but found " + next.type(), lexer, lexer.getPosition());
         }
         return new Program(pos, classes);
     }
@@ -51,9 +55,14 @@ public class Parser {
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
         SourcePosition pos = lexer.getPosition();
-        expect(CLASS);
-        IdentifierToken identifier = expectIdentifier();
-        expect(L_CURLY_BRACKET);
+        IdentifierToken identifier;
+        try {
+            expect(CLASS);
+            identifier = expectIdentifier();
+            expect(L_CURLY_BRACKET);
+        } catch (ExpectedTokenError e) {
+            return null;
+        }
         List<ClassMember> members = new ArrayList<>();
         // While our next token is not the '}' token
         while (lexer.peek().type() != R_CURLY_BRACKET) {
@@ -68,11 +77,10 @@ public class Parser {
         // MainMethod ->    public static void IDENT ( Type IDENT )
         // Field ->         public Type IDENT ;
         // Method ->        public Type IDENT ( Parameters? ) MethodRest? Block
-
+        SourcePosition pos = lexer.getPosition();
         if (lexer.peek().type() != PUBLIC) {
-            lexer.printSourceText(lexer.peek().position());
-            logger.printErrorAndExit(ParserErrorIds.EXPECTED_PUBLIC_KEYWORD, "Expected 'public' keyword but found '%s'".formatted(lexer.peek()));
-            return null;
+            logger.printParserError(ParserErrorIds.EXPECTED_PUBLIC_KEYWORD, "Expected 'public' keyword but found '%s'".formatted(lexer.peek()), lexer, pos);
+            return new ErrorClassMember(pos);
         }
 
         // MainMethod
@@ -83,10 +91,15 @@ public class Parser {
         // Now we have to decide if we need to parse Field or Method
         // Since the Type can have unlimited tokens (due to array types), we need to parse the full type now
         // First we consume the public token that is still remaining
-        expect(PUBLIC);
-        Type type = parseType();
-        IdentifierToken identifier = expectIdentifier();
-        
+        Type type = null;
+        IdentifierToken identifier = null;
+        try {
+            expect(PUBLIC);
+            type = parseType();
+            identifier = expectIdentifier();
+        } catch (ExpectedTokenError e) {
+            return new ErrorClassMember(pos);
+        }
         // Now we decide which class member to parse
         // Field
         if (lexer.peek().type() == SEMICOLON) {
@@ -97,30 +110,41 @@ public class Parser {
             return parseMethod(type, identifier);
         }
 
-        lexer.printSourceText(lexer.peek(3).position());
-        logger.printErrorAndExit(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()));
-        return null;
+        logger.printParserError(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()), lexer, lexer.peek(3).position());
+        return new ErrorClassMember(pos);
     }
     
-    public Field parseField(Type type, IdentifierToken identifier) {
+    public ClassMember parseField(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ;
         SourcePosition pos = lexer.getPosition();
-        expect(SEMICOLON);
+        try {
+            expect(SEMICOLON);
+        } catch (ExpectedTokenError e) {
+            return new ErrorClassMember(pos);
+        }
         return new Field(pos, type, identifier.getIdentifier());
     }
     
-    public MainMethod parseMainMethod() {
+    public ClassMember parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
         SourcePosition pos = lexer.getPosition();
-        expect(PUBLIC);
-        expect(STATIC);
-        expect(VOID_TYPE);
-        IdentifierToken name = expectIdentifier();
-        expect(L_PAREN);
-        Type paramType = parseType();
-        IdentifierToken paramName = expectIdentifier();
-        expect(R_PAREN);
+        IdentifierToken name = null;
+        Type paramType = null;
+        IdentifierToken paramName = null;
+        try {
+            expect(PUBLIC);
+            expect(STATIC);
+            expect(VOID_TYPE);
+            name = expectIdentifier();
+            expect(L_PAREN);
+            paramType = parseType();
+            paramName = expectIdentifier();
+            expect(R_PAREN);
+        } catch (ExpectedTokenError e) {
+            return new ErrorClassMember(pos);
+        }
+
         MethodRest methodRest = null;
         if (lexer.peek().type() == THROWS) {
             methodRest = parseMethodRest();
@@ -129,30 +153,43 @@ public class Parser {
         return new MainMethod(pos, name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
     
-    public Method parseFullMethod() {
-        expect(PUBLIC);
-        Type type = parseType();
-        IdentifierToken identifier = expectIdentifier();
+    public ClassMember parseFullMethod() {
+        SourcePosition pos = lexer.getPosition();
+        Type type = null;
+        IdentifierToken identifier = null;
+        try {
+            expect(PUBLIC);
+            type = parseType();
+            identifier = expectIdentifier();
+        } catch (ExpectedTokenError e) {
+            return new ErrorClassMember(pos);
+        }
+
         return parseMethod(type, identifier);
     }
     
-    public Method parseMethod(Type type, IdentifierToken identifier) {
+    public ClassMember parseMethod(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ( Parameters? ) MethodRest? Block\
         SourcePosition pos = lexer.getPosition();
-        expect(L_PAREN);
-        // Check if we have parameters
-        LinkedList<Parameter> params = new LinkedList<>();
-        // Parse the first argument
-        if (lexer.peek().type() != R_PAREN) {
-            params.add(parseParameter());
+        LinkedList<Parameter> params = null;
+        try {
+            expect(L_PAREN);
+            // Check if we have parameters
+            params = new LinkedList<>();
+            // Parse the first argument
+            if (lexer.peek().type() != R_PAREN) {
+                params.add(parseParameter());
+            }
+            // If we have more arguments, they are each prefixed by a COMMA
+            while (lexer.peek().type() == COMMA) {
+                expect(COMMA);
+                params.add(parseParameter());
+            }
+            expect(R_PAREN);
+        } catch (ExpectedTokenError e) {
+            return new ErrorClassMember(pos);
         }
-        // If we have more arguments, they are each prefixed by a COMMA
-        while (lexer.peek().type() == COMMA) {
-            expect(COMMA);
-            params.add(parseParameter());
-        }
-        expect(R_PAREN);
         MethodRest methodRest = null;
         if (lexer.peek().type() == THROWS) {
             methodRest = parseMethodRest();
@@ -163,35 +200,29 @@ public class Parser {
     
     public MethodRest parseMethodRest() {
         // throws IDENT
-        expect(THROWS);
-        SourcePosition pos = lexer.getPosition();
-        IdentifierToken ident = expectIdentifier();
-        return new MethodRest(pos, ident.getIdentifier());
-    }
-
-    public LinkedList<Parameter> parseParameters() {
-        // Parameter ParametersRest
-        LinkedList<Parameter> params = new LinkedList<>();
-        params.addLast(parseParameter());
-        return parseParametersRest(params);
-    }
-
-    public LinkedList<Parameter> parseParametersRest(LinkedList<Parameter> parameters) {
-        // (, Parameter ParametersRest)?
-        if (lexer.peek().type() == COMMA) {
-            expect(COMMA);
-            parameters.addLast(parseParameter());
-            return parseParametersRest(parameters);
+        SourcePosition pos = null;
+        IdentifierToken ident = null;
+        try {
+            expect(THROWS);
+            pos = lexer.getPosition();
+            ident = expectIdentifier();
+        } catch (ExpectedTokenError e) {
+            //in this case null is okay, because it may also be null if it is not present
+            return null;
         }
-        // If there is no rest, we return the parameters parsed until now
-        return parameters;
+        return new MethodRest(pos, ident.getIdentifier());
     }
 
     public Parameter parseParameter() {
         // Type IDENT
         SourcePosition pos = lexer.getPosition();
         Type type = parseType();
-        IdentifierToken ident = expectIdentifier();
+        IdentifierToken ident = null;
+        try {
+            ident = expectIdentifier();
+        } catch (ExpectedTokenError e) {
+            return null;
+        }
         return new Parameter(pos, type, ident.getIdentifier());
     }
 
@@ -206,8 +237,12 @@ public class Parser {
     public int parseTypeRest() {
         // ([] TypeRest)?
         if (lexer.peek().type() == L_SQUARE_BRACKET) {
-            expect(L_SQUARE_BRACKET);
-            expect(R_SQUARE_BRACKET);
+            try {
+                expect(L_SQUARE_BRACKET);
+                expect(R_SQUARE_BRACKET);
+            } catch (ExpectedTokenError e) {
+                return -1;
+            }
             return parseTypeRest() + 1;
         }
         // If there is no rest, we return null
@@ -232,10 +267,9 @@ public class Parser {
             }
         }
 
-        lexer.printSourceText(lexer.peek().position());
-        logger.printErrorAndExit(ParserErrorIds.EXPECTED_BASIC_TYPE,
-                "Expected 'int', 'boolean', 'void' or an identifier, but got '%s'".formatted(t));
-        return null;
+        logger.printParserError(ParserErrorIds.EXPECTED_BASIC_TYPE,
+                "Expected 'int', 'boolean', 'void' or an identifier, but got '%s'".formatted(t), lexer, pos);
+        return new ErrorType(pos);
     }
 
     /**
@@ -244,11 +278,11 @@ public class Parser {
      *
      * @param expected The token to check for.
      */
-    private void expect(IToken expected) {
+    private void expect(IToken expected) throws ExpectedTokenError {
         TokenOccurrence t = lexer.nextToken();
         if (t.type() != expected) {
-            lexer.printSourceText(t.position());
-            logger.printErrorAndExit(ParserErrorIds.EXPECTED_TOKEN, "Expected %s but found '%s'".formatted(expected, t.type()));
+            logger.printParserError(ParserErrorIds.EXPECTED_TOKEN, "Expected %s but found '%s'".formatted(expected, t.type()), lexer, t.position());
+            throw new ExpectedTokenError("Expected %s but found '%s'".formatted(expected, t.type()));
         }
     }
 
@@ -257,14 +291,14 @@ public class Parser {
      *
      * @return The IdentifierToken, if there is one, otherwise the function prints an error and exits without returning anything.
      */
-    private IdentifierToken expectIdentifier() {
+    private IdentifierToken expectIdentifier() throws ExpectedTokenError {
         TokenOccurrence t = lexer.nextToken();
-        if (t.type() instanceof IdentifierToken) {
-            return (IdentifierToken) t.type();
+        if (t.type() instanceof IdentifierToken it) {
+            return it;
         }
         lexer.printSourceText(t.position());
-        logger.printErrorAndExit(ParserErrorIds.EXPECTED_IDENTIFIER, "Identifier expected, but found '%s'".formatted(t.type().toString()));
-        return null;
+        logger.printParserError(ParserErrorIds.EXPECTED_IDENTIFIER, "Identifier expected, but found '%s'".formatted(t.type().toString()), lexer, t.position());
+        throw new ExpectedTokenError("Identifier expected, but found '%s'".formatted(t.type().toString()));
     }
 
     //since here we use wlexer instead of lexer
@@ -272,11 +306,23 @@ public class Parser {
     public BasicBlock parseBasicBlock() {
         SourcePosition pos = wlexer.position();
         LinkedList<Statement> statements = new LinkedList<>();
-        expect(L_CURLY_BRACKET);
+        try {
+            expect(L_CURLY_BRACKET);
+        } catch (ExpectedTokenError e) {
+            statements.addLast(new ErrorStatement(pos));
+            return new BasicBlock(pos, statements);
+        }
         while (wlexer.peek() != R_CURLY_BRACKET) {
             statements.addLast(parseBlockStatement());
         }
-        expect(R_CURLY_BRACKET);
+        SourcePosition pos2 = lexer.getPosition();
+        try {
+            expect(R_CURLY_BRACKET);
+        } catch (ExpectedTokenError e) {
+            //one off, but this is okay, because we never read it?!?
+            statements.addLast(new ErrorStatement(pos2));
+            return new BasicBlock(pos, statements);
+        }
         return new BasicBlock(pos, statements);
     }
 
@@ -306,14 +352,20 @@ public class Parser {
     public Statement parseVariableDeclaration() {
         SourcePosition pos = wlexer.position();
         Type type = parseType();
-        IdentifierToken ident = expectIdentifier();
-        AbstractExpression expression = new UninitializedValue(pos);
-        if (wlexer.peek() == ASSIGN) {
-            expect(ASSIGN);
-            expression = parseExpression();
-            expect(SEMICOLON);
-        } else {
-            expect(SEMICOLON);
+        IdentifierToken ident = null;
+        AbstractExpression expression = null;
+        try {
+            ident = expectIdentifier();
+            expression = new UninitializedValue(pos);
+            if (wlexer.peek() == ASSIGN) {
+                expect(ASSIGN);
+                expression = parseExpression();
+                expect(SEMICOLON);
+            } else {
+                expect(SEMICOLON);
+            }
+        } catch (ExpectedTokenError e) {
+            return new ErrorStatement(pos);
         }
         return new LocalVariableDeclarationStatement(pos, type, ident.getIdentifier(), expression);
     }
@@ -336,44 +388,70 @@ public class Parser {
 
     public Statement parseIfStatement() {
         SourcePosition pos = wlexer.position();
-        expect(IF);
-        expect(L_PAREN);
-        AbstractExpression condition = parseExpression();
-        expect(R_PAREN);
-        Statement thenStatement = parseStatement();
+        AbstractExpression condition = null;
+        Statement thenStatement = null;
         Statement elseStatement = null;
-        if (wlexer.peek() == ELSE) {
-            expect(ELSE);
-            elseStatement = parseStatement();
+        try {
+            expect(IF);
+            expect(L_PAREN);
+            condition = parseExpression();
+            expect(R_PAREN);
+            thenStatement = parseStatement();
+            elseStatement = null;
+            if (wlexer.peek() == ELSE) {
+                expect(ELSE);
+                elseStatement = parseStatement();
+            }
+        } catch (ExpectedTokenError e) {
+            return new ErrorStatement(pos);
         }
         return new IfStatement(pos, condition, thenStatement, elseStatement);
     }
 
     public Statement parseWhileStatement() {
         SourcePosition pos = wlexer.position();
-        expect(WHILE);
-        expect(L_PAREN);
-        AbstractExpression condition = parseExpression();
-        expect(R_PAREN);
+        AbstractExpression condition = null;
+        try {
+            expect(WHILE);
+            expect(L_PAREN);
+            condition = parseExpression();
+            expect(R_PAREN);
+        } catch (ExpectedTokenError e) {
+            return new ErrorStatement(pos);
+        }
         Statement loop = parseStatement();
         return new WhileStatement(pos, condition, loop);
     }
 
     public Statement parseReturnStatement() {
         SourcePosition pos = wlexer.position();
-        expect(RETURN);
+        try {
+            expect(RETURN);
+        } catch (ExpectedTokenError e) {
+            return new ErrorStatement(pos);
+        }
         AbstractExpression returnExpression = new VoidExpression(pos);
         if (wlexer.peek() != SEMICOLON) {
             returnExpression = parseExpression();
         }
-        expect(SEMICOLON);
+        SourcePosition pos2 = wlexer.position();
+        try {
+            expect(SEMICOLON);
+        } catch (ExpectedTokenError e) {
+            return new ErrorStatement(pos2);
+        }
         return new ReturnStatement(pos, returnExpression);
     }
 
     public Statement parseExpressionStatement() {
         SourcePosition pos = wlexer.position();
         AbstractExpression expression = parseExpression();
-        expect(SEMICOLON);
+        SourcePosition pos2 = wlexer.position();
+        try {
+            expect(SEMICOLON);
+        } catch (ExpectedTokenError e) {
+            return new ErrorStatement(pos);
+        }
         return new ExpressionStatement(pos, expression);
     }
 
@@ -429,11 +507,17 @@ public class Parser {
 
     public AbstractExpression parseMethodInvocation(AbstractExpression expression) {
         SourcePosition pos = wlexer.position();
-        expect(DOT);
-        IdentifierToken ident = expectIdentifier();
-        expect(L_PAREN);
-        Arguments arguments = parseArguments();
-        expect(R_PAREN);
+        IdentifierToken ident = null;
+        Arguments arguments = null;
+        try {
+            expect(DOT);
+            ident = expectIdentifier();
+            expect(L_PAREN);
+            arguments = parseArguments();
+            expect(R_PAREN);
+        } catch (ExpectedTokenError e) {
+            return new ErrorExpression(pos);
+        }
         return new MethodInvocationOnObject(pos, expression, ident.getIdentifier(), arguments);
     }
 
@@ -447,7 +531,13 @@ public class Parser {
         do {
             arguments.addArgument(parseExpression());
             if (wlexer.peek() != R_PAREN) {
-                expect(COMMA);
+                SourcePosition pos2 = wlexer.position();
+                try {
+                    expect(COMMA);
+                } catch (ExpectedTokenError e) {
+                    arguments.addArgument(new ErrorExpression(pos2));
+                    return arguments;
+                }
                 if (wlexer.peek() == COMMA) {
                     lexer.printSourceText(lexer.getPosition());
                     logger.printErrorAndExit(ParserErrorIds.EXPECTED_ARGUMENT, "Argument expect after Token \",\"!");
@@ -461,16 +551,26 @@ public class Parser {
 
     public AbstractExpression parseFieldAccess(AbstractExpression expression) {
         SourcePosition pos = wlexer.position();
-        expect(DOT);
-        IdentifierToken ident = expectIdentifier();
+        IdentifierToken ident = null;
+        try {
+            expect(DOT);
+            ident = expectIdentifier();
+        } catch (ExpectedTokenError e) {
+            return new ErrorExpression(pos);
+        }
         return new FieldAccess(pos, expression, ident.getIdentifier());
     }
 
     public AbstractExpression parseArrayAccess(AbstractExpression expression) {
         SourcePosition pos = wlexer.position();
-        expect(L_SQUARE_BRACKET);
-        AbstractExpression arrayPosition = parseExpression();
-        expect(R_SQUARE_BRACKET);
+        AbstractExpression arrayPosition = null;
+        try {
+            expect(L_SQUARE_BRACKET);
+            arrayPosition = parseExpression();
+            expect(R_SQUARE_BRACKET);
+        } catch (ExpectedTokenError e) {
+            return new ErrorExpression(pos);
+        }
         return new ArrayAccess(pos, expression, arrayPosition);
     }
 
@@ -509,9 +609,16 @@ public class Parser {
         if (token instanceof IdentifierToken ident) {
             wlexer.nextToken();
             if (wlexer.peek() == L_PAREN) {
-                expect(L_PAREN);
-                Arguments arguments = parseArguments();
-                expect(R_PAREN);
+                SourcePosition posParen = wlexer.position();
+                Arguments arguments = new Arguments(posParen);
+                try {
+                    expect(L_PAREN);
+                    arguments = parseArguments();
+                    posParen = wlexer.position();
+                    expect(R_PAREN);
+                } catch (ExpectedTokenError e) {
+                    arguments.addArgument(new ErrorExpression(posParen));
+                }
                 //we create a ThisValue out of nowhere, because methods only can be invoked on other objects or the own object(this)
                 expression = new MethodInvocationOnObject(pos, new ThisValue(pos), ident.getIdentifier(), arguments);
             } else {
@@ -543,9 +650,13 @@ public class Parser {
                 }
                 break;
                 case L_PAREN: {
-                    expect(L_PAREN);
-                    expression = parseExpression();
-                    expect(R_PAREN);
+                    try {
+                        expect(L_PAREN);
+                        expression = parseExpression();
+                        expect(R_PAREN);
+                    } catch (ExpectedTokenError e) {
+                        //do nothing errorExpression is already set
+                    }
                 }
                 break;
                 case NEW: {
@@ -572,27 +683,40 @@ public class Parser {
 
     public AbstractExpression parseNewArrayExpression() {
         SourcePosition pos = wlexer.position();
-        expect(NEW);
-        BasicType type = parseBasicType();
+        BasicType type = null;
         int dimension = 0;
-        expect(L_SQUARE_BRACKET);
-        AbstractExpression size = parseExpression();
-        expect(R_SQUARE_BRACKET);
-        while (wlexer.peek() == L_SQUARE_BRACKET) {
+        AbstractExpression size = null;
+        try {
+            expect(NEW);
+            type = parseBasicType();
+            dimension = 1;
             expect(L_SQUARE_BRACKET);
+            size = parseExpression();
             expect(R_SQUARE_BRACKET);
-            dimension++;
+            while (wlexer.peek() == L_SQUARE_BRACKET) {
+                expect(L_SQUARE_BRACKET);
+                expect(R_SQUARE_BRACKET);
+                dimension++;
+            }
+        } catch (ExpectedTokenError e) {
+            return new ErrorExpression(pos);
         }
         return new NewArrayExpression(pos, type, size, dimension);
     }
 
     public AbstractExpression parseNewObjectExpression() {
         SourcePosition pos = wlexer.position();
-        expect(NEW);
-        SourcePosition typePos = wlexer.position();
-        IdentifierToken ident = expectIdentifier();
-        expect(L_PAREN);
-        expect(R_PAREN);
+        SourcePosition typePos = null;
+        IdentifierToken ident = null;
+        try {
+            expect(NEW);
+            typePos = wlexer.position();
+            ident = expectIdentifier();
+            expect(L_PAREN);
+            expect(R_PAREN);
+        } catch (ExpectedTokenError e) {
+            return new ErrorExpression(pos);
+        }
         return new NewObjectExpression(pos, new CustomType(typePos, ident.getIdentifier()));
     }
 
