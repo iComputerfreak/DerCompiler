@@ -26,11 +26,15 @@ public class LexerWrapper {
     }
 
     public SourcePosition position() {
-        return lexer.getPosition();
+        return lexer.peek().position();
     }
 
     public <T> T consumeToken(T passthrough) {
         nextToken();
         return passthrough;
+    }
+
+    public Lexer getLexer() {
+        return lexer;
     }
 }

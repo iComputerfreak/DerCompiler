@@ -36,7 +36,7 @@ public class Parser {
     
     public Program parseProgram() {
         // ClassDeclaration*
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         List<ClassDeclaration> classes = new ArrayList<>();
         while (lexer.peek().type() == CLASS) {
             ClassDeclaration cd = parseClassDeclaration();
@@ -47,14 +47,14 @@ public class Parser {
         TokenOccurrence next = lexer.nextToken();
         if (next.type() != EOF) {
             lexer.printSourceText(next.position());
-            logger.printParserError(ParserErrorIds.EXPECTED_CLASS_DECLARATION, "Expected class declaration, but found " + next.type(), lexer, lexer.getPosition());
+            logger.printParserError(ParserErrorIds.EXPECTED_CLASS_DECLARATION, "Expected class declaration, but found " + next.type(), lexer, lexer.peek().position());
         }
         return new Program(pos, classes);
     }
     
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         IdentifierToken identifier;
         try {
             expect(CLASS);
@@ -77,7 +77,7 @@ public class Parser {
         // MainMethod ->    public static void IDENT ( Type IDENT )
         // Field ->         public Type IDENT ;
         // Method ->        public Type IDENT ( Parameters? ) MethodRest? Block
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         if (lexer.peek().type() != PUBLIC) {
             logger.printParserError(ParserErrorIds.EXPECTED_PUBLIC_KEYWORD, "Expected 'public' keyword but found '%s'".formatted(lexer.peek()), lexer, pos);
             return new ErrorClassMember(pos);
@@ -117,7 +117,7 @@ public class Parser {
     public ClassMember parseField(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ;
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         try {
             expect(SEMICOLON);
         } catch (ExpectedTokenError e) {
@@ -128,7 +128,7 @@ public class Parser {
     
     public ClassMember parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         IdentifierToken name;
         Type paramType;
         IdentifierToken paramName;
@@ -154,7 +154,7 @@ public class Parser {
     }
     
     public ClassMember parseFullMethod() {
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         Type type;
         IdentifierToken identifier;
         try {
@@ -171,7 +171,7 @@ public class Parser {
     public ClassMember parseMethod(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ( Parameters? ) MethodRest? Block\
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         LinkedList<Parameter> params;
         try {
             expect(L_PAREN);
@@ -204,7 +204,7 @@ public class Parser {
         IdentifierToken ident;
         try {
             expect(THROWS);
-            pos = lexer.getPosition();
+            pos = lexer.peek().position();
             ident = expectIdentifier();
         } catch (ExpectedTokenError e) {
             //in this case null is okay, because it may also be null if it is not present
@@ -215,7 +215,7 @@ public class Parser {
 
     public Parameter parseParameter() {
         // Type IDENT
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         Type type = parseType();
         IdentifierToken ident;
         try {
@@ -228,7 +228,7 @@ public class Parser {
 
     public Type parseType() {
         // BasicType TypeRest
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         BasicType type = parseBasicType();
         int dimension = parseTypeRest();
         return new Type(pos, type, dimension);
@@ -251,7 +251,7 @@ public class Parser {
     
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
-        SourcePosition pos = lexer.getPosition();
+        SourcePosition pos = lexer.peek().position();
         IToken t = lexer.nextToken().type();
         if (t instanceof IdentifierToken ident) {
             return new CustomType(pos, ident.getIdentifier());
@@ -315,7 +315,7 @@ public class Parser {
         while (wlexer.peek() != R_CURLY_BRACKET) {
             statements.addLast(parseBlockStatement());
         }
-        SourcePosition pos2 = lexer.getPosition();
+        SourcePosition pos2 = lexer.peek().position();
         try {
             expect(R_CURLY_BRACKET);
         } catch (ExpectedTokenError e) {
@@ -360,10 +360,8 @@ public class Parser {
             if (wlexer.peek() == ASSIGN) {
                 expect(ASSIGN);
                 expression = parseExpression();
-                expect(SEMICOLON);
-            } else {
-                expect(SEMICOLON);
             }
+            expect(SEMICOLON);
         } catch (ExpectedTokenError e) {
             return new ErrorStatement(pos);
         }
@@ -477,8 +475,7 @@ public class Parser {
                 }
             }
         }
-        lexer.printSourceText(lexer.peek().position());
-        logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation, but got '%s'".formatted(lexer.peek().type()));
+        logger.printParserError(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation, but got '%s'".formatted(lexer.peek().type()), lexer, pos);
         return new ErrorExpression(pos);
     }
 
@@ -537,8 +534,7 @@ public class Parser {
                     return arguments;
                 }
                 if (wlexer.peek() == COMMA) {
-                    lexer.printSourceText(lexer.peek().position());
-                    logger.printErrorAndExit(ParserErrorIds.EXPECTED_ARGUMENT, "Argument expected after Token \",\"!");
+                    logger.printParserError(ParserErrorIds.EXPECTED_ARGUMENT, "Argument expected after Token \",\"!", lexer, lexer.peek().position());
                 }
             } else {
                 break;
@@ -659,15 +655,11 @@ public class Parser {
                         } else if (t2 == L_SQUARE_BRACKET) {
                             expression = parseNewArrayExpression();
                         } else {
-                            lexer.printSourceText(lexer.getPosition());
-                            logger.printErrorAndExit(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected an object instantiation");
+                            logger.printParserError(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected an object instantiation", lexer, lexer.peek().position());
                         }
                     }
                 }
-                default -> {
-                    lexer.printSourceText(lexer.getPosition());
-                    logger.printErrorAndExit(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary type, no primary type starts with token: " + wlexer.peek(0));
-                }
+                default -> logger.printParserError(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary type, no primary type starts with token: " + wlexer.peek(0), lexer, lexer.peek().position());
             }
         }
         return expression;

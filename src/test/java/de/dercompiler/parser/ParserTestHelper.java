@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ParserTestHelper {
 
-    public static SourcePosition DEFAULT_POS = Lexer.forString("").getPosition();
+    public static SourcePosition DEFAULT_POS = Lexer.forString("").peek().position();
 
     private void testSyntaxEqual(String expression, ASTNode created, ASTNode compare, Lexer lexer) {
         boolean equal = created.syntaxEquals(compare);

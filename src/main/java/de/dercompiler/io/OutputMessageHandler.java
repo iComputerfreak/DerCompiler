@@ -114,7 +114,7 @@ public final class OutputMessageHandler {
      * @param errorColor The color of the exception
      */
     private void formatMessage(PrintStream stream, String messageHead, Color messageHeadColor, String message, Color messageColor, Exception e, Color errorColor) {
-        formatMessage(stream, messageHead, messageHeadColor, message + "\n" + SKIP_MESSAGE_HEAD + "exception-message: " + e.getMessage(), messageColor);
+        formatMessage(stream, messageHead, messageHeadColor, message + "\n" + "exception-message: " + e.getMessage(), messageColor);
 
         if (printStackTrace) {
             StringWriter sw = new StringWriter();
@@ -231,7 +231,7 @@ public final class OutputMessageHandler {
 
     private void internalError(String message, StackTraceElement element) {
         formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
-                + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + SKIP_MESSAGE_HEAD + message), errorColor);
+                + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor);
         System.exit(-1);
     }
 
