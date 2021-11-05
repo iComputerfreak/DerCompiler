@@ -46,7 +46,6 @@ public class Parser {
         }
         TokenOccurrence next = lexer.nextToken();
         if (next.type() != EOF) {
-            lexer.printSourceText(next.position());
             logger.printParserError(ParserErrorIds.EXPECTED_CLASS_DECLARATION, "Expected class declaration, but found " + next.type(), lexer, lexer.peek().position());
         }
         return new Program(pos, classes);
@@ -65,11 +64,16 @@ public class Parser {
         }
         List<ClassMember> members = new ArrayList<>();
         // While our next token is not the '}' token
-        while (lexer.peek().type() != R_CURLY_BRACKET) {
+        while (lexer.peek().type() == PUBLIC) {
             members.add(parseClassMember());
         }
         // Consume the R_CURLY_BRACKET
-        lexer.nextToken();
+        SourcePosition pos2 = lexer.peek().position();
+        try {
+            expect(R_CURLY_BRACKET);
+        } catch (ExpectedTokenError e) {
+            members.add(new ErrorClassMember(pos2));
+        }
         return new ClassDeclaration(pos, identifier.getIdentifier(), members);
     }
 
@@ -296,12 +300,15 @@ public class Parser {
         if (t.type() instanceof IdentifierToken it) {
             return it;
         }
-        lexer.printSourceText(t.position());
         logger.printParserError(ParserErrorIds.EXPECTED_IDENTIFIER, "Identifier expected, but found '%s'".formatted(t.type().toString()), lexer, t.position());
         throw new ExpectedTokenError("Identifier expected, but found '%s'".formatted(t.type().toString()));
     }
 
     //since here we use wlexer instead of lexer
+
+    private boolean isBasicBlock(IToken token) {
+        return isType(token) || token == L_CURLY_BRACKET || token == SEMICOLON || token == IF || token == WHILE || isPrimary(token) || token == RETURN;
+    }
 
     public BasicBlock parseBasicBlock() {
         SourcePosition pos = wlexer.position();
@@ -312,7 +319,7 @@ public class Parser {
             statements.addLast(new ErrorStatement(pos));
             return new BasicBlock(pos, statements);
         }
-        while (wlexer.peek() != R_CURLY_BRACKET) {
+        while (isBasicBlock(wlexer.peek())) {
             statements.addLast(parseBlockStatement());
         }
         SourcePosition pos2 = lexer.peek().position();

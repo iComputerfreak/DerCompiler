@@ -849,7 +849,7 @@ public class Lexer {
         handler.printErrorAndExit(id, message);
     }
 
-    public void printSourceText(SourcePosition position) {
+    public String printSourceText(SourcePosition position) {
         SourcePosition currentPosition = getPosition().copy();
         this.reader = this.source.getNewReader();
         this.position.reset();
@@ -869,12 +869,12 @@ public class Lexer {
             line.append(" ");
         }
         line.append("^");
-        System.err.println(line.toString());
 
         // reset
         while (this.position.getLine() < currentPosition.getLine() || this.position.getColumn() < currentPosition.getColumn()) {
             this.readCharacter();
         }
+        return line.toString();
     }
 
     /**

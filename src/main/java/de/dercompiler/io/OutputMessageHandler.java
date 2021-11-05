@@ -50,6 +50,7 @@ public final class OutputMessageHandler {
     private final boolean printStackTrace;
 
     private static boolean debug_mode = false;
+    private static boolean debug_print = true;
     private static List<DebugEvent> debugEvents = new LinkedList<DebugEvent>();
 
     /**
@@ -88,8 +89,10 @@ public final class OutputMessageHandler {
      * @param messageColor The color of the message
      */
     private void formatMessage(PrintStream stream, String messageHead, Color messageHeadColor, String message, Color messageColor) {
-        stream.print("[" + colorizer.colorize(messageHeadColor, messageHead) + "] ");
-        stream.println(colorizer.colorize(messageColor, message.replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
+        if (debug_print) {
+            stream.print("[" + colorizer.colorize(messageHeadColor, messageHead) + "] ");
+            stream.println(colorizer.colorize(messageColor, message.replace("\n", "\n" + SKIP_MESSAGE_HEAD)));
+        }
     }
 
     /**
@@ -218,10 +221,9 @@ public final class OutputMessageHandler {
     }
 
     public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, SourcePosition position) {
-        printErrorAndContinue(id, errorMessage);
-        lexer.printSourceText(position);
+        printErrorAndContinue(id, errorMessage + "\n" + lexer.printSourceText(position));
         if (debug_mode) {
-            debugEvents.add(new DebugEvent(origin, id, errorMessage));
+            debugEvents.add(new DebugEvent(origin, id, errorMessage + "\n" + lexer.printSourceText(position)));
         } else {
             ErrorStatus.reportError(-idPrefix - id.getId());
             //TODO remove after added ankermengen
@@ -326,4 +328,6 @@ public final class OutputMessageHandler {
     public static void clearDebugEvents() {
         debugEvents.clear();
     }
+
+    public static void setTestOutput(boolean active) { if (debug_mode) debug_print = active; }
 }
