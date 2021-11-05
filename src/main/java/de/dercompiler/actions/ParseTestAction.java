@@ -38,7 +38,7 @@ public class ParseTestAction extends Action {
 
         switch (this.entryPoint) {
             case OPTION_PARSE_METHOD:
-                node = parser.parseMethod();
+                node = parser.parseFullMethod();
                 break;
             case OPTION_PARSE_STATEMENT:
                 node = parser.parseBlockStatement();
@@ -50,9 +50,9 @@ public class ParseTestAction extends Action {
                 break;
         }}
         if (this.prettyPrint) {
-            StringBuilder sb = new StringBuilder();
-            new PrettyPrinter().printNode(node, sb);
-            System.out.println(sb.toString());
+            PrettyPrinter printer = new PrettyPrinter(false);
+            printer.printNode(node);
+            System.out.println(printer.flush());
         }
     }
 

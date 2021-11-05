@@ -7,7 +7,9 @@ import static de.dercompiler.lexer.token.TypeToken.BOOLEAN_TYPE;
 
 public final class BooleanType extends BasicType {
     
-    public BooleanType(SourcePosition position) { super(position);}
+    public BooleanType(SourcePosition position) {
+        super(position);
+    }
 
     @Override
     public boolean syntaxEquals(ASTNode other) {

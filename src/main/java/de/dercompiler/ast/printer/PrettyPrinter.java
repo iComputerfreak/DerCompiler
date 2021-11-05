@@ -14,177 +14,217 @@ import java.util.Objects;
 public class PrettyPrinter {
 
     private static final int TAB_SIZE = 4;
+    private static final String INDENT = "\t";
+    private StringBuilder sb;
+    private boolean strictParenthesis = false;
 
-    public void printProgram(Program program, StringBuilder sb, int indent) {
+    public PrettyPrinter(boolean strictParenthesis) {
+        this.strictParenthesis = strictParenthesis;
+        this.sb = new StringBuilder();
+    }
+
+    public void printProgram(Program program, int indent) {
         for (ClassDeclaration cls : program.getClasses()) {
-            printClassDeclaration(cls, sb, indent);
+            printClassDeclaration(cls, indent);
         }
     }
 
-    public void printClassDeclaration(ClassDeclaration decl, StringBuilder sb, int indent) {
-        sb.append(" ".repeat(indent * TAB_SIZE));
+    public void printClassDeclaration(ClassDeclaration decl, int indent) {
+        sb.append(INDENT.repeat(indent));
         sb.append("class ");
         sb.append(decl.getIdentifier());
         sb.append(" {\n");
         for (ClassMember member : decl.getMembers()) {
-            printClassMember(member, sb, indent + 1);
+            printClassMember(member, indent + 1);
         }
-        sb.append(" ".repeat(indent * TAB_SIZE));
+        sb.append(INDENT.repeat(indent));
         sb.append("}\n");
     }
 
-    private void printClassMember(ClassMember member, StringBuilder sb, int indent) {
+    private void printClassMember(ClassMember member, int indent) {
         if (member instanceof Field f) {
-            printField(f, sb, indent);
+            printField(f, indent);
         } else if (member instanceof Method m) {
-            printMethod(m, sb, indent);
+            printMethod(m, indent);
         } else if (member instanceof MainMethod main) {
-            printMainMethod(main, sb, indent);
+            printMainMethod(main, indent);
         }
     }
 
-    private void printMainMethod(MainMethod main, StringBuilder sb, int indent) {
-        sb.append(" ".repeat(indent * TAB_SIZE));
+    private void printMainMethod(MainMethod main, int indent) {
+        sb.append(INDENT.repeat(indent));
         sb.append("public static void ");
         sb.append(main.getIdentifier());
 
         sb.append("(");
 
-        printType(main.getParameterType(), sb);
-            sb.append(" ");
+        printType(main.getParameterType());
+        sb.append(" ");
         sb.append(main.getParameterName());
 
         sb.append(") ");
-        printMethodRest(main.getMethodRest(), sb);
-        sb.append("{\n");
+        printMethodRest(main.getMethodRest());
 
-        printBasicBlock(main.getBlock(), sb, indent + 1);
-        sb.append(" ".repeat(indent * TAB_SIZE));
-        sb.append("}\n");
+
+        printBasicBlock(main.getBlock(), indent);
+        sb.append("\n");
+        sb.append(INDENT.repeat(indent - 1));
     }
 
-    private void printField(Field f, StringBuilder sb, int indent) {
-        sb.append(" ".repeat(indent * TAB_SIZE));
+    private void printField(Field f, int indent) {
+        sb.append(INDENT.repeat(indent));
         sb.append("public ");
-        printType(f.getType(), sb);
+        printType(f.getType());
         sb.append(" ");
         sb.append(f.getIdentifier());
         sb.append(";\n");
     }
 
-    private void printMethod(Method m, StringBuilder sb, int indent) {
-        sb.append(" ".repeat(indent * TAB_SIZE));
+    private void printMethod(Method m, int indent) {
+        sb.append(INDENT.repeat(indent));
         sb.append("public ");
-        printType(m.getType(), sb);
+        printType(m.getType());
         sb.append(" ");
         sb.append(m.getIdentifier());
         sb.append("(");
 
         int paramCount = m.getParameters().size();
         for (int i = 0; i < paramCount - 1; i++) {
-            printParameter(m.getParameters().get(i), sb);
+            printParameter(m.getParameters().get(i));
             sb.append(", ");
         }
         if (paramCount > 0) {
-            printParameter(m.getParameters().get(paramCount - 1), sb);
+            printParameter(m.getParameters().get(paramCount - 1));
         }
         sb.append(") ");
 
-        printMethodRest(m.getRest(), sb);
-        sb.append("{\n");
+        printMethodRest(m.getRest());
 
-        printBasicBlock(m.getBlock(), sb, indent + 1);
-        sb.append(" ".repeat(indent * TAB_SIZE));
-        sb.append("}\n");
+        printBasicBlock(m.getBlock(), indent);
+        sb.append("\n");
     }
 
-    private void printType(Type type, StringBuilder sb) {
+    private void printType(Type type) {
         sb.append(type.getBasicType().toString());
         sb.append("[]".repeat(type.getArrayDimension()));
     }
 
-    private void printBasicBlock(BasicBlock block, StringBuilder sb, int indent) {
+    private void printBasicBlock(BasicBlock block, int indent) {
+        sb.append("{\n");
+        sb.append(INDENT.repeat(indent));
         for (Statement statement : block.getStatements()) {
-            printStatement(statement, sb, indent, true);
+            if (statement instanceof EmptyStatement) continue;
+            printStatement(statement, indent + 1, true, true);
         }
+        sb.append("} ");
     }
 
-    private void printParameter(Parameter param, StringBuilder sb) {
-        printType(param.getType(), sb);
+    private void printParameter(Parameter param) {
+        printType(param.getType());
         sb.append(" ");
         sb.append(param.getIdentifier());
     }
 
-    private void printStatement(Statement statement, StringBuilder sb, int indent, boolean indentFirst) {
-        if (indentFirst) sb.append(" ".repeat(indent * TAB_SIZE));
+
+    private void printStatement(Statement statement, int indent, boolean indentFirst, boolean breakLineAfter) {
+        // At this point, the text shall be either
+        // - empty but indented to the level of the _surrounding_ block
+        // - non-empty with the following statement in the same line
+
+        if (indentFirst) sb.append(INDENT);
         if (statement instanceof BasicBlock block) {
-            printBasicBlock(block, sb, indent);
+            printBasicBlock(block, indent);
             return;
         } else if (statement instanceof EmptyStatement) {
             sb.append(";\n");
         } else if (statement instanceof ExpressionStatement expr) {
-            printExpressionStatement(expr, sb);
+            printExpressionStatement(expr);
         } else if (statement instanceof IfStatement ifElse) {
-            printIfStatement(ifElse, sb, indent);
+            printIfStatement(ifElse, indent);
         } else if (statement instanceof LocalVariableDeclarationStatement def) {
-            printLocalVariableDeclarationStatement(def, sb);
+            printLocalVariableDeclarationStatement(def);
         } else if (statement instanceof ReturnStatement ret) {
-            printReturnStatement(ret, sb);
+            printReturnStatement(ret);
         } else if (statement instanceof WhileStatement loop) {
-            printWhileStatement(loop, sb, indent);
+            printWhileStatement(loop, indent);
         } else {
             new OutputMessageHandler(MessageOrigin.PARSER).internalError("print is not yet implemented for " + statement.getClass().getName());
         }
+
+        if (breakLineAfter) {
+            sb.append("\n");
+            sb.append(INDENT.repeat(indent - 1));
+        }
     }
 
-    private void printExpressionStatement(ExpressionStatement exprStmt, StringBuilder sb) {
-        printExpression(exprStmt.getExpression(), sb);
-        sb.append(";\n");
+    private void printExpressionStatement(ExpressionStatement exprStmt) {
+        printExpression(exprStmt.getExpression());
+        sb.append(";");
     }
 
-    private void printLocalVariableDeclarationStatement(LocalVariableDeclarationStatement def, StringBuilder sb) {
-        printType(def.getType(), sb);
+    private void printLocalVariableDeclarationStatement(LocalVariableDeclarationStatement def) {
+        printType(def.getType());
         sb.append(" ");
         sb.append(def.getIdentifier());
-        if (!Objects.isNull(def.getExpression())) {
+        AbstractExpression expr = def.getExpression();
+        if (!Objects.isNull(expr)) {
             sb.append(" = ");
-            printExpression(def.getExpression(), sb);
+            printExpression(expr);
         }
-        sb.append(";\n");
+        sb.append(";");
     }
 
-    private void printReturnStatement(ReturnStatement ret, StringBuilder sb) {
+    private void printReturnStatement(ReturnStatement ret) {
         sb.append("return");
         if (!(ret.getExpression() instanceof VoidExpression)) sb.append(" ");
-        printExpression(ret.getExpression(), sb);
-        sb.append(";\n");
+        printExpression(ret.getExpression());
+        sb.append(";");
     }
 
-    private void printIfStatement(IfStatement ifElse, StringBuilder sb, int indent) {
+    private void printIfStatement(IfStatement ifElse, int indent) {
         sb.append("if (");
-        printExpression(ifElse.getCondition(), sb);
+        printExpression(ifElse.getCondition());
         sb.append(") ");
-        printStatement(ifElse.getThenStatement(), sb, indent, false);
+        if (ifElse.getThenStatement() instanceof BasicBlock) {
+            printStatement(ifElse.getThenStatement(), indent, false, true);
+        } else {
+            sb.append("\n");
+            sb.append(INDENT.repeat(indent));
+            printStatement(ifElse.getThenStatement(), indent + 1, true, true);
+        }
+
         if (ifElse.hasElse()) {
-            sb.append(" else ");
-            printStatement(ifElse.getElseStatement(), sb, indent, false);
+            sb.append("else ");
+            if (ifElse.getElseStatement() instanceof BasicBlock || ifElse.getElseStatement() instanceof IfStatement) {
+                printStatement(ifElse.getElseStatement(), indent, false, false);
+            } else {
+                sb.append("\n");
+                sb.append(INDENT.repeat(indent));
+                printStatement(ifElse.getElseStatement(), indent + 1, true, true);
+            }
         }
     }
 
-    private void printWhileStatement(WhileStatement loop, StringBuilder sb, int indent) {
+    private void printWhileStatement(WhileStatement loop, int indent) {
         sb.append("while (");
-        printExpression(loop.getCondition(), sb);
+        printExpression(loop.getCondition());
         sb.append(") ");
-        printStatement(loop.getStatement(), sb, indent, false);
+        if (loop.getStatement() instanceof BasicBlock block) {
+            printBasicBlock(block, indent);
+        } else {
+            sb.append("\n");
+            sb.append(INDENT.repeat(indent));
+            printStatement(loop.getStatement(), indent + 1, true, true);
+        }
     }
 
-    private void printExpression(AbstractExpression expr, StringBuilder sb) {
+    private void printExpression(AbstractExpression expr) {
         if (expr instanceof BinaryExpression binary) {
-            printBinaryExpression(binary, sb);
+            printBinaryExpression(binary);
         } else if (expr instanceof UnaryExpression unary) {
-            printUnaryExpression(unary, sb);
+            printUnaryExpression(unary);
         } else if (expr instanceof PrimaryExpression primary) {
-            printPrimaryExpression(primary, sb);
+            printPrimaryExpression(primary);
         } else if (expr instanceof VoidExpression) {
             // do nothing
         } else {
@@ -192,95 +232,112 @@ public class PrettyPrinter {
         }
     }
 
-    private void printUnaryExpression(UnaryExpression unary, StringBuilder sb) {
+    private void printUnaryExpression(UnaryExpression unary) {
         if (unary instanceof NegativeExpression neg) {
-            printNegativeExpression(neg, sb);
+            printNegativeExpression(neg);
         } else if (unary instanceof MethodInvocationOnObject invocation) {
-            printMethodInvocation(invocation, sb);
+            printMethodInvocation(invocation);
         } else if (unary instanceof PostfixExpression postfix) {
-            printPostfixExpression(postfix, sb);
+            printPostfixExpression(postfix);
         } else if (unary instanceof LogicalNotExpression not) {
-            printLogicalNotExpression(not, sb);
+            printLogicalNotExpression(not);
         } else {
             new OutputMessageHandler(MessageOrigin.PARSER).internalError("print is not yet implemented for " + unary.getClass().getName());
         }
     }
 
-    private void printLogicalNotExpression(LogicalNotExpression not, StringBuilder sb) {
+    private void printLogicalNotExpression(LogicalNotExpression not) {
         sb.append("!");
         AbstractExpression encapsulated = not.getEncapsulated();
         if (encapsulated instanceof PrimaryExpression primary) {
-            printPrimaryExpression(primary, sb);
+            printPrimaryExpression(primary);
+        } else if (!strictParenthesis && encapsulated instanceof UnaryExpression unary) {
+            printUnaryExpression(unary);
         } else {
             sb.append("(");
-            printExpression(encapsulated, sb);
+            printExpression(encapsulated);
             sb.append(")");
         }
     }
 
-    private void printPostfixExpression(PostfixExpression postfix, StringBuilder sb) {
+    private void printPostfixExpression(PostfixExpression postfix) {
         if (postfix instanceof FieldAccess access) {
-            printExpression(access.getEncapsulated(), sb);
+            AbstractExpression encapsulated = access.getEncapsulated();
+            if (needsParentheses(encapsulated)) {
+                sb.append("(");
+                printExpression(encapsulated);
+                sb.append(")");
+            } else {
+                printExpression(encapsulated);
+            }
             sb.append(".");
             sb.append(access.getFieldName());
         } else if (postfix instanceof ArrayAccess access) {
-            printExpression(access.getEncapsulated(), sb);
+            printExpression(access.getEncapsulated());
             sb.append("[");
-            printExpression(access.getIndex(), sb);
+            printExpression(access.getIndex());
             sb.append("]");
         } else {
             new OutputMessageHandler(MessageOrigin.PARSER).internalError("print is not yet implemented for " + postfix.getClass().getName());
         }
     }
 
-    private void printNegativeExpression(NegativeExpression neg, StringBuilder sb) {
+    private void printNegativeExpression(NegativeExpression neg) {
         sb.append("-");
         AbstractExpression encapsulated = neg.getEncapsulated();
         if (encapsulated instanceof PrimaryExpression primary) {
-            printPrimaryExpression(primary, sb);
+            printPrimaryExpression(primary);
         } else {
             sb.append("(");
-            printExpression(encapsulated, sb);
+            printExpression(encapsulated);
             sb.append(")");
         }
     }
 
-    private void printPrimaryExpression(PrimaryExpression primary, StringBuilder sb) {
+    private void printPrimaryExpression(PrimaryExpression primary) {
         if (primary instanceof Variable var) {
-            printVariable(var, sb);
+            printVariable(var);
         } else if (primary instanceof IntegerValue integer) {
-            printIntegerValue(integer, sb);
+            printIntegerValue(integer);
         } else if (primary instanceof NullValue) {
             printNullValue(sb);
         } else if (primary instanceof ThisValue) {
             printThisValue(sb);
         } else if (primary instanceof BooleanValue bool) {
-            printBooleanValue(bool, sb);
+            printBooleanValue(bool);
         } else if (primary instanceof NewObjectExpression cons) {
-            printNewObjectExpression(cons, sb);
+            printNewObjectExpression(cons);
         } else if (primary instanceof NewArrayExpression consArray) {
-            printNewArrayExpression(consArray, sb);
+            printNewArrayExpression(consArray);
         } else {
             new OutputMessageHandler(MessageOrigin.PARSER).internalError("print is not yet implemented for " + primary.getClass().getName());
         }
     }
 
-    private void printNewArrayExpression(NewArrayExpression consArray, StringBuilder sb) {
+    private static boolean isAtomicExpression(AbstractExpression expr) {
+        return expr instanceof IntegerValue || expr instanceof BooleanValue || expr instanceof NullValue || expr instanceof Variable;
+    }
+
+    private boolean needsParentheses(AbstractExpression expression) {
+        return strictParenthesis && !isAtomicExpression(expression);
+    }
+
+    private void printNewArrayExpression(NewArrayExpression consArray) {
         sb.append("new ");
         sb.append(consArray.getType());
         sb.append("[");
-        printExpression(consArray.getSize(), sb);
+        printExpression(consArray.getSize());
         sb.append("]");
         sb.append("[]".repeat(consArray.getDimension()));
     }
 
-    private void printNewObjectExpression(NewObjectExpression cons, StringBuilder sb) {
+    private void printNewObjectExpression(NewObjectExpression cons) {
         sb.append("new ");
         sb.append(cons.getType().getIdentifier());
         sb.append("()");
     }
 
-    private void printBooleanValue(BooleanValue bool, StringBuilder sb) {
+    private void printBooleanValue(BooleanValue bool) {
         sb.append(bool.getValue() ? true : false);
     }
 
@@ -288,12 +345,19 @@ public class PrettyPrinter {
         sb.append("this");
     }
 
-    private void printMethodInvocation(MethodInvocationOnObject invocation, StringBuilder sb) {
-        printExpression(invocation.getReferenceObject(), sb);
+    private void printMethodInvocation(MethodInvocationOnObject invocation) {
+        AbstractExpression referenceObject = invocation.getReferenceObject();
+        if (needsParentheses(referenceObject)) {
+            sb.append("(");
+            printExpression(referenceObject);
+            sb.append(")");
+        } else {
+            printExpression(referenceObject);
+        }
         sb.append(".");
         sb.append(invocation.getFunctionName());
         sb.append("(");
-        printArguments(invocation.getArguments(), sb);
+        printArguments(invocation.getArguments());
         sb.append(")");
     }
 
@@ -302,36 +366,36 @@ public class PrettyPrinter {
         sb.append("null");
     }
 
-    private void printIntegerValue(IntegerValue integer, StringBuilder sb) {
+    private void printIntegerValue(IntegerValue integer) {
         sb.append(integer.toString());
     }
 
-    private void printBinaryExpression(BinaryExpression binaryExpr, StringBuilder sb) {
+    private void printBinaryExpression(BinaryExpression binaryExpr) {
         AbstractExpression lhs = binaryExpr.getLhs();
-        if (lhs instanceof BinaryExpression binaryLeft && binaryLeft.getOperator().getPrecedence() < binaryExpr.getOperator().getPrecedence()) {
+        if (needsParentheses(lhs) || (lhs instanceof BinaryExpression binaryLeft && binaryLeft.getOperator().getPrecedence() < binaryExpr.getOperator().getPrecedence())) {
             sb.append("(");
-            printBinaryExpression(binaryLeft, sb);
+            printExpression(lhs);
             sb.append(")");
         } else {
-            printExpression(lhs, sb);
+            printExpression(lhs);
         }
         sb.append(" %s ".formatted(binaryExpr.getOperator()));
 
         AbstractExpression rhs = binaryExpr.getRhs();
-        if (rhs instanceof BinaryExpression binaryRight && binaryRight.getOperator().getPrecedence() < binaryExpr.getOperator().getPrecedence()) {
+        if (needsParentheses(rhs) || (rhs instanceof BinaryExpression binaryRight && binaryRight.getOperator().getPrecedence() < binaryExpr.getOperator().getPrecedence())) {
             sb.append("(");
-            printBinaryExpression(binaryRight, sb);
+            printExpression(rhs);
             sb.append(")");
         } else {
-            printExpression(rhs, sb);
+            printExpression(rhs);
         }
     }
 
-    private void printVariable(Variable var, StringBuilder sb) {
+    private void printVariable(Variable var) {
         sb.append(var.getName());
     }
 
-    private void printMethodRest(MethodRest rest, StringBuilder sb) {
+    private void printMethodRest(MethodRest rest) {
         if (Objects.isNull(rest)) {
             return;
         }
@@ -342,40 +406,47 @@ public class PrettyPrinter {
     }
 
 
-    public void printNode(ASTNode node, StringBuilder sb) {
+    public void printNode(ASTNode node) {
         if (node instanceof Program program) {
-            printProgram(program, sb, 0);
+            printProgram(program, 0);
         } else if (node instanceof ClassDeclaration decl) {
-            printClassDeclaration(decl, sb, 0);
+            printClassDeclaration(decl, 0);
         } else if (node instanceof ClassMember member) {
-            printClassMember(member, sb, 0);
+            printClassMember(member, 0);
         } else if (node instanceof MethodRest rest) {
-            printMethodRest(rest, sb);
+            printMethodRest(rest);
         } else if (node instanceof Statement statement) {
-            printStatement(statement, sb, 0, false);
+            printStatement(statement, 0, false, true);
         } else if (node instanceof AbstractExpression expr) {
-            printExpression(expr, sb);
+            printExpression(expr);
         } else if (node instanceof BasicType type) {
-            printBasicType(type, sb);
+            printBasicType(type);
         } else if (node instanceof Type type) {
-            printType(type, sb);
+            printType(type);
         } else if (node instanceof Arguments args) {
-            printArguments(args, sb);
+            printArguments(args);
         } else {
             new OutputMessageHandler(MessageOrigin.PARSER).internalError("print not yet implemented for " + node.getClass().getName());
         }
     }
 
-    private void printArguments(Arguments args, StringBuilder sb) {
+    private void printArguments(Arguments args) {
         for (int i = 0; i < args.getLength() - 1; i++) {
-            printExpression(args.get(i), sb);
+            printExpression(args.get(i));
             sb.append(", ");
         }
         if (args.getLength() > 0) {
-            printExpression(args.get(args.getLength() - 1), sb);
+            printExpression(args.get(args.getLength() - 1));
         }
     }
 
-    private void printBasicType(BasicType type, StringBuilder sb) {
+    private void printBasicType(BasicType type) {
+        sb.append(type.toString());
+    }
+
+    public String flush() {
+        String res = sb.toString();
+        sb = new StringBuilder();
+        return res;
     }
 }

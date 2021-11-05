@@ -17,6 +17,7 @@ public class CommandLineStrings {
     public static final String COMMAND_ECHO = "echo";
     public static final String COMMAND_LEX_TEST = "lextest";
     public static final String COMMAND_PARSE_TEST = "parsetest";
+    public static final String COMMAND_PRINT_AST = "print-ast";
     public static final String COMMAND_HELP = "help";
     public static final String COMMAND_HELP_SHORT = "h";
     public static final String COMMAND_WORKING_DIR = "working-directory";
@@ -46,6 +47,8 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_ECHO = "Prints the content of the file";
     public static final String DESCRIPTION_LEX_TEST = "Prints the sequence of tokens in the input";
     public static final String DESCRIPTION_PARSE_TEST = "Prints an error if the input could not be parsed correctly";
+    public static final String DESCRIPTION_PRINT_AST = "Pretty-prints the generated AST to the console.";
+
     public static final String DESCRIPTION_HELP = "Print all options";
     public static final String DESCRIPTION_WORKING_DIR = "Overrides the working directory of the compiler";
 

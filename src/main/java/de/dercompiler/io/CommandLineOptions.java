@@ -73,10 +73,24 @@ public class CommandLineOptions {
     }
 
     /**
+     * @return true if print-ast command has been given
+     */
+    public boolean printAst() {
+        return cmd.hasOption(COMMAND_PRINT_AST);
+    }
+
+    /**
      * @return true if the lexTest printPosition option has been given
      */
     public boolean printPosition() {
         return cmd.hasOption(OPTION_PRINT_POSITION);
+    }
+
+    /**
+     * @return true if the parsetest pretty-print option has been given
+     */
+    public boolean prettyPrint() {
+        return cmd.hasOption(OPTION_PRETTY_PRINT);
     }
 
     /**
@@ -233,9 +247,5 @@ public class CommandLineOptions {
 
     public String getActiveParseTestOption() {
         return getActiveOption(OPTION_PARSE_METHOD, OPTION_PARSE_STATEMENT, OPTION_PARSE_EXPRESSION);
-    }
-
-    public boolean prettyPrint() {
-        return cmd.hasOption(OPTION_PRETTY_PRINT);
     }
 }

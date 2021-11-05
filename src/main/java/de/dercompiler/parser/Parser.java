@@ -32,7 +32,7 @@ public class Parser {
         this.precedenceParser = new PrecedenceParser(lexer, this);
         this.logger = new OutputMessageHandler(MessageOrigin.PARSER);
     }
-
+    
     public Program parseProgram() {
         // ClassDeclaration*
         SourcePosition pos = lexer.getPosition();
@@ -47,7 +47,7 @@ public class Parser {
         }
         return new Program(pos, classes);
     }
-
+    
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
         SourcePosition pos = lexer.getPosition();
@@ -80,41 +80,34 @@ public class Parser {
             return parseMainMethod();
         }
 
-        // Check if a Type token follows
-        IToken type = lexer.peek(1).type();
-        if (!(type instanceof TypeToken || type instanceof IdentifierToken)) {
-            lexer.printSourceText(lexer.peek(1).position());
-            logger.printErrorAndExit(ParserErrorIds.EXPECTED_BASIC_TYPE, "Expected a type but found '%s'".formatted(lexer.peek(1).type()));
-            return null;
-        }
-        if (!(lexer.peek(2).type() instanceof IdentifierToken)) {
-            lexer.printSourceText(lexer.peek(2).position());
-            logger.printErrorAndExit(ParserErrorIds.EXPECTED_IDENTIFIER, "Expected identifier but found '%s'".formatted(lexer.peek(2).type()));
-            return null;
-        }
+        // Now we have to decide if we need to parse Field or Method
+        // Since the Type can have unlimited tokens (due to array types), we need to parse the full type now
+        // First we consume the public token that is still remaining
+        expect(PUBLIC);
+        Type type = parseType();
+        IdentifierToken identifier = expectIdentifier();
 
+        // Now we decide which class member to parse
         // Field
-        if (lexer.peek(3).type() == SEMICOLON) {
-            return parseField();
+        if (lexer.peek().type() == SEMICOLON) {
+            return parseField(type, identifier);
         }
         // Method
-        if (lexer.peek(3).type() == L_PAREN) {
-            return parseMethod();
+        if (lexer.peek().type() == L_PAREN) {
+            return parseMethod(type, identifier);
         }
 
         lexer.printSourceText(lexer.peek(3).position());
         logger.printErrorAndExit(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()));
         return null;
     }
-
-    public Field parseField() {
+    
+    public Field parseField(Type type, IdentifierToken identifier) {
+        // We already parsed "public Type IDENT"
         // public Type IDENT ;
         SourcePosition pos = lexer.getPosition();
-        expect(PUBLIC);
-        Type type = parseType();
-        IdentifierToken fieldName = expectIdentifier();
         expect(SEMICOLON);
-        return new Field(pos, type, fieldName.getIdentifier());
+        return new Field(pos, type, identifier.getIdentifier());
     }
 
     public MainMethod parseMainMethod() {
@@ -135,23 +128,29 @@ public class Parser {
         BasicBlock block = parseBasicBlock();
         return new MainMethod(pos, name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
-
-    public Method parseMethod() {
-        // public Type IDENT ( Parameters? ) MethodRest? Block\
-        SourcePosition pos = lexer.getPosition();
+    
+    public Method parseFullMethod() {
         expect(PUBLIC);
         Type type = parseType();
-        IdentifierToken ident = expectIdentifier();
+        IdentifierToken identifier = expectIdentifier();
+        return parseMethod(type, identifier);
+    }
+
+    public Method parseMethod(Type type, IdentifierToken identifier) {
+        // We already parsed "public Type IDENT"
+        // public Type IDENT ( Parameters? ) MethodRest? Block\
+        SourcePosition pos = lexer.getPosition();
         expect(L_PAREN);
         // Check if we have parameters
-        // First2(Parameters) = First2(Parameter) = First2(Type) u {IDENT} = First2(BasicType) x {IDENT}
-        // = {int IDENT, boolean IDENT, void IDENT, IDENT IDENT}
-        IToken t = lexer.peek().type();
         LinkedList<Parameter> params = new LinkedList<>();
-        if (t instanceof TypeToken || t instanceof IdentifierToken) {
-            if (lexer.peek(1).type() instanceof IdentifierToken) {
-                params = parseParameters();
-            }
+        // Parse the first argument
+        if (lexer.peek().type() != R_PAREN) {
+            params.add(parseParameter());
+        }
+        // If we have more arguments, they are each prefixed by a COMMA
+        while (lexer.peek().type() == COMMA) {
+            expect(COMMA);
+            params.add(parseParameter());
         }
         expect(R_PAREN);
         MethodRest methodRest = null;
@@ -159,9 +158,9 @@ public class Parser {
             methodRest = parseMethodRest();
         }
         BasicBlock block = parseBasicBlock();
-        return new Method(pos, type, ident.getIdentifier(), params, methodRest, block);
+        return new Method(pos, type, identifier.getIdentifier(), params, methodRest, block);
     }
-
+    
     public MethodRest parseMethodRest() {
         // throws IDENT
         expect(THROWS);
@@ -203,7 +202,7 @@ public class Parser {
         int dimension = parseTypeRest();
         return new Type(pos, type, dimension);
     }
-
+    
     public int parseTypeRest() {
         // ([] TypeRest)?
         if (lexer.peek().type() == L_SQUARE_BRACKET) {
@@ -214,13 +213,11 @@ public class Parser {
         // If there is no rest, we return null
         return 0;
     }
-
+    
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
-        TokenOccurrence tokenOccurrence = lexer.nextToken();
-        IToken t = tokenOccurrence.type();
-        SourcePosition pos = tokenOccurrence.position();
-
+        SourcePosition pos = lexer.getPosition();
+        IToken t = lexer.nextToken().type();
         if (t instanceof IdentifierToken ident) {
             return new CustomType(pos, ident.getIdentifier());
         }
@@ -235,7 +232,7 @@ public class Parser {
             }
         }
 
-        lexer.printSourceText(pos);
+        lexer.printSourceText(lexer.peek().position());
         logger.printErrorAndExit(ParserErrorIds.EXPECTED_BASIC_TYPE,
                 "Expected 'int', 'boolean', 'void' or an identifier, but got '%s'".formatted(t));
         return null;

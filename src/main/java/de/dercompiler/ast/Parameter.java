@@ -3,14 +3,13 @@ package de.dercompiler.ast;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 
-public final class Parameter implements ASTNode {
+public final class Parameter extends ASTNode {
 
-    private final SourcePosition position;
     private final Type type;
     private final String identifier;
     
     public Parameter(SourcePosition position, Type type, String identifier) {
-        this.position = position;
+        super(position);
         this.type = type;
         this.identifier = identifier;
     }
@@ -30,10 +29,5 @@ public final class Parameter implements ASTNode {
                     && this.identifier.equals(otherParam.identifier);
         }
         return false;
-    }
-
-    @Override
-    public SourcePosition getSourcePosition() {
-        return position;
     }
 }

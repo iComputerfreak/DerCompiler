@@ -48,10 +48,17 @@ public final class Method extends ClassMember {
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Method otherMethod) {
+            // If this rest is null, but the other is not, return false
+            if (this.rest == null && otherMethod.rest != null) {
+                return false;
+            }
+            // If this rest is not null, both rests must have equal syntax
+            if (this.rest != null && !this.rest.syntaxEquals(otherMethod.rest)) {
+                return false;
+            }
             return this.type.syntaxEquals(otherMethod.type)
                     && this.identifier.equals(otherMethod.identifier)
                     && Utils.syntaxEquals(this.parameters, otherMethod.parameters)
-                    && this.rest.syntaxEquals(otherMethod.rest)
                     && this.block.syntaxEquals(otherMethod.block);
         }
         return false;

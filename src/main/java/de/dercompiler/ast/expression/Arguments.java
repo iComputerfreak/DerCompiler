@@ -8,13 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class Arguments implements ASTNode {
+public class Arguments extends ASTNode {
 
     private LinkedList<AbstractExpression> arguments;
-    private SourcePosition position;
 
     public Arguments(SourcePosition position) {
-        this.position = position;
+        super(position);
         this.arguments = new LinkedList<>();
     }
 
@@ -45,11 +44,6 @@ public class Arguments implements ASTNode {
             return result;
         }
         return false;
-    }
-
-    @Override
-    public SourcePosition getSourcePosition() {
-        return position;
     }
 
     public int getLength() {

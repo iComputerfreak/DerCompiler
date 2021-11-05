@@ -7,7 +7,9 @@ import static de.dercompiler.lexer.token.TypeToken.INT_TYPE;
 
 public final class IntType extends BasicType {
     
-    public IntType(SourcePosition position) {super(position);}
+    public IntType(SourcePosition position) {
+        super(position);
+    }
 
     @Override
     public boolean syntaxEquals(ASTNode other) {

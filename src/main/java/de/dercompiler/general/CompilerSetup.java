@@ -83,6 +83,12 @@ public class CompilerSetup {
             }
         }
 
+        if (options.printAst()) {
+            Source src = getSourceFromArgs(options);
+            PrintAstAction action = new PrintAstAction(src);
+            setAction(action);
+        }
+
         if (Objects.isNull(action)) {
             File input = options.getFileArgument();
             action = new CompileAction(input);

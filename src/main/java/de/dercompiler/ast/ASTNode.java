@@ -2,10 +2,20 @@ package de.dercompiler.ast;
 
 import de.dercompiler.lexer.SourcePosition;
 
-public interface ASTNode {
+public abstract class ASTNode {
+    
+    private final SourcePosition sourcePosition;
+    
+    public ASTNode(SourcePosition sourcePosition) {
+        this.sourcePosition = sourcePosition;
+    }
 
-    boolean syntaxEquals(ASTNode other);
+    public boolean syntaxEquals(ASTNode other) {
+        return other != null;
+    }
 
-    SourcePosition getSourcePosition();
+    public SourcePosition getSourcePosition() {
+        return this.sourcePosition;
+    }
 
 }

@@ -2,13 +2,12 @@ package de.dercompiler.ast;
 
 import de.dercompiler.lexer.SourcePosition;
 
-public final class MethodRest implements ASTNode {
+public final class MethodRest extends ASTNode {
 
-    private final SourcePosition position;
     private final String identifier;
     
     public MethodRest(SourcePosition position, String identifier) {
-        this.position = position;
+        super(position);
         this.identifier = identifier;
     }
 
@@ -22,10 +21,5 @@ public final class MethodRest implements ASTNode {
             return this.identifier.equals(otherRest.identifier);
         }
         return false;
-    }
-
-    @Override
-    public SourcePosition getSourcePosition() {
-        return position;
     }
 }
