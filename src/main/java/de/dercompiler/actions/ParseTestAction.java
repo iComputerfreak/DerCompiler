@@ -37,7 +37,7 @@ public class ParseTestAction extends Action {
 
         switch (this.entryPoint) {
             case OPTION_PARSE_METHOD:
-                parser.parseMethod();
+                parser.parseFullMethod();
                 break;
             case OPTION_PARSE_STATEMENT:
                 parser.parseBlockStatement();
