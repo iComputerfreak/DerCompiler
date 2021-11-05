@@ -840,7 +840,7 @@ public class Lexer {
     /**
      * @return the position of the next char of the input stream
      */
-    public SourcePosition getPosition() {
+    private SourcePosition getPosition() {
         return this.position.copy();
     }
 
