@@ -5,6 +5,7 @@ import de.dercompiler.actions.Action;
 import de.dercompiler.general.CompilerSetup;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.CommandLineOptions;
+import de.dercompiler.util.ErrorStatus;
 
 public class Compiler {
 
@@ -27,7 +28,7 @@ public class Compiler {
         } else {
             action.run();
         }
-        System.exit(0);
+        ErrorStatus.exitProgram();
     }
 }
 
