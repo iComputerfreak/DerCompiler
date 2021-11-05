@@ -12,16 +12,16 @@ public final class Method extends ClassMember {
     private final Type type;
     private final String identifier;
     private final List<Parameter> parameters;
-    private final MethodRest rest;
+    private final MethodRest methodRest;
     private final BasicBlock block;
     
     // INFO: methodRest may be null
-    public Method(SourcePosition position, Type type, String identifier, List<Parameter> parameters, MethodRest rest, BasicBlock block) {
+    public Method(SourcePosition position, Type type, String identifier, List<Parameter> parameters, MethodRest methodRest, BasicBlock block) {
         super(position);
         this.type = type;
         this.identifier = identifier;
         this.parameters = parameters;
-        this.rest = rest;
+        this.methodRest = methodRest;
         this.block = block;
     }
 
@@ -37,8 +37,8 @@ public final class Method extends ClassMember {
         return parameters;
     }
 
-    public MethodRest getRest() {
-        return rest;
+    public MethodRest getMethodRest() {
+        return methodRest;
     }
 
     public BasicBlock getBlock() {
@@ -49,11 +49,11 @@ public final class Method extends ClassMember {
     public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Method otherMethod) {
             // If this rest is null, but the other is not, return false
-            if (this.rest == null && otherMethod.rest != null) {
+            if (this.methodRest == null && otherMethod.methodRest != null) {
                 return false;
             }
             // If this rest is not null, both rests must have equal syntax
-            if (this.rest != null && !this.rest.syntaxEquals(otherMethod.rest)) {
+            if (this.methodRest != null && !this.methodRest.syntaxEquals(otherMethod.methodRest)) {
                 return false;
             }
             return this.type.syntaxEquals(otherMethod.type)

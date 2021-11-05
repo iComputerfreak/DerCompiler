@@ -1,7 +1,12 @@
 package de.dercompiler.parser;
 
 import de.dercompiler.ast.*;
+import de.dercompiler.ast.expression.AssignmentExpression;
+import de.dercompiler.ast.expression.IntegerValue;
+import de.dercompiler.ast.expression.Variable;
 import de.dercompiler.ast.statement.BasicBlock;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.type.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.lexer.Lexer;
@@ -41,37 +46,40 @@ public class ParserTest {
     @Test
     void testTypes() {
         // BasicType
-        assertSyntaxEquals(parser("int").parseBasicType(),          new IntType(POS));
-        assertSyntaxEquals(parser("int").parseBasicType(),          new IntType(POS));
-        assertSyntaxEquals(parser("void").parseBasicType(),         new VoidType(POS));
-        assertSyntaxEquals(parser("boolean").parseBasicType(),      new BooleanType(POS));
-        assertSyntaxEquals(parser("TestType").parseBasicType(),     new CustomType(POS, "TestType"));
-        
+        assertSyntaxEquals(parser("int").parseBasicType(), new IntType(POS));
+        assertSyntaxEquals(parser("int").parseBasicType(), new IntType(POS));
+        assertSyntaxEquals(parser("void").parseBasicType(), new VoidType(POS));
+        assertSyntaxEquals(parser("boolean").parseBasicType(), new BooleanType(POS));
+        assertSyntaxEquals(parser("TestType").parseBasicType(), new CustomType(POS, "TestType"));
+
         // Type
-        assertSyntaxEquals(parser("int").parseType(),           INT_TYPE);
-        assertSyntaxEquals(parser("void").parseType(),          VOID_TYPE);
-        assertSyntaxEquals(parser("boolean").parseType(),       BOOLEAN_TYPE);
-        assertSyntaxEquals(parser("TestType").parseType(),      new Type(POS, new CustomType(POS, "TestType"), 0));
+        assertSyntaxEquals(parser("int").parseType(), INT_TYPE);
+        assertSyntaxEquals(parser("void").parseType(), VOID_TYPE);
+        assertSyntaxEquals(parser("boolean").parseType(), BOOLEAN_TYPE);
+        assertSyntaxEquals(parser("TestType").parseType(), new Type(POS, new CustomType(POS, "TestType"), 0));
 
-        assertSyntaxEquals(parser("int[]").parseType(),         new Type(POS, new IntType(POS), 1));
-        assertSyntaxEquals(parser("void[]").parseType(),        new Type(POS, new VoidType(POS), 1));
-        assertSyntaxEquals(parser("boolean[]").parseType(),     new Type(POS, new BooleanType(POS), 1));
-        assertSyntaxEquals(parser("TestType[]").parseType(),    new Type(POS, new CustomType(POS, "TestType"), 1));
+        assertSyntaxEquals(parser("int[]").parseType(), new Type(POS, new IntType(POS), 1));
+        assertSyntaxEquals(parser("void[]").parseType(), new Type(POS, new VoidType(POS), 1));
+        assertSyntaxEquals(parser("boolean[]").parseType(), new Type(POS, new BooleanType(POS), 1));
+        assertSyntaxEquals(parser("TestType[]").parseType(), new Type(POS, new CustomType(POS, "TestType"), 1));
 
-        assertSyntaxEquals(parser("int[][][][][]").parseType(),         new Type(POS, new IntType(POS), 5));
-        assertSyntaxEquals(parser("void[][][][][]").parseType(),        new Type(POS, new VoidType(POS), 5));
-        assertSyntaxEquals(parser("boolean[][][][][]").parseType(),     new Type(POS, new BooleanType(POS), 5));
-        assertSyntaxEquals(parser("TestType[][][][][]").parseType(),    new Type(POS, new CustomType(POS, "TestType"), 5));
-        
+        assertSyntaxEquals(parser("int[][][][][]").parseType(), new Type(POS, new IntType(POS), 5));
+        assertSyntaxEquals(parser("void[][][][][]").parseType(), new Type(POS, new VoidType(POS), 5));
+        assertSyntaxEquals(parser("boolean[][][][][]").parseType(), new Type(POS, new BooleanType(POS), 5));
+        assertSyntaxEquals(parser("TestType[][][][][]").parseType(), new Type(POS, new CustomType(POS, "TestType"), 5));
+    }
+    
+    @Test
+    void testClassMembers() {
         // Field
-        assertSyntaxEquals(parser("public int Integer;").parseClassMember(),            new Field(POS, INT_TYPE, "Integer"));
-        assertSyntaxEquals(parser("public void[] VoidArray;").parseClassMember(),       new Field(POS, new Type(POS, new VoidType(POS), 1), "VoidArray"));
-        assertSyntaxEquals(parser("public MyType MyType;").parseClassMember(),          new Field(POS, new Type(POS, new CustomType(POS, "MyType"), 0), "MyType"));
-        
+        assertSyntaxEquals(parser("public int Integer;").parseClassMember(), new Field(POS, INT_TYPE, "Integer"));
+        assertSyntaxEquals(parser("public void[] VoidArray;").parseClassMember(), new Field(POS, new Type(POS, new VoidType(POS), 1), "VoidArray"));
+        assertSyntaxEquals(parser("public MyType MyType;").parseClassMember(), new Field(POS, new Type(POS, new CustomType(POS, "MyType"), 0), "MyType"));
+
         // MainMethod
         assertSyntaxEquals(parser("public static void main(String[] args) throws Nothing {}").parseClassMember(),
                 new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "Nothing"), new BasicBlock(POS)));
-        
+
         // Method & MethodRest & Parameter
         assertSyntaxEquals(parser("public void[] function(String[] args) throws SomeError {}").parseClassMember(),
                 new Method(POS, new Type(POS, new VoidType(POS), 1), "function",
@@ -89,7 +97,10 @@ public class ParserTest {
                                 new Parameter(POS, VOID_TYPE, "b"),
                                 new Parameter(POS, BOOLEAN_TYPE, "c")
                         ), null, new BasicBlock(POS)));
-        
+    }
+    
+    @Test
+    void testClassDeclarations() {
         // ClassDeclaration
         assertSyntaxEquals(parser("class Foo {}").parseClassDeclaration(),
                 new ClassDeclaration(POS, "Foo", new ArrayList<>()));
@@ -105,7 +116,10 @@ public class ParserTest {
                         ), null, new BasicBlock(POS)),
                         new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
                 )));
-        
+    }
+    
+    @Test
+    void testProgram() {
         // Program
         assertSyntaxEquals(parser("class _Foo123 { public void[] a; public String foo(boolean b) {} public static void main(String[] args) throws NullPointerException {} } class _Foo123 { public void[] a; public String foo(boolean b) {} public static void main(String[] args) throws NullPointerException {} }").parseProgram(),
                 new Program(POS, List.of(
@@ -125,6 +139,18 @@ public class ParserTest {
                                 new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
                         ))
                 )));
+    }
+    
+    @Test
+    void testBlockContents() {
+        String sampleStatements = "int a = 0;";
+        List<Statement> sampleStatementsResult = List.of(new LocalVariableDeclarationStatement(POS, INT_TYPE, "a", new IntegerValue(POS, "0")));
+
+        assertSyntaxEquals(parser("public int foo() { " + sampleStatements + " }").parseClassMember(),
+                new Method(POS, INT_TYPE, "foo", new ArrayList<>(), null, new BasicBlock(POS, sampleStatementsResult)));
+
+        assertSyntaxEquals(parser("public static void foo(int args) { " + sampleStatements + " }").parseClassMember(),
+                new MainMethod(POS,"foo", INT_TYPE, "args", null, new BasicBlock(POS, sampleStatementsResult)));
     }
     
     private static Parser parser(String input) {
