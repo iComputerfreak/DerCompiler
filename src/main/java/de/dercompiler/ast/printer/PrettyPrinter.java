@@ -190,7 +190,7 @@ public class PrettyPrinter {
         } else {
             sb.append("\n");
             sb.append(INDENT.repeat(indent));
-            printStatement(ifElse.getThenStatement(), indent + 1, true, true);
+            printStatement(ifElse.getThenStatement(), indent + 1, true, false);
         }
 
         if (ifElse.hasElse()) {
@@ -214,7 +214,7 @@ public class PrettyPrinter {
         } else {
             sb.append("\n");
             sb.append(INDENT.repeat(indent));
-            printStatement(loop.getStatement(), indent + 1, true, true);
+            printStatement(loop.getStatement(), indent + 1, true, false);
         }
     }
 
@@ -315,7 +315,7 @@ public class PrettyPrinter {
     }
 
     private static boolean isAtomicExpression(AbstractExpression expr) {
-        return expr instanceof IntegerValue || expr instanceof BooleanValue || expr instanceof NullValue || expr instanceof Variable;
+        return expr instanceof IntegerValue || expr instanceof BooleanValue || expr instanceof NullValue || expr instanceof ThisValue || expr instanceof Variable;
     }
 
     private boolean needsParentheses(AbstractExpression expression) {
