@@ -40,7 +40,7 @@ public class LexerTest {
                     URI outputFile = this.getClass().getClassLoader().getResource("lexer/" + filename + ".out").toURI();
                     BufferedReader reader = new BufferedReader(new FileReader(outputFile.getPath()));
 
-                    String line = null;
+                    String line;
                     int lineNr = 1;
                     while ((line = reader.readLine()) != null) {
                         // The next lexer token has to match the output line
@@ -49,9 +49,7 @@ public class LexerTest {
                         lineNr += 1;
                     }
                 }
-                // TODO: Test .invalid.mj files
-                // We currently can't test them as unit tests, since they immediately exit the program on error
-                // Maybe we need to add them to the tests.sh and check for a non-zero exit code
+
                 else if (filename.endsWith(".invalid.mj")) {
                     // Make sure that the test really fails
                     assertThrows(TestLexer.LexerException.class, () -> {
