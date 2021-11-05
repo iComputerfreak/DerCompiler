@@ -1,7 +1,6 @@
 package de.dercompiler.lexer;
 
 import de.dercompiler.io.message.IErrorIds;
-import de.dercompiler.io.message.IWarningIds;
 
 public enum LexerErrorIds implements IErrorIds {
     BUFFER_UNDERFLOW(200),

@@ -1,6 +1,7 @@
 package de.dercompiler.ast.type;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 public final class Type extends ASTNode {
@@ -30,5 +31,10 @@ public final class Type extends ASTNode {
                     && this.arrayDimension == otherType.arrayDimension; 
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitType(this);
     }
 }

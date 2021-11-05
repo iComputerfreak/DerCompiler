@@ -70,8 +70,7 @@ public class CompilerSetup {
         String parseOption = options.getActiveParseTestOption();
         if (options.parseTest()) {
             Source src = getSourceFromArgs(options);
-            String parseTestOption = parseOption;
-            ParseTestAction action = new ParseTestAction(src, parseTestOption);
+            ParseTestAction action = new ParseTestAction(src, parseOption);
             action.setPrint(options.prettyPrint());
             setAction(action);
         } else {

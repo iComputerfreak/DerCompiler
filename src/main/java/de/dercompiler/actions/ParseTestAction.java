@@ -51,7 +51,7 @@ public class ParseTestAction extends Action {
         }}
         if (this.prettyPrint) {
             PrettyPrinter printer = new PrettyPrinter(false);
-            printer.printNode(node);
+            printer.visitNode(node);
             System.out.println(printer.flush());
         }
     }

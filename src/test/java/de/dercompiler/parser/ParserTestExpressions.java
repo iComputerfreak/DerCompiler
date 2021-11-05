@@ -6,19 +6,13 @@ import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.IntType;
 import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.lexer.Lexer;
-import de.dercompiler.lexer.token.Token;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserTestExpressions {
 

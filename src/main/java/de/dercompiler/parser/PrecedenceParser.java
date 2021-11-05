@@ -10,8 +10,6 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.token.OperatorToken;
 
-import java.util.Objects;
-
 public class PrecedenceParser {
 
     private final LexerWrapper lexer;

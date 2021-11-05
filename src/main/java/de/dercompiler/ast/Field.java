@@ -1,5 +1,6 @@
 package de.dercompiler.ast;
 
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -29,5 +30,10 @@ public final class Field extends ClassMember {
                     && this.identifier.equals(otherField.identifier);
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitField(this);
     }
 }

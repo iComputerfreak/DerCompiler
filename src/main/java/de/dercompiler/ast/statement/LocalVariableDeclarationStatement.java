@@ -2,6 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -41,5 +42,10 @@ public final class LocalVariableDeclarationStatement extends Statement {
                     && valueExpression.syntaxEquals(lvds.valueExpression);
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitLocalVariableDeclarationStatement(this);
     }
 }

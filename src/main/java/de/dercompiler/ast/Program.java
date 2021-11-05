@@ -1,5 +1,8 @@
 package de.dercompiler.ast;
 
+import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.util.Utils;
 
@@ -24,5 +27,15 @@ public final class Program extends ASTNode {
             return Utils.syntaxEquals(this.classes, otherProgram.classes);
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        try {
+            this.classes.sort(new ClassDeclaration.Comparator()::compare);
+        } catch (UnsupportedOperationException e) {
+            new OutputMessageHandler(MessageOrigin.AST).internalError("Tried to sort immutable list of ClassDeclarations.");
+        }
+        astNodeVisitor.visitProgram(this);
     }
 }

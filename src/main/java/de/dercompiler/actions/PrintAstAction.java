@@ -21,7 +21,7 @@ public class PrintAstAction extends Action {
         Lexer lexer = new Lexer(this.source);
         Program program = new Parser(lexer).parseProgram();
         PrettyPrinter prettyPrinter = new PrettyPrinter(true);
-        prettyPrinter.printNode(program);
+        prettyPrinter.visitNode(program);
         System.out.println(prettyPrinter.flush());
     }
 

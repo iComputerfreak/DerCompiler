@@ -1,6 +1,7 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -16,5 +17,10 @@ public final class EmptyStatement extends Statement {
         if (Objects.isNull(other)) return false;
         if (other instanceof EmptyStatement) return true;
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitEmptyStatement(this);
     }
 }

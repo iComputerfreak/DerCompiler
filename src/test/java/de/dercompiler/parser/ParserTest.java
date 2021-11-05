@@ -1,9 +1,7 @@
 package de.dercompiler.parser;
 
 import de.dercompiler.ast.*;
-import de.dercompiler.ast.expression.AssignmentExpression;
 import de.dercompiler.ast.expression.IntegerValue;
-import de.dercompiler.ast.expression.Variable;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
@@ -17,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;

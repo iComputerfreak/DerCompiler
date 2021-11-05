@@ -1,5 +1,6 @@
 package de.dercompiler.ast;
 
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 public final class MethodRest extends ASTNode {
@@ -21,5 +22,10 @@ public final class MethodRest extends ASTNode {
             return this.identifier.equals(otherRest.identifier);
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitMethodRest(this);
     }
 }

@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -17,4 +18,10 @@ public final class UninitializedValue extends AbstractExpression {
         if (other instanceof UninitializedValue) return true;
         return false;
     }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitUnitializedValue(this);
+    }
+
 }

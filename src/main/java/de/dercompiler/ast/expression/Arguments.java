@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Iterator;
@@ -44,6 +45,11 @@ public class Arguments extends ASTNode {
             return result;
         }
         return false;
+    }
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        astNodeVisitor.visitArguments(this);
     }
 
     public int getLength() {
