@@ -33,4 +33,8 @@ public class LexerWrapper {
         nextToken();
         return passthrough;
     }
+
+    public Lexer getLexer() {
+        return lexer;
+    }
 }

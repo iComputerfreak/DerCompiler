@@ -34,13 +34,13 @@ public class PrecedenceParser {
         int prec;
         while (token instanceof OperatorToken op && (prec = op.getPrecedence()) >= minPrec) {
             if (prec == -1) {
-                handleError(token);
+                handleError(token, pos);
             }
             token = lexer.nextToken();
             AbstractExpression rhs = parseExpression(prec + 1);
             result = ExpressionFactory.createExpression(op, pos, result, rhs);
             if (result instanceof ErrorExpression) {
-                handleError(token);
+                handleError(token, pos);
             }
             token = lexer.peek();
             pos = lexer.position();
@@ -48,8 +48,8 @@ public class PrecedenceParser {
         return result;
     }
 
-    private void handleError(IToken token) {
+    private void handleError(IToken token, SourcePosition position) {
         new OutputMessageHandler(MessageOrigin.PARSER)
-                .printErrorAndExit(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported. No Expression could be created!");
+                .printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported. No Expression could be created!", lexer.getLexer(), position);
     }
 }

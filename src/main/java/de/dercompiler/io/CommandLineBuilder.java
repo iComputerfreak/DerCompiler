@@ -57,7 +57,7 @@ public class CommandLineBuilder {
         Options options = new Options();
         buildOptions(options);
 
-        CommandLineParser clp = new DefaultParser();
+        CommandLineParser clp = new DefaultParser(false);
         CommandLineOptions clo = null;
         try {
             clo = new CommandLineOptions(clp.parse(options, args, false));
