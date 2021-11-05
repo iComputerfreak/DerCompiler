@@ -3,15 +3,14 @@ package de.dercompiler.ast.type;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
 
-public final class Type implements ASTNode {
+public final class Type extends ASTNode {
 
-    private SourcePosition position;
     private final BasicType basicType;
     // INFO: typeRest may be null
     private final int arrayDimension;
     
     public Type(SourcePosition position, BasicType basicType, int arrayDimension) {
-        this.position = position;
+        super(position);
         this.basicType = basicType;
         this.arrayDimension = arrayDimension;
     }
@@ -31,10 +30,5 @@ public final class Type implements ASTNode {
                     && this.arrayDimension == otherType.arrayDimension; 
         }
         return false;
-    }
-
-    @Override
-    public SourcePosition getSourcePosition() {
-        return position;
     }
 }

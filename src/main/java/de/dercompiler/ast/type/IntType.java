@@ -5,7 +5,9 @@ import de.dercompiler.lexer.SourcePosition;
 
 public final class IntType extends BasicType {
     
-    public IntType(SourcePosition position) {super(position);}
+    public IntType(SourcePosition position) {
+        super(position);
+    }
 
     @Override
     public boolean syntaxEquals(ASTNode other) {

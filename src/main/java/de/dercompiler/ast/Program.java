@@ -5,13 +5,12 @@ import de.dercompiler.util.Utils;
 
 import java.util.List;
 
-public final class Program implements ASTNode {
+public final class Program extends ASTNode {
 
-    private final SourcePosition position;
     private final List<ClassDeclaration> classes;
 
     public Program(SourcePosition position, List<ClassDeclaration> classes) {
-        this.position = position;
+        super(position);
         this.classes = classes;
     }
 
@@ -25,10 +24,5 @@ public final class Program implements ASTNode {
             return Utils.syntaxEquals(this.classes, otherProgram.classes);
         }
         return false;
-    }
-
-    @Override
-    public SourcePosition getSourcePosition() {
-        return position;
     }
 }
