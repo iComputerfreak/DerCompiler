@@ -34,7 +34,8 @@ public class PrecedenceParser {
             if (prec == -1) {
                 handleError(token, pos);
             }
-            token = lexer.nextToken();
+            //don't assign token here, we need it maybe for error printing
+            lexer.nextToken();
             AbstractExpression rhs = parseExpression(prec + 1);
             result = ExpressionFactory.createExpression(op, pos, result, rhs);
             if (result instanceof ErrorExpression) {

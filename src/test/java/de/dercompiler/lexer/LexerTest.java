@@ -4,6 +4,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.IToken;
 import de.dercompiler.lexer.token.Token;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,13 @@ public class LexerTest {
     @BeforeAll
     static void setup() {
         // Runs before each test
+        OutputMessageHandler.setDebug();
+        OutputMessageHandler.setTestOutput(false);
+    }
+
+    @AfterAll
+    static void cleanUp() {
+        OutputMessageHandler.setTestOutput(true);
     }
 
     @Test

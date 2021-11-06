@@ -46,7 +46,7 @@ class LineSorter {
                 tmpArray[i] = lines[t];
                 t = t + 1;
             }
-            i++;
+            i = i + 1;
             if (s == mid || t == end) {
                 shouldBreak = true;
             }
@@ -89,7 +89,7 @@ class LineSorter {
                 tmpArray[i] = lines[t];
                 t = t + 1;
             }
-            i++;
+            i = i + 1;
             if (s == mid || t == end) {
                 shouldBreak = true;
             }

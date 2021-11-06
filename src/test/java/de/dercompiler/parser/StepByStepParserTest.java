@@ -84,7 +84,7 @@ class LineSorter {
                 tmpArray[i] = lines[t];
                 t = t + 1;
             }
-            i++;
+            i = i + 1;
             if (s == mid || t == end) {
                 shouldBreak = true;
             }
@@ -127,7 +127,7 @@ class LineSorter {
                 tmpArray[i] = lines[t];
                 t = t + 1;
             }
-            i++;
+            i = i + 1;
             if (s == mid || t == end) {
                 shouldBreak = true;
             }
@@ -208,9 +208,9 @@ class Main {
         while(i < num_lines) {
             lines[i] = gen.generate(i);
             start[i] = lines[i];
-            end[i] = lines[i];\s
+            end[i] = lines[i];
         }
-       \s
+       
         LineSorter sorter = new LineSorter();
         sorter.sortPointsByStart(start, 0, num_lines);
         sorter.sortPointsByEnd(end, 0, num_lines);
@@ -221,6 +221,7 @@ class Main {
     }
 }
                         """;
+
         Lexer lexer = Lexer.forString(sweepline);
         TokenOccurrence token = lexer.nextToken();
         StringBuilder sb = new StringBuilder();
@@ -245,6 +246,15 @@ class Main {
 
             while((token = lexer.nextToken()).type() == Token.R_CURLY_BRACKET && lexer.peek().type() == Token.CLASS) append(sb, token);
         } while(lexer.peek(1).type() != Token.EOF);
+
+        OutputMessageHandler.clearDebugEvents();
+        Parser parser = new Parser(Lexer.forString(sweepline));
+        parser.parseProgram();
+        boolean valid = OutputMessageHandler.getEvents().isEmpty();
+        if (!valid) {
+            OutputMessageHandler.getEvents().forEach(debugEvent -> System.out.println(debugEvent.getMessage()));
+        }
+        assertTrue(valid);
     }
 
     private void append(StringBuilder sb, TokenOccurrence token) {
