@@ -39,7 +39,7 @@ class FileSource extends Source {
     public Reader getNewReader() {
         try {
             if (isOpen()) reader.close();
-            reader = new FileReader(file);
+            reader = new BufferedReader(new FileReader(file));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,7 +69,7 @@ class StringSource extends Source {
                 e.printStackTrace();
             }
         }
-        reader = new StringReader(this.input);
+        reader = new BufferedReader(new StringReader(this.input));
         return reader;
     }
 
