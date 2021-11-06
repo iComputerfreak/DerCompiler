@@ -23,6 +23,8 @@ public abstract class Source {
         return reader != null;
     }
 
+    @Override
+    public abstract String toString();
 }
 
 class FileSource extends Source {
@@ -44,6 +46,10 @@ class FileSource extends Source {
         return reader;
     }
 
+    @Override
+    public String toString() {
+        return file.getName();
+    }
 }
 
 class StringSource extends Source {
@@ -65,5 +71,10 @@ class StringSource extends Source {
         }
         reader = new StringReader(this.input);
         return reader;
+    }
+
+    @Override
+    public String toString() {
+        return "<cliStringArgument>";
     }
 }

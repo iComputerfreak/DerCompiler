@@ -857,7 +857,7 @@ public class Lexer {
         while (this.position.getLine() < position.getLine()) {
             this.readCharacter();
         }
-        StringBuilder line = new StringBuilder("At line %s:\n".formatted(position.toString()));
+        StringBuilder line = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
         while (currentChar != '\n' && (this.position.column == 0 || currentChar != -1)) {
             line.append((char) currentChar);
             this.readCharacter();
