@@ -21,7 +21,7 @@ public class ExpressionFactory {
             case GREATER_THAN -> new GreaterExpression(position, lhs, rhs);
             case GREATER_THAN_EQUAL -> new GreaterEqualExpression(position, lhs, rhs);
             case PLUS -> new AddExpression(position, lhs, rhs);
-            // MINUS and NOT are handled in Parser.parseUnaryExpression
+            // unary MINUS and NOT are handled in Parser.parseUnaryExpression
             case MINUS -> new SubtractExpression(position, lhs, rhs);
             case STAR -> new MultiplyExpression(position, lhs, rhs);
             case SLASH -> new DivisionExpression(position, lhs, rhs);

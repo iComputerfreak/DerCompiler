@@ -33,7 +33,7 @@ public class Parser {
         this.precedenceParser = new PrecedenceParser(lexer, this);
         this.logger = new OutputMessageHandler(MessageOrigin.PARSER);
     }
-    
+
     public Program parseProgram() {
         // ClassDeclaration*
         SourcePosition pos = lexer.peek().position();
@@ -50,7 +50,7 @@ public class Parser {
         }
         return new Program(pos, classes);
     }
-    
+
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
         SourcePosition pos = lexer.peek().position();
@@ -117,7 +117,7 @@ public class Parser {
         logger.printParserError(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()), lexer, lexer.peek(3).position());
         return new ErrorClassMember(pos);
     }
-    
+
     public ClassMember parseField(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ;
@@ -129,7 +129,7 @@ public class Parser {
         }
         return new Field(pos, type, identifier.getIdentifier());
     }
-    
+
     public ClassMember parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
         SourcePosition pos = lexer.peek().position();
@@ -156,7 +156,7 @@ public class Parser {
         BasicBlock block = parseBasicBlock();
         return new MainMethod(pos, name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
-    
+
     public ClassMember parseFullMethod() {
         SourcePosition pos = lexer.peek().position();
         Type type;
@@ -171,7 +171,7 @@ public class Parser {
 
         return parseMethod(type, identifier);
     }
-    
+
     public ClassMember parseMethod(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ( Parameters? ) MethodRest? Block\
@@ -237,7 +237,7 @@ public class Parser {
         int dimension = parseTypeRest();
         return new Type(pos, type, dimension);
     }
-    
+
     public int parseTypeRest() {
         // ([] TypeRest)?
         if (lexer.peek().type() == L_SQUARE_BRACKET) {
@@ -252,7 +252,7 @@ public class Parser {
         // If there is no rest, we return null
         return 0;
     }
-    
+
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
         SourcePosition pos = lexer.peek().position();
@@ -277,7 +277,7 @@ public class Parser {
     }
 
     /**
-     * Checks, if the lexer's next token matches with the given token and consumes it.
+     * Checks whether the lexer's next token matches the given token and consumes it.
      * Otherwise, prints an error and exits the program.
      *
      * @param expected The token to check for.
@@ -306,8 +306,8 @@ public class Parser {
 
     //since here we use wlexer instead of lexer
 
-    private boolean isBasicBlock(IToken token) {
-        return isType(token) || token == L_CURLY_BRACKET || token == SEMICOLON || token == IF || token == WHILE || isPrimary(token) || token == RETURN;
+    private boolean isBlockStatement(IToken token) {
+        return isType(token) || token == L_CURLY_BRACKET || token == SEMICOLON || token == IF || token == WHILE || isExpression(token) || token == RETURN;
     }
 
     public BasicBlock parseBasicBlock() {
@@ -319,7 +319,7 @@ public class Parser {
             statements.addLast(new ErrorStatement(pos));
             return new BasicBlock(pos, statements);
         }
-        while (isBasicBlock(wlexer.peek())) {
+        while (isBlockStatement(wlexer.peek())) {
             statements.addLast(parseBlockStatement());
         }
         SourcePosition pos2 = lexer.peek().position();
@@ -350,7 +350,7 @@ public class Parser {
         } else if (possible_type) {
             statement = parseVariableDeclaration();
         } else {
-            //fuse statement possible_expression and non_primary because it is one call
+            // handles statement possible_expression and non_primary
             statement = parseStatement();
         }
         return statement;
@@ -480,6 +480,11 @@ public class Parser {
                     wlexer.nextToken();
                     return new NegativeExpression(pos, parseUnaryExpression());
                 }
+                case INCREMENT, DECREMENT -> {
+                    logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported.".formatted(lexer.peek().type()), lexer, lexer.peek().position());
+                    lexer.nextToken();
+                    return new ErrorExpression(lexer.peek().position());
+                }
             }
         }
         logger.printParserError(ParserErrorIds.EXPECTED_PRIMARY_EXPRESSION, "Expected Primary Expression, such as Variable, Constant or MethodInvocation, but got '%s'".formatted(lexer.peek().type()), lexer, pos);
@@ -489,22 +494,33 @@ public class Parser {
     public AbstractExpression parsePostfixExpression() {
         AbstractExpression expression = parsePrimaryExpression();
 
-        while (wlexer.peek() instanceof Token t) {
-            switch (t) {
-                case DOT -> {
-                    if (wlexer.peek(2) instanceof Token t2 && t2 == L_PAREN) {
-                        expression = parseMethodInvocation(expression);
-                    } else {
-                        expression = parseFieldAccess(expression);
+        while (true) {
+            if (wlexer.peek() instanceof Token t) {
+                switch (t) {
+                    case DOT -> {
+                        if (wlexer.peek(2) instanceof Token t2 && t2 == L_PAREN) {
+                            expression = parseMethodInvocation(expression);
+                        } else {
+                            expression = parseFieldAccess(expression);
+                        }
+                    }
+                    case L_SQUARE_BRACKET -> expression = parseArrayAccess(expression);
+                    default -> {
+                        return expression;
                     }
                 }
-                case L_SQUARE_BRACKET -> expression = parseArrayAccess(expression);
-                default -> {
-                    return expression;
+            } else if (wlexer.peek() instanceof OperatorToken op) {
+                switch (op) {
+                    case INCREMENT, DECREMENT:
+                        logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported.".formatted(lexer.peek().type()), lexer, lexer.peek().position());
+                        lexer.nextToken();
+                        return new ErrorExpression(lexer.peek().position());
+                    default:
+                        return expression;
                 }
             }
         }
-        return expression;
+
     }
 
     public AbstractExpression parseMethodInvocation(AbstractExpression expression) {
@@ -576,7 +592,8 @@ public class Parser {
     }
 
     private boolean isExpression(IToken token) {
-        return (token == NOT || token == MINUS || isPrimary(token));
+        // accept ++ and -- so that error message is more precise
+        return (token == NOT || token == MINUS || token == INCREMENT || token == DECREMENT || isPrimary(token));
     }
 
     private boolean isPrimary(IToken token) {
@@ -662,11 +679,11 @@ public class Parser {
                         } else if (t2 == L_SQUARE_BRACKET) {
                             expression = parseNewArrayExpression();
                         } else {
-                            logger.printParserError(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected an object instantiation", lexer, lexer.peek().position());
+                            logger.printParserError(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected '(' or '[', but found '%s".formatted(wlexer.peek(2)), lexer, lexer.peek(2).position());
                         }
                     }
                 }
-                default -> logger.printParserError(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary type, no primary type starts with token: " + wlexer.peek(0), lexer, lexer.peek().position());
+                default -> logger.printParserError(ParserErrorIds.EXPECTED_PRIMARY_TYPE, "Expected primary type, but found '%s".formatted(wlexer.peek(0)), lexer, lexer.peek().position());
             }
         }
         return expression;
