@@ -312,7 +312,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append("[");
         consArray.getSize().accept(this);
         sb.append("]");
-        sb.append("[]".repeat(consArray.getDimension()));
+        sb.append("[]".repeat(consArray.getDimension() - 1));
     }
 
     public void visitNewObjectExpression(NewObjectExpression cons) {
