@@ -8,6 +8,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.*;
 import de.dercompiler.util.RingBuffer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -19,7 +20,7 @@ public class Lexer {
 
     private static final int SLL_CONSTANT = 4;
     private final RingBuffer<TokenOccurrence> tokenBuffer;
-    private Reader reader;
+    private BufferedReader reader;
     private Source source;
 
     private final Position position;
@@ -850,31 +851,49 @@ public class Lexer {
     }
 
     public String printSourceText(SourcePosition position) {
+        // can only open Source once at a time, so reset reader and go to given line
         SourcePosition currentPosition = getPosition().copy();
         this.reader = this.source.getNewReader();
         this.position.reset();
-        this.readCharacter();
         while (this.position.getLine() < position.getLine()) {
+            this.nextLine();
+        }
+        StringBuilder sb = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
+        String line = this.nextLine();
+        sb.append(line);
+
+        sb.append("\n");
+
+        // Preserving tab width
+        // It is '- 2' because line starts at column 1, and ^ goes at given position.
+        String indexLine = line.substring(0, position.getColumn() - 2).replaceAll("\\S", " ");
+        sb.append(indexLine);
+        sb.append("^");
+
+        // Reset reader to previous position
+        while (this.position.getLine() < currentPosition.getLine()) {
+            this.nextLine();
+        }
+        while (this.position.getColumn() < currentPosition.getColumn()) {
             this.readCharacter();
         }
-        StringBuilder line = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
-        while (currentChar != '\n' && (this.position.column == 0 || currentChar != -1)) {
-            line.append((char) currentChar);
-            this.readCharacter();
-        }
+        return sb.toString();
+    }
 
-        line.append("\n");
-
-        for (int col = 0; col < position.getColumn() - 1; col++) {
-            line.append(" ");
+    private String nextLine() {
+        try {
+            String line = reader.readLine();
+            this.tokenBuffer.clear();
+            if (currentChar == -1) {
+                this.position.setColumn(line.length() + 1);
+            } else {
+                this.position.newLine();
+            }
+            return line;
+        } catch (IOException e) {
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(GeneralErrorIds.IO_EXCEPTION, "Error while reading input file.", e);
         }
-        line.append("^");
-
-        // reset
-        while (this.position.getLine() < currentPosition.getLine() || this.position.getColumn() < currentPosition.getColumn()) {
-            this.readCharacter();
-        }
-        return line.toString();
+        return null;
     }
 
     /**
@@ -902,7 +921,9 @@ public class Lexer {
      */
     static class Position extends SourcePosition {
 
-        Position() { super(); }
+        Position() {
+            super();
+        }
 
         private void reset() {
             this.line = 1;
@@ -916,6 +937,10 @@ public class Lexer {
 
         public void advance() {
             this.column++;
+        }
+
+        public void setColumn(int column) {
+            this.column = column;
         }
     }
 
