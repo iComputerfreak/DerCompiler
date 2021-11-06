@@ -60,7 +60,9 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitEmptyStatement(EmptyStatement emptyStatement) {
-
+        beforeStatement();
+        sb.append(";");
+        afterStatement();
     }
 
     @Override
@@ -262,17 +264,17 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append("while (");
         loop.getCondition().accept(this);
         sb.append(") ");
+        this.state.save();
         if (loop.getStatement() instanceof BasicBlock block) {
             block.accept(this);
         } else {
             sb.append("\n");
             sb.append(INDENT.repeat(this.state.getIndent()));
-            this.state.save();
             this.state.indent();
             this.state.setStatementFormat(true, false);
             loop.getStatement().accept(this);
-            this.state.restore();
         }
+        this.state.restore();
         afterStatement();
     }
 

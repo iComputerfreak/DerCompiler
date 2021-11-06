@@ -297,7 +297,7 @@ public class Lexer {
                             case 's':
                                 readCharacter();
                                 // ins.tanceof
-                                return compareSuffix(Token.INSTANCE_OF, 3);
+                                return compareSuffix(OperatorToken.INSTANCE_OF, 3);
                             case 't':
                                 readCharacter();
                                 // int. | int.erface
@@ -866,7 +866,7 @@ public class Lexer {
 
         // Preserving tab width
         // It is '- 2' because line starts at column 1, and ^ goes at given position.
-        String indexLine = line.substring(0, position.getColumn() - 2).replaceAll("\\S", " ");
+        String indexLine = line.substring(0, position.getColumn() - 1).replaceAll("\\S", " ");
         sb.append(indexLine);
         sb.append("^");
 

@@ -49,6 +49,6 @@ public class PrecedenceParser {
 
     private void handleError(IToken token, SourcePosition position) {
         new OutputMessageHandler(MessageOrigin.PARSER)
-                .printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported. No Expression could be created!", lexer.getLexer(), position);
+                .printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported", lexer.getLexer(), position);
     }
 }

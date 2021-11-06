@@ -268,6 +268,9 @@ public class Parser {
                     return new BooleanType(pos);
                 case VOID_TYPE:
                     return new VoidType(pos);
+                case BYTE_TYPE, SHORT_TYPE, LONG_TYPE, FLOAT_TYPE, DOUBLE_TYPE, CHARACTER_TYPE:
+                    logger.printParserError(ParserErrorIds.UNSUPPORTED_TYPE_TOKEN, "Type '%s' is not supported".formatted(type), lexer, pos);
+                    return new ErrorType(pos);
             }
         }
 
@@ -299,6 +302,9 @@ public class Parser {
         TokenOccurrence t = lexer.nextToken();
         if (t.type() instanceof IdentifierToken it) {
             return it;
+        } else if (t.type() instanceof Token keyword) {
+            logger.printParserError(ParserErrorIds.EXPECTED_IDENTIFIER, "'%s' is not a valid identifier".formatted(t.type().toString()), lexer, t.position());
+            throw new ExpectedTokenError("'%s' is not a valid identifier".formatted(t.type().toString()));
         }
         logger.printParserError(ParserErrorIds.EXPECTED_IDENTIFIER, "Identifier expected, but found '%s'".formatted(t.type().toString()), lexer, t.position());
         throw new ExpectedTokenError("Identifier expected, but found '%s'".formatted(t.type().toString()));
@@ -307,7 +313,12 @@ public class Parser {
     //since here we use wlexer instead of lexer
 
     private boolean isBlockStatement(IToken token) {
-        return isType(token) || token == L_CURLY_BRACKET || token == SEMICOLON || token == IF || token == WHILE || isExpression(token) || token == RETURN;
+        return isType(token) || isExpression(token) || token instanceof Token t && switch (t) {
+            case L_CURLY_BRACKET, SEMICOLON, IF, WHILE, RETURN -> true;
+            // accept them now in order to get more useful error messages later
+            case FOR, SWITCH, DO -> true;
+            default -> false;
+        };
     }
 
     public BasicBlock parseBasicBlock() {
@@ -385,6 +396,10 @@ public class Parser {
                 case IF -> parseIfStatement();
                 case WHILE -> parseWhileStatement();
                 case RETURN -> parseReturnStatement();
+                case FOR, DO, SWITCH -> {
+                    logger.printParserError(ParserErrorIds.UNSUPPORTED_STATEMENT, "'%s' statements are not supported".formatted(t), lexer, pos);
+                    yield new ErrorStatement(pos);
+                }
                 default -> parseExpressionStatement();
             };
         }
@@ -481,7 +496,7 @@ public class Parser {
                     return new NegativeExpression(pos, parseUnaryExpression());
                 }
                 case INCREMENT, DECREMENT -> {
-                    logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported.".formatted(lexer.peek().type()), lexer, lexer.peek().position());
+                    logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported".formatted(lexer.peek().type()), lexer, lexer.peek().position());
                     lexer.nextToken();
                     return new ErrorExpression(lexer.peek().position());
                 }
@@ -512,7 +527,7 @@ public class Parser {
             } else if (wlexer.peek() instanceof OperatorToken op) {
                 switch (op) {
                     case INCREMENT, DECREMENT:
-                        logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported.".formatted(lexer.peek().type()), lexer, lexer.peek().position());
+                        logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported".formatted(lexer.peek().type()), lexer, lexer.peek().position());
                         lexer.nextToken();
                         return new ErrorExpression(lexer.peek().position());
                     default:
