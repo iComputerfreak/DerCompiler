@@ -307,7 +307,7 @@ public class Parser {
     //since here we use wlexer instead of lexer
 
     private boolean isBasicBlock(IToken token) {
-        return isType(token) || token == L_CURLY_BRACKET || token == SEMICOLON || token == IF || token == WHILE || isPrimary(token) || token == RETURN;
+        return isType(token) || token == L_CURLY_BRACKET || token == SEMICOLON || token == IF || token == WHILE || isExpression(token) || token == RETURN;
     }
 
     public BasicBlock parseBasicBlock() {
