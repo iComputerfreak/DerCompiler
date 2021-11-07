@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.stream.Stream;
 
 /**
  * Represents a Lexer for MiniJava. It transforms a character input source into a buffered sequence of {@link IToken}s, which allows for a certain lookahead.
@@ -51,6 +52,12 @@ public class Lexer {
         while (token == null) {
             while (Character.isWhitespace(currentChar)) {
                 readCharacter();
+            }
+            if (currentChar > 127) {
+                fail(LexerErrorIds.UNKNOWN_SYMBOL, "Unknown symbol: %c".formatted(currentChar));
+                token = new ErrorToken(LexerErrorIds.UNKNOWN_SYMBOL);
+                readCharacter();
+                continue;
             }
             currentPosition = getPosition();
             if (currentChar == -1) {
@@ -854,12 +861,11 @@ public class Lexer {
         // can only open Source once at a time, so reset reader and go to given line
         SourcePosition currentPosition = getPosition().copy();
         this.reader = this.source.getNewReader();
-        this.position.reset();
-        while (this.position.getLine() < position.getLine()) {
-            this.nextLine();
-        }
+
         StringBuilder sb = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
-        String line = this.nextLine();
+
+        String line = this.reader.lines()
+                .skip(position.getLine() - 1).findFirst().get();
         sb.append(line);
 
         sb.append("\n");
@@ -870,6 +876,8 @@ public class Lexer {
         sb.append(indexLine);
         sb.append("^");
 
+        this.reader = this.source.getNewReader();
+        this.position.reset();
         // Reset reader to previous position
         while (this.position.getLine() < currentPosition.getLine()) {
             this.nextLine();
@@ -884,7 +892,7 @@ public class Lexer {
         try {
             String line = reader.readLine();
             this.tokenBuffer.clear();
-            if (currentChar == -1) {
+            if (line == null) {
                 this.position.setColumn(line.length() + 1);
             } else {
                 this.position.newLine();

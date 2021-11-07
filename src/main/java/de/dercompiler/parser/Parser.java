@@ -64,7 +64,7 @@ public class Parser {
         }
         List<ClassMember> members = new ArrayList<>();
         // While our next token is not the '}' token
-        while (lexer.peek().type() == PUBLIC) {
+        while (lexer.peek().type() != R_CURLY_BRACKET && lexer.peek().type() != EOF) {
             members.add(parseClassMember());
         }
         // Consume the R_CURLY_BRACKET
@@ -719,6 +719,9 @@ public class Parser {
             size = parseExpression();
             expect(R_SQUARE_BRACKET);
             while (wlexer.peek() == L_SQUARE_BRACKET) {
+                if (wlexer.peek(1) != R_SQUARE_BRACKET) {
+                    break;
+                }
                 expect(L_SQUARE_BRACKET);
                 expect(R_SQUARE_BRACKET);
                 dimension++;
