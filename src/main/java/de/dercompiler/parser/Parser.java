@@ -114,7 +114,7 @@ public class Parser {
             return parseMethod(type, identifier);
         }
 
-        logger.printParserError(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()), lexer, lexer.peek(3).position());
+        logger.printParserError(ParserErrorIds.EXPECTED_SEMICOLON, "Invalid class member declaration: Expected ';' or '(<args>)' but found '%s'".formatted(lexer.peek().type()), lexer, lexer.peek().position());
         return new ErrorClassMember(pos);
     }
 
