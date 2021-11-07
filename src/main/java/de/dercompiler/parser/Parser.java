@@ -526,14 +526,16 @@ public class Parser {
                 }
             } else if (wlexer.peek() instanceof OperatorToken op) {
                 switch (op) {
-                    case INCREMENT, DECREMENT:
+                    case INCREMENT, DECREMENT -> {
                         logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported".formatted(lexer.peek().type()), lexer, lexer.peek().position());
                         lexer.nextToken();
                         return new ErrorExpression(lexer.peek().position());
-                    default:
+                    }
+                    default -> {
                         return expression;
+                    }
                 }
-            }
+            } else return expression;
         }
 
     }
