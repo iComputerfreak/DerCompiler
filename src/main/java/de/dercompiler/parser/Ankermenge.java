@@ -26,14 +26,12 @@ public class Ankermenge {
     }
 
     public boolean hasToken(IToken token) {
-        return switch (token) {
-            case Token t -> keywordsAndSeparators.contains(t);
-            case IdentifierToken t -> ident;
-            case IntegerToken t -> number;
-            case OperatorToken t -> operators;
-            case TypeToken t -> type;
-            case ErrorToken t -> false;
-        };
+        if (token instanceof Token t) return keywordsAndSeparators.contains(t);
+        if (token instanceof IdentifierToken t) return ident;
+        if (token instanceof IntegerToken t) return number;
+        if (token instanceof OperatorToken t) return operators;
+        if (token instanceof TypeToken t) return type;
+        return false;
     }
 
     public Ankermenge fork(Token... tokens) {
