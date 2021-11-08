@@ -4,6 +4,7 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.PrettyPrinter;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.parser.AnchorSet;
 import de.dercompiler.parser.Parser;
 
 import static de.dercompiler.io.CommandLineStrings.*;
@@ -38,13 +39,13 @@ public class ParseTestAction extends Action {
 
         switch (this.entryPoint) {
             case OPTION_PARSE_METHOD:
-                node = parser.parseFullMethod();
+                node = parser.parseFullMethod(new AnchorSet());
                 break;
             case OPTION_PARSE_STATEMENT:
-                node = parser.parseBlockStatement();
+                node = parser.parseBlockStatement(new AnchorSet());
                 break;
             case OPTION_PARSE_EXPRESSION:
-                node = parser.parseExpression();
+                node = parser.parseExpression(new AnchorSet());
                 break;
             default:
                 break;

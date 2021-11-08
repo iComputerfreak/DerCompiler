@@ -4,7 +4,7 @@ import de.dercompiler.lexer.token.*;
 
 import java.util.EnumSet;
 
-public class Ankermenge {
+public class AnchorSet {
 
     private EnumSet<Token> keywordsAndSeparators;
     private boolean operators;
@@ -12,11 +12,11 @@ public class Ankermenge {
     private boolean ident;
     private boolean type;
 
-    public Ankermenge() {
+    public AnchorSet() {
         this(EnumSet.noneOf(Token.class), false, false, false, false);
     }
 
-    private Ankermenge(EnumSet<Token> keywordsAndSeparators, boolean operators, boolean number, boolean ident, boolean type) {
+    private AnchorSet(EnumSet<Token> keywordsAndSeparators, boolean operators, boolean number, boolean ident, boolean type) {
         keywordsAndSeparators.add(Token.EOF);
         this.keywordsAndSeparators = keywordsAndSeparators;
         this.operators = operators;
@@ -34,30 +34,30 @@ public class Ankermenge {
         return false;
     }
 
-    public Ankermenge fork(Token... tokens) {
+    public AnchorSet fork(Token... tokens) {
         EnumSet<Token> add = keywordsAndSeparators.clone();
         for (Token t : tokens) {
             add.add(t);
         }
-        return new Ankermenge(add, operators, number, ident, type);
+        return new AnchorSet(add, operators, number, ident, type);
     }
 
-    public Ankermenge addOperator() {
+    public AnchorSet addOperator() {
         operators = true;
         return this;
     }
 
-    public Ankermenge addInteger() {
+    public AnchorSet addInteger() {
         number = true;
         return this;
     }
 
-    public Ankermenge addIdent() {
+    public AnchorSet addIdent() {
         ident = true;
         return this;
     }
 
-    public Ankermenge addType() {
+    public AnchorSet addType() {
         type = true;
         return this;
     }
