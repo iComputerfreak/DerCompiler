@@ -865,7 +865,7 @@ public class Lexer {
         StringBuilder sb = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
 
         String line = this.reader.lines()
-                .skip(position.getLine() - 1).findFirst().get();
+                .skip(position.getLine() - 1).findFirst().orElse("<empty line>");
         sb.append(line);
 
         sb.append("\n");
