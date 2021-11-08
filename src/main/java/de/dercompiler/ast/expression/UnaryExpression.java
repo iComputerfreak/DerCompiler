@@ -2,11 +2,11 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.lexer.SourcePosition;
 
-public abstract sealed class UnaryExpression extends AbstractExpression permits LogicalNotExpression, MethodInvocationOnObject, NegativeExpression, PostfixExpression {
+public abstract sealed class UnaryExpression extends Expression permits LogicalNotExpression, MethodInvocationOnObject, NegativeExpression, PostfixExpression {
 
-    protected AbstractExpression encapsulated;
+    protected Expression encapsulated;
 
-    public UnaryExpression(SourcePosition position, AbstractExpression encapsulated) {
+    public UnaryExpression(SourcePosition position, Expression encapsulated) {
         super(position);
         this.encapsulated = encapsulated;
     }
@@ -15,7 +15,7 @@ public abstract sealed class UnaryExpression extends AbstractExpression permits 
         return encapsulated.syntaxEquals(other.encapsulated);
     }
 
-    public AbstractExpression getEncapsulated() {
+    public Expression getEncapsulated() {
         return encapsulated;
     }
 }

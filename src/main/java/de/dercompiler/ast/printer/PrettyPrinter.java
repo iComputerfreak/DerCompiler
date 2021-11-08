@@ -23,7 +23,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         this.state = new PrinterState();
     }
 
-    private static boolean isAtomicExpression(AbstractExpression expr) {
+    private static boolean isAtomicExpression(Expression expr) {
         return expr instanceof IntegerValue || expr instanceof BooleanValue || expr instanceof NullValue || expr instanceof ThisValue || expr instanceof Variable;
     }
 
@@ -107,7 +107,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitFieldAccess(FieldAccess fieldAccess) {
-        AbstractExpression encapsulated = fieldAccess.getEncapsulated();
+        Expression encapsulated = fieldAccess.getEncapsulated();
         if (needsParentheses(encapsulated)) {
             sb.append("(");
             encapsulated.accept(this);
@@ -192,7 +192,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         def.getType().accept(this);
         sb.append(" ");
         sb.append(def.getIdentifier());
-        AbstractExpression expr = def.getExpression();
+        Expression expr = def.getExpression();
         if (!Objects.isNull(expr)) {
             sb.append(" = ");
             expr.accept(this);
@@ -278,7 +278,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     public void visitLogicalNotExpression(LogicalNotExpression not) {
         sb.append("!");
-        AbstractExpression encapsulated = not.getEncapsulated();
+        Expression encapsulated = not.getEncapsulated();
         if (encapsulated instanceof PrimaryExpression primary) {
             primary.accept(this);
         } else if (!strictParenthesis && encapsulated instanceof UnaryExpression unary) {
@@ -292,7 +292,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     public void visitNegativeExpression(NegativeExpression neg) {
         sb.append("-");
-        AbstractExpression encapsulated = neg.getEncapsulated();
+        Expression encapsulated = neg.getEncapsulated();
         if (encapsulated instanceof PrimaryExpression primary) {
             primary.accept(this);
         } else {
@@ -302,7 +302,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         }
     }
 
-    private boolean needsParentheses(AbstractExpression expression) {
+    private boolean needsParentheses(Expression expression) {
         return strictParenthesis && !isAtomicExpression(expression);
     }
 
@@ -322,7 +322,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
     }
 
     public void visitMethodInvocation(MethodInvocationOnObject invocation) {
-        AbstractExpression referenceObject = invocation.getReferenceObject();
+        Expression referenceObject = invocation.getReferenceObject();
         if (needsParentheses(referenceObject)) {
             sb.append("(");
             referenceObject.accept(this);
@@ -338,7 +338,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
     }
 
     public void visitBinaryExpression(BinaryExpression binaryExpr) {
-        AbstractExpression lhs = binaryExpr.getLhs();
+        Expression lhs = binaryExpr.getLhs();
         if (needsParentheses(lhs) || (lhs instanceof BinaryExpression binaryLeft && binaryLeft.getOperator().getPrecedence() < binaryExpr.getOperator().getPrecedence())) {
             sb.append("(");
             lhs.accept(this);
@@ -348,7 +348,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         }
         sb.append(" %s ".formatted(binaryExpr.getOperator()));
 
-        AbstractExpression rhs = binaryExpr.getRhs();
+        Expression rhs = binaryExpr.getRhs();
         if (needsParentheses(rhs) || (rhs instanceof BinaryExpression binaryRight && binaryRight.getOperator().getPrecedence() < binaryExpr.getOperator().getPrecedence())) {
             sb.append("(");
             rhs.accept(this);

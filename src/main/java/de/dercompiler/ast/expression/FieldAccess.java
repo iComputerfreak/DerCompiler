@@ -9,7 +9,7 @@ import java.util.Objects;
 public final class FieldAccess extends PostfixExpression {
 
     String fieldName;
-    public FieldAccess(SourcePosition position, AbstractExpression encapsulated, String fieldName) {
+    public FieldAccess(SourcePosition position, Expression encapsulated, String fieldName) {
         super(position, encapsulated);
         this.fieldName = fieldName;
     }

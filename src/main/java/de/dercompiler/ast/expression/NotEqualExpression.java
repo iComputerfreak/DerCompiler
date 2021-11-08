@@ -9,7 +9,7 @@ import java.util.Objects;
 import static de.dercompiler.lexer.token.OperatorToken.NOT_EQUAL;
 
 public final class NotEqualExpression extends BinaryExpression {
-    public NotEqualExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public NotEqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

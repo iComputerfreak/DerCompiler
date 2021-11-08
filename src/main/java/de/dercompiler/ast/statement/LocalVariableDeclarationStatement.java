@@ -1,7 +1,7 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
@@ -12,9 +12,9 @@ public final class LocalVariableDeclarationStatement extends Statement {
 
     Type type;
     String identifier;
-    AbstractExpression valueExpression;
+    Expression valueExpression;
 
-    public LocalVariableDeclarationStatement(SourcePosition position, Type type, String identifier, AbstractExpression valueExpression) {
+    public LocalVariableDeclarationStatement(SourcePosition position, Type type, String identifier, Expression valueExpression) {
         super(position);
         this.type = type;
         this.identifier = identifier;
@@ -29,7 +29,7 @@ public final class LocalVariableDeclarationStatement extends Statement {
         return identifier;
     }
 
-    public AbstractExpression getExpression() {
+    public Expression getExpression() {
         return valueExpression;
     }
 

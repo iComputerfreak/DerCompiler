@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.STAR;
 
 public final class MultiplyExpression extends BinaryExpression {
 
-    public MultiplyExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public MultiplyExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

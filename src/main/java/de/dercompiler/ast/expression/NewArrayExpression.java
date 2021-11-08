@@ -10,10 +10,10 @@ import java.util.Objects;
 public final class NewArrayExpression extends PrimaryExpression {
 
     private BasicType type;
-    private AbstractExpression size;
+    private Expression size;
     private int dimension;
 
-    public NewArrayExpression(SourcePosition position, BasicType type, AbstractExpression size, int dimension) {
+    public NewArrayExpression(SourcePosition position, BasicType type, Expression size, int dimension) {
         super(position);
         this.type = type;
         this.size = size;
@@ -35,7 +35,7 @@ public final class NewArrayExpression extends PrimaryExpression {
         return type;
     }
 
-    public AbstractExpression getSize() {
+    public Expression getSize() {
         return size;
     }
 

@@ -11,7 +11,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
     private Arguments arguments;
     private String functionName;
 
-    public MethodInvocationOnObject(SourcePosition position, AbstractExpression encapsulated, String functionName, Arguments arguments) {
+    public MethodInvocationOnObject(SourcePosition position, Expression encapsulated, String functionName, Arguments arguments) {
         super(position, encapsulated);
         this.functionName = functionName;
         this.arguments = arguments;
@@ -36,7 +36,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         return functionName;
     }
 
-    public AbstractExpression getReferenceObject() {
+    public Expression getReferenceObject() {
         return this.encapsulated;
     }
 
