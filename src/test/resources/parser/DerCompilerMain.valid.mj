@@ -1,11 +1,4 @@
-package de.dercompiler;
-
-import de.dercompiler.actions.Action;
-import de.dercompiler.general.CompilerSetup;
-import de.dercompiler.io.CommandLineBuilder;
-import de.dercompiler.io.CommandLineOptions;
-
-public class DerCompiler {
+class DerCompiler {
 
     public static void main(String[] args){
         CommandLineBuilder clb = new CommandLineBuilder();

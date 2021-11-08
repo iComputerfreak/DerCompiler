@@ -1,6 +1,6 @@
 class PrivateMember {
 
-    int[][][] test;
+    public int[][][] test;
 	
 	public int foo() {
         {}{}{{}}
