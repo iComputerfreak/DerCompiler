@@ -30,7 +30,7 @@ public void sortPointsByStart(Line[] lines, int start, int end) {
     }
     int mid = (start + end) / 2;
   /*  sortPointsByStart(lines, start, mid);*/
-    sortPointsByStart(lines, mid, ; end);
+    sortPointsByStart(lines, mid, end);
 
     int currentLength = end - start;
     Line[] tmpArray = new Line[currentLength];
