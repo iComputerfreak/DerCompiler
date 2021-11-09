@@ -23,7 +23,6 @@ public enum Token implements IToken {
     IF("if"),
     IMPLEMENTS("implements"),
     IMPORT("import"),
-    INSTANCE_OF("instanceof"),
     INTERFACE("interface"),
     NATIVE("native"),
     NEW("new"),

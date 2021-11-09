@@ -4,12 +4,12 @@ import java.io.*;
 
 public abstract class Source {
 
-    protected Reader reader;
+    protected BufferedReader reader;
 
     /**
      * @return a new Reader for the Source, closing any previously created Readers for this Source.
      */
-    public abstract Reader getNewReader();
+    public abstract BufferedReader getNewReader();
 
     public static Source forFile(File file) {
         return new FileSource(file);
@@ -36,7 +36,7 @@ class FileSource extends Source {
     }
 
     @Override
-    public Reader getNewReader() {
+    public BufferedReader getNewReader() {
         try {
             if (isOpen()) reader.close();
             reader = new BufferedReader(new FileReader(file));
@@ -61,7 +61,7 @@ class StringSource extends Source {
     }
 
     @Override
-    public Reader getNewReader() {
+    public BufferedReader getNewReader() {
         if (isOpen()) {
             try {
                 reader.close();

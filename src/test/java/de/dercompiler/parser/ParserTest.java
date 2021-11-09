@@ -7,22 +7,27 @@ import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.type.*;
 import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.LexerTest;
 import de.dercompiler.lexer.SourcePosition;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserTest {
-    
+
     ParserTestHelper helper = new ParserTestHelper();
-    
+
     static SourcePosition POS = DEFAULT_POS;
 
     static Type INT_TYPE = new Type(POS, new IntType(POS), 0);
@@ -42,29 +47,30 @@ public class ParserTest {
     @Test
     void testTypes() {
         // BasicType
-        assertSyntaxEquals(parser("int").parseBasicType(), new IntType(POS));
-        assertSyntaxEquals(parser("int").parseBasicType(), new IntType(POS));
-        assertSyntaxEquals(parser("void").parseBasicType(), new VoidType(POS));
-        assertSyntaxEquals(parser("boolean").parseBasicType(), new BooleanType(POS));
-        assertSyntaxEquals(parser("TestType").parseBasicType(), new CustomType(POS, "TestType"));
+        AnchorSet ank = new AnchorSet();
+        assertSyntaxEquals(parser("int").parseBasicType(ank, "test"), new IntType(POS));
+        assertSyntaxEquals(parser("int").parseBasicType(ank, "test"), new IntType(POS));
+        assertSyntaxEquals(parser("void").parseBasicType(ank, "test"), new VoidType(POS));
+        assertSyntaxEquals(parser("boolean").parseBasicType(ank, "test"), new BooleanType(POS));
+        assertSyntaxEquals(parser("TestType").parseBasicType(ank, "test"), new CustomType(POS, "TestType"));
 
         // Type
-        assertSyntaxEquals(parser("int").parseType(new AnchorSet()), INT_TYPE);
-        assertSyntaxEquals(parser("void").parseType(new AnchorSet()), VOID_TYPE);
-        assertSyntaxEquals(parser("boolean").parseType(new AnchorSet()), BOOLEAN_TYPE);
-        assertSyntaxEquals(parser("TestType").parseType(new AnchorSet()), new Type(POS, new CustomType(POS, "TestType"), 0));
+        assertSyntaxEquals(parser("int").parseType(ank, "test"), INT_TYPE);
+        assertSyntaxEquals(parser("void").parseType(ank, "test"), VOID_TYPE);
+        assertSyntaxEquals(parser("boolean").parseType(ank, "test"), BOOLEAN_TYPE);
+        assertSyntaxEquals(parser("TestType").parseType(ank, "test"), new Type(POS, new CustomType(POS, "TestType"), 0));
 
-        assertSyntaxEquals(parser("int[]").parseType(new AnchorSet()), new Type(POS, new IntType(POS), 1));
-        assertSyntaxEquals(parser("void[]").parseType(new AnchorSet()), new Type(POS, new VoidType(POS), 1));
-        assertSyntaxEquals(parser("boolean[]").parseType(new AnchorSet()), new Type(POS, new BooleanType(POS), 1));
-        assertSyntaxEquals(parser("TestType[]").parseType(new AnchorSet()), new Type(POS, new CustomType(POS, "TestType"), 1));
+        assertSyntaxEquals(parser("int[]").parseType(ank, "test"), new Type(POS, new IntType(POS), 1));
+        assertSyntaxEquals(parser("void[]").parseType(ank, "test"), new Type(POS, new VoidType(POS), 1));
+        assertSyntaxEquals(parser("boolean[]").parseType(ank, "test"), new Type(POS, new BooleanType(POS), 1));
+        assertSyntaxEquals(parser("TestType[]").parseType(ank, "test"), new Type(POS, new CustomType(POS, "TestType"), 1));
 
-        assertSyntaxEquals(parser("int[][][][][]").parseType(new AnchorSet()), new Type(POS, new IntType(POS), 5));
-        assertSyntaxEquals(parser("void[][][][][]").parseType(new AnchorSet()), new Type(POS, new VoidType(POS), 5));
-        assertSyntaxEquals(parser("boolean[][][][][]").parseType(new AnchorSet()), new Type(POS, new BooleanType(POS), 5));
-        assertSyntaxEquals(parser("TestType[][][][][]").parseType(new AnchorSet()), new Type(POS, new CustomType(POS, "TestType"), 5));
+        assertSyntaxEquals(parser("int[][][][][]").parseType(ank, "test"), new Type(POS, new IntType(POS), 5));
+        assertSyntaxEquals(parser("void[][][][][]").parseType(ank, "test"), new Type(POS, new VoidType(POS), 5));
+        assertSyntaxEquals(parser("boolean[][][][][]").parseType(ank, "test"), new Type(POS, new BooleanType(POS), 5));
+        assertSyntaxEquals(parser("TestType[][][][][]").parseType(ank, "test"), new Type(POS, new CustomType(POS, "TestType"), 5));
     }
-    
+
     @Test
     void testClassMembers() {
         // Field
@@ -94,7 +100,7 @@ public class ParserTest {
                                 new Parameter(POS, BOOLEAN_TYPE, "c")
                         ), null, new BasicBlock(POS)));
     }
-    
+
     @Test
     void testClassDeclarations() {
         // ClassDeclaration
@@ -113,7 +119,7 @@ public class ParserTest {
                         new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
                 )));
     }
-    
+
     @Test
     void testProgram() {
         // Program
@@ -136,7 +142,7 @@ public class ParserTest {
                         ))
                 )));
     }
-    
+
     @Test
     void testBlockContents() {
         String sampleStatements = "int a = 0;";
@@ -148,13 +154,62 @@ public class ParserTest {
         assertSyntaxEquals(parser("public static void foo(int args) { " + sampleStatements + " }").parseClassMember(new AnchorSet()),
                 new MainMethod(POS,"foo", INT_TYPE, "args", null, new BasicBlock(POS, sampleStatementsResult)));
     }
-    
+
+    @Test
+    void testCases() {
+        // Test the output for all files
+        for (File file : getResourceFolderFiles("parser")) {
+            String filename = file.getName();
+            // Skip output files for now (and any other files that are not test cases)
+
+            System.out.println("Testing file " + filename);
+            Lexer l = Lexer.forFile(new File(file.getPath()));
+            Parser p = new Parser(l);
+
+            OutputMessageHandler.setDebug();
+
+            // Tests that should succeed
+            if (filename.endsWith(".valid.mj")) {
+                assertDoesNotThrow(() -> p.parseProgram());
+                assertTrue(OutputMessageHandler.getEvents().isEmpty());
+            } else if (filename.endsWith(".invalid.mj")) {
+                // Make sure that the test really fails
+                boolean error = false;
+                try {
+                    p.parseProgram();
+                    assertFalse(OutputMessageHandler.getEvents().isEmpty());
+                    error = true;
+                } catch (Exception e) {
+                    error = true;
+                }
+                assertTrue(error);
+                OutputMessageHandler.clearDebugEvents();
+
+            }
+        }
+    }
+
+    private static File[] getResourceFolderFiles(String folder) {
+        try {
+            ClassLoader loader = LexerTest.class.getClassLoader();
+            URI uri = loader.getResource(folder).toURI();
+            String path = uri.getPath();
+            return new File(path).listFiles((file -> {
+                String pathName = file.toString();
+                return pathName.endsWith(".valid.mj") || pathName.endsWith(".invalid.mj");
+            }));
+        } catch (URISyntaxException e) {
+            new OutputMessageHandler(MessageOrigin.TEST).internalError("Error converting test file path to URI");
+            return new File[]{};
+        }
+    }
+
     private static Parser parser(String input) {
         return new Parser(Lexer.forString(input));
     }
-    
+
     static void assertSyntaxEquals(ASTNode actual, ASTNode expected) {
         assertTrue(expected.syntaxEquals(actual), "Syntax not matching. Expected '" + expected.toString() + "', but got '" + actual.toString() + "'.");
     }
-    
+
 }

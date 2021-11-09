@@ -20,6 +20,8 @@ public enum OperatorToken implements IToken {
     NOT_LOGICAL("~", 11),
 
     XOR_SHORT("^=", 0), XOR("^", 4),
+
+    INSTANCE_OF("instanceof", 7)
     ;
 
     private final String id;

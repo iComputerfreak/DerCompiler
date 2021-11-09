@@ -50,7 +50,7 @@ public class PrecedenceParser {
 
     private void handleError(AnchorSet ank, IToken token, SourcePosition position, int minPrec) {
         new OutputMessageHandler(MessageOrigin.PARSER)
-                .printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported. No Expression could be created!", lexer.getLexer(), position);
+                .printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported", lexer.getLexer(), position);
         token = lexer.peek();
         //skip until operator is less then current, so we skip the current false tree and start parsing the next branch correct again
         while (!ank.hasToken(token)|| (token instanceof OperatorToken ot && ot.getPrecedence() < minPrec)) {

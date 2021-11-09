@@ -2,7 +2,7 @@ class PrivateMember {
 
     public int test;
 	
-	public static void foo() {
+	public static void foo(int a) {
         
     }
 	
@@ -11,7 +11,7 @@ class PrivateMember {
 
 class irgendwas{
 
-	public static int fib(Integer i){
+	public static void fib(Integer i){
 		return fib(1);
 		return fib(test);
 		
