@@ -20,4 +20,8 @@ public non-sealed interface MethodPass extends Pass {
      */
     default boolean checkMethod(Method method) { return true; }
 
+    @Override
+    default PassDependencyType getDependencyType() {
+        return PassDependencyType.METHOD_PASS;
+    }
 }

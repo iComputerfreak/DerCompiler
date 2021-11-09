@@ -42,4 +42,11 @@ public sealed interface Pass permits AnalysisPass, ClassPass, ExpressionPass, Me
      * @param manager PassManager that runs this Pass
      */
     void registerPassManager(PassManager manager);
+
+    long registerID(long id);
+    long getID();
+
+    default PassDependencyType getDependencyType() {
+        return PassDependencyType.SEPARATE_PASS;
+    }
 }

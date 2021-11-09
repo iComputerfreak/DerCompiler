@@ -5,7 +5,7 @@ import java.util.List;
 
 public class AnalysisUsage {
 
-    List<Class<AnalysisPass>> analyses;
+    private List<Class<AnalysisPass>> analyses;
 
     public AnalysisUsage() {
         analyses = new LinkedList<>();
@@ -29,4 +29,6 @@ public class AnalysisUsage {
     public boolean needsAnalysis(Class<AnalysisPass> needed) {
         return analyses.contains(needed);
     }
+
+    public List<Class<AnalysisPass>> getAnalyses() { return analyses; }
 }

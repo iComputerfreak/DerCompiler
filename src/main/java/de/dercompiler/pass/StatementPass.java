@@ -19,4 +19,9 @@ public non-sealed interface StatementPass extends Pass {
      * @return true, if the Class-Declaration should be checked. There is a default implementation provided that always returns true.
      */
     default boolean checkStatement(Statement statement) { return true; }
+
+    @Override
+    default PassDependencyType getDependencyType() {
+        return PassDependencyType.STATEMENT_PASS;
+    }
 }
