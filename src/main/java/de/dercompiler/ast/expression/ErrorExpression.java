@@ -13,10 +13,7 @@ public final class ErrorExpression extends AbstractExpression {
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
-        if (other instanceof ErrorExpression ee) {
-            return true;
-        }
-        return false;
+        return other instanceof ErrorExpression ee;
     }
 
     @Override

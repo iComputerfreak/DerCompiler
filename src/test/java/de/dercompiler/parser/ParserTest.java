@@ -169,7 +169,7 @@ public class ParserTest {
 
             // Tests that should succeed
             if (filename.endsWith(".valid.mj")) {
-                assertDoesNotThrow(() -> p.parseProgram());
+                assertDoesNotThrow(p::parseProgram);
                 assertTrue(OutputMessageHandler.getEvents().isEmpty());
             } else if (filename.endsWith(".invalid.mj")) {
                 // Make sure that the test really fails
@@ -208,7 +208,7 @@ public class ParserTest {
     }
 
     static void assertSyntaxEquals(ASTNode actual, ASTNode expected) {
-        assertTrue(expected.syntaxEquals(actual), "Syntax not matching. Expected '" + expected.toString() + "', but got '" + actual.toString() + "'.");
+        assertTrue(expected.syntaxEquals(actual), "Syntax not matching. Expected '" + expected + "', but got '" + actual.toString() + "'.");
     }
 
 }

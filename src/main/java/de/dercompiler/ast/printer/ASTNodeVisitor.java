@@ -33,7 +33,7 @@ public interface ASTNodeVisitor {
     void visitNewObjectExpression(NewObjectExpression newObjectExpression);
     default void visitNode(ASTNode node) {
         node.accept(this);
-    };
+    }
     void visitParameter(Parameter parameter);
     void visitPrimaryExpression(PrimaryExpression primaryExpression);
     void visitProgram(Program program);

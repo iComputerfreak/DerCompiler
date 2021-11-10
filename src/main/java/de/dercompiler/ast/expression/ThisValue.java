@@ -15,8 +15,7 @@ public final class ThisValue extends PrimaryExpression {
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
-        if (other instanceof ThisValue) return true;
-        return false;
+        return other instanceof ThisValue;
     }
 
     @Override

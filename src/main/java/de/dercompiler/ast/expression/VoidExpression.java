@@ -15,8 +15,7 @@ public final class VoidExpression extends AbstractExpression {
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
-        if (other instanceof VoidExpression) return true;
-        return false;
+        return other instanceof VoidExpression;
     }
 
     @Override
