@@ -5,8 +5,15 @@ import de.dercompiler.lexer.SourcePosition;
 
 import static de.dercompiler.lexer.token.TypeToken.INT_TYPE;
 
+/**
+ * Represents an integer type in MiniJava
+ */
 public final class IntType extends BasicType {
-    
+
+    /**
+     * Creates a new IntType
+     * @param position The source code position
+     */
     public IntType(SourcePosition position) {
         super(position);
     }

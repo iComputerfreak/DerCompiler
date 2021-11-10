@@ -9,21 +9,41 @@ import de.dercompiler.util.Utils;
 
 import java.util.List;
 
+/**
+ * Represents a class declaration in MiniJava.
+ * <pre>
+ * {@code
+ * class Foo {}
+ * }
+ * </pre>
+ */
 public final class ClassDeclaration extends ASTNode {
     
     private final String identifier;
     private final List<ClassMember> members;
 
+    /**
+     * Creates a new ClassDeclaration
+     * @param position The position of the class declaration in the source code
+     * @param identifier The identifier of the class
+     * @param members The member of the class
+     */
     public ClassDeclaration(SourcePosition position, String identifier, List<ClassMember> members) {
         super(position);
         this.identifier = identifier;
         this.members = members;
     }
 
+    /**
+     * Returns the identifier of the class
+     */
     public String getIdentifier() {
         return identifier;
     }
 
+    /**
+     * Returns all members of this class
+     */
     public List<ClassMember> getMembers() {
         return members;
     }
@@ -47,6 +67,9 @@ public final class ClassDeclaration extends ASTNode {
         astNodeVisitor.visitClassDeclaration(this);
     }
 
+    /**
+     * Represents a comparator which compares two {@link ClassDeclaration}s by their identifiers
+     */
     public static class Comparator implements java.util.Comparator<ClassDeclaration> {
 
         @Override

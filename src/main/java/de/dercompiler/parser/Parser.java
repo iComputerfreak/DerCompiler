@@ -20,6 +20,9 @@ import static de.dercompiler.lexer.token.OperatorToken.*;
 import static de.dercompiler.lexer.token.Token.*;
 import static de.dercompiler.lexer.token.TypeToken.VOID_TYPE;
 
+/**
+ * Represents a Parser that consumes tokens from the given lexer to check them for valid syntax
+ */
 public class Parser {
 
     Lexer lexer;
@@ -27,6 +30,10 @@ public class Parser {
     PrecedenceParser precedenceParser;
     private final OutputMessageHandler logger;
 
+    /**
+     * Creates a new Parser from the given lexer
+     * @param lexer The lexer that provides the tokens for this parser
+     */
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.wlexer = new LexerWrapper(lexer);
@@ -34,6 +41,10 @@ public class Parser {
         this.logger = new OutputMessageHandler(MessageOrigin.PARSER);
     }
 
+    /**
+     * Parses a complete program from the given lexer. This is the starting point for parsing MiniJava files.
+     * @return The parsed {@link Program}
+     */
     public Program parseProgram() {
         // ClassDeclaration*
         SourcePosition pos = lexer.peek().position();
@@ -51,6 +62,9 @@ public class Parser {
         return new Program(pos, classes);
     }
 
+    /**
+     * Parses a {@link ClassDeclaration} by consuming the necessary tokens from the lexer
+     */
     public ClassDeclaration parseClassDeclaration() {
         // class IDENT { ClassMember* }
         SourcePosition pos = lexer.peek().position();
@@ -77,6 +91,9 @@ public class Parser {
         return new ClassDeclaration(pos, identifier.getIdentifier(), members);
     }
 
+    /**
+     * Parses a {@link ClassMember} by consuming the necessary tokens from the lexer
+     */
     public ClassMember parseClassMember() {
         // MainMethod ->    public static void IDENT ( Type IDENT )
         // Field ->         public Type IDENT ;
@@ -118,6 +135,13 @@ public class Parser {
         return new ErrorClassMember(pos);
     }
 
+    /**
+     * Parses a {@link Field} by consuming the necessary tokens from the lexer.
+     * For this function, the type and identifier of the field is assumed to be already consumed before calling.
+     * @param type The type of the field
+     * @param identifier The identifier of the field
+     * @return The parsed field
+     */
     public ClassMember parseField(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ;
@@ -130,6 +154,9 @@ public class Parser {
         return new Field(pos, type, identifier.getIdentifier());
     }
 
+    /**
+     * Parses a {@link MainMethod} by consuming the necessary tokens from the lexer
+     */
     public ClassMember parseMainMethod() {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
         SourcePosition pos = lexer.peek().position();
@@ -157,6 +184,11 @@ public class Parser {
         return new MainMethod(pos, name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
     }
 
+    /**
+     * Parses a {@link Method} by consuming the necessary tokens from the lexer
+     * This function assumes that the type and identifier have not been consumed beforehand.
+     * See also: {@link Parser#parseMethod}
+     */
     public ClassMember parseFullMethod() {
         SourcePosition pos = lexer.peek().position();
         Type type;
@@ -172,6 +204,13 @@ public class Parser {
         return parseMethod(type, identifier);
     }
 
+    /**
+     * Parses a {@link Method} by consuming the necessary tokens from the lexer.
+     * For this function, the type and identifier of the field is assumed to be already consumed before calling.
+     * @param type The type of the method
+     * @param identifier The identifier of the method
+     * @return The parsed method
+     */
     public ClassMember parseMethod(Type type, IdentifierToken identifier) {
         // We already parsed "public Type IDENT"
         // public Type IDENT ( Parameters? ) MethodRest? Block\
@@ -202,6 +241,9 @@ public class Parser {
         return new Method(pos, type, identifier.getIdentifier(), params, methodRest, block);
     }
 
+    /**
+     * Parses a {@link MethodRest} by consuming the necessary tokens from the lexer
+     */
     public MethodRest parseMethodRest() {
         // throws IDENT
         SourcePosition pos;
@@ -217,6 +259,9 @@ public class Parser {
         return new MethodRest(pos, ident.getIdentifier());
     }
 
+    /**
+     * Parses a {@link Parameter} by consuming the necessary tokens from the lexer
+     */
     public Parameter parseParameter() {
         // Type IDENT
         SourcePosition pos = lexer.peek().position();
@@ -230,6 +275,9 @@ public class Parser {
         return new Parameter(pos, type, ident.getIdentifier());
     }
 
+    /**
+     * Parses a {@link Type} by consuming the necessary tokens from the lexer
+     */
     public Type parseType() {
         // BasicType TypeRest
         SourcePosition pos = lexer.peek().position();
@@ -238,6 +286,9 @@ public class Parser {
         return new Type(pos, type, dimension);
     }
 
+    /**
+     * Parses the array dimension of a type by consuming the necessary tokens from the lexer
+     */
     public int parseTypeRest() {
         // ([] TypeRest)?
         if (lexer.peek().type() == L_SQUARE_BRACKET) {
@@ -253,6 +304,9 @@ public class Parser {
         return 0;
     }
 
+    /**
+     * Parses a {@link BasicType} by consuming the necessary tokens from the lexer
+     */
     public BasicType parseBasicType() {
         // int | boolean | void | IDENT
         SourcePosition pos = lexer.peek().position();
@@ -281,9 +335,9 @@ public class Parser {
 
     /**
      * Checks whether the lexer's next token matches the given token and consumes it.
-     * Otherwise, prints an error and exits the program.
      *
-     * @param expected The token to check for.
+     * @param expected The token to check for
+     * @throws ExpectedTokenError If the current token does not match the expected token
      */
     private void expect(IToken expected) throws ExpectedTokenError {
         TokenOccurrence t = lexer.nextToken();
@@ -294,9 +348,10 @@ public class Parser {
     }
 
     /**
-     * Checks if the lexer's next token is an identifier.
+     * Checks if the lexer's next token is an identifier and consumes it.
      *
-     * @return The IdentifierToken, if there is one, otherwise the function prints an error and exits without returning anything.
+     * @return The parsed IdentifierToken
+     * @throws ExpectedTokenError If the current token is not an identifier
      */
     private IdentifierToken expectIdentifier() throws ExpectedTokenError {
         TokenOccurrence t = lexer.nextToken();
@@ -310,7 +365,7 @@ public class Parser {
         throw new ExpectedTokenError("Identifier expected, but found '%s'".formatted(t.type().toString()));
     }
 
-    //since here we use wlexer instead of lexer
+    // From here on, we use wlexer instead of lexer
 
     private boolean isBlockStatement(IToken token) {
         return isType(token) || isExpression(token) || token instanceof Token t && switch (t) {

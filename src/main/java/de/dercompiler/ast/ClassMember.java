@@ -2,12 +2,22 @@ package de.dercompiler.ast;
 
 import de.dercompiler.lexer.SourcePosition;
 
+/**
+ * Represents a class member, such as a field, method or main method
+ */
 public abstract sealed class ClassMember extends ASTNode permits Field, Method, MainMethod, ErrorClassMember {
 
+    /**
+     * Creates a new ClassMember
+     * @param position The source code position
+     */
     public ClassMember(SourcePosition position) {
         super(position);
     }
 
+    /**
+     * Represents a comparator to compare two {@link ClassMember}s by their identifier and type
+     */
     public static class Comparator implements java.util.Comparator<ClassMember> {
 
             @Override
