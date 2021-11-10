@@ -830,7 +830,7 @@ public class Parser {
                             expression = parseNewObjectExpression(ank);
                         } else if (t2 == L_SQUARE_BRACKET) {
                             expression = parseNewArrayExpression(ank);
-                        } else {
+                        } else if (!isErrorMode()) {
                             logger.printParserError(ParserErrorIds.EXPECTED_OBJECT_INSTANTIATION, "Expected '(' or '[', but found '%s".formatted(wlexer.peek(2)), lexer, lexer.peek(2).position());
                         }
                     }
