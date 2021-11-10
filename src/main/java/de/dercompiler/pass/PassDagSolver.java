@@ -8,6 +8,12 @@ import java.util.function.Function;
 
 public class PassDagSolver {
 
+    /**
+     * this method uses an implementation of Kahn's Algorithm to solve the ordering in a DAG in O(n)
+     *
+     * @param passes the passes aka the vertices of the graph, the edges are defined by the AnalysisUsage defined by the pass itself
+     * @return the ordered Pass based on the defined underlying DAG
+     */
     public static List<Pass> solveDependencies(List<Pass> passes) {
         Pass[] vertices = passes.toArray(new Pass[0]);
         AnalysisUsage[] edges = new AnalysisUsage[vertices.length];

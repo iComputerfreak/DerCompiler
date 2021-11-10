@@ -46,7 +46,11 @@ public sealed interface Pass permits AnalysisPass, ClassPass, ExpressionPass, Me
     long registerID(long id);
     long getID();
 
-    default PassDependencyType getDependencyType() {
+    default PassDependencyType getMinDependencyType() {
+        return PassDependencyType.SEPARATE_PASS;
+    }
+
+    default PassDependencyType getMaxDependencyType() {
         return PassDependencyType.SEPARATE_PASS;
     }
 }

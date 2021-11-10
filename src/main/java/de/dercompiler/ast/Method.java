@@ -15,6 +15,7 @@ public final class Method extends ClassMember {
     private final List<Parameter> parameters;
     private final MethodRest methodRest;
     private final BasicBlock block;
+    private ClassDeclaration surrounding;
     
     // INFO: methodRest may be null
     public Method(SourcePosition position, Type type, String identifier, List<Parameter> parameters, MethodRest methodRest, BasicBlock block) {
@@ -68,5 +69,13 @@ public final class Method extends ClassMember {
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
         astNodeVisitor.visitMethod(this);
+    }
+
+    public void setSurroundingClass(ClassDeclaration declaration) {
+        this.surrounding = declaration;
+    }
+
+    public ClassDeclaration getSurroundingClass() {
+        return surrounding;
     }
 }

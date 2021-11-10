@@ -101,16 +101,16 @@ public class PassManager {
 
             for (Pass pass : passes) {
                 boolean newStep =
-                        !pass.getDependencyType().usesNaturalOrdering() || Objects.isNull(last)
+                        !pass.getMinDependencyType().usesNaturalOrdering() || Objects.isNull(last)
                         || !last.usesNaturalOrdering()
-                        || last.ordinal() > pass.getDependencyType().ordinal();
+                        || last.ordinal() > pass.getMinDependencyType().ordinal();
 
                 if (newStep && !step.isEmpty()) {
                     pipeline.addLast(step);
                     step = new LinkedList<>();
                 }
                 step.add(pass);
-                last = pass.getDependencyType();
+                last = pass.getMaxDependencyType();
             }
             if (!step.isEmpty()) {
                 pipeline.addLast(step);

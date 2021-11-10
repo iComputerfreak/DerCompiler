@@ -21,7 +21,12 @@ public non-sealed interface ClassPass extends Pass {
     default boolean checkClass(ClassDeclaration classDeclaration) { return true; }
 
     @Override
-    default PassDependencyType getDependencyType() {
+    default PassDependencyType getMinDependencyType() {
+        return PassDependencyType.CLASS_PASS;
+    }
+
+    @Override
+    default PassDependencyType getMaxDependencyType() {
         return PassDependencyType.CLASS_PASS;
     }
 }

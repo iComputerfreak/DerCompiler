@@ -20,7 +20,12 @@ public non-sealed interface ExpressionPass extends Pass {
     default boolean checkExpression(Expression expression) { return true; }
 
     @Override
-    default PassDependencyType getDependencyType() {
+    default PassDependencyType getMinDependencyType() {
+        return PassDependencyType.EXPRESSION_PASS;
+    }
+
+    @Override
+    default PassDependencyType getMaxDependencyType() {
         return PassDependencyType.EXPRESSION_PASS;
     }
 }

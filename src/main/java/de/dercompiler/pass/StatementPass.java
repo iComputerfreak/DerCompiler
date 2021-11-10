@@ -21,7 +21,12 @@ public non-sealed interface StatementPass extends Pass {
     default boolean checkStatement(Statement statement) { return true; }
 
     @Override
-    default PassDependencyType getDependencyType() {
+    default PassDependencyType getMinDependencyType() {
+        return PassDependencyType.STATEMENT_PASS;
+    }
+
+    @Override
+    default PassDependencyType getMaxDependencyType() {
         return PassDependencyType.STATEMENT_PASS;
     }
 }
