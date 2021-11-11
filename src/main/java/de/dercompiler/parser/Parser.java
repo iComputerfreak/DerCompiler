@@ -374,7 +374,7 @@ public class Parser {
             return it;
         }
         //don't print if current is in ank, then we may have already printed an error
-        if (!ank.hasToken(token)) {
+        if (!ank.hasToken(token) || token == EOF) {
             logger.printParserError(ParserErrorIds.EXPECTED_IDENTIFIER, "Identifier expected, but found '%s'".formatted(token.toString()), lexer, lexer.peek().position());
         }
         ExpectedTokenError e = new ExpectedTokenError("Identifier expected, but found '%s'".formatted(token.toString()));

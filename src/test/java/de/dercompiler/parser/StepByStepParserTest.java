@@ -237,6 +237,7 @@ public static void main(String[] args) {
             if (eventList.isEmpty()) {
                 System.out.println(curLexer.printSourceText(curLexer.peek().position()));
             }
+            // We just parsed a single token as a program, the debug events should contain an error
             assertFalse(eventList.isEmpty());
             final String tokenPos = curLexer.peek().position().toString();
             boolean valid = eventList.stream().anyMatch((debugEvent -> debugEvent.getMessage().contains(tokenPos)));
