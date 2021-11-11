@@ -4,6 +4,7 @@ import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -38,11 +39,7 @@ public class PassManager {
     }
 
     private PassPipeline generateOrder(List<Pass> passes) {
-        List<Pass> ordered = PassDagSolver.solveDependencies(passes);
-        if (Objects.isNull(ordered)) {
-            return new PassPipeline(new LinkedList<>());
-        }
-        return new PassPipeline(ordered);
+        return PassDagSolver.solveDependencies(passes, this);
     }
 
     private void initializeMissingPasses() {
@@ -73,7 +70,7 @@ public class PassManager {
     }
 
     private void traverseTree(PassPipeline pipeline, Program program) {
-
+        while (pipeline.traverseTreeStep(program)) {}
     }
 
     /**
@@ -88,36 +85,30 @@ public class PassManager {
         finalizePasses(program);
     }
 
-    private class PassPipeline {
+    private ClassDeclaration cur_classDeclaration = null;
+    private Method cur_method = null;
+    private BasicBlock cur_basicBlock = null;
+    private Statement cur_statement = null;
+    private Expression cur_expression = null;
 
-        LinkedList<List<Pass>> pipeline;
+    public void setCurrentClassDeclaration(ClassDeclaration declaration) {
+        cur_classDeclaration = declaration;
+    }
 
-        public PassPipeline(List<Pass> passes) {
+    public void setCurrentMethod(Method method) {
+        cur_method = method;
+    }
 
-            pipeline = new LinkedList<>();
-            LinkedList<Pass> step = new LinkedList<>();
+    public void setCurrentBasicBlock(BasicBlock block) {
+        cur_basicBlock = block;
+    }
 
-            PassDependencyType last = null;
+    public void setCurrentStatement(Statement statement) {
+        cur_statement = statement;
+    }
 
-            for (Pass pass : passes) {
-                boolean newStep =
-                        !pass.getMinDependencyType().usesNaturalOrdering() || Objects.isNull(last)
-                        || !last.usesNaturalOrdering()
-                        || last.ordinal() > pass.getMinDependencyType().ordinal();
-
-                if (newStep && !step.isEmpty()) {
-                    pipeline.addLast(step);
-                    step = new LinkedList<>();
-                }
-                step.add(pass);
-                last = pass.getMaxDependencyType();
-            }
-            if (!step.isEmpty()) {
-                pipeline.addLast(step);
-            }
-        }
-
-
+    public void setCurrentExpression(Expression expression) {
+        cur_expression = expression;
     }
 
     /**
@@ -126,7 +117,7 @@ public class PassManager {
      * @return the current Class-Declaration
      */
     public ClassDeclaration getCurrentClass() {
-        return null;
+        return cur_classDeclaration;
     }
 
     /**
@@ -135,7 +126,16 @@ public class PassManager {
      * @return the current Method
      */
     public Method getCurrentMethod() {
-        return null;
+        return cur_method;
+    }
+
+    /**
+     * Returns the current BasicBlock of the AST.
+     *
+     * @return the current BasicBlock
+     */
+    public BasicBlock getCurrentBasicBlock() {
+        return cur_basicBlock;
     }
 
     /**
@@ -144,7 +144,7 @@ public class PassManager {
      * @return the current Statement
      */
     public Statement getCurrentStatement() {
-        return null;
+        return cur_statement;
     }
 
     /**
@@ -154,6 +154,6 @@ public class PassManager {
      * @return the current Expression
      */
     public Expression getCurrentExpression() {
-        return null;
+        return cur_expression;
     }
 }

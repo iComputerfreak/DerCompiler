@@ -19,14 +19,4 @@ public non-sealed interface MethodPass extends Pass {
      * @return true, if the Class-Declaration should be checked. There is a default implementation provided that always returns true.
      */
     default boolean checkMethod(Method method) { return true; }
-
-    @Override
-    default PassDependencyType getMinDependencyType() {
-        return PassDependencyType.METHOD_PASS;
-    }
-
-    @Override
-    default PassDependencyType getMaxDependencyType() {
-        return PassDependencyType.METHOD_PASS;
-    }
 }

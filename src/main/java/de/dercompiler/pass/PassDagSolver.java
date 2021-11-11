@@ -4,7 +4,6 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class PassDagSolver {
 
@@ -14,61 +13,67 @@ public class PassDagSolver {
      * @param passes the passes aka the vertices of the graph, the edges are defined by the AnalysisUsage defined by the pass itself
      * @return the ordered Pass based on the defined underlying DAG
      */
-    public static List<Pass> solveDependencies(List<Pass> passes) {
+    public static PassPipeline solveDependencies(List<Pass> passes, PassManager manager) {
         Pass[] vertices = passes.toArray(new Pass[0]);
-        AnalysisUsage[] edges = new AnalysisUsage[vertices.length];
+        ArrayList<List<Pass>> edges = new ArrayList<List<Pass>>(vertices.length);
         int[] count = new int[vertices.length];
+        Map<Long, Integer> lookupTable = new HashMap<>();
 
-        //TODO is there a smarter and faster way than linear search?
         for(int i = 0; i < vertices.length; i++) {
-            edges[i] = vertices[i].getAnalysisUsage(new AnalysisUsage());
-            List<Pass> deps = PassHelper.transform(edges[i].getAnalyses(), PassHelper.AnalysisUsageToPass);
-            for (Pass dep : deps) {
-                boolean found = false;
-                for (int k = 0; k < vertices.length; k++) {
-                    if (dep.getID() == vertices[k].getID()) {
-                        found = true;
-                        count[k]++;
-                    }
-                }
+            lookupTable.put(vertices[i].getID(), i);
+            edges.set(i, PassHelper.transform(vertices[i].getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass));
+        }
 
-                if (!found) {
-                    new OutputMessageHandler(MessageOrigin.PASSES).internalError("Something is wrong with the internal registration of passes, pls check the implementation for adding missing but necessary ones!");
+        for (int i = 0; i < vertices.length; i++) {
+            for (Pass dep : edges.get(i)) {
+                if (lookupTable.containsKey(dep.getID())) {
+                    int idx = lookupTable.get(dep.getID());
+                    count[idx] += 1;
+                } else {
+                    new OutputMessageHandler(MessageOrigin.PASSES)
+                            .internalError("Something is wrong with the internal registration of passes, pls check the implementation for adding missing but necessary ones!");
                 }
             }
         }
 
-        LinkedList<Pass> resolvedOrder = new LinkedList<>();
+        Queue<Pass> next = new LinkedList<>();
+        Queue<Pass> current;
+        Queue<Integer> nextIdx = new LinkedList<>();
+        Queue<Integer> currentIdx;
 
-        Queue<Pass> S = new LinkedList<>();
-        Queue<Integer> idx = new LinkedList<>();
+        PassPipeline pipeline = new PassPipeline(manager);
+
         for (int i = 0; i < vertices.length; i++) {
             if (count[i] == 0) {
-                S.add(vertices[i]);
-                idx.add(i);
+                next.add(vertices[i]);
+                nextIdx.add(i);
             }
         }
 
-        while (!S.isEmpty()) {
-            if(S.size() != idx.size()) {
-                new OutputMessageHandler(MessageOrigin.PASSES).internalError("Kahn's Algorithm to sort Passes is broken");
-            }
-
-            Pass pass = S.remove();
-            //here we create the ordering
-            resolvedOrder.addFirst(pass);
-            int i = idx.remove();
-            List<Pass> deps = PassHelper.transform(edges[i].getAnalyses(), PassHelper.AnalysisUsageToPass);
-            for (Pass dep : deps) {
-                for (int k = 0; k < vertices.length; k++) {
-                    if (dep.getID() == vertices[k].getID()) {
-                        count[k]--;
-                        if (count[k] == 0) {
-                            S.add(vertices[k]);
-                            idx.add(k);
-                        }
+        while (!next.isEmpty()) {
+            current = next;
+            next = new LinkedList<>();
+            currentIdx = nextIdx;
+            nextIdx = new LinkedList<>();
+            while (!current.isEmpty()) {
+                if (current.size() != currentIdx.size()) {
+                    new OutputMessageHandler(MessageOrigin.PASSES).internalError("Kahn's Algorithm to sort Passes is broken");
+                }
+                Pass pass = current.remove();
+                int i = currentIdx.remove();
+                pipeline.addPass(pass);
+                // we know dep exists in the lookupTable because of the check above
+                for (Pass dep : edges.get(i)) {
+                    int idx = lookupTable.get(dep.getID());
+                    count[idx]--;
+                    if (count[idx] == 0) {
+                        next.add(vertices[idx]);
+                        nextIdx.add(idx);
                     }
                 }
+            }
+            if (next.size() > 0) {
+                pipeline.nextStep();
             }
         }
         for (int i = 0; i < vertices.length; i++) {
@@ -77,6 +82,6 @@ public class PassDagSolver {
                 return null;
             }
         }
-        return resolvedOrder;
+        return pipeline;
     }
 }

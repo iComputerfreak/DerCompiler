@@ -4,13 +4,11 @@ import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.pass.*;
 
-public class ASTReferencePass implements MethodPass, StatementPass, ExpressionPass {
-
-    private static long id = 0;
-    PassManager manager = null;
+public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass,  ExpressionPass {
 
     public ASTReferencePass() {}
 
@@ -31,6 +29,12 @@ public class ASTReferencePass implements MethodPass, StatementPass, ExpressionPa
     }
 
     @Override
+    public boolean runOnBasicBlock(BasicBlock block) {
+        block.setSurroundingMethod(manager.getCurrentMethod());
+        return false;
+    }
+
+    @Override
     public boolean runOnStatement(Statement statement) {
         statement.setSurroundingMethod(manager.getCurrentMethod());
         return false;
@@ -43,16 +47,6 @@ public class ASTReferencePass implements MethodPass, StatementPass, ExpressionPa
     }
 
     @Override
-    public PassDependencyType getMinDependencyType() {
-        return PassDependencyType.METHOD_PASS;
-    }
-
-    @Override
-    public PassDependencyType getMaxDependencyType() {
-        return PassDependencyType.EXPRESSION_PASS;
-    }
-
-    @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
         return usage;
     }
@@ -61,6 +55,9 @@ public class ASTReferencePass implements MethodPass, StatementPass, ExpressionPa
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
         return usage;
     }
+
+    private static long id = 0;
+    private PassManager manager = null;
 
     @Override
     public void registerPassManager(PassManager manager) {
@@ -77,5 +74,10 @@ public class ASTReferencePass implements MethodPass, StatementPass, ExpressionPa
     @Override
     public long getID() {
         return id;
+    }
+
+    @Override
+    public AnalysisDirection getAnalysisDirection() {
+        return AnalysisDirection.TOP_DOWN;
     }
 }
