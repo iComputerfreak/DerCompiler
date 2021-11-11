@@ -6,6 +6,7 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.*;
+import de.dercompiler.pass.passes.ASTReferencePass;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -251,15 +252,15 @@ class PassPipeline {
         this.manager = manager;
     }
 
-    void addPass(Pass pass) {
+    public void addPass(Pass pass) {
         steps.get(0).addPass(pass);
     }
 
-    void nextStep() {
+    public void nextStep() {
         steps.add(new PassSteps(manager));
     }
 
-    void printPipeline(PrintStream stream) {
+    public void printPipeline(PrintStream stream) {
         stream.println("Pipeline:\n");
         for (int i = 0; i < steps.size(); i++) {
             stream.println("Step " + i + ":\n");
@@ -267,12 +268,20 @@ class PassPipeline {
         }
     }
 
-    boolean traverseTreeStep(Program program) {
+    public boolean traverseTreeStep(Program program) {
 
         if (steps.size() > stepCount) {
             steps.get(stepCount++).traverseTree(program);
         }
         return steps.size() > stepCount;
+    }
+
+    public void addASTReferencePass() {
+        ASTReferencePass pass = new ASTReferencePass();
+        steps.get(0).td_methodPasses.addFirst(pass);
+        steps.get(0).td_basicBlockPasses.addFirst(pass);
+        steps.get(0).td_statementPasses.addFirst(pass);
+        steps.get(0).td_expressionPasses.addFirst(pass);
     }
 
 }

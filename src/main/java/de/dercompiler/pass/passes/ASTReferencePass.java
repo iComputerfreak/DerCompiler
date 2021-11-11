@@ -10,16 +10,38 @@ import de.dercompiler.pass.*;
 
 public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass,  ExpressionPass {
 
+    private boolean shouldRun = false;
+
     public ASTReferencePass() {}
 
     @Override
     public void doInitialization(Program program) {
-
+        shouldRun = !program.isIndexed();
     }
 
     @Override
     public void doFinalization(Program program) {
+        program.indexed();
+    }
 
+    @Override
+    public boolean checkClass(BasicBlock block) {
+        return shouldRun;
+    }
+
+    @Override
+    public boolean checkExpression(Expression expression) {
+        return shouldRun;
+    }
+
+    @Override
+    public boolean checkMethod(Method method) {
+        return shouldRun;
+    }
+
+    @Override
+    public boolean checkStatement(Statement statement) {
+        return shouldRun;
     }
 
     @Override

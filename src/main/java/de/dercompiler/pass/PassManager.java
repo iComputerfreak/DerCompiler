@@ -74,6 +74,9 @@ public class PassManager {
     }
 
     private void traverseTree(PassPipeline pipeline, Program program) {
+        if (!program.isIndexed()) {
+            pipeline.addASTReferencePass();
+        }
         while (pipeline.traverseTreeStep(program)) {}
     }
 
