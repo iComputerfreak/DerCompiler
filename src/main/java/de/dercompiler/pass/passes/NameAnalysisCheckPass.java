@@ -40,7 +40,7 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         SymbolTable symbolTable = null;
         
         // TODO: How do I specifically request the a method with this name?
-        Symbol symbol = null; //stringTable.getSymbol(method.getIdentifier());
+        Symbol symbol = stringTable.findOrInsertMethod(method.getIdentifier());
         // If there currently is no method with this name, stringTable.getSymbol() will return a new Symbol
         // with a null Scope and Definition, which will fail the following if statement.
         // If the method is defined in a scope above the current scope, that is okay and no conflict.
@@ -63,7 +63,7 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         // We only have to look at LocalVariableDeclarationStatements, since they are the only ones that create a new Definition
         // All other types only have to be checked for referenced variables in their expressions, which is done in runOnExpression
         if (statement instanceof LocalVariableDeclarationStatement l) {
-            Symbol s = null; //stringTable.getSymbol(l.getIdentifier());
+            Symbol s = stringTable.findOrInsertVariable(l.getIdentifier());
             // If we already have a method with this name, it uses a different symbol, as returned by the string table
             // and we have no conflicting definitions that get overwritten
             symbolTable.insert(s, new VariableDefinition(s, l.getType()));
@@ -83,7 +83,7 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         SymbolTable symbolTable = null;
         for (Variable v : getReferencedVariables(expression)) {
             // Check if this variable has been defined
-            Symbol s = null; //stringTable.getSymbol(v.getName());
+            Symbol s = stringTable.findOrInsertVariable(v.getName());
             // We have to check, if the symbol is defined in any parent scope, not just the current.
             if (symbolTable.lookup(s) == null) {
                 // TODO: Error: v not defined.
