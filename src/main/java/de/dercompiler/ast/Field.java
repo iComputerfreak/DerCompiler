@@ -9,7 +9,7 @@ import de.dercompiler.lexer.SourcePosition;
  * <pre>
  *     {@code
  *     class Foo {
- *         int a; // This is the field
+ *         public int a; // This is the field
  *     }
  *     }
  * </pre>

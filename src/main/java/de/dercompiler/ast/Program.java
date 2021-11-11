@@ -13,7 +13,7 @@ import java.util.List;
  * <pre>
  *     {@code
  *     class Foo {
- *         int a;
+ *         public int a;
  *         public static void foo(String[] args) throws NullPointerException {}
  *         public void bar() {
  *             this.a = 0;

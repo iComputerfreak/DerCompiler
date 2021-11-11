@@ -82,7 +82,7 @@ public class SymbolTable {
     }
 
     /**
-     * Checks, whether the given symbol is currently stored in the symbol table
+     * Checks, whether the given symbol is currently stored in the symbol table's current scope
      * @param symbol The symbol to check for
      * @return Whether the symbol is stored in the currenty symbol table (taking into account the current scope)
      */
