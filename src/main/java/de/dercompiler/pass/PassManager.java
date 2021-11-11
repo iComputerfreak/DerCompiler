@@ -16,7 +16,9 @@ import java.util.Objects;
 
 public class PassManager {
 
-    List<Pass> passes;
+
+    private static long passIDs = 1;
+    private List<Pass> passes;
 
     private void addPassAfterCheck(Pass pass) {
         passes.add(pass);
@@ -60,6 +62,8 @@ public class PassManager {
 
     private void initializePasses(Program program) {
         for (Pass pass : passes) {
+            //set passID if not set and increment counter because id is used
+            if (pass.registerID(passIDs) == passIDs) passIDs++;
             pass.registerPassManager(this);
             pass.doInitialization(program);
         }
