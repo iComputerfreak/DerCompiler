@@ -6,7 +6,7 @@ import de.dercompiler.lexer.token.OperatorToken;
 
 public class ExpressionFactory {
 
-    public static AbstractExpression createExpression(IToken token, SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public static Expression createExpression(IToken token, SourcePosition position, Expression lhs, Expression rhs) {
         if (!(token instanceof OperatorToken t)) {
             return null;
         }

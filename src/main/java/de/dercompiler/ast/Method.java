@@ -27,6 +27,7 @@ public final class Method extends ClassMember {
     private final List<Parameter> parameters;
     private final MethodRest methodRest;
     private final BasicBlock block;
+    private ClassDeclaration surrounding;
 
     /**
      * Creates a new Method
@@ -103,5 +104,13 @@ public final class Method extends ClassMember {
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
         astNodeVisitor.visitMethod(this);
+    }
+
+    public void setSurroundingClass(ClassDeclaration declaration) {
+        this.surrounding = declaration;
+    }
+
+    public ClassDeclaration getSurroundingClass() {
+        return surrounding;
     }
 }

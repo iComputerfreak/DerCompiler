@@ -1,7 +1,7 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -9,16 +9,16 @@ import java.util.Objects;
 
 public final class WhileStatement extends Statement {
 
-    AbstractExpression condition;
+    Expression condition;
     Statement statement;
 
-    public WhileStatement(SourcePosition position, AbstractExpression condition, Statement statement) {
+    public WhileStatement(SourcePosition position, Expression condition, Statement statement) {
         super(position);
         this.condition = condition;
         this.statement = statement;
     }
 
-    public AbstractExpression getCondition() {
+    public Expression getCondition() {
         return condition;
     }
 

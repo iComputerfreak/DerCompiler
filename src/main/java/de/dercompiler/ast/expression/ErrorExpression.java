@@ -6,7 +6,7 @@ import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
-public final class ErrorExpression extends AbstractExpression {
+public final class ErrorExpression extends Expression {
 
     public ErrorExpression(SourcePosition position) { super(position); }
 

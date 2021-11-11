@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public final class LogicalNotExpression extends UnaryExpression {
 
-    public LogicalNotExpression(SourcePosition position, AbstractExpression encapsulated) {
+    public LogicalNotExpression(SourcePosition position, Expression encapsulated) {
         super(position, encapsulated);
     }
 

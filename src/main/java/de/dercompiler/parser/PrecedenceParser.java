@@ -1,6 +1,6 @@
 package de.dercompiler.parser;
 
-import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.ErrorExpression;
 import de.dercompiler.ast.expression.ExpressionFactory;
 import de.dercompiler.io.OutputMessageHandler;
@@ -20,26 +20,27 @@ public class PrecedenceParser {
         this.parser = parser;
     }
 
-    public AbstractExpression parseExpression() {
-        return parseExpression(0);
+    public Expression parseExpression(AnchorSet ank) {
+        return parseExpression(ank, 0);
     }
 
-    private AbstractExpression parseExpression(int minPrec) {
+    private Expression parseExpression(AnchorSet ank, int minPrec) {
 
-        AbstractExpression result = parser.parseUnaryExpression();
+        Expression result = parser.parseUnaryExpression(ank.fork().addOperator());
         IToken token = lexer.peek();
         SourcePosition pos = lexer.position();
         int prec;
         while (token instanceof OperatorToken op && (prec = op.getPrecedence()) >= minPrec) {
             if (prec == -1) {
-                handleError(token, pos);
+                handleError(ank, token, pos, minPrec);
             }
             //don't assign token here, we need it maybe for error printing
             lexer.nextToken();
-            AbstractExpression rhs = parseExpression(prec + 1);
+            //ank right or do we have to add
+            Expression rhs = parseExpression(ank,prec + 1);
             result = ExpressionFactory.createExpression(op, pos, result, rhs);
             if (result instanceof ErrorExpression) {
-                handleError(token, pos);
+                handleError(ank, token, pos, minPrec);
             }
             token = lexer.peek();
             pos = lexer.position();
@@ -47,8 +48,13 @@ public class PrecedenceParser {
         return result;
     }
 
-    private void handleError(IToken token, SourcePosition position) {
+    private void handleError(AnchorSet ank, IToken token, SourcePosition position, int minPrec) {
         new OutputMessageHandler(MessageOrigin.PARSER)
                 .printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Token " + token + " is not supported", lexer.getLexer(), position);
+        token = lexer.peek();
+        //skip until operator is less then current, so we skip the current false tree and start parsing the next branch correct again
+        while (!ank.hasToken(token)|| (token instanceof OperatorToken ot && ot.getPrecedence() < minPrec)) {
+            token = lexer.nextToken();
+        }
     }
 }

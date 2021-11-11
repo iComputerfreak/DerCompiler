@@ -169,7 +169,7 @@ public class ParserTestStatements {
                 "while(true);",
                 "while(true)while(true);",
         };
-        AbstractExpression cond = new BooleanValue(DEFAULT_POS, true);
+        Expression cond = new BooleanValue(DEFAULT_POS, true);
         Statement empty = new EmptyStatement(DEFAULT_POS);
         ASTNode[] whiles_expected = {
             new WhileStatement(DEFAULT_POS, cond, empty),
@@ -215,7 +215,7 @@ public class ParserTestStatements {
             "if (true) if (true);",
             "if (true) if (true); else;",
         };
-        AbstractExpression cond = new BooleanValue(DEFAULT_POS, true);
+        Expression cond = new BooleanValue(DEFAULT_POS, true);
         Statement empty = new EmptyStatement(DEFAULT_POS);
         ASTNode[] ifs_expected = {
             new IfStatement(DEFAULT_POS, cond, empty, null),

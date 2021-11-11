@@ -26,7 +26,7 @@ public class ParserTestHelper {
     }
 
     public interface ParserFunction {
-        public ASTNode parse(Parser parser);
+        public ASTNode parse(Parser parser, AnchorSet ank);
     }
 
     public void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes, ParserFunction func) {
@@ -37,7 +37,7 @@ public class ParserTestHelper {
             String lexString = lexValue.next();
             Lexer lexer = Lexer.forString(lexString);
             Parser parser = new Parser(lexer);
-            ASTNode created = func.parse(parser);
+            ASTNode created = func.parse(parser, new AnchorSet());
             testSyntaxEqual(lexString, created, expected.next(), lexer);
         }
     }

@@ -9,7 +9,7 @@ import java.util.Objects;
 import static de.dercompiler.lexer.token.OperatorToken.GREATER_THAN;
 
 public final class GreaterExpression extends BinaryExpression {
-    public GreaterExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public GreaterExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

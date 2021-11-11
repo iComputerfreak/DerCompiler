@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.MINUS;
 
 public final class SubtractExpression extends BinaryExpression {
 
-    public SubtractExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public SubtractExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

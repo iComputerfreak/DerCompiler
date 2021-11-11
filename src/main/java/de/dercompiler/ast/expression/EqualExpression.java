@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.EQUAL;
 
 public final class EqualExpression extends BinaryExpression {
 
-    public EqualExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public EqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

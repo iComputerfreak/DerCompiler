@@ -1,7 +1,7 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -9,14 +9,14 @@ import java.util.Objects;
 
 public final class ExpressionStatement extends Statement {
 
-    AbstractExpression expressionRoot;
+    Expression expressionRoot;
 
-    public ExpressionStatement(SourcePosition position, AbstractExpression expression) {
+    public ExpressionStatement(SourcePosition position, Expression expression) {
         super(position);
         expressionRoot = expression;
     }
 
-    public AbstractExpression getExpression() {
+    public Expression getExpression() {
         return expressionRoot;
     }
 

@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.LESS_THAN;
 
 
 public final class LessExpression extends BinaryExpression {
-    public LessExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public LessExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.AND_LAZY;
 
 public final class LogicalAndExpression extends BinaryExpression {
 
-    public LogicalAndExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public LogicalAndExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

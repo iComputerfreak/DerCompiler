@@ -226,14 +226,18 @@ public final class OutputMessageHandler {
             debugEvents.add(new DebugEvent(origin, id, errorMessage + "\n" + lexer.printSourceText(position)));
         } else {
             ErrorStatus.reportError(-idPrefix - id.getId());
-            //TODO remove after added ankermengen
-            System.exit(-idPrefix - id.getId());
         }
     }
 
     private void internalError(String message, StackTraceElement element) {
         formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
                 + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor);
+        System.exit(-1);
+    }
+
+    private void internalError(String message, StackTraceElement element, Exception e) {
+        formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
+                + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor, e);
         System.exit(-1);
     }
 
@@ -257,6 +261,18 @@ public final class OutputMessageHandler {
         //we use this to get the classname and the line-count where the error gets printed
         Exception e = new Exception();
         internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE]);
+    }
+
+    /**
+     * Prints an internal error with message, with classname, methode, and line
+     *
+     * @param errorMessage error-message to print
+     */
+    public void internalError(String errorMessage, Exception exc) {
+        //https://stackoverflow.com/questions/7483421/how-to-get-source-file-name-line-number-from-a-java-lang-class-object
+        //we use this to get the classname and the line-count where the error gets printed
+        Exception e = new Exception();
+        internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE], exc);
     }
 
     /**
