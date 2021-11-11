@@ -1,5 +1,7 @@
 package de.dercompiler.semantic;
 
+import de.dercompiler.lexer.StringTable;
+
 import java.util.Stack;
 
 /**
@@ -8,15 +10,15 @@ import java.util.Stack;
 public class SymbolTable {
     
     private final Stack<Change> changes;
-    private Scope currentScope = null;
+    private Scope currentScope;
 
     /**
      * Creates a new SymbolTable in the given scope
-     * @param currentScope The scope the symbol table is initialized with
      */
-    public SymbolTable(Scope currentScope) {
+    public SymbolTable() {
         this.changes = new Stack<>();
-        this.currentScope = currentScope;
+        this.currentScope = null;
+        enterScope();
     }
 
     /**
