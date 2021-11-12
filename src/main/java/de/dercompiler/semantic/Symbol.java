@@ -21,6 +21,14 @@ public class Symbol {
     }
 
     /**
+     * Creates a new symbol when only the name is given
+     * @param name The name of the symbol
+     */
+    public Symbol(String name) {
+        this.name = name;
+    }
+
+    /**
      * Returns the name of the symbol
      */
     public String getName() {
