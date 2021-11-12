@@ -3,10 +3,16 @@ package de.dercompiler.pass.passes;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.*;
-import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.type.CustomType;
+import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.StringTable;
 import de.dercompiler.pass.*;
-import de.dercompiler.semantic.*;
+import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.semantic.Symbol;
+import de.dercompiler.semantic.SymbolTable;
+import de.dercompiler.semantic.VariableDefinition;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +57,10 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         }
         
         // Otherwise, this is a new definition, so we add it to the symbol table
+        Type returnType = method.getType();
+        if (returnType.getBasicType() instanceof CustomType ct && stringTable.findOrInsertClass(ct.getIdentifier()).getCurrentDef() == null) {
+            //TODO: Error: Unknown class
+        }
         symbolTable.insert(symbol, new MethodDefinition(symbol, null/* TODO: TYPE? */));
         return false;
     }
@@ -112,7 +122,9 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
                 return getReferencedVariables(e.getSize());
             } else if (p instanceof Variable v) {
                 // If we reached a variable, we return it
-                return List.of(v);
+                LinkedList<Variable> results = new LinkedList<>();
+                results.add(v);
+                return results;
             } else {
                 // If we reach this statement, a new PrimaryExpression subclass has been added
                 // that should be considered in the if-statements above

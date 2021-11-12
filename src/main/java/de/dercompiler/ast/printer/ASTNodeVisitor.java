@@ -40,7 +40,7 @@ public interface ASTNodeVisitor {
     void visitReturnStatement(ReturnStatement returnStatement);
 
     void visitType(Type type);
-    void visitUnitializedValue(UninitializedValue uninitializedValue);
+    void visitUninitializedValue(UninitializedValue uninitializedValue);
     void visitVoidExpression(VoidExpression voidExpression);
     void visitWhileStatement(WhileStatement whileStatement);
 

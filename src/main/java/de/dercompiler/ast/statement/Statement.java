@@ -16,7 +16,7 @@ public abstract sealed class Statement extends ASTNode permits BasicBlock, Empty
         surrounding = method;
     }
 
-    public Method setSurroundingMethod() {
+    public Method getSurroundingMethod() {
         return surrounding;
     }
 }

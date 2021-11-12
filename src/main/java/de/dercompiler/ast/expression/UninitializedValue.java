@@ -20,7 +20,7 @@ public final class UninitializedValue extends Expression {
 
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
-        astNodeVisitor.visitUnitializedValue(this);
+        astNodeVisitor.visitUninitializedValue(this);
     }
 
 }
