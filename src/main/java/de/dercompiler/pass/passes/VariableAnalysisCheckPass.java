@@ -1,9 +1,9 @@
 package de.dercompiler.pass.passes;
 
-import de.dercompiler.ast.ClassDeclaration;
-import de.dercompiler.ast.ClassMember;
-import de.dercompiler.ast.Field;
-import de.dercompiler.ast.Program;
+import de.dercompiler.ast.*;
+import de.dercompiler.ast.statement.BasicBlock;
+import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.type.Type;
 import de.dercompiler.pass.AnalysisUsage;
 import de.dercompiler.pass.ClassPass;
 import de.dercompiler.pass.PassManager;
@@ -13,21 +13,36 @@ public class VariableAnalysisCheckPass implements ClassPass {
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
         SymbolTable symbolTable = new SymbolTable();
+        symbolTable.enterScope();
 
         StringTable stringTable = new StringTable();
 
+        //hier werden erst die Feldernamen gesammelt
         for(ClassMember classMember: classDeclaration.getMembers()){
             if (classMember instanceof Field){
                 Field field = (Field) classMember;
 
-                Symbol symbol = stringTable.findOrInsert(field.getIdentifier());
-                if (symbolTable.isDefinedInCurrentScope(symbol)){
-                    //Error, da schon definiert
+                insert(field.getIdentifier(), field.getType(), symbolTable, stringTable);
+            }
+        }
+
+        //jetzt werden in die Methoden gesprungen
+        for(ClassMember classMember: classDeclaration.getMembers()){
+            symbolTable.enterScope();
+
+            if (classMember instanceof Method){
+
+                Method method = (Method) classMember;
+
+                for (Parameter parameter: method.getParameters()){
+                    insert(parameter.getIdentifier(), parameter.getType(), symbolTable, stringTable);
                 }
 
-                Definition definition = new FieldDefinition(symbol, field.getType());
+                for (Statement statement: method.getBlock().getStatements()){
+                    visitStatement(statement, symbolTable, stringTable);
+                }
 
-                symbolTable.insert(symbol, definition);
+
 
             }
         }
@@ -35,6 +50,23 @@ public class VariableAnalysisCheckPass implements ClassPass {
 
         return false;
     }
+
+    private void visitStatement(Statement statement, SymbolTable symbolTable, StringTable stringTable){
+        if (statement instanceof BasicBlock){
+
+        }
+
+    }
+
+    private void insert(String identifier, Type type, SymbolTable symbolTable, StringTable stringTable){
+        Symbol symbol = stringTable.findOrInsert(identifier);
+        if (symbolTable.isDefinedInCurrentScope(symbol)){
+            //Error, da identifier in diesem Scope schon definiert wurde
+        }
+        Definition definition = new FieldDefinition(symbol, type);
+        symbolTable.insert(symbol, definition);
+    }
+
 
     @Override
     public void doInitialization(Program program) {

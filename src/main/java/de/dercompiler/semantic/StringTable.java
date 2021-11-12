@@ -9,6 +9,8 @@ public class StringTable {
 
     private Map<String, Symbol> map;
 
+
+
     public StringTable(){
         map = new HashMap<String, Symbol>();
     }
@@ -22,4 +24,5 @@ public class StringTable {
         map.put(string, symbol);
         return symbol;
     }
+
 }
