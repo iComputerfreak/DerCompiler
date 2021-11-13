@@ -25,4 +25,8 @@ public class StringTable {
         return symbol;
     }
 
+    public boolean contains(String string){
+        return map.containsKey(string);
+    }
+
 }

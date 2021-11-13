@@ -16,7 +16,7 @@ public class SymbolTable {
      * Creates a new SymbolTable in the given scope
      */
     public SymbolTable() {
-        this.changes = new Stack<>();
+        this.changes = new Stack<Change>();
         this.currentScope = null;
         enterScope();
     }
@@ -89,5 +89,6 @@ public class SymbolTable {
     public boolean isDefinedInCurrentScope(Symbol symbol) {
         return symbol.getCurrentScope() == currentScope;
     }
-    
+
+
 }
