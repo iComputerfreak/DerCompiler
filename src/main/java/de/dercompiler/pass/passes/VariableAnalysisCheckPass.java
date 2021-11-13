@@ -12,6 +12,9 @@ import de.dercompiler.semantic.*;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * hier werden für jede Klasse ihre Variablendeklarationen überprüft
+ */
 public class VariableAnalysisCheckPass implements ClassPass {
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
@@ -26,7 +29,7 @@ public class VariableAnalysisCheckPass implements ClassPass {
             if (classMember instanceof Field){
                 Field field = (Field) classMember;
 
-                insert(field.getIdentifier(), field.getType(), symbolTable, stringTable);
+                insert(field.getIdentifier(), field.getType(), symbolTable, stringTable, true);
             }
         }
 
@@ -140,9 +143,16 @@ public class VariableAnalysisCheckPass implements ClassPass {
     }
 
     private void insert(String identifier, Type type, SymbolTable symbolTable, StringTable stringTable){
+        insert(identifier, type, symbolTable, stringTable, false);
+    }
+
+    private void insert(String identifier, Type type, SymbolTable symbolTable, StringTable stringTable, boolean inOutestScope){
         Symbol symbol = stringTable.findOrInsert(identifier);
         if (symbolTable.isDefinedInCurrentScope(symbol)){
             //Error, da identifier in diesem Scope schon definiert wurde
+        }
+        if (!inOutestScope && symbolTable.isDefinedInNotOutestScope(symbol)){
+            //Error, da identifier schon definiert wurde und nicht im äußersten scope (klassenvariablen)
         }
         Definition definition = new FieldDefinition(symbol, type);
         symbolTable.insert(symbol, definition);
