@@ -113,6 +113,11 @@ public class CommandLineOptions {
     public boolean printStacktrace() { return cmd.hasOption(COMMAND_PRINT_STACKTRACE); }
 
     /**
+     * @return true, if the pipeline should be printed
+     */
+    public boolean printPipeline() { return cmd.hasOption(OPTION_PRINT_PIPELINE); }
+
+    /**
      * Sets the global state for the color output
      */
     public void resolveColorOutput() {

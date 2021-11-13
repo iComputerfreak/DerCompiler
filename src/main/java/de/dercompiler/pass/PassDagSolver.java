@@ -16,12 +16,18 @@ public class PassDagSolver {
     public static PassPipeline solveDependencies(List<Pass> passes, PassManager manager) {
         Pass[] vertices = passes.toArray(new Pass[0]);
         ArrayList<List<Pass>> edges = new ArrayList<List<Pass>>(vertices.length);
+        ArrayList<List<Pass>> directAfter = new ArrayList<>(vertices.length);
         int[] count = new int[vertices.length];
+        DependencyType[] depType = new DependencyType[vertices.length];
+        Arrays.fill(depType, DependencyType.RUN_DIRECT_AFTER);
         Map<Long, Integer> lookupTable = new HashMap<>();
 
         for(int i = 0; i < vertices.length; i++) {
             lookupTable.put(vertices[i].getID(), i);
-            edges.set(i, PassHelper.transform(vertices[i].getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass));
+            AnalysisUsage usage = vertices[i].getAnalysisUsage(new AnalysisUsage());
+            edges.add(i, PassHelper.transform(usage.getAnalyses(), PassHelper.AnalysisUsageToPass));
+            depType[i] = usage.getDependency();
+            directAfter.add(i, new LinkedList<>());
         }
 
         for (int i = 0; i < vertices.length; i++) {
@@ -38,37 +44,53 @@ public class PassDagSolver {
 
         Queue<Pass> next = new LinkedList<>();
         Queue<Pass> current;
-        Queue<Integer> nextIdx = new LinkedList<>();
-        Queue<Integer> currentIdx;
 
         PassPipeline pipeline = new PassPipeline(manager);
 
         for (int i = 0; i < vertices.length; i++) {
             if (count[i] == 0) {
                 next.add(vertices[i]);
-                nextIdx.add(i);
             }
         }
 
         while (!next.isEmpty()) {
             current = next;
             next = new LinkedList<>();
-            currentIdx = nextIdx;
-            nextIdx = new LinkedList<>();
             while (!current.isEmpty()) {
-                if (current.size() != currentIdx.size()) {
-                    new OutputMessageHandler(MessageOrigin.PASSES).internalError("Kahn's Algorithm to sort Passes is broken");
-                }
                 Pass pass = current.remove();
-                int i = currentIdx.remove();
-                pipeline.addPass(pass);
+                int i = lookupTable.get(pass.getID());
+
+                List<Pass> deps = edges.get(i);
+                if (depType[i] == DependencyType.RUN_DIRECT_AFTER && deps.size() != 0) {
+                    /* moved to else
+                    if (deps.size() == 0) {
+                        pipeline.addPass(pass);
+                    }
+                     */
+                    if (deps.size() == 1) {
+                        List<Pass> dA = directAfter.get(lookupTable.get(deps.get(0).getID()));
+                        dA.add(pass);
+                        dA.addAll(directAfter.get(i));
+                        directAfter.get(i).clear();
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        for (Pass dep : deps) {
+                            sb.append(dep.getClass().getName()).append(", ");
+                        }
+                        new OutputMessageHandler(MessageOrigin.PASSES).internalError( "Pass: " + pass.getClass().getName() + " has more than one Predecessor: " + sb.toString());
+                    }
+                } else {
+                    pipeline.addPass(pass);
+                    for (Pass dep : directAfter.get(i)) {
+                        pipeline.addPass(dep);
+                    }
+                }
                 // we know dep exists in the lookupTable because of the check above
-                for (Pass dep : edges.get(i)) {
+                for (Pass dep : deps) {
                     int idx = lookupTable.get(dep.getID());
                     count[idx]--;
                     if (count[idx] == 0) {
                         next.add(vertices[idx]);
-                        nextIdx.add(idx);
                     }
                 }
             }

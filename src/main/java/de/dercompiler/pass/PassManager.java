@@ -9,6 +9,12 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
+import javax.print.PrintService;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +24,12 @@ public class PassManager {
 
 
     private static long passIDs = 1;
+    private static boolean printPipeline = false;
     private List<Pass> passes;
+
+    public PassManager() {
+        passes = new LinkedList<>();
+    }
 
     private void addPassAfterCheck(Pass pass) {
         passes.add(pass);
@@ -34,6 +45,7 @@ public class PassManager {
                 .printWarning(PassWarningIds.NULL_AS_PASS_NOT_ALLOWED,"Something may be wrong with the compiler we tried to add a null value as Pass, please report your current setup to the Developers.");
         if (pass instanceof ClassPass cp) addPassAfterCheck(cp);
         else if (pass instanceof MethodPass mp) addPassAfterCheck(mp);
+        else if (pass instanceof BasicBlockPass bbp) addPassAfterCheck(bbp);
         else if (pass instanceof StatementPass sp) addPassAfterCheck(sp);
         else if (pass instanceof ExpressionPass ep) addPassAfterCheck(ep);
         else
@@ -76,6 +88,13 @@ public class PassManager {
     private void traverseTree(PassPipeline pipeline, Program program) {
         if (!program.isIndexed()) {
             pipeline.addASTReferencePass();
+        }
+        if (printPipeline) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream stream = new PrintStream(baos);
+            pipeline.printPipeline(stream);
+            new OutputMessageHandler(MessageOrigin.PASSES)
+                    .printInfo("Pipeline:\n" + baos.toString(StandardCharsets.UTF_8));
         }
         while (pipeline.traverseTreeStep(program)) {}
     }
@@ -163,4 +182,6 @@ public class PassManager {
     public Expression getCurrentExpression() {
         return cur_expression;
     }
+
+    public static void setPrintPipeline(boolean print) { printPipeline = print; }
 }

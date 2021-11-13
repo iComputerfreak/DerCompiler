@@ -6,9 +6,11 @@ import java.util.List;
 public class AnalysisUsage {
 
     private List<Class<AnalysisPass>> analyses;
+    private DependencyType type;
 
     public AnalysisUsage() {
         analyses = new LinkedList<>();
+        type = DependencyType.RUN_IN_NEXT_STEP;
     }
 
     /**
@@ -31,4 +33,12 @@ public class AnalysisUsage {
     }
 
     public List<Class<AnalysisPass>> getAnalyses() { return analyses; }
+
+    public void setDependency(DependencyType type) {
+        this.type = type;
+    }
+
+    public DependencyType getDependency() {
+        return type;
+    }
 }

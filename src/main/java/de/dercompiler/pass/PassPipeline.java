@@ -82,10 +82,8 @@ class PassPipeline {
             }
         }
 
-        private static final int CLASS_LENGTH = ".class".length();
-
         public void printPass(PrintStream stream, String padding, String name) {
-            stream.println(padding + name.substring(0, name.length() - CLASS_LENGTH));
+            stream.println(padding + name);
         }
 
         public void printStep(PrintStream stream) {
@@ -250,6 +248,7 @@ class PassPipeline {
     public PassPipeline(PassManager manager) {
         steps = new ArrayList<>();
         this.manager = manager;
+        nextStep();
     }
 
     public void addPass(Pass pass) {
@@ -261,9 +260,9 @@ class PassPipeline {
     }
 
     public void printPipeline(PrintStream stream) {
-        stream.println("Pipeline:\n");
+        stream.println("Pipeline:");
         for (int i = 0; i < steps.size(); i++) {
-            stream.println("Step " + i + ":\n");
+            stream.println("Step " + i + ":");
             steps.get(i).printStep(stream);
         }
     }
