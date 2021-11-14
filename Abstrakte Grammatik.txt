@@ -1,4 +1,4 @@
-Program                 ::  ClassList
+Program                 ::  Ident ClassList
 ClassList               ::  Class +
 Class                   ::  ClassMember
 ClassMember             =   Method, Field MainMethod
