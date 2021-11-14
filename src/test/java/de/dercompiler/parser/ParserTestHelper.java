@@ -1,10 +1,16 @@
 package de.dercompiler.parser;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.LexerTest;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.Token;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -15,7 +21,7 @@ public class ParserTestHelper {
 
     public static SourcePosition DEFAULT_POS = Lexer.forString("").peek().position();
 
-    private void testSyntaxEqual(String expression, ASTNode created, ASTNode compare, Lexer lexer) {
+    private static void testSyntaxEqual(String expression, ASTNode created, ASTNode compare, Lexer lexer) {
         boolean equal = created.syntaxEquals(compare);
         if (!equal) {
             System.err.println("error: " + expression);
@@ -26,10 +32,10 @@ public class ParserTestHelper {
     }
 
     public interface ParserFunction {
-        public ASTNode parse(Parser parser);
+        public ASTNode parse(Parser parser, AnchorSet ank);
     }
 
-    public void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes, ParserFunction func) {
+    public static void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes, ParserFunction func) {
         assert(strings.length == nodes.length);
         Iterator<String> lexValue = Arrays.stream(strings).iterator();
         Iterator<ASTNode> expected = Arrays.stream(nodes).iterator();
@@ -37,8 +43,31 @@ public class ParserTestHelper {
             String lexString = lexValue.next();
             Lexer lexer = Lexer.forString(lexString);
             Parser parser = new Parser(lexer);
-            ASTNode created = func.parse(parser);
+            ASTNode created = func.parse(parser, new AnchorSet());
             testSyntaxEqual(lexString, created, expected.next(), lexer);
         }
+    }
+
+    static File[] getResourceFolderFiles(String folder) {
+        try {
+            ClassLoader loader = LexerTest.class.getClassLoader();
+            URI uri = loader.getResource(folder).toURI();
+            String path = uri.getPath();
+            return new File(path).listFiles((file -> {
+                String pathName = file.toString();
+                return pathName.endsWith(".valid.mj") || pathName.endsWith(".invalid.mj");
+            }));
+        } catch (URISyntaxException e) {
+            new OutputMessageHandler(MessageOrigin.TEST).internalError("Error converting test file path to URI");
+            return new File[]{};
+        }
+    }
+
+    static File getLineSweep() {
+        File[] files = getResourceFolderFiles("parser");
+        for (File file : files) {
+            if (file.getName().equals("Linesweep.valid.mj")) return file;
+        }
+        return null;
     }
 }

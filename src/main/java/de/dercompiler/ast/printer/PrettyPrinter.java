@@ -67,17 +67,17 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitErrorClassMember(ErrorClassMember errorClassMember) {
-
+        sb.append("<errorClassMember>");
     }
 
     @Override
     public void visitErrorExpression(ErrorExpression errorExpression) {
-
+        sb.append("<errorExpression>");
     }
 
     @Override
     public void visitErrorStatement(ErrorStatement errorStatement) {
-
+        sb.append("<errorStatement>");
     }
 
     public void visitMainMethod(MainMethod main) {

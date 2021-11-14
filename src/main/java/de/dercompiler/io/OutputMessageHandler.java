@@ -226,8 +226,6 @@ public final class OutputMessageHandler {
             debugEvents.add(new DebugEvent(origin, id, errorMessage + "\n" + lexer.printSourceText(position)));
         } else {
             ErrorStatus.reportError(-idPrefix - id.getId());
-            //TODO remove after added ankermengen
-            System.exit(-idPrefix - id.getId());
         }
     }
 
