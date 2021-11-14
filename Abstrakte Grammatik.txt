@@ -1,0 +1,62 @@
+Program                 ::  ClassList
+ClassList               ::  Class +
+Class                   ::  ClassMember
+ClassMember             =   Method, Field MainMethod
+Field                   ::  Type Ident
+Method                  ::  ParameterList BasicBlock
+Main Method             ::  ParameterList BasicBlock
+ParameterList           ::  Parameter +
+Parameter               ::  Type Ident
+Type                    ::  BasicType Dimension
+
+StatementList           ::  Statement +
+Statement               =   IfStatement | WhileStatement | VariableDeclaration | BasicBlock | ExpressionsStatement | EmptyStatement | ReturnStatement
+IfStatement             ::  Expression Statement Statement(MayNull)
+WhileStatement          ::  Expression Statement
+VariableDeclaration     ::  Type Ident Expression
+BasicBlock              ::  Declarations StatementList
+ExpressionsStatement    ::  Expression
+EmptyStatement          ::
+ReturnStatement         ::  Expression
+
+ExpressionList          :: Expression +
+Expression              =  BinaryExpression | UnaryExpression
+
+BinaryExpression        =  AssignementExpression | LogicalOrExpression | LogicalAndExpression | EqualityExpression | UnequalityExpression | LessExpression | LessEqualExpression 
+                         | GraterEqualExpression | GreaterExpression | AddExpression | SubExpression | MultExpression | DivExpression | ModExpression 
+AssignementExpression   :: Expression Expression
+LogicalOrExpression     :: Expression Expression
+LogicalAndExpression    :: Expression Expression
+EqualityExpression      :: Expression Expression
+UnequalityExpression    :: Expression Expression
+LessExpression          :: Expression Expression
+LessEqualExpression     :: Expression Expression
+GraterEqualExpression   :: Expression Expression
+GreaterExpression       :: Expression Expression
+AddExpression           :: Expression Expression
+SubExpression           :: Expression Expression
+MultExpression          :: Expression Expression
+DivExpression           :: Expression Expression
+ModExpression           :: Expression Expression
+
+UnaryExpression         =  LogicalNotExpression | MinusExpression | PostfixExpression
+LogicalNotExpression    :: UnaryExpression
+MinusExpression         :: UnaryExpression
+PostfixExpression       =  MethodInvocation | FieldAccess | ArrayAccess | PrimaryExpression
+MethodInvocation        :: PosfixExpression Ident ArgumentList
+ArgumentList            :: Argument +
+Argument                :: ExpressionList
+FieldAccess             :: PosfixExpression Ident
+ArrayAccess             :: PosfixExpression Expression
+
+PrimaryExpression       = NullExpression | BooleanExpression | IntegerLiteral | Varaible | LocalMethodInvocation | ThisExpression | CapsuledExpression | NewObjectExpression | NewArrayExpression
+NullExpression          :: 
+BooleanExpression       :: boolean
+IntegerLiteral          :: int
+Varaible                :: Ident
+LocalMethodInvocation   :: Ident ArgumentList
+ThisExpression          :: 
+CapsuledExpression      :: Expression
+NewObjectExpression     :: Ident
+NewArrayExpression      :: Type Expression Dimension
+Dimension               :: int
