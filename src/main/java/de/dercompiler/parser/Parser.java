@@ -626,7 +626,7 @@ public class Parser {
                     return new NegativeExpression(pos, parseUnaryExpression(ank));
                 }
                 case INCREMENT, DECREMENT -> {
-                    logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported".formatted(lexer.peek().type()), lexer, lexer.peek().position());
+                    logger.printParserError(ParserErrorIds.UNSUPPORTED_OPERATOR_TOKEN, "Operation '%s' is not supported. Error mode not activated.".formatted(lexer.peek().type()), lexer, lexer.peek().position());
                     lexer.nextToken();
                     return new ErrorExpression(lexer.peek().position());
                 }

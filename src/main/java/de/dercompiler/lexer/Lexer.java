@@ -25,6 +25,7 @@ public class Lexer {
     private BufferedReader reader;
     private Source source;
 
+    // position of the currentChar in the source, NOT the position of the reader in the source (with is one char further along)
     private final Position position;
     // FileReader.read() returns -1 for EOF, so char is not suitable
     private int currentChar;
@@ -863,8 +864,9 @@ public class Lexer {
     private static final int POINTER_OFFSET = 30;
     public String printSourceText(SourcePosition position) {
         // can only open Source once at a time, so reset reader and go to given line
-        SourcePosition currentPosition = getPosition().copy();
+        SourcePosition currentPosition = peek().position().copy();
         this.reader = this.source.getNewReader();
+        this.tokenBuffer.clear();
 
         StringBuilder sb = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
 
@@ -892,13 +894,14 @@ public class Lexer {
 
         this.reader = this.source.getNewReader();
         this.position.reset();
-        // Reset reader to previous position
+        // Reset reader to previous position, i.e. the position where peek() is the same token as before
         while (this.position.getLine() < currentPosition.getLine()) {
             this.nextLine();
         }
         while (this.position.getColumn() < currentPosition.getColumn()) {
             this.readCharacter();
         }
+        lex();
         return sb.toString();
     }
 
@@ -910,7 +913,10 @@ public class Lexer {
             if (line == null) {
                 this.position.setColumn(line.length() + 1);
             } else {
-                this.position.newLine();
+                // position.newLine() is not suitable here, as the first character of the new line is not read yet
+                // see readCharacter: here, when newLine() is called, currentChar is already the first char of the new line.
+                this.position.line++;
+                this.position.column = 0;
             }
             return line;
         } catch (IOException e) {
