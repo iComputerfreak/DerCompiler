@@ -1,10 +1,10 @@
 #Methodensammeln
 
-Class                   ::  ClassMember *
+Class                   ::  Ident ClassMember *
 Class.methodDecls 	= concatAll(ClassMember_i.methodDecl)
 
-ClassMember 		=   Method
-ClassMember.methodDecl  =   Method.Name -> Method.body
+ClassMember 		=   Ident Method
+ClassMember.methodDecl  =   Ident.lexval -> Method.body
 
 ClassMember		=   Field
 ClassMember.methodDecl  =   Null
@@ -14,11 +14,11 @@ ClassMember.methodDecl  =   main -> MainMethod.body
 
 #Feldersammeln
 
-Class                   ::  ClassMember *
+Class                   ::  Ident ClassMember *
 Class.env 		=   concatAll(ClassMember_i.env_part)
 ClassMember_i.env	=   Class.env
 
-ClassMember 		=   Method
+ClassMember 		=   Ident Method
 ClassMember.env_part  	=   Null
 Method.env		=   ClassMember.env
 
@@ -48,7 +48,14 @@ Type                    ::  BasicType Dimension
 Type.type		=   Type(BasicType.type, Dimension.value)
 
 BasicBlock              ::  Declarations StatementList
-StatementList.env	=   concatAll(BasicBlock.env, Declarations_i.env)
+StatementList.env	=   concatAll(BasicBlock.env, Declarations.env)
+
+Declarations		::  Declaration *
+Declarations.env	=   concatAll(Declaration_i.env)
+
+Declaration		::  VariableDeclaration
+Declaration.env		=   VariableDeclaration.env
+
 
 StatementList           ::  Statement +
 Statement_i.env		=   StatementList.env
@@ -58,9 +65,6 @@ IfStatement.env		=   Statement.env
 
 Statement               =   WhileStatement
 WhileStatement.env	=   Statement.env
-
-Statement               =   VariableDeclaration 
-VariableDeclaration.env =   Statement.env
 
 Statement		=   BasicBlock 
 BasicBlock.env		=   Statement.env
