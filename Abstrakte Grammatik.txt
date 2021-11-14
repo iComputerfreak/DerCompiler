@@ -1,35 +1,83 @@
-Program                 ::  ClassList
-ClassList               ::  Class +
+Dieser Knoten repräsentiert das ganze Programm. Es besteht aus einer Liste an Klassen.
+Program                 ::  Class +
+
+Eine Class besteht aus einem eindeutigen Identifier Ident und einer Liste an ClassMember, welche Informationen über die Klasse beinhalten oder Funktionen der Klasse.
 Class                   ::  Ident ClassMember *
+
+Ein ClassMember kann entweder die MainMethod oder Method sein. Damit werden Funktionen der Klasse repräsentiert oder ein Feld, welches Informationen speichert.
 ClassMember             =   Method, Field MainMethod
+
+Ein Field besitzt einen eindeutigen Identifier Ident und einen statischen Datentyp.
 Field                   ::  Type Ident
+
+Eine Method besitzt einen eindeutigen Identifier Ident, die Parameter mit denen die Methode aufgerufen wird und einen BasicBlock, welcher den auszuführenden Code repräsentiert.
 Method                  ::  Ident ParameterList BasicBlock
+
+Eine MainMethod besteht aus einer ParameterList, welche die Argumente der Funktion repräsentiert und einen BasicBlock, welcher den auszuführenden Code repräsentiert.
 MainMethod             ::  ParameterList BasicBlock
-ParameterList           ::  Parameter +
+
+Eine ParameterList besteht aus mehreren Parametern.
+ParameterList           ::  Parameter *
+
+Ein Parameter wird durch einen Typ Type und einen eindeutigen Identifier Ident beschrieben.
 Parameter               ::  Type Ident
+
+Ein Type wird durch einen BasicType beschrieben und Dimension beschreibt in wie viele Dimensionen dieser indiziert werden kann. Der BasicType sind die primitiven oder ein eigens erstellter Datentyp.
 Type                    ::  BasicType Dimension
 
+Die StatementList besteht aus einer Liste von Statements, welche den auszuführenden Code repräsentieren.
 StatementList           ::  Statement +
+
+Ein Statement kann entweder eine bedingte Anweisung namens IfStatement, eine bedingte Schleife namens WhileStatement, ein zusammenhängender Block namens BasicBlock, ein Ausdruck namens ExpressionsStatement, eine Statement was eine NOP repräsentiert namens EmptyStatement oder ein ReturnStatement, welches in einer Methode den Rückgabewert repräsentiert.
 Statement               =   IfStatement | WhileStatement | BasicBlock | ExpressionsStatement | EmptyStatement | ReturnStatement
+
+Ein IfStatement besteht aus einem Wahrheitswert der Expression und jenachdem wird das erste Statement oder das zweite Ausgeführt.
 IfStatement             ::  Expression Statement Statement(MayNull)
+
+Ein WhileStatement besteht aus einem Wahrheitswert der Expression, welcher die Anzahl der durchläufe von Statement bedingt.
 WhileStatement          ::  Expression Statement
+
+Eine VariableDeclaration besteht aus einem statischen Datentyp Type, einen eindeutigen Identifier und einer Expression, welche dann der Variable zugewiesen wird.
 VariableDeclaration     ::  Type Ident Expression
+
+Ein BasicBlock besteht aus Declarations, in welchem neue Variablen für diesen Scope definiert werden. Außerdem wird mit der StatementList, der auszuführende Code repräsentiert.
 BasicBlock              ::  Declarations StatementList
+
+Ein ExpressionsStatement besteht aus einer einzigen Expression, welche ausgewertet werden soll.
 ExpressionsStatement    ::  Expression
+
+Ein EmptyStatement hat keine Verlinkung, da diese eine NOP darstellt.
 EmptyStatement          ::
+
+Ein ReturnStatement besteht aus einer Expression, welcher dann von der Methode zurückgegeben werden soll.
 ReturnStatement         ::  Expression
 
+Declarations bestehen aus einer Liste an Declaration, welche je eine Variablendefinition darstellen.
 Declarations		::  Declaration *
+
+Eine Declaration verweist auf eine VariableDeclaration, in welcher die Variablendefinition stattfindet.
 Declaration		::  VariableDeclaration 
 
-ExpressionList          :: Expression +
+Eine ExpressionList besteht aus mehreren Expression.
+ExpressionList          :: Expression *
+
+Eine Expression kann eine BinaryExpression sein, welche im direkten Unterknoten aus zwei Expressions besteht. Oder sie kann eine UnaryExpression sein, welche aus einem Unterknoten besteht.
 Expression              =  BinaryExpression | UnaryExpression
 
+Eine BinaryExpression kann viele verschiedene Logische, Zuweisungs oder Arithmetische Operatoren sein.
 BinaryExpression        =  AssignementExpression | LogicalOrExpression | LogicalAndExpression | EqualityExpression | UnequalityExpression | LessExpression | LessEqualExpression 
                          | GreaterEqualExpression | GreaterExpression | AddExpression | SubExpression | MultExpression | DivExpression | ModExpression 
+
+Eine AssignmentExpression stellt eine Zuweisung dar.
 AssignementExpression   :: Expression Expression
+
+Dieser Knoten repräsentiert das logische oder der beiden Unterknoten.
 LogicalOrExpression     :: Expression Expression
+
+Dieser Knoten repräsentiert das logische und der beiden Unterknoten.
 LogicalAndExpression    :: Expression Expression
+
+Dieser Knoten repräsentiert den Wahrheitswert der Gleichheit der beiden Unterknoten.
 EqualityExpression      :: Expression Expression
 UnequalityExpression    :: Expression Expression
 LessExpression          :: Expression Expression
