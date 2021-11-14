@@ -60,8 +60,8 @@ public class Parser {
         SourcePosition pos = lexer.peek().position();
         IdentifierToken identifier = null;
 
-        expect(CLASS, ank.fork(IdentifierToken.proto(), L_CURLY_BRACKET, PUBLIC, R_CURLY_BRACKET), "class declaration");
-        identifier = expectIdentifier(ank.fork(L_CURLY_BRACKET, PUBLIC, R_CURLY_BRACKET), "class name");
+        expect(CLASS, ank.fork(IdentifierToken.proto(), L_CURLY_BRACKET, R_CURLY_BRACKET), "class declaration");
+        identifier = expectIdentifier(ank.fork(L_CURLY_BRACKET, R_CURLY_BRACKET), "class name");
         expect(L_CURLY_BRACKET, ank, "class block");
 
         List<ClassMember> members = new ArrayList<>();
@@ -117,8 +117,11 @@ public class Parser {
         }
 
 
-        skipToAnker(ank);
-        logger.printParserError(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek(3).type()), lexer, lexer.peek(3).position());
+        logger.printParserError(ParserErrorIds.EXPECTED_SEMICOLON, "Expected semicolon but found '%s'".formatted(lexer.peek().type()), lexer, lexer.peek().position());
+        this.setErrorMode(true);
+        skipToAnker(ank.fork(SEMICOLON));
+        recover("end of statement", lexer.peek().position());
+        if (lexer.peek().type() == SEMICOLON) lexer.nextToken();
         return new ErrorClassMember(pos);
     }
 
@@ -527,6 +530,7 @@ public class Parser {
                 default -> parseExpressionStatement(ank);
                 case FOR, DO, SWITCH -> {
                     logger.printParserError(ParserErrorIds.UNSUPPORTED_STATEMENT, "'%s' statements are not supported".formatted(t), lexer, pos);
+                    lexer.nextToken();
                     yield new ErrorStatement(pos);
                 }
             };
