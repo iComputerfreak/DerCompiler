@@ -79,33 +79,90 @@ LogicalAndExpression    :: Expression Expression
 
 Dieser Knoten repräsentiert den Wahrheitswert der Gleichheit der beiden Unterknoten.
 EqualityExpression      :: Expression Expression
+
+Ein Ausdruck mit !=. Die beiden Expressions sind die linke und rechte Seite.
+en Expressions sind die linke und rechte Seite.
 UnequalityExpression    :: Expression Expression
+
+Ein Ausdruck mit <. Die beiden Expressions sind die linke und rechte Seite.
 LessExpression          :: Expression Expression
+
+Ein Ausdruck mit <=. Die beiden Expressions sind die linke und rechte Seite.
 LessEqualExpression     :: Expression Expression
+
+Ein Ausdruck mit >=. Die beiden Expressions sind die linke und rechte Seite.
 GreaterEqualExpression  :: Expression Expression
+
+Ein Ausdruck mit >. Die beiden Expressions sind die linke und rechte Seite.
 GreaterExpression       :: Expression Expression
+
+Ein Ausdruck mit +. Die beiden Expressions sind die linke und rechte Seite.
 AddExpression           :: Expression Expression
+
+Ein Ausdruck mit -. Die beiden Expressions sind die linke und rechte Seite.
 SubExpression           :: Expression Expression
+
+Ein Ausdruck mit *. Die beiden Expressions sind die linke und rechte Seite.
 MultExpression          :: Expression Expression
+
+Ein Ausdruck mit /. Die beiden Expressions sind die linke und rechte Seite.
 DivExpression           :: Expression Expression
+
+Ein Ausdruck mit %. Die beiden Expressions sind die linke und rechte Seite.
 ModExpression           :: Expression Expression
 
+
+Ein unärer Ausdruck wie eine logische Negation, mathematische Negation oder PostfixExpression. Die Expression ist die rechte Seite.
 UnaryExpression         =  LogicalNotExpression | MinusExpression | PostfixExpression
+
+Eine logische Negation. Die UnaryExpression ist die rechte Seite.
 LogicalNotExpression    :: UnaryExpression
+
+Eine mathematische Negation. Die UnaryExpression ist die rechte Seite.
 MinusExpression         :: UnaryExpression
+
+Ein nachgestellter Ausdruck, wie ein Methoden-Aufruf, Feld-Zugriff, Array-Zugriff oder ein Primärer Ausdruck.
 PostfixExpression       =  MethodInvocation | FieldAccess | ArrayAccess | PrimaryExpression
+
+Ein Methoden-Aufruf bestehend aus einer PostfixExpression, der Name der Methode, die aufgerufen wurde und eine Liste an Argumenten als Ausdrücke.
 MethodInvocation        :: PostfixExpression Ident ExpressionList
+
+Ein Feld-Zugriff bestehend aus einer PostfixExpression und dem Namen des Feldes, auf das zugegriffen wird.
 FieldAccess             :: PosfixExpression Ident
+
+Ein Array-Zugriff mit einer PostfixExpression (dem Array) und einem Ausdruck als Index.
 ArrayAccess             :: PosfixExpression Expression
 
+
+Eine PrimaryExpression ist eine NullExpression, BooleanExpression, IntegerLiteral, eine Variable, ein Methode-Aufruf, eine ThisExpression, CapsulatedExpression, NewObjectExpression oder eine NewArrayExpression.
 PrimaryExpression       = NullExpression | BooleanExpression | IntegerLiteral | Variable | LocalMethodInvocation | ThisExpression | CapsuledExpression | NewObjectExpression | NewArrayExpression
+
+Eine NullExpression besteht nur aus dem Keyword "null".
 NullExpression          :: 
+
+Eine BooleanExpression besteht nur aus einem Boolean (Keyword "true" oder "false").
 BooleanExpression       :: boolean
+
+Ein IntegerLiteral besteht nur aus einer Ganzzahl.
 IntegerLiteral          :: int
+
+Eine Variable mit einem Namen.
 Variable                :: Ident
+
+Ein lokaler Methoden-Aufruf mit dem Namen der Methode und der Liste an Argumenten.
 LocalMethodInvocation   :: Ident ExpressionList
+
+Eine ThisExpression besteht nur aus dem Keyword "this".
 ThisExpression          :: 
+
+Eine CapsulatedExpression ist ein geklammerter Ausdruck. Er besteht nur aus der enthaltenen Expression.
 CapsuledExpression      :: Expression
+
+Ein Ausdruck zum Erstellen eines neuen Objekts mit dem Namen der Klasse.
 NewObjectExpression     :: Ident
+
+Ein Ausdruck zum Erstellen eines neuen Arrays mit dem Typen, einem Ausdruck, der die Größe des Arrays angibt und der Dimension des Arrays, also der Anzahl der geschachtelten Arrays.
 NewArrayExpression      :: Type Expression Dimension
+
+Die Dimension eines Arrays, also die Anzahl der geschachtelten Arrays.
 Dimension               :: int
