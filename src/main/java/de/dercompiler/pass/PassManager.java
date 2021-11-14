@@ -26,6 +26,7 @@ public class PassManager {
     private static long passIDs = 1;
     private static boolean printPipeline = false;
     private List<Pass> passes;
+    private PassPipeline pipeline;
 
     public PassManager() {
         passes = new LinkedList<>();
@@ -107,7 +108,9 @@ public class PassManager {
     public void run(Program program) {
         initializeMissingPasses();
         initializePasses(program);
-        traverseTree(generateOrder(passes), program);
+        pipeline = generateOrder(passes);
+        pipeline.compress();
+        traverseTree(pipeline, program);
         finalizePasses(program);
     }
 
@@ -184,4 +187,8 @@ public class PassManager {
     }
 
     public static void setPrintPipeline(boolean print) { printPipeline = print; }
+
+    public PassPipeline getCurrentPipeline() {
+        return pipeline;
+    }
 }

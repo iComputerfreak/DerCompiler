@@ -5,7 +5,7 @@ import java.util.List;
 
 public class AnalysisUsage {
 
-    private List<Class<AnalysisPass>> analyses;
+    private List<Class<? extends Pass>> analyses;
     private DependencyType type;
 
     public AnalysisUsage() {
@@ -18,7 +18,7 @@ public class AnalysisUsage {
      *
      * @param analysis Analysis required for run the Pass
      */
-    public void requireAnalysis(Class<AnalysisPass> analysis) {
+    public void requireAnalysis(Class<? extends Pass> analysis) {
            analyses.add(analysis);
     }
 
@@ -28,11 +28,11 @@ public class AnalysisUsage {
      * @param needed The Analysis to check
      * @return true, if the Pass needs the Analysis.
      */
-    public boolean needsAnalysis(Class<AnalysisPass> needed) {
+    public boolean needsAnalysis(Class<? extends Pass> needed) {
         return analyses.contains(needed);
     }
 
-    public List<Class<AnalysisPass>> getAnalyses() { return analyses; }
+    public List<Class<? extends Pass>> getAnalyses() { return analyses; }
 
     public void setDependency(DependencyType type) {
         this.type = type;

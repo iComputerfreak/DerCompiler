@@ -57,7 +57,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;
@@ -124,7 +124,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;
@@ -185,7 +185,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;
@@ -246,7 +246,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;
@@ -312,7 +312,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;
@@ -373,7 +373,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;
@@ -440,7 +440,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;
@@ -501,7 +501,7 @@ public class PassMockFactory {
 
             @Override
             public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-                for (Class<AnalysisPass> pass : use.getAnalyses()) {
+                for (Class<? extends Pass> pass : use.getAnalyses()) {
                     usage.requireAnalysis(pass);
                 }
                 return usage;

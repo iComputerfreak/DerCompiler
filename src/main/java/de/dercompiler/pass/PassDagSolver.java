@@ -15,7 +15,7 @@ public class PassDagSolver {
      */
     public static PassPipeline solveDependencies(List<Pass> passes, PassManager manager) {
         Pass[] vertices = passes.toArray(new Pass[0]);
-        ArrayList<List<Pass>> edges = new ArrayList<List<Pass>>(vertices.length);
+        ArrayList<List<Pass>> edges = new ArrayList<>(vertices.length);
         ArrayList<List<Pass>> directAfter = new ArrayList<>(vertices.length);
         int[] count = new int[vertices.length];
         DependencyType[] depType = new DependencyType[vertices.length];
@@ -60,7 +60,7 @@ public class PassDagSolver {
                 Pass pass = current.remove();
                 int i = lookupTable.get(pass.getID());
 
-                List<Pass> deps = edges.get(i);
+                List<? extends Pass> deps = edges.get(i);
                 if (depType[i] == DependencyType.RUN_DIRECT_AFTER && deps.size() != 0) {
                     /* moved to else
                     if (deps.size() == 0) {

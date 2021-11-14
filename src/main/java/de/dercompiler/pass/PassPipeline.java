@@ -9,12 +9,11 @@ import de.dercompiler.ast.statement.*;
 import de.dercompiler.pass.passes.ASTReferencePass;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 class PassPipeline {
 
-    static class PassSteps {
+    static class PassStep {
 
         private final LinkedList<ClassPass> td_classPasses;
         private final LinkedList<MethodPass> td_methodPasses;
@@ -29,8 +28,9 @@ class PassPipeline {
         private final LinkedList<ClassPass> bu_classPasses;
 
         private final PassManager manager;
+        private int num;
 
-        public PassSteps(PassManager manager) {
+        public PassStep(PassManager manager) {
             td_classPasses = new LinkedList<>();
             td_methodPasses = new LinkedList<>();
             td_basicBlockPasses = new LinkedList<>();
@@ -44,9 +44,11 @@ class PassPipeline {
             bu_classPasses = new LinkedList<>();
 
             this.manager = manager;
+            this.num = 0;
         }
 
         void addPass(Pass pass) {
+            num++;
             if (pass.getAnalysisDirection() == AnalysisDirection.TOP_DOWN) {
                 if (pass instanceof ClassPass cp) {
                     td_classPasses.addLast(cp);
@@ -87,7 +89,7 @@ class PassPipeline {
         }
 
         public void printStep(PrintStream stream) {
-            stream.println("  TopDown:\n");
+            stream.println("  TopDown:");
             for (Pass pass : td_classPasses) {
                 printPass(stream, "    ", pass.getClass().getName());
             }
@@ -103,7 +105,7 @@ class PassPipeline {
             for (Pass pass : td_expressionPasses) {
                 printPass(stream, "            ", pass.getClass().getName());
             }
-            stream.println("  BottomUp:\n");
+            stream.println("  BottomUp:");
             for (Pass pass : bu_expressionPasses) {
                 printPass(stream, "            ", pass.getClass().getName());
             }
@@ -241,22 +243,22 @@ class PassPipeline {
         }
     }
 
-    private final ArrayList<PassSteps> steps;
+    private final LinkedList<PassStep> steps;
     private int stepCount = 0;
     private final PassManager manager;
 
     public PassPipeline(PassManager manager) {
-        steps = new ArrayList<>();
+        steps = new LinkedList<>();
         this.manager = manager;
         nextStep();
     }
 
     public void addPass(Pass pass) {
-        steps.get(0).addPass(pass);
+        steps.getFirst().addPass(pass);
     }
 
     public void nextStep() {
-        steps.add(new PassSteps(manager));
+        steps.addFirst(new PassStep(manager));
     }
 
     public void printPipeline(PrintStream stream) {
@@ -267,8 +269,11 @@ class PassPipeline {
         }
     }
 
-    public boolean traverseTreeStep(Program program) {
+    public void compress() {
+        steps.removeIf((step) -> step.num == 0);
+    }
 
+    public boolean traverseTreeStep(Program program) {
         if (steps.size() > stepCount) {
             steps.get(stepCount++).traverseTree(program);
         }
@@ -277,10 +282,22 @@ class PassPipeline {
 
     public void addASTReferencePass() {
         ASTReferencePass pass = new ASTReferencePass();
-        steps.get(0).td_methodPasses.addFirst(pass);
-        steps.get(0).td_basicBlockPasses.addFirst(pass);
-        steps.get(0).td_statementPasses.addFirst(pass);
-        steps.get(0).td_expressionPasses.addFirst(pass);
+        steps.getFirst().td_methodPasses.addFirst(pass);
+        steps.getFirst().td_basicBlockPasses.addFirst(pass);
+        steps.getFirst().td_statementPasses.addFirst(pass);
+        steps.getFirst().td_expressionPasses.addFirst(pass);
+    }
+
+    public int numberPasses() {
+        int num = 0;
+        for (PassStep step : steps) {
+            num += step.num;
+        }
+        return num;
+    }
+
+    public int numberSteps() {
+        return steps.size();
     }
 
 }
