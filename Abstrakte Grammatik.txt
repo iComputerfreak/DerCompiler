@@ -26,7 +26,7 @@ Ein Type wird durch einen BasicType beschrieben und Dimension beschreibt in wie 
 Type                    ::  BasicType Dimension
 
 Die StatementList besteht aus einer Liste von Statements, welche den auszuführenden Code repräsentieren.
-StatementList           ::  Statement +
+StatementList           ::  Statement *
 
 Ein Statement kann entweder eine bedingte Anweisung namens IfStatement, eine bedingte Schleife namens WhileStatement, ein zusammenhängender Block namens BasicBlock, ein Ausdruck namens ExpressionsStatement, eine Statement was eine NOP repräsentiert namens EmptyStatement oder ein ReturnStatement, welches in einer Methode den Rückgabewert repräsentiert.
 Statement               =   IfStatement | WhileStatement | BasicBlock | ExpressionsStatement | EmptyStatement | ReturnStatement

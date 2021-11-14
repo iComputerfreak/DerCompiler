@@ -38,7 +38,7 @@ BasicBlock.env		=   concat(Method.env, ParameterList.env)
 MainMethod              ::  ParameterList BasicBlock
 BasicBlock.env		=   concat(Method.env, ParameterList.env)
 
-ParameterList           ::  Parameter +
+ParameterList           ::  Parameter *
 ParameterList.env	=   concatAll(Parameter_i.env)
 
 Parameter               ::  Type Ident
@@ -57,7 +57,7 @@ Declaration		::  VariableDeclaration
 Declaration.env		=   VariableDeclaration.env
 
 
-StatementList           ::  Statement +
+StatementList           ::  Statement *
 Statement_i.env		=   StatementList.env
 
 Statement               =   IfStatement
