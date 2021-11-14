@@ -11,21 +11,21 @@ import java.util.Objects;
 
 public class Arguments extends ASTNode {
 
-    private LinkedList<AbstractExpression> arguments;
+    private LinkedList<Expression> arguments;
 
     public Arguments(SourcePosition position) {
         super(position);
         this.arguments = new LinkedList<>();
     }
 
-    public Arguments(SourcePosition position, List<AbstractExpression> arguments) {
+    public Arguments(SourcePosition position, List<Expression> arguments) {
         this(position);
-        for (AbstractExpression ae : arguments) {
+        for (Expression ae : arguments) {
             this.arguments.addLast(ae);
         }
     }
 
-    public void addArgument(AbstractExpression expression) {
+    public void addArgument(Expression expression) {
         this.arguments.addLast(expression);
     }
 
@@ -35,11 +35,11 @@ public class Arguments extends ASTNode {
         if (other instanceof Arguments a) {
             if (a.arguments.size() != arguments.size()) return false;
             boolean result = true;
-            Iterator<AbstractExpression> itThis = arguments.iterator();
-            Iterator<AbstractExpression> itO = a.arguments.iterator();
+            Iterator<Expression> itThis = arguments.iterator();
+            Iterator<Expression> itO = a.arguments.iterator();
             while (itThis.hasNext()) {
-                AbstractExpression expThis = itThis.next();
-                AbstractExpression expO = itO.next();
+                Expression expThis = itThis.next();
+                Expression expO = itO.next();
                 result &= expThis.syntaxEquals(expO);
             }
             return result;
@@ -56,7 +56,7 @@ public class Arguments extends ASTNode {
         return arguments.size();
     }
 
-    public AbstractExpression get(int index) {
+    public Expression get(int index) {
         return arguments.get(index);
     }
 }

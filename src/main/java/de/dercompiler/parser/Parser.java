@@ -497,7 +497,7 @@ public class Parser {
         SourcePosition pos = wlexer.position();
         Type type = parseType(ank, "variable type declaration");
         IdentifierToken ident;
-        AbstractExpression expression;
+        Expression expression;
         try {
             ident = expectIdentifier(ank, "identifier of variable declaration");
             expression = new UninitializedValue(pos);
@@ -540,7 +540,7 @@ public class Parser {
 
     public Statement parseIfStatement(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
-        AbstractExpression condition;
+        Expression condition;
         Statement thenStatement;
         Statement elseStatement;
         try {
@@ -562,7 +562,7 @@ public class Parser {
 
     public Statement parseWhileStatement(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
-        AbstractExpression condition;
+        Expression condition;
         try {
             expect(WHILE, ank.fork(L_PAREN, R_PAREN), "start of while statement");
             expect(L_PAREN, ank.fork(R_PAREN), "start of condition of while statement");
@@ -582,7 +582,7 @@ public class Parser {
         } catch (ExpectedTokenError e) {
             return new ErrorStatement(pos);
         }
-        AbstractExpression returnExpression = new VoidExpression(pos);
+        Expression returnExpression = new VoidExpression(pos);
         if (wlexer.peek() != SEMICOLON) {
             returnExpression = parseExpression(ank.fork(SEMICOLON));
         }
@@ -597,7 +597,7 @@ public class Parser {
 
     public Statement parseExpressionStatement(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
-        AbstractExpression expression = parseExpression(ank.fork(SEMICOLON));
+        Expression expression = parseExpression(ank.fork(SEMICOLON));
         SourcePosition pos2 = wlexer.position();
         try {
             expect(SEMICOLON, ank, "end of expression statement");
@@ -607,11 +607,11 @@ public class Parser {
         return new ExpressionStatement(pos, expression);
     }
 
-    public AbstractExpression parseExpression(AnchorSet ank) {
+    public Expression parseExpression(AnchorSet ank) {
         return precedenceParser.parseExpression(ank);
     }
 
-    public AbstractExpression parseUnaryExpression(AnchorSet ank) {
+    public Expression parseUnaryExpression(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
         IToken token = wlexer.peek();
         if (isPrimary(token)) {
@@ -646,8 +646,8 @@ public class Parser {
         return new ErrorExpression(pos);
     }
 
-    public AbstractExpression parsePostfixExpression(AnchorSet ank) {
-        AbstractExpression expression = parsePrimaryExpression(ank);
+    public Expression parsePostfixExpression(AnchorSet ank) {
+        Expression expression = parsePrimaryExpression(ank);
 
         while (true) {
             if (wlexer.peek() instanceof Token t) {
@@ -680,7 +680,7 @@ public class Parser {
 
     }
 
-    public AbstractExpression parseMethodInvocation(AnchorSet ank, AbstractExpression expression) {
+    public Expression parseMethodInvocation(AnchorSet ank, Expression expression) {
         SourcePosition pos = wlexer.position();
         IdentifierToken ident;
         Arguments arguments;
@@ -721,7 +721,7 @@ public class Parser {
         return arguments;
     }
 
-    public AbstractExpression parseFieldAccess(AnchorSet ank, AbstractExpression expression) {
+    public Expression parseFieldAccess(AnchorSet ank, Expression expression) {
         SourcePosition pos = wlexer.position();
         IdentifierToken ident;
         try {
@@ -733,9 +733,9 @@ public class Parser {
         return new FieldAccess(pos, expression, ident.getIdentifier());
     }
 
-    public AbstractExpression parseArrayAccess(AnchorSet ank, AbstractExpression expression) {
+    public Expression parseArrayAccess(AnchorSet ank, Expression expression) {
         SourcePosition pos = wlexer.position();
-        AbstractExpression arrayPosition;
+        Expression arrayPosition;
         try {
             expect(L_SQUARE_BRACKET, ank, "'[' of array access expression");
             arrayPosition = parseExpression(ank.fork(R_SQUARE_BRACKET));
@@ -775,9 +775,9 @@ public class Parser {
         return false;
     }
 
-    public AbstractExpression parsePrimaryExpression(AnchorSet ank) {
+    public Expression parsePrimaryExpression(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
-        AbstractExpression expression = new ErrorExpression(pos);
+        Expression expression = new ErrorExpression(pos);
         IToken token = wlexer.peek();
 
         if (token instanceof IdentifierToken ident) {
@@ -845,11 +845,11 @@ public class Parser {
         return expression;
     }
 
-    public AbstractExpression parseNewArrayExpression(AnchorSet ank) {
+    public Expression parseNewArrayExpression(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
         BasicType type;
         int dimension;
-        AbstractExpression size;
+        Expression size;
         try {
             expect(NEW, ank, "start of new array expression");
             type = parseBasicType(ank, "array type");
@@ -871,7 +871,7 @@ public class Parser {
         return new NewArrayExpression(pos, type, size, dimension);
     }
 
-    public AbstractExpression parseNewObjectExpression(AnchorSet ank) {
+    public Expression parseNewObjectExpression(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
         SourcePosition typePos;
         IdentifierToken ident;

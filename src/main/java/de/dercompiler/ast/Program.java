@@ -11,10 +11,12 @@ import java.util.List;
 public final class Program extends ASTNode {
 
     private final List<ClassDeclaration> classes;
+    private boolean isIndexed;
 
     public Program(SourcePosition position, List<ClassDeclaration> classes) {
         super(position);
         this.classes = classes;
+        isIndexed = false;
     }
 
     public List<ClassDeclaration> getClasses() {
@@ -37,5 +39,13 @@ public final class Program extends ASTNode {
             new OutputMessageHandler(MessageOrigin.AST).internalError("Tried to sort immutable list of ClassDeclarations.");
         }
         astNodeVisitor.visitProgram(this);
+    }
+
+    public boolean isIndexed() {
+        return isIndexed;
+    }
+
+    public void indexed() {
+        isIndexed = true;
     }
 }

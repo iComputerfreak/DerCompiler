@@ -9,7 +9,7 @@ import java.util.Objects;
 import static de.dercompiler.lexer.token.OperatorToken.LESS_THAN;
 
 public final class LessEqualExpression extends BinaryExpression {
-    public LessEqualExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public LessEqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

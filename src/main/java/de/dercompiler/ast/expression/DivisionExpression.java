@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.SLASH;
 
 public final class DivisionExpression extends BinaryExpression {
 
-    public DivisionExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public DivisionExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

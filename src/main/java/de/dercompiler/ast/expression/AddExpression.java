@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.PLUS;
 
 public final class AddExpression extends BinaryExpression {
 
-    public AddExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public AddExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

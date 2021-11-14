@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public final class NegativeExpression extends UnaryExpression {
 
-    public NegativeExpression(SourcePosition position, AbstractExpression encapsulated) {
+    public NegativeExpression(SourcePosition position, Expression encapsulated) {
         super(position, encapsulated);
     }
 
