@@ -34,12 +34,17 @@ public class AnchorSet {
         return false;
     }
 
-    public AnchorSet fork(Token... tokens) {
+    public AnchorSet fork(IToken... tokens) {
         EnumSet<Token> add = keywordsAndSeparators.clone();
-        for (Token t : tokens) {
-            add.add(t);
+        AnchorSet forked = new AnchorSet(add, operators, number, ident, type);
+        for (IToken token : tokens) {
+            if (token instanceof Token t) forked.keywordsAndSeparators.add(t);
+            else if (token instanceof IdentifierToken t) forked.addIdent();
+            else if (token instanceof IntegerToken t) forked.addInteger();
+            else if (token instanceof OperatorToken t) forked.addOperator();
+            else if (token instanceof TypeToken t) forked.addType();
         }
-        return new AnchorSet(add, operators, number, ident, type);
+        return forked;
     }
 
     public AnchorSet addOperator() {

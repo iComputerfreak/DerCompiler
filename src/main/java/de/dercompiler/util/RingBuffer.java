@@ -82,4 +82,9 @@ public class RingBuffer<T> {
     public int getLength() {
         return length;
     }
+
+    public void clear() {
+        this.length = 0;
+        this.nextIndex = this.tailIndex;
+    }
 }

@@ -1,6 +1,7 @@
 package de.dercompiler.lexer;
 
 
+import com.sun.jna.platform.win32.WinDef;
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
@@ -8,9 +9,11 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.token.*;
 import de.dercompiler.util.RingBuffer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.stream.Stream;
 
 /**
  * Represents a Lexer for MiniJava. It transforms a character input source into a buffered sequence of {@link IToken}s, which allows for a certain lookahead.
@@ -19,9 +22,10 @@ public class Lexer {
 
     private static final int SLL_CONSTANT = 4;
     private final RingBuffer<TokenOccurrence> tokenBuffer;
-    private Reader reader;
+    private BufferedReader reader;
     private Source source;
 
+    // position of the currentChar in the source, NOT the position of the reader in the source (with is one char further along)
     private final Position position;
     // FileReader.read() returns -1 for EOF, so char is not suitable
     private int currentChar;
@@ -50,6 +54,12 @@ public class Lexer {
         while (token == null) {
             while (Character.isWhitespace(currentChar)) {
                 readCharacter();
+            }
+            if (currentChar > 127) {
+                fail(LexerErrorIds.UNKNOWN_SYMBOL, "Unknown symbol: %c".formatted(currentChar));
+                token = new ErrorToken(LexerErrorIds.UNKNOWN_SYMBOL);
+                readCharacter();
+                continue;
             }
             currentPosition = getPosition();
             if (currentChar == -1) {
@@ -296,7 +306,7 @@ public class Lexer {
                             case 's':
                                 readCharacter();
                                 // ins.tanceof
-                                return compareSuffix(Token.INSTANCE_OF, 3);
+                                return compareSuffix(OperatorToken.INSTANCE_OF, 3);
                             case 't':
                                 readCharacter();
                                 // int. | int.erface
@@ -849,32 +859,70 @@ public class Lexer {
         handler.printErrorAndExit(id, message);
     }
 
+
+    private static final int CONSOLE_WIDTH = 120;
+    private static final int POINTER_OFFSET = 30;
     public String printSourceText(SourcePosition position) {
-        SourcePosition currentPosition = getPosition().copy();
+        // can only open Source once at a time, so reset reader and go to given line
+        SourcePosition currentPosition = peek().position().copy();
+        this.reader = this.source.getNewReader();
+        this.tokenBuffer.clear();
+
+        StringBuilder sb = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
+
+
+        String line = this.reader.lines()
+                .skip(position.getLine() - 1).findFirst().orElse("<empty line>");
+        // Preserving tab width
+        String indexLine = line.substring(0, position.getColumn() - 1).replaceAll("\\S", " ");
+
+        // align long lines to the center of the terminal
+        int trimFront = 0;
+        if (position.getColumn() > CONSOLE_WIDTH - 3) {
+            trimFront = position.getColumn() - POINTER_OFFSET;
+            line = "..." + line.substring(position.getColumn() - (POINTER_OFFSET - 3));
+        }
+        if (line.length() > CONSOLE_WIDTH - 3) {
+            line = line.substring(0, CONSOLE_WIDTH - 3) + "...";
+        }
+
+        sb.append(line);
+        sb.append("\n");
+
+        sb.append(indexLine.substring(trimFront));
+        sb.append("^");
+
         this.reader = this.source.getNewReader();
         this.position.reset();
-        this.readCharacter();
-        while (this.position.getLine() < position.getLine()) {
+        // Reset reader to previous position, i.e. the position where peek() is the same token as before
+        while (this.position.getLine() < currentPosition.getLine()) {
+            this.nextLine();
+        }
+        while (this.position.getColumn() < currentPosition.getColumn()) {
             this.readCharacter();
         }
-        StringBuilder line = new StringBuilder("In %s at line %s:\n".formatted(source.toString(), position.toString()));
-        while (currentChar != '\n' && (this.position.column == 0 || currentChar != -1)) {
-            line.append((char) currentChar);
-            this.readCharacter();
-        }
+        lex();
+        return sb.toString();
+    }
 
-        line.append("\n");
 
-        for (int col = 0; col < position.getColumn() - 1; col++) {
-            line.append(" ");
+    private String nextLine() {
+        try {
+            String line = reader.readLine();
+            this.tokenBuffer.clear();
+            if (line == null) {
+                this.position.setColumn(line.length() + 1);
+            } else {
+                // position.newLine() is not suitable here, as the first character of the new line is not read yet
+                // see readCharacter: here, when newLine() is called, currentChar is already the first char of the new line.
+                this.position.line++;
+                this.position.column = 0;
+            }
+            return line;
+        } catch (IOException e) {
+            new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(GeneralErrorIds.IO_EXCEPTION, "Error while reading input file.", e);
         }
-        line.append("^");
-
-        // reset
-        while (this.position.getLine() < currentPosition.getLine() || this.position.getColumn() < currentPosition.getColumn()) {
-            this.readCharacter();
-        }
-        return line.toString();
+        return null;
     }
 
     /**
@@ -902,7 +950,9 @@ public class Lexer {
      */
     static class Position extends SourcePosition {
 
-        Position() { super(); }
+        Position() {
+            super();
+        }
 
         private void reset() {
             this.line = 1;
@@ -916,6 +966,10 @@ public class Lexer {
 
         public void advance() {
             this.column++;
+        }
+
+        public void setColumn(int column) {
+            this.column = column;
         }
     }
 
