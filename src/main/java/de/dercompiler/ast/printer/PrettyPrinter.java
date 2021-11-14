@@ -76,6 +76,11 @@ public class PrettyPrinter implements ASTNodeVisitor {
     }
 
     @Override
+    public void visitExpression(Expression expression) {
+
+    }
+
+    @Override
     public void visitErrorStatement(ErrorStatement errorStatement) {
 
     }
