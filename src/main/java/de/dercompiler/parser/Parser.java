@@ -705,7 +705,7 @@ public class Parser {
 
         do {
             arguments.addArgument(parseExpression(ank.fork(COMMA, R_PAREN)));
-            if (wlexer.peek() != R_PAREN && !ank.hasToken(wlexer.peek())) {
+            if (wlexer.peek() != R_PAREN && (wlexer.peek() == COMMA || !ank.hasToken(wlexer.peek()))) {
                 SourcePosition pos2 = wlexer.position();
                 try {
                     expect(COMMA, ank.fork(R_PAREN), "end of method argument");
