@@ -89,5 +89,79 @@ class pip { /* 1 */
 
         Assertions.assertEquals(3, manager.getCurrentPipeline().numberSteps());
         Assertions.assertEquals(9, manager.getCurrentPipeline().numberPasses());
+
+        for (Pass pass : manager.getCurrentPipeline().getAllPassesOnlyForTesting()) {
+            Assertions.assertNotEquals(0, pass.getID());
+            Assertions.assertEquals(manager, pass.getPassManager());
+        }
+    }
+
+    @Test
+    @DisplayName("build DAG1")
+    void buildDAG1() {
+        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
+        PassManager manager = new PassManager();
+
+        manager.addPass(new DAG1Passes.B_DAG1());
+        manager.addPass(new DAG1Passes.E_DAG1());
+        manager.addPass(new DAG1Passes.G_DAG1());
+        manager.addPass(new DAG1Passes.I_DAG1());
+
+        program.indexed();
+        manager.run(program);
+
+        Assertions.assertEquals(3, manager.getCurrentPipeline().numberSteps());
+        Assertions.assertEquals(9, manager.getCurrentPipeline().numberPasses());
+
+        for (Pass pass : manager.getCurrentPipeline().getAllPassesOnlyForTesting()) {
+            Assertions.assertNotEquals(0, pass.getID());
+            Assertions.assertEquals(manager, pass.getPassManager());
+        }
+    }
+
+    @Test
+    @DisplayName("resolve DAG2")
+    void resolveDAG2() {
+        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
+        PassManager manager = new PassManager();
+
+        manager.addPass(new DAG2Passes.A_DAG2());
+        manager.addPass(new DAG2Passes.B_DAG2());
+        manager.addPass(new DAG2Passes.C_DAG2());
+        manager.addPass(new DAG2Passes.D_DAG2());
+        manager.addPass(new DAG2Passes.E_DAG2());
+        manager.addPass(new DAG2Passes.F_DAG2());
+        manager.addPass(new DAG2Passes.G_DAG2());
+
+        program.indexed();
+        manager.run(program);
+
+        Assertions.assertEquals(4, manager.getCurrentPipeline().numberSteps());
+        Assertions.assertEquals(7, manager.getCurrentPipeline().numberPasses());
+
+        for (Pass pass : manager.getCurrentPipeline().getAllPassesOnlyForTesting()) {
+            Assertions.assertNotEquals(0, pass.getID());
+            Assertions.assertEquals(manager, pass.getPassManager());
+        }
+    }
+
+    @Test
+    @DisplayName("resolve DAG2")
+    void buildDAG2() {
+        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
+        PassManager manager = new PassManager();
+
+        manager.addPass(new DAG2Passes.G_DAG2());
+
+        program.indexed();
+        manager.run(program);
+
+        Assertions.assertEquals(4, manager.getCurrentPipeline().numberSteps());
+        Assertions.assertEquals(7, manager.getCurrentPipeline().numberPasses());
+
+        for (Pass pass : manager.getCurrentPipeline().getAllPassesOnlyForTesting()) {
+            Assertions.assertNotEquals(0, pass.getID());
+            Assertions.assertEquals(manager, pass.getPassManager());
+        }
     }
 }

@@ -60,16 +60,27 @@ public class PassManager {
     private void initializeMissingPasses() {
         HashSet<Long> ids = new HashSet<>();
         for (Pass pass : passes) {
+            if (pass.registerID(passIDs) == passIDs) passIDs++;
+            pass.registerPassManager(this);
             ids.add(pass.getID());
         }
-        for (Pass pass : passes) {
-            List<Pass> deps = PassHelper.transform(pass.getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass);
-            for (Pass dep : deps) {
-                if (!ids.contains(dep.getID())) {
-                    ids.add(dep.getID());
-                    passes.add(dep);
+        int size = 0;
+        List<Pass> tmp = new LinkedList<>();
+        while (size != passes.size()) {
+            size = passes.size();
+            for (Pass pass : passes) {
+                List<Pass> deps = PassHelper.transform(pass.getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass);
+                for (Pass dep : deps) {
+                    if (dep.registerID(passIDs) == passIDs) passIDs++;
+                    dep.registerPassManager(this);
+                    if (!ids.contains(dep.getID())) {
+                        ids.add(dep.getID());
+                        tmp.add(dep);
+                    }
                 }
             }
+            passes.addAll(tmp);
+            tmp.clear();
         }
     }
 

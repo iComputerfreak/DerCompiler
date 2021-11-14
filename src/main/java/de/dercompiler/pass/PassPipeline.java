@@ -10,6 +10,7 @@ import de.dercompiler.pass.passes.ASTReferencePass;
 
 import java.io.PrintStream;
 import java.util.LinkedList;
+import java.util.List;
 
 class PassPipeline {
 
@@ -121,6 +122,21 @@ class PassPipeline {
             for (Pass pass : bu_classPasses) {
                 printPass(stream, "    ", pass.getClass().getName());
             }
+        }
+
+        public List<Pass> getAllPasses() {
+            List<Pass> all = new LinkedList<>();
+            all.addAll(td_classPasses);
+            all.addAll(td_methodPasses);
+            all.addAll(td_basicBlockPasses);
+            all.addAll(td_statementPasses);
+            all.addAll(td_expressionPasses);
+            all.addAll(bu_expressionPasses);
+            all.addAll(bu_statementPasses);
+            all.addAll(bu_basicBlockPasses);
+            all.addAll(bu_methodPasses);
+            all.addAll(bu_classPasses);
+            return all;
         }
 
         //TODO check for return value and rerun passes if needed
@@ -298,6 +314,14 @@ class PassPipeline {
 
     public int numberSteps() {
         return steps.size();
+    }
+
+    public List<Pass> getAllPassesOnlyForTesting() {
+        List<Pass> passes = new LinkedList<>();
+        for (PassStep step : steps) {
+            passes.addAll(step.getAllPasses());
+        }
+        return passes;
     }
 
 }

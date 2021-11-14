@@ -86,6 +86,11 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
     }
 
     @Override
+    public PassManager getPassManager() {
+        return manager;
+    }
+
+    @Override
     public long registerID(long rid) {
         if (id != 0) return id;
         id = rid;

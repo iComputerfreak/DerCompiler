@@ -74,6 +74,11 @@ public class PassMockFactory {
             }
 
             @Override
+            public PassManager getPassManager() {
+                return manager;
+            }
+
+            @Override
             public long registerID(long id) {
                 if (this.id != 0) {
                     return (this.id = id);
@@ -141,6 +146,11 @@ public class PassMockFactory {
             }
 
             @Override
+            public PassManager getPassManager() {
+                return manager;
+            }
+
+            @Override
             public long registerID(long id) {
                 if (this.id != 0) {
                     return (this.id = id);
@@ -202,6 +212,11 @@ public class PassMockFactory {
             }
 
             @Override
+            public PassManager getPassManager() {
+                return manager;
+            }
+
+            @Override
             public long registerID(long id) {
                 if (this.id != 0) {
                     return (this.id = id);
@@ -260,6 +275,11 @@ public class PassMockFactory {
             @Override
             public void registerPassManager(PassManager manager) {
                 this.manager = manager;
+            }
+
+            @Override
+            public PassManager getPassManager() {
+                return manager;
             }
 
             @Override
@@ -329,6 +349,11 @@ public class PassMockFactory {
             }
 
             @Override
+            public PassManager getPassManager() {
+                return manager;
+            }
+
+            @Override
             public long registerID(long id) {
                 if (this.id != 0) {
                     return (this.id = id);
@@ -387,6 +412,11 @@ public class PassMockFactory {
             @Override
             public void registerPassManager(PassManager manager) {
                 this.manager = manager;
+            }
+
+            @Override
+            public PassManager getPassManager() {
+                return manager;
             }
 
             @Override
@@ -457,6 +487,11 @@ public class PassMockFactory {
             }
 
             @Override
+            public PassManager getPassManager() {
+                return manager;
+            }
+
+            @Override
             public long registerID(long id) {
                 if (this.id != 0) {
                     return (this.id = id);
@@ -515,6 +550,11 @@ public class PassMockFactory {
             @Override
             public void registerPassManager(PassManager manager) {
                 this.manager = manager;
+            }
+
+            @Override
+            public PassManager getPassManager() {
+                return manager;
             }
 
             @Override

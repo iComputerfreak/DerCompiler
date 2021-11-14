@@ -42,6 +42,7 @@ public sealed interface Pass permits AnalysisPass, BasicBlockPass, ClassPass, Ex
      * @param manager PassManager that runs this Pass
      */
     void registerPassManager(PassManager manager);
+    PassManager getPassManager();
 
     long registerID(long id);
     long getID();

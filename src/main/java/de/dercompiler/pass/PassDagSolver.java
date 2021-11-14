@@ -69,6 +69,9 @@ public class PassDagSolver {
                      */
                     if (deps.size() == 1) {
                         List<Pass> dA = directAfter.get(lookupTable.get(deps.get(0).getID()));
+                        if (pass.getAnalysisDirection() == AnalysisDirection.TOP_DOWN && deps.get(0).getAnalysisDirection() == AnalysisDirection.BOTTOM_UP) {
+                            new OutputMessageHandler(MessageOrigin.PASSES).internalError("Invalid dependency: Pass " + pass.getClass().getName() + " is TOP_DOWN and pass " + deps.get(0).getClass().getName() + " is BOTTOM_UP, we can't run the directly after eachother.");
+                        }
                         dA.add(pass);
                         dA.addAll(directAfter.get(i));
                         directAfter.get(i).clear();
