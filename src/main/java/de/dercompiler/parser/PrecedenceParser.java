@@ -1,6 +1,6 @@
 package de.dercompiler.parser;
 
-import de.dercompiler.ast.expression.AbstractExpression;
+import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.ErrorExpression;
 import de.dercompiler.ast.expression.ExpressionFactory;
 import de.dercompiler.io.OutputMessageHandler;
@@ -20,13 +20,13 @@ public class PrecedenceParser {
         this.parser = parser;
     }
 
-    public AbstractExpression parseExpression(AnchorSet ank) {
+    public Expression parseExpression(AnchorSet ank) {
         return parseExpression(ank, 0);
     }
 
-    private AbstractExpression parseExpression(AnchorSet ank, int minPrec) {
+    private Expression parseExpression(AnchorSet ank, int minPrec) {
 
-        AbstractExpression result = parser.parseUnaryExpression(ank.fork().addOperator());
+        Expression result = parser.parseUnaryExpression(ank.fork().addOperator());
         IToken token = lexer.peek();
         SourcePosition pos = lexer.position();
         int prec;
@@ -37,7 +37,7 @@ public class PrecedenceParser {
             //don't assign token here, we need it maybe for error printing
             lexer.nextToken();
             //ank right or do we have to add
-            AbstractExpression rhs = parseExpression(ank,prec + 1);
+            Expression rhs = parseExpression(ank,prec + 1);
             result = ExpressionFactory.createExpression(op, pos, result, rhs);
             if (result instanceof ErrorExpression) {
                 handleError(ank, token, pos, minPrec);

@@ -25,6 +25,8 @@ public final class OutputMessageHandler {
     private static final String INFO_MESSAGE = "info: ";
     private static final String WARNING_MESSAGE = "warning: ";
     private static final String ERROR_MESSAGE = "error: ";
+
+    private static final int ERROR_CODE = 69;
     
     // X is the origin of the output, Y the reason  "[XXXYYYYY] "
     private static final String SKIP_MESSAGE_HEAD = "           ";
@@ -177,7 +179,7 @@ public final class OutputMessageHandler {
         if (debug_mode) {
             debugEvents.add(new DebugEvent(origin, id, errorMessage));
         } else {
-            System.exit(-idPrefix - id.getId());
+            System.exit(ERROR_CODE);
         }
     }
 
@@ -189,7 +191,7 @@ public final class OutputMessageHandler {
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage) {
         formatMessage(System.err, ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor);
-        ErrorStatus.reportError(-idPrefix - id.getId());
+        ErrorStatus.reportError(ERROR_CODE);
     }
 
     /**
@@ -204,7 +206,7 @@ public final class OutputMessageHandler {
         if (debug_mode) {
             debugEvents.add(new DebugEvent(origin, id, errorMessage));
         } else {
-            System.exit(-idPrefix - id.getId());
+            System.exit(ERROR_CODE);
         }
     }
 
@@ -217,7 +219,7 @@ public final class OutputMessageHandler {
      */
     public void printErrorAndContinue(IErrorIds id, String errorMessage, Exception e) {
         formatMessage( System.err, ident + formatId(id.getId()), errorColor, ERROR_MESSAGE + errorMessage, errorColor, e);
-        ErrorStatus.reportError(-idPrefix - id.getId());
+        ErrorStatus.reportError(ERROR_CODE);
     }
 
     public void printParserError(IErrorIds id, String errorMessage, Lexer lexer, SourcePosition position) {
@@ -225,13 +227,19 @@ public final class OutputMessageHandler {
         if (debug_mode) {
             debugEvents.add(new DebugEvent(origin, id, errorMessage + "\n" + lexer.printSourceText(position)));
         } else {
-            ErrorStatus.reportError(-idPrefix - id.getId());
+            ErrorStatus.reportError(ERROR_CODE);
         }
     }
 
     private void internalError(String message, StackTraceElement element) {
         formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
                 + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor);
+        System.exit(-1);
+    }
+
+    private void internalError(String message, StackTraceElement element, Exception e) {
+        formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
+                + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor, e);
         System.exit(-1);
     }
 
@@ -255,6 +263,18 @@ public final class OutputMessageHandler {
         //we use this to get the classname and the line-count where the error gets printed
         Exception e = new Exception();
         internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE]);
+    }
+
+    /**
+     * Prints an internal error with message, with classname, methode, and line
+     *
+     * @param errorMessage error-message to print
+     */
+    public void internalError(String errorMessage, Exception exc) {
+        //https://stackoverflow.com/questions/7483421/how-to-get-source-file-name-line-number-from-a-java-lang-class-object
+        //we use this to get the classname and the line-count where the error gets printed
+        Exception e = new Exception();
+        internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE], exc);
     }
 
     /**

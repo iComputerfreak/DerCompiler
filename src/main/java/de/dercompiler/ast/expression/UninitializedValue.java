@@ -6,7 +6,7 @@ import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
-public final class UninitializedValue extends AbstractExpression {
+public final class UninitializedValue extends Expression {
 
     public UninitializedValue(SourcePosition position) {
         super(position);

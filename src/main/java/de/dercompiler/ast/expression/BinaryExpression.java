@@ -5,12 +5,12 @@ import de.dercompiler.lexer.SourcePosition;
 
 import de.dercompiler.lexer.token.OperatorToken;
 
-public abstract sealed class BinaryExpression extends AbstractExpression permits AssignmentExpression, AddExpression, DivisionExpression, EqualExpression, GreaterEqualExpression, GreaterExpression, LessEqualExpression, LessExpression, LogicalAndExpression, LogicalOrExpression, ModuloExpression, MultiplyExpression, SubtractExpression, NotEqualExpression {
+public abstract sealed class BinaryExpression extends Expression permits AssignmentExpression, AddExpression, DivisionExpression, EqualExpression, GreaterEqualExpression, GreaterExpression, LessEqualExpression, LessExpression, LogicalAndExpression, LogicalOrExpression, ModuloExpression, MultiplyExpression, SubtractExpression, NotEqualExpression {
 
-    private AbstractExpression lhs;
-    private AbstractExpression rhs;
+    private Expression lhs;
+    private Expression rhs;
 
-    public BinaryExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public BinaryExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position);
         this.lhs = lhs;
         this.rhs = rhs;
@@ -20,11 +20,11 @@ public abstract sealed class BinaryExpression extends AbstractExpression permits
         return lhs.syntaxEquals(other.lhs) && rhs.syntaxEquals(other.rhs);
     }
 
-    public AbstractExpression getLhs() {
+    public Expression getLhs() {
         return lhs;
     }
 
-    public AbstractExpression getRhs() {
+    public Expression getRhs() {
         return rhs;
     }
 

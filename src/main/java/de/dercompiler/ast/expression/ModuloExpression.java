@@ -10,7 +10,7 @@ import static de.dercompiler.lexer.token.OperatorToken.PERCENT_SIGN;
 
 public final class ModuloExpression extends BinaryExpression {
 
-    public ModuloExpression(SourcePosition position, AbstractExpression lhs, AbstractExpression rhs) {
+    public ModuloExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
 

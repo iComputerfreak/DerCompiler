@@ -41,6 +41,8 @@ public class CommandLineStrings {
 
     public static final String OPTION_PRETTY_PRINT = "pretty-print";
 
+    public static final String OPTION_PRINT_PIPELINE = "print-pipeline";
+
 
 
     // Descriptions
@@ -63,5 +65,7 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_LEX_STRING = "(--lextest) Lexes a String instead of a file";
     public static final String DESCRIPTION_PRINT_POSITION = "(--lextest) Prints the positions of the token occurrences";
     public static final String DESCRIPTION_PRETTY_PRINT = "(--parsetest) Pretty prints the constructed AST as code.";
+
+    public static final String DESCRIPTION_PRINT_PIPELINE = "Prints the pipeline whenever one is used.";
 
 }

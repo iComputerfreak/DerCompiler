@@ -8,9 +8,9 @@ import java.util.Objects;
 
 public final class ArrayAccess extends PostfixExpression {
 
-    private AbstractExpression index;
+    private Expression index;
 
-    public ArrayAccess(SourcePosition position, AbstractExpression encapsulated, AbstractExpression index) {
+    public ArrayAccess(SourcePosition position, Expression encapsulated, Expression index) {
         super(position, encapsulated);
         this.index = index;
     }
@@ -24,7 +24,7 @@ public final class ArrayAccess extends PostfixExpression {
         return false;
     }
 
-    public AbstractExpression getIndex() {
+    public Expression getIndex() {
         return index;
     }
 
