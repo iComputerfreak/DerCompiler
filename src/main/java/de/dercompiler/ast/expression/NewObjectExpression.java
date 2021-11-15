@@ -24,7 +24,7 @@ public final class NewObjectExpression extends PrimaryExpression {
         return false;
     }
 
-    public CustomType getType() {
+    public CustomType getObjectType() {
         return type;
     }
 

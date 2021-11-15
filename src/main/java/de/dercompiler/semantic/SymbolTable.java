@@ -16,7 +16,7 @@ public class SymbolTable {
      * Creates a new SymbolTable in the given scope
      */
     public SymbolTable() {
-        this.changes = new Stack<>();
+        this.changes = new Stack<Change>();
         this.currentScope = null;
         enterScope();
     }
@@ -89,5 +89,13 @@ public class SymbolTable {
     public boolean isDefinedInCurrentScope(Symbol symbol) {
         return symbol.getCurrentScope() == currentScope;
     }
-    
+
+    /**
+     * checks, whether the given symbol has a definition, which is not in the outest scope
+     * @param symbol The symbol to check for
+     * @return Whether the symbol has a definition, which is not in the outest scope
+     */
+    public boolean isDefinedInNotOutestScope(Symbol symbol){
+        return symbol.getCurrentScope() != null && symbol.getCurrentScope().getParent() != null;
+    }
 }

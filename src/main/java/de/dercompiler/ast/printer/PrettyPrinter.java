@@ -154,7 +154,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
     }
 
     @Override
-    public void visitUnitializedValue(UninitializedValue uninitializedValue) {
+    public void visitUninitializedValue(UninitializedValue uninitializedValue) {
 
     }
 
@@ -310,7 +310,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     public void visitNewArrayExpression(NewArrayExpression consArray) {
         sb.append("new ");
-        sb.append(consArray.getType());
+        sb.append(consArray.getBasicType());
         sb.append("[");
         consArray.getSize().accept(this);
         sb.append("]");
@@ -319,7 +319,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     public void visitNewObjectExpression(NewObjectExpression cons) {
         sb.append("new ");
-        sb.append(cons.getType().getIdentifier());
+        sb.append(cons.getObjectType().getIdentifier());
         sb.append("()");
     }
 

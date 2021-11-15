@@ -31,7 +31,7 @@ public final class NewArrayExpression extends PrimaryExpression {
         return false;
     }
 
-    public BasicType getType() {
+    public BasicType getBasicType() {
         return type;
     }
 
