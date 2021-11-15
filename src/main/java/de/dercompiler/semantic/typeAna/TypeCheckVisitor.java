@@ -8,7 +8,7 @@ import de.dercompiler.ast.type.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
-import de.dercompiler.lexer.StringTable;
+import de.dercompiler.semantic.StringTable;
 
 import java.util.ArrayList;
 import java.util.List;

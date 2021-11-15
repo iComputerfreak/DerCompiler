@@ -1,7 +1,5 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.lexer.StringTable;
-
 import java.util.Stack;
 
 /**
