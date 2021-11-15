@@ -5,6 +5,7 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.StringTable;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
@@ -22,6 +23,7 @@ public final class ClassDeclaration extends ASTNode {
     
     private final String identifier;
     private final List<ClassMember> members;
+    private final StringTable stringTable;
 
     /**
      * Creates a new ClassDeclaration
@@ -33,6 +35,7 @@ public final class ClassDeclaration extends ASTNode {
         super(position);
         this.identifier = identifier;
         this.members = members;
+        this.stringTable = new StringTable();
     }
 
     /**
@@ -47,6 +50,10 @@ public final class ClassDeclaration extends ASTNode {
      */
     public List<ClassMember> getMembers() {
         return members;
+    }
+    
+    public StringTable getStringTable() {
+        return stringTable;
     }
 
     @Override

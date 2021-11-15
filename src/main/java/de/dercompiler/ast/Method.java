@@ -4,6 +4,7 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.StringTable;
 import de.dercompiler.util.Utils;
 
 import java.util.LinkedList;
@@ -28,6 +29,7 @@ public final class Method extends ClassMember {
     private final MethodRest methodRest;
     private final BasicBlock block;
     private ClassDeclaration surrounding;
+    private final StringTable stringTable;
 
     /**
      * Creates a new Method
@@ -45,6 +47,7 @@ public final class Method extends ClassMember {
         this.parameters = Objects.requireNonNullElseGet(parameters, LinkedList::new);
         this.methodRest = methodRest;
         this.block = block;
+        this.stringTable = new StringTable();
     }
 
     /**
@@ -80,6 +83,10 @@ public final class Method extends ClassMember {
      */
     public BasicBlock getBlock() {
         return block;
+    }
+
+    public StringTable getStringTable() {
+        return stringTable;
     }
 
     @Override

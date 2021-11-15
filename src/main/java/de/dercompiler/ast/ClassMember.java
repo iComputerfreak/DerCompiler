@@ -1,6 +1,7 @@
 package de.dercompiler.ast;
 
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.StringTable;
 
 /**
  * Represents a class member, such as a field, method or main method

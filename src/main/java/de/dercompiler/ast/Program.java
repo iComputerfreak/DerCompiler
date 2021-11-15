@@ -4,6 +4,7 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.StringTable;
 import de.dercompiler.util.Utils;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.List;
 public final class Program extends ASTNode {
 
     private final List<ClassDeclaration> classes;
+    private final StringTable stringTable;
 
     /**
      * Creates a new Program
@@ -36,6 +38,7 @@ public final class Program extends ASTNode {
     public Program(SourcePosition position, List<ClassDeclaration> classes) {
         super(position);
         this.classes = classes;
+        this.stringTable = new StringTable();
     }
 
     /**
@@ -43,6 +46,10 @@ public final class Program extends ASTNode {
      */
     public List<ClassDeclaration> getClasses() {
         return classes;
+    }
+
+    public StringTable getStringTable() {
+        return stringTable;
     }
 
     @Override

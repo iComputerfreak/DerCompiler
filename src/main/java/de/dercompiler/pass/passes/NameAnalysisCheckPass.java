@@ -8,30 +8,38 @@ import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.Type;
-import de.dercompiler.lexer.StringTable;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.Symbol;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.semantic.VariableDefinition;
+import de.dercompiler.util.ContextualStringTables;
 import de.dercompiler.util.Utils;
+
 
 public class NameAnalysisCheckPass implements MethodPass, StatementPass, ExpressionPass, ClassPass {
 
     private static long id = 0;
     PassManager manager = null;
-    private final StringTable stringTable = StringTable.getInstance();
+
+    private ContextualStringTables stringTables;
 
     public NameAnalysisCheckPass() {}
 
     @Override
     public void doInitialization(Program program) {
-        
+        this.stringTables = new ContextualStringTables(program.getStringTable(), null, null);
     }
 
     @Override
     public void doFinalization(Program program) {
         
+    }
+
+    @Override
+    public boolean runOnClass(ClassDeclaration classDeclaration) {
+        this.stringTables.setClassStringTable(classDeclaration.getStringTable());
+        return false;
     }
 
     /**
@@ -41,9 +49,10 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
      */
     @Override
     public boolean runOnMethod(Method method) {
+        this.stringTables.setMethodStringTable(method.getStringTable());
         // TODO: Get SymbolTable for current context
         SymbolTable symbolTable = null;
-        Symbol symbol = stringTable.findOrInsertMethod(method.getIdentifier());
+        Symbol symbol = stringTables.findOrInsertMethod(method.getIdentifier());
         // If there currently is no method with this name, stringTable.getSymbol() will return a new Symbol
         // with a null Scope and Definition, which will fail the following if statement.
         // If the method is defined in a scope above the current scope, that is okay and no conflict.
@@ -55,7 +64,7 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         
         // Otherwise, this is a new definition, so we add it to the symbol table
         Type returnType = method.getType();
-        if (returnType.getBasicType() instanceof CustomType ct && stringTable.findOrInsertClass(ct.getIdentifier()).getCurrentDef() == null) {
+        if (returnType.getBasicType() instanceof CustomType ct && stringTables.findOrInsertClass(ct.getIdentifier()).getCurrentDef() == null) {
             //TODO: Error: Unknown class
         }
         symbolTable.insert(symbol, new MethodDefinition(symbol, null/* TODO: TYPE? */));
@@ -65,9 +74,18 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
             private List<Type> parameterTypes;
         }
          */
+        
+        /*
+        
+        symbolTable.enterScope()
+        Namensanalyse.runOnMethod()
+        Typanalyse.runOnMethod()
+        symbolTable.leaveScope()
+        
+         */
         return false;
     }
-    
+
     @Override
     public boolean runOnStatement(Statement statement) {
         // TODO
@@ -76,7 +94,7 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         // We only have to look at LocalVariableDeclarationStatements, since they are the only ones that create a new Definition
         // All other types only have to be checked for referenced variables in their expressions, which is done in runOnExpression
         if (statement instanceof LocalVariableDeclarationStatement l) {
-            Symbol s = stringTable.findOrInsertVariable(l.getIdentifier());
+            Symbol s = stringTables.findOrInsertVariable(l.getIdentifier());
             // If we already have a method with this name, it uses a different symbol, as returned by the string table
             // and we have no conflicting definitions that get overwritten
             symbolTable.insert(s, new VariableDefinition(s, l.getType()));
@@ -96,18 +114,13 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         SymbolTable symbolTable = null;
         for (Variable v : Utils.getReferencedVariables(expression)) {
             // Check if this variable has been defined
-            Symbol s = stringTable.findOrInsertVariable(v.getName());
+            Symbol s = stringTables.findOrInsertVariable(v.getName());
             // We have to check, if the symbol is defined in any parent scope, not just the current.
             if (symbolTable.lookup(s) == null) {
                 // TODO: Error: v not defined.
                 return false;
             }
         }
-        return false;
-    }
-    
-    @Override
-    public boolean runOnClass(ClassDeclaration classDeclaration) {
         return false;
     }
     
