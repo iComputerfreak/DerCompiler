@@ -79,6 +79,8 @@ public class VariableAnalysisCheckPass implements ClassPass {
             LocalVariableDeclarationStatement localVariableDeclarationStatement = (LocalVariableDeclarationStatement) statement;
 
             insert(localVariableDeclarationStatement.getIdentifier(), localVariableDeclarationStatement.getType(), symbolTable, stringTable);
+
+            visitExpression(localVariableDeclarationStatement.getExpression(), symbolTable, stringTable);
         } else if (statement instanceof ReturnStatement){
             ReturnStatement returnStatement = (ReturnStatement) statement;
 

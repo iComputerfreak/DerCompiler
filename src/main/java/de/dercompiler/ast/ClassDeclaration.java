@@ -5,9 +5,11 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.StringTable;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,6 +25,43 @@ public final class ClassDeclaration extends ASTNode {
     private final String identifier;
     private final List<ClassMember> members;
 
+    private HashMap<String, SymbolTable> methodSymbolTables, fieldSymbolTables;
+    private HashMap<String, StringTable> methodStringTables, fieldStringTables;
+
+    public HashMap<String, StringTable> getMethodStringTables() {
+        return methodStringTables;
+    }
+
+    public void setMethodStringTables(HashMap<String, StringTable> methodStringTables) {
+        this.methodStringTables = methodStringTables;
+    }
+
+    public HashMap<String, StringTable> getFieldStringTables() {
+        return fieldStringTables;
+    }
+
+    public void setFieldStringTables(HashMap<String, StringTable> fieldStringTables) {
+        this.fieldStringTables = fieldStringTables;
+    }
+
+    public HashMap<String, SymbolTable> getMethodSymbolTables() {
+        return methodSymbolTables;
+    }
+
+    public void setMethodSymbolTables(HashMap<String, SymbolTable> methodSymbolTables) {
+        this.methodSymbolTables = methodSymbolTables;
+    }
+
+    public HashMap<String, SymbolTable> getFieldSymbolTables() {
+        return fieldSymbolTables;
+    }
+
+    public void setFieldSymbolTables(HashMap<String, SymbolTable> fieldSymbolTables) {
+        this.fieldSymbolTables = fieldSymbolTables;
+    }
+
+
+
     /**
      * Creates a new ClassDeclaration
      * @param position The position of the class declaration in the source code
@@ -34,6 +73,7 @@ public final class ClassDeclaration extends ASTNode {
         this.identifier = identifier;
         this.members = members;
     }
+
 
     /**
      * Returns the identifier of the class

@@ -14,35 +14,40 @@ import java.util.Set;
  * hier werden für jede Klasse ihre öffentlichen Felder und methoden gesammelt
  */
 public class InterClassAnalysisCheckPass implements ClassPass {
-    StringTable fieldStringTable, methodStringtable, classStringTable;
-    SymbolTable fieldSymbolTable, methodSymbolTable;
+    //hier werden die Felder und Methoden in der Hashmap gespeichert. Der Key ist der Klassenname
+    HashMap<String, StringTable> methodStringTables, fieldStringTables;
+    HashMap<String, SymbolTable> methodSymbolTables, fieldSymbolTables;
 
 
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
-        if (classStringTable.contains(classDeclaration.getIdentifier())){
-            //Error, da Klasse schon vorhanden
-        }
-        classStringTable.findOrInsert(classDeclaration.getIdentifier());
+       classDeclaration.setFieldStringTables(fieldStringTables);
+       classDeclaration.setFieldSymbolTables(fieldSymbolTables);
+       classDeclaration.setMethodStringTables(methodStringTables);
+       classDeclaration.setMethodSymbolTables(methodSymbolTables);
+
+       StringTable methodStringTable = new StringTable();
+       SymbolTable methodSymbolTable = new SymbolTable();
+       StringTable fieldStringTable = new StringTable();
+       SymbolTable fieldSymbolTable = new SymbolTable();
+
+       methodStringTables.put(classDeclaration.getIdentifier(), methodStringTable);
+       methodSymbolTables.put(classDeclaration.getIdentifier(), methodSymbolTable);
+       fieldStringTables.put(classDeclaration.getIdentifier(), fieldStringTable);
+       fieldSymbolTables.put(classDeclaration.getIdentifier(), fieldSymbolTable);
 
 
-        for(ClassMember classMember: classDeclaration.getMembers()){
-            if (classMember instanceof Field){
-                Field field = (Field) classMember;
-
-                insert(field.getIdentifier(), field.getType(), fieldSymbolTable, fieldStringTable);
-            }
-
-            if (classMember instanceof Method){
-                Method method = (Method) classMember;
-
-                insert(method.getIdentifier(), method.getType(), methodSymbolTable, methodStringtable);
-            }
-        }
+       for(ClassMember classMember: classDeclaration.getMembers()){
+         if (classMember instanceof Method method){
+             insert(method.getIdentifier(), method.getType(),methodSymbolTable, methodStringTable);
+         } else if (classMember instanceof Field field){
+             insert(field.getIdentifier(), field.getType(), fieldSymbolTable, fieldStringTable);
+         }
+       }
 
 
 
-        return false;
+       return false;
     }
 
     private void insert(String identifier, Type type, SymbolTable symbolTable, StringTable stringTable){
@@ -56,11 +61,11 @@ public class InterClassAnalysisCheckPass implements ClassPass {
 
     @Override
     public void doInitialization(Program program) {
-        classStringTable = new StringTable();
-        fieldStringTable = new StringTable();
-        methodStringtable = new StringTable();
-        fieldSymbolTable = new SymbolTable();
-        methodSymbolTable = new SymbolTable();
+        methodStringTables = new HashMap<String, StringTable>();
+        fieldStringTables = new HashMap<String, StringTable>();
+        methodSymbolTables = new HashMap<String, SymbolTable>();
+        fieldSymbolTables = new HashMap<String, SymbolTable>();
+
     }
 
     @Override
