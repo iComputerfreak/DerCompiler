@@ -8,6 +8,7 @@ import de.dercompiler.pass.AnalysisUsage;
 import de.dercompiler.pass.ClassPass;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.semantic.*;
+import de.dercompiler.util.Utils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -96,49 +97,12 @@ public class VariableAnalysisCheckPass implements ClassPass {
     }
 
     private void visitExpression(Expression expression, SymbolTable symbolTable, StringTable stringTable){
-        List<Variable> referencedVariables = getReferencedVariables(expression);
+        List<Variable> referencedVariables = Utils.getReferencedVariables(expression);
 
         for(Variable variable: referencedVariables){
             if (!stringTable.contains(variable.getName())){
                 //Error, da referenzierte Variable nicht existiert
             }
-        }
-    }
-
-    private List<Variable> getReferencedVariables(Expression ex) {
-        // These expressions cannot reference any variables
-        if (ex instanceof ErrorExpression || ex instanceof UninitializedValue || ex instanceof VoidExpression) {
-            return new LinkedList<>();
-        } else if (ex instanceof BinaryExpression b) {
-            // Return the variables referenced on the lhs and rhs
-            List<Variable> results = getReferencedVariables(b.getLhs());
-            results.addAll(getReferencedVariables(b.getRhs()));
-            return results;
-        } else if (ex instanceof PrimaryExpression p) {
-            // These expressions cannot reference any variables
-            if (p instanceof NullValue || p instanceof ThisValue || p instanceof BooleanValue
-                    || p instanceof IntegerValue || p instanceof NewObjectExpression) {
-                return new LinkedList<>();
-            } else if (p instanceof NewArrayExpression e) {
-                // NewArrayExpression has an expression in the array size that could reference variables
-                return getReferencedVariables(e.getSize());
-            } else if (p instanceof Variable v) {
-                // If we reached a variable, we return it
-                LinkedList<Variable> results = new LinkedList<>();
-                results.add(v);
-                return results;
-            } else {
-                // If we reach this statement, a new PrimaryExpression subclass has been added
-                // that should be considered in the if-statements above
-                throw new RuntimeException();
-            }
-        } else if (ex instanceof UnaryExpression u) {
-            // E.g. '-a'
-            return getReferencedVariables(u.getEncapsulated());
-        } else {
-            // If we reach this statement, a new Expression subclass has been added
-            // that should be considered in the if-statements above
-            throw new RuntimeException();
         }
     }
 

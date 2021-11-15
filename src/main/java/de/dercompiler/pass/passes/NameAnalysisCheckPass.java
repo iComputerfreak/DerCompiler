@@ -14,9 +14,7 @@ import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.Symbol;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.semantic.VariableDefinition;
-
-import java.util.LinkedList;
-import java.util.List;
+import de.dercompiler.util.Utils;
 
 public class NameAnalysisCheckPass implements MethodPass, StatementPass, ExpressionPass, ClassPass {
 
@@ -96,7 +94,7 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
     public boolean runOnExpression(Expression expression) {
         // TODO
         SymbolTable symbolTable = null;
-        for (Variable v : getReferencedVariables(expression)) {
+        for (Variable v : Utils.getReferencedVariables(expression)) {
             // Check if this variable has been defined
             Symbol s = stringTable.findOrInsertVariable(v.getName());
             // We have to check, if the symbol is defined in any parent scope, not just the current.
@@ -106,43 +104,6 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
             }
         }
         return false;
-    }
-    
-    private List<Variable> getReferencedVariables(Expression ex) {
-        // These expressions cannot reference any variables
-        if (ex instanceof ErrorExpression || ex instanceof UninitializedValue || ex instanceof VoidExpression) {
-            return new LinkedList<>();
-        } else if (ex instanceof BinaryExpression b) {
-            // Return the variables referenced on the lhs and rhs
-            List<Variable> results = getReferencedVariables(b.getLhs());
-            results.addAll(getReferencedVariables(b.getRhs()));
-            return results;
-        } else if (ex instanceof PrimaryExpression p) {
-            // These expressions cannot reference any variables
-            if (p instanceof NullValue || p instanceof ThisValue || p instanceof BooleanValue
-                    || p instanceof IntegerValue || p instanceof NewObjectExpression) {
-                return new LinkedList<>();
-            } else if (p instanceof NewArrayExpression e) {
-                // NewArrayExpression has an expression in the array size that could reference variables
-                return getReferencedVariables(e.getSize());
-            } else if (p instanceof Variable v) {
-                // If we reached a variable, we return it
-                LinkedList<Variable> results = new LinkedList<>();
-                results.add(v);
-                return results;
-            } else {
-                // If we reach this statement, a new PrimaryExpression subclass has been added
-                // that should be considered in the if-statements above
-                throw new RuntimeException();
-            }
-        } else if (ex instanceof UnaryExpression u) {
-            // E.g. '-a'
-            return getReferencedVariables(u.getEncapsulated());
-        } else {
-            // If we reach this statement, a new Expression subclass has been added
-            // that should be considered in the if-statements above
-            throw new RuntimeException();
-        }
     }
     
     @Override
