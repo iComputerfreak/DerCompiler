@@ -18,7 +18,7 @@ public non-sealed interface ClassPass extends Pass {
      * @param classDeclaration Class-Declaration to check
      * @return true, if the Class-Declaration should be checked. There is a default implementation provided that always returns true.
      */
-    default boolean checkClass(ClassDeclaration classDeclaration) { return true; }
+    default boolean shouldRunOnClass(ClassDeclaration classDeclaration) { return true; }
 
     @Override
     default PassDependencyType getMinDependencyType() {

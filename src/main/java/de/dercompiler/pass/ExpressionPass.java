@@ -17,7 +17,7 @@ public non-sealed interface ExpressionPass extends Pass {
      * @param expression expression to check
      * @return true, if the expression should be checked. There is a default implementation provided that always returns true.
      */
-    default boolean checkExpression(Expression expression) { return true; }
+    default boolean shouldRunOnExpression(Expression expression) { return true; }
 
     @Override
     default PassDependencyType getMinDependencyType() {

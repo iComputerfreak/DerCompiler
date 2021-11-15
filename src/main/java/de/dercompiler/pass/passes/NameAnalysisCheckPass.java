@@ -1,5 +1,6 @@
 package de.dercompiler.pass.passes;
 
+import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.*;
@@ -11,7 +12,7 @@ import de.dercompiler.semantic.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class NameAnalysisCheckPass implements MethodPass, StatementPass, ExpressionPass {
+public class NameAnalysisCheckPass implements MethodPass, StatementPass, ExpressionPass, ClassPass {
 
     private static long id = 0;
     PassManager manager = null;
@@ -38,8 +39,6 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
     public boolean runOnMethod(Method method) {
         // TODO: Get SymbolTable for current context
         SymbolTable symbolTable = null;
-        
-        // TODO: How do I specifically request the a method with this name?
         Symbol symbol = stringTable.findOrInsertMethod(method.getIdentifier());
         // If there currently is no method with this name, stringTable.getSymbol() will return a new Symbol
         // with a null Scope and Definition, which will fail the following if statement.
@@ -52,9 +51,15 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         
         // Otherwise, this is a new definition, so we add it to the symbol table
         symbolTable.insert(symbol, new MethodDefinition(symbol, null/* TODO: TYPE? */));
+        /*
+        class MethodType: Type {
+            private Type returnType;
+            private List<Type> parameterTypes;
+        }
+         */
         return false;
     }
-
+    
     @Override
     public boolean runOnStatement(Statement statement) {
         // TODO
@@ -71,7 +76,7 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
         
         return false;
     }
-
+    
     /**
      * Checks whether the given expression references only variables that are already defined.
      * @param expression The expression to check
@@ -127,7 +132,12 @@ public class NameAnalysisCheckPass implements MethodPass, StatementPass, Express
             throw new RuntimeException();
         }
     }
-
+    
+    @Override
+    public boolean runOnClass(ClassDeclaration classDeclaration) {
+        return false;
+    }
+    
     @Override
     public PassDependencyType getMinDependencyType() {
         return PassDependencyType.METHOD_PASS;
