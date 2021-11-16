@@ -3,6 +3,7 @@ package de.dercompiler.pass.passes;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.type.BooleanType;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.pass.AnalysisUsage;
 import de.dercompiler.pass.ClassPass;
@@ -31,6 +32,8 @@ public class VariableAnalysisCheckPass implements ClassPass {
                 Field field = (Field) classMember;
 
                 insert(field.getIdentifier(), field.getType(), symbolTable, stringTable, true);
+
+
             }
         }
 
@@ -47,7 +50,7 @@ public class VariableAnalysisCheckPass implements ClassPass {
                 }
 
                 for (Statement statement: method.getBlock().getStatements()){
-                    visitStatement(statement, symbolTable, stringTable);
+                    visitStatement(statement, symbolTable, stringTable, method.getType());
                 }
 
             }
@@ -55,42 +58,61 @@ public class VariableAnalysisCheckPass implements ClassPass {
         return false;
     }
 
-    private void visitStatement(Statement statement, SymbolTable symbolTable, StringTable stringTable){
+    private void visitStatement(Statement statement, SymbolTable symbolTable, StringTable stringTable, Type methodtype){
         if (statement instanceof BasicBlock){
             BasicBlock basicBlock = (BasicBlock) statement;
             symbolTable.enterScope();
 
             for(Statement basicBlockStatement: basicBlock.getStatements()){
-                visitStatement(basicBlockStatement, symbolTable, stringTable);
+                visitStatement(basicBlockStatement, symbolTable, stringTable, methodtype);
             }
 
             symbolTable.leaveScope();
         } else if (statement instanceof IfStatement){
             IfStatement ifStatement = (IfStatement) statement;
 
+            if (!BooleanType.class.isInstance(ifStatement.getCondition().getType())){
+                //Error, da expression kein boolscher Wert
+            }
+
             visitExpression(ifStatement.getCondition(), symbolTable, stringTable);
 
             symbolTable.enterScope();
-            visitStatement(ifStatement.getThenStatement(), symbolTable, stringTable);
+            visitStatement(ifStatement.getThenStatement(), symbolTable, stringTable, methodtype);
             symbolTable.leaveScope();
             symbolTable.enterScope();
-            visitStatement(ifStatement.getElseStatement(), symbolTable, stringTable);
+            visitStatement(ifStatement.getElseStatement(), symbolTable, stringTable, methodtype);
             symbolTable.leaveScope();
         } else if (statement instanceof LocalVariableDeclarationStatement){
             LocalVariableDeclarationStatement localVariableDeclarationStatement = (LocalVariableDeclarationStatement) statement;
 
             insert(localVariableDeclarationStatement.getIdentifier(), localVariableDeclarationStatement.getType(), symbolTable, stringTable);
+
+            visitExpression(localVariableDeclarationStatement.getExpression(), symbolTable, stringTable);
+
+            if (localVariableDeclarationStatement.getExpression().getType()
+                    .syntaxEquals(localVariableDeclarationStatement.getType())){
+                //Error, da linke seite und rechte Seite unterschiedlicher Typ
+            }
         } else if (statement instanceof ReturnStatement){
             ReturnStatement returnStatement = (ReturnStatement) statement;
+
+            if (!methodtype.syntaxEquals(returnStatement.getExpression().getType())){
+                //Error da Rpckgabewert nicht mit methode übereinstimmt
+            }
 
             visitExpression(returnStatement.getExpression(), symbolTable, stringTable);
         } else if (statement instanceof WhileStatement){
             WhileStatement whileStatement = (WhileStatement) statement;
 
+            if (!BooleanType.class.isInstance(whileStatement.getCondition().getType())){
+                //Error, da expression kein boolscher Wert
+            }
+
             visitExpression(whileStatement.getCondition(), symbolTable, stringTable);
 
             symbolTable.enterScope();
-            visitStatement(whileStatement.getStatement(), symbolTable, stringTable);
+            visitStatement(whileStatement.getStatement(), symbolTable, stringTable, methodtype);
             symbolTable.leaveScope();
         }
 
