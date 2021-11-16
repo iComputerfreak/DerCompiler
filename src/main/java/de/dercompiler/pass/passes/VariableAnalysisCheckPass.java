@@ -70,7 +70,7 @@ public class VariableAnalysisCheckPass implements ClassPass {
         } else if (statement instanceof IfStatement){
             IfStatement ifStatement = (IfStatement) statement;
 
-            if (!BooleanType.class.isInstance(ifStatement.getCondition())){
+            if (!BooleanType.class.isInstance(ifStatement.getCondition().getType())){
                 //Error, da expression kein boolscher Wert
             }
 
@@ -104,7 +104,7 @@ public class VariableAnalysisCheckPass implements ClassPass {
         } else if (statement instanceof WhileStatement){
             WhileStatement whileStatement = (WhileStatement) statement;
 
-            if (!BooleanType.class.isInstance(whileStatement.getCondition())){
+            if (!BooleanType.class.isInstance(whileStatement.getCondition().getType())){
                 //Error, da expression kein boolscher Wert
             }
 
