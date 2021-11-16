@@ -107,7 +107,7 @@ public class VariableAnalysisCheckPass implements ClassPass {
             if (!BooleanType.class.isInstance(whileStatement.getCondition())){
                 //Error, da expression kein boolscher Wert
             }
-            
+
             visitExpression(whileStatement.getCondition(), symbolTable, stringTable);
 
             symbolTable.enterScope();
