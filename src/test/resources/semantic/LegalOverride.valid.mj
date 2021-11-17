@@ -1,0 +1,18 @@
+class LegalOverride {
+
+    public Type arg;
+    
+    public void m(int arg) {
+        boolean Type = false;
+        Type t = new Type();
+        this.arg.foo();
+        return arg/2;
+    }
+}
+
+
+class Type {
+    public void foo() {
+    
+    }
+}
