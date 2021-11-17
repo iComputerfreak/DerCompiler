@@ -30,7 +30,15 @@ public final class IdentifierToken implements IToken {
         }
         return token;
     }
-    
+
+    public static IdentifierToken proto() {
+        return IdentifierToken.forIdentifier("proto");
+    }
+
+    public static IdentifierToken error() {
+        return IdentifierToken.forIdentifier("<error>");
+    }
+
     public String getIdentifier() {
         return this.identifier;
     }

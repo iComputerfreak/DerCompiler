@@ -6,6 +6,7 @@ import de.dercompiler.io.CommandLineStrings;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.pass.PassManager;
 
 import java.io.File;
 import java.util.Objects;
@@ -27,6 +28,8 @@ public class CompilerSetup {
     public static void setupGlobalValues(CommandLineOptions options) {
         OutputMessageHandler.setErrorAsWarning(options.warningsAsError());
         OutputMessageHandler.setPrintStackTrace(options.printStacktrace());
+
+        PassManager.setPrintPipeline(options.printPipeline());
 
         //sets Value in OutputMessageHandler
         options.resolveColorOutput();

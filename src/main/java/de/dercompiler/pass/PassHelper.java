@@ -17,8 +17,8 @@ public class PassHelper {
         return input.stream().map(tfunc).collect( Collectors.toList() );
     }
 
-    public static Function<Class<AnalysisPass>, Pass> AnalysisUsageToPass = new Function<Class<AnalysisPass>, Pass>() {
-        public Pass apply(Class<AnalysisPass> passClass) {
+    public static Function<Class<? extends Pass>, Pass> AnalysisUsageToPass = new Function<Class<? extends Pass>, Pass>() {
+        public Pass apply(Class<? extends Pass> passClass) {
             try {
                 return passClass.getConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

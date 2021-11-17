@@ -1,0 +1,7 @@
+class Foo {
+	public int a;
+	
+	public void test() {
+		a = true;
+	}
+}

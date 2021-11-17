@@ -28,6 +28,8 @@ import java.util.List;
 public final class Program extends ASTNode {
 
     private final List<ClassDeclaration> classes;
+    private boolean isIndexed;
+    // TODO: SymbolTable field, getter and init in constructor
     private final StringTable stringTable;
 
     /**
@@ -39,6 +41,7 @@ public final class Program extends ASTNode {
         super(position);
         this.classes = classes;
         this.stringTable = new StringTable();
+        isIndexed = false;
     }
 
     /**
@@ -68,5 +71,13 @@ public final class Program extends ASTNode {
             new OutputMessageHandler(MessageOrigin.AST).internalError("Tried to sort immutable list of ClassDeclarations.");
         }
         astNodeVisitor.visitProgram(this);
+    }
+
+    public boolean isIndexed() {
+        return isIndexed;
+    }
+
+    public void indexed() {
+        isIndexed = true;
     }
 }

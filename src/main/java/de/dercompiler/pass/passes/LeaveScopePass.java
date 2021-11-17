@@ -1,74 +1,47 @@
 package de.dercompiler.pass.passes;
 
+import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
-import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.BasicBlock;
-import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.pass.*;
 
-public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass,  ExpressionPass {
+public class LeaveScopePass implements ClassPass, MethodPass, BasicBlockPass {
 
-    private boolean shouldRun = false;
-
-    public ASTReferencePass() {}
-
+    // TODO: private final SymbolTable symbolTable;
+    
     @Override
     public void doInitialization(Program program) {
-        shouldRun = !program.isIndexed();
+        // TODO: symbolTable = program.getSymbolTable();
     }
 
     @Override
     public void doFinalization(Program program) {
-        program.indexed();
-    }
-
-    @Override
-    public boolean checkClass(BasicBlock block) {
-        return shouldRun;
-    }
-
-    @Override
-    public boolean checkExpression(Expression expression) {
-        return shouldRun;
-    }
-
-    @Override
-    public boolean checkMethod(Method method) {
-        return shouldRun;
-    }
-
-    @Override
-    public boolean checkStatement(Statement statement) {
-        return shouldRun;
-    }
-
-    @Override
-    public boolean runOnMethod(Method method) {
-        method.setSurroundingClass(manager.getCurrentClass());
-        return false;
+        // TODO: symbolTable.leaveScope();
     }
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        block.setSurroundingMethod(manager.getCurrentMethod());
+        // TODO: symbolTable.leaveScope();
         return false;
     }
 
     @Override
-    public boolean runOnStatement(Statement statement) {
-        statement.setSurroundingMethod(manager.getCurrentMethod());
+    public boolean runOnClass(ClassDeclaration classDeclaration) {
+        // TODO: symbolTable.leaveScope();
         return false;
     }
 
     @Override
-    public boolean runOnExpression(Expression expression) {
-        expression.setSurroundingStatement(manager.getCurrentStatement());
+    public boolean runOnMethod(Method method) {
+        // TODO: symbolTable.leaveScope();
         return false;
     }
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
+        // TODO: usage.requireAnalysis(Namensanalyse);
+        usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
         return usage;
     }
 
@@ -76,7 +49,7 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
         return usage;
     }
-
+    
     private static long id = 0;
     private PassManager manager = null;
 
@@ -104,6 +77,6 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        return AnalysisDirection.TOP_DOWN;
+        return AnalysisDirection.BOTTOM_UP;
     }
 }

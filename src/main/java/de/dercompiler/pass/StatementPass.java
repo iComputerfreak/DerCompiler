@@ -19,14 +19,4 @@ public non-sealed interface StatementPass extends Pass {
      * @return true, if the Class-Declaration should be checked. There is a default implementation provided that always returns true.
      */
     default boolean shouldRunOnStatement(Statement statement) { return true; }
-
-    @Override
-    default PassDependencyType getMinDependencyType() {
-        return PassDependencyType.STATEMENT_PASS;
-    }
-
-    @Override
-    default PassDependencyType getMaxDependencyType() {
-        return PassDependencyType.STATEMENT_PASS;
-    }
 }
