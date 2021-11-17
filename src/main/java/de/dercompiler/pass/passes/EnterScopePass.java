@@ -5,17 +5,16 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.SymbolTable;
 
 public class EnterScopePass implements ClassPass, MethodPass, BasicBlockPass {
     
-    // TODO: Add dependency from Namensanalyse to this pass with RUN_DIRECT_AFTER
-
-    // TODO: private final SymbolTable symbolTable;
+    private SymbolTable symbolTable;
     
     @Override
     public void doInitialization(Program program) {
-        // TODO: symbolTable = program.getSymbolTable();
-        // TODO: symbolTable.enterScope();
+        symbolTable = program.getSymbolTable();
+        symbolTable.enterScope();
     }
 
     @Override
@@ -23,19 +22,19 @@ public class EnterScopePass implements ClassPass, MethodPass, BasicBlockPass {
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        // TODO: symbolTable.enterScope();
+        symbolTable.enterScope();
         return false;
     }
 
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
-        // TODO: symbolTable.enterScope();
+        symbolTable.enterScope();
         return false;
     }
 
     @Override
     public boolean runOnMethod(Method method) {
-        // TODO: symbolTable.enterScope();
+        symbolTable.enterScope();
         return false;
     }
 

@@ -5,6 +5,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.StringTable;
+import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public final class Program extends ASTNode {
     private final List<ClassDeclaration> classes;
     private boolean isIndexed;
     // TODO: SymbolTable field, getter and init in constructor
-    private final StringTable stringTable;
+    private final SymbolTable symbolTable;
 
     /**
      * Creates a new Program
@@ -40,7 +41,7 @@ public final class Program extends ASTNode {
     public Program(SourcePosition position, List<ClassDeclaration> classes) {
         super(position);
         this.classes = classes;
-        this.stringTable = new StringTable();
+        this.symbolTable = new SymbolTable();
         isIndexed = false;
     }
 
@@ -51,8 +52,8 @@ public final class Program extends ASTNode {
         return classes;
     }
 
-    public StringTable getStringTable() {
-        return stringTable;
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
     }
 
     @Override

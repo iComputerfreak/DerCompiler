@@ -5,42 +5,43 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.SymbolTable;
 
 public class LeaveScopePass implements ClassPass, MethodPass, BasicBlockPass {
 
-    // TODO: private final SymbolTable symbolTable;
+    private SymbolTable symbolTable;
     
     @Override
     public void doInitialization(Program program) {
-        // TODO: symbolTable = program.getSymbolTable();
+        symbolTable = program.getSymbolTable();
     }
 
     @Override
     public void doFinalization(Program program) {
-        // TODO: symbolTable.leaveScope();
+        symbolTable.leaveScope();
     }
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        // TODO: symbolTable.leaveScope();
+        symbolTable.leaveScope();
         return false;
     }
 
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
-        // TODO: symbolTable.leaveScope();
+        symbolTable.leaveScope();
         return false;
     }
 
     @Override
     public boolean runOnMethod(Method method) {
-        // TODO: symbolTable.leaveScope();
+        symbolTable.leaveScope();
         return false;
     }
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        // TODO: usage.requireAnalysis(Namensanalyse);
+        usage.requireAnalysis(VariableAnalysisCheckPass.class);
         usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
         return usage;
     }

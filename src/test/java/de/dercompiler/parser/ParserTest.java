@@ -21,14 +21,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserTest {
 
     ParserTestHelper helper = new ParserTestHelper();
 
-    static SourcePosition POS = DEFAULT_POS;
+    static SourcePosition POS = ParserTestHelper.DEFAULT_POS;
 
     static Type INT_TYPE = new Type(POS, new IntType(POS), 0);
     static Type VOID_TYPE = new Type(POS, new VoidType(POS), 0);
