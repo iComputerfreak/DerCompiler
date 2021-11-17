@@ -12,6 +12,7 @@ public final class Program extends ASTNode {
 
     private final List<ClassDeclaration> classes;
     private boolean isIndexed;
+    // TODO: SymbolTable field, getter and init in constructor
 
     public Program(SourcePosition position, List<ClassDeclaration> classes) {
         super(position);
