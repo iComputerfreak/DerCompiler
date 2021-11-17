@@ -7,7 +7,7 @@ class Foo {
 		b.f = 6;
 		int c = 0;
 		int d = a + c + b.f;
-		return
+		return;
 	}
 }
 
