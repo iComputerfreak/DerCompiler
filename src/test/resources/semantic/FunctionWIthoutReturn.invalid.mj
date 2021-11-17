@@ -1,0 +1,7 @@
+class DerCompiler {
+	public int a;
+	
+	public int b() {
+		a = 0;
+	}
+}
