@@ -8,6 +8,7 @@ import de.dercompiler.semantic.StringTable;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -33,6 +34,12 @@ public final class Program extends ASTNode {
     // TODO: SymbolTable field, getter and init in constructor
     private final SymbolTable symbolTable;
 
+    public HashMap<String, ClassDeclaration> getClassMap() {
+        return classMap;
+    }
+
+    private final HashMap<String, ClassDeclaration> classMap;
+
     /**
      * Creates a new Program
      * @param position The source code position
@@ -43,6 +50,8 @@ public final class Program extends ASTNode {
         this.classes = classes;
         this.symbolTable = new SymbolTable();
         isIndexed = false;
+
+        classMap = new HashMap<String, ClassDeclaration>();
     }
 
     /**

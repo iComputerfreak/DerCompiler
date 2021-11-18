@@ -26,40 +26,18 @@ public final class ClassDeclaration extends ASTNode {
     private final List<ClassMember> members;
     private final StringTable stringTable;
 
-    private HashMap<String, SymbolTable> methodSymbolTables, fieldSymbolTables;
-    private HashMap<String, StringTable> methodStringTables, fieldStringTables;
-
-    public HashMap<String, StringTable> getMethodStringTables() {
-        return methodStringTables;
+    public HashMap<String, Field> getFieldMap() {
+        return fieldMap;
     }
 
-    public void setMethodStringTables(HashMap<String, StringTable> methodStringTables) {
-        this.methodStringTables = methodStringTables;
+    private HashMap<String, Field> fieldMap;
+
+    public HashMap<String, Method> getMethodMap() {
+        return methodMap;
     }
 
-    public HashMap<String, StringTable> getFieldStringTables() {
-        return fieldStringTables;
-    }
+    private HashMap<String, Method> methodMap;
 
-    public void setFieldStringTables(HashMap<String, StringTable> fieldStringTables) {
-        this.fieldStringTables = fieldStringTables;
-    }
-
-    public HashMap<String, SymbolTable> getMethodSymbolTables() {
-        return methodSymbolTables;
-    }
-
-    public void setMethodSymbolTables(HashMap<String, SymbolTable> methodSymbolTables) {
-        this.methodSymbolTables = methodSymbolTables;
-    }
-
-    public HashMap<String, SymbolTable> getFieldSymbolTables() {
-        return fieldSymbolTables;
-    }
-
-    public void setFieldSymbolTables(HashMap<String, SymbolTable> fieldSymbolTables) {
-        this.fieldSymbolTables = fieldSymbolTables;
-    }
 
 
 
@@ -74,6 +52,9 @@ public final class ClassDeclaration extends ASTNode {
         this.identifier = identifier;
         this.members = members;
         this.stringTable = new StringTable();
+
+        fieldMap = new HashMap<String, Field>();
+        methodMap = new HashMap<String, Method>();
     }
 
 
