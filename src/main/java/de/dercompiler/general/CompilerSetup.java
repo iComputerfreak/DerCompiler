@@ -91,6 +91,12 @@ public class CompilerSetup {
             setAction(action);
         }
 
+        if (options.check()) {
+            Source src = getSourceFromArgs(options);
+            CheckAction action = new CheckAction(src);
+            setAction(action);
+        }
+
         if (Objects.isNull(action)) {
             File input = options.getFileArgument();
             action = new CompileAction(input);
