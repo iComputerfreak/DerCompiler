@@ -195,7 +195,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append(" ");
         sb.append(def.getIdentifier());
         Expression expr = def.getExpression();
-        if (!Objects.isNull(expr)) {
+        if (!(expr instanceof UninitializedValue)) {
             sb.append(" = ");
             expr.accept(this);
         }
