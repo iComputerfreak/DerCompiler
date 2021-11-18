@@ -1,0 +1,31 @@
+class Test {
+	public boolean a;
+	
+	public static void main(String[] args) {
+    }
+	
+	public void a(int a, int b){
+		int i = a + b;
+		
+		return;
+	
+	}
+	
+	
+}
+
+class Test2 {
+	public int a;
+	
+	public Test b; 
+	
+	public void a(int a, int b){
+		int i = a + b;
+		b.a;
+		b.a(i, 1 +2*3);
+		return;
+	
+	}
+	
+	
+}
