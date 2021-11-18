@@ -67,12 +67,12 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitErrorClassMember(ErrorClassMember errorClassMember) {
-
+        sb.append("<errorClassMember>");
     }
 
     @Override
     public void visitErrorExpression(ErrorExpression errorExpression) {
-
+        sb.append("<errorExpression>");
     }
 
     @Override
@@ -82,7 +82,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitErrorStatement(ErrorStatement errorStatement) {
-
+        sb.append("<errorStatement>");
     }
 
     public void visitMainMethod(MainMethod main) {
@@ -200,7 +200,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append(" ");
         sb.append(def.getIdentifier());
         Expression expr = def.getExpression();
-        if (!Objects.isNull(expr)) {
+        if (!(expr instanceof UninitializedValue)) {
             sb.append(" = ");
             expr.accept(this);
         }

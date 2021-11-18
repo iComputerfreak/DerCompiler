@@ -1,21 +1,17 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.lexer.token.IdentifierToken;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class StringTable {
 
-    private Map<String, Symbol> map;
-
-
-
-    public StringTable(){
-        map = new HashMap<String, Symbol>();
+    private final Map<String, Symbol> map;
+    
+    public StringTable() {
+        map = new HashMap<>();
     }
 
-    public Symbol findOrInsert(String string){
+    public Symbol findOrInsert(String string) {
         if (map.containsKey(string)){
             return map.get(string);
         }
@@ -25,4 +21,7 @@ public class StringTable {
         return symbol;
     }
 
+    public boolean contains(String string){
+        return map.containsKey(string);
+    }
 }

@@ -1,4 +1,4 @@
-package de.dercompiler.semantic.typeAna;
+package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
@@ -12,52 +12,15 @@ import de.dercompiler.ast.type.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
-import de.dercompiler.lexer.StringTable;
 import de.dercompiler.pass.*;
-import de.dercompiler.semantic.Symbol;
+import de.dercompiler.pass.passes.VariableAnalysisCheckPass;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressionVisitor {
+public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressionVisitor  {
 
     private final OutputMessageHandler logger;
-    private StringTable stringTable;
-
-    public TypeAnalysisPass() {
-        this.stringTable = StringTable.getInstance();
-        this.logger = new OutputMessageHandler(MessageOrigin.PASSES);
-    }
-
-    @Override
-    public boolean runOnExpression(Expression expression) {
-        return false;
-    }
-
-    @Override
-    public boolean checkExpression(Expression expression) {
-        return ExpressionPass.super.checkExpression(expression);
-    }
-
-    @Override
-    public boolean runOnMethod(Method method) {
-        return false;
-    }
-
-    @Override
-    public boolean checkMethod(Method method) {
-        return MethodPass.super.checkMethod(method);
-    }
-
-    @Override
-    public PassDependencyType getMinDependencyType() {
-        return MethodPass.super.getMinDependencyType();
-    }
-
-    @Override
-    public PassDependencyType getMaxDependencyType() {
-        return MethodPass.super.getMaxDependencyType();
-    }
 
     @Override
     public void doInitialization(Program program) {
@@ -69,29 +32,72 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
 
     }
 
+    public TypeAnalysisPass() {
+        this.logger = new OutputMessageHandler(MessageOrigin.PASSES);
+    }
+
+    @Override
+    public boolean runOnExpression(Expression expression) {
+        return false;
+    }
+
+    @Override
+    public boolean shouldRunOnExpression(Expression expression) {
+        return ExpressionPass.super.shouldRunOnExpression(expression);
+    }
+
+    @Override
+    public boolean runOnMethod(Method method) {
+        return false;
+    }
+
+    @Override
+    public boolean shouldRunOnMethod(Method method) {
+        return MethodPass.super.shouldRunOnMethod(method);
+    }
+
+
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        return null;
+        usage.requireAnalysis(VariableAnalysisCheckPass.class);
+        usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
+        return usage;
     }
 
     @Override
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
+
+    private static long id = 0;
+    private PassManager manager = null;
 
     @Override
     public void registerPassManager(PassManager manager) {
-
+        this.manager = manager;
     }
 
     @Override
-    public long registerID(long id) {
-        return 0;
+    public PassManager getPassManager() {
+        return manager;
+    }
+
+    @Override
+    public long registerID(long rid) {
+        if (id != 0) return id;
+        id = rid;
+        return id;
     }
 
     @Override
     public long getID() {
-        return 0;
+        return id;
+    }
+
+    @Override
+    public AnalysisDirection getAnalysisDirection() {
+        // TODO: Change direction?
+        return AnalysisDirection.TOP_DOWN;
     }
 
     private void failTypeCheck(Expression expr, String description) {
@@ -253,11 +259,9 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
         assertNotArray(refObj, "reference object of method invocation");
         CustomType type = assertCustomBasicType(refObj, "reference object of method invocation");
 
-        Symbol method = null; //stringTable.findOrInsertMethod(methodInvocation.getFunctionName());
-        Symbol cDecl = stringTable.findOrInsertClass(type.getIdentifier());
-
-        // TODO: get Method declaration out of there
-        cDecl.getCurrentDef();
+        /*
+            TODO: get method ASTDefinition, get return type of method, set type of methodInvocation
+         */
 
     }
 

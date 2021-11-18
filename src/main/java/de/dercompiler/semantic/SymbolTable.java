@@ -1,6 +1,6 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.lexer.StringTable;
+import de.dercompiler.ast.expression.ASTDefinition;
 
 import java.util.Stack;
 
@@ -16,7 +16,7 @@ public class SymbolTable {
      * Creates a new SymbolTable in the given scope
      */
     public SymbolTable() {
-        this.changes = new Stack<>();
+        this.changes = new Stack<Change>();
         this.currentScope = null;
         enterScope();
     }
@@ -66,7 +66,7 @@ public class SymbolTable {
      * @param symbol The symbol for which the definition has changed
      * @param definition The new definition
      */
-    public void insert(Symbol symbol, Definition definition) {
+    public void insert(Symbol symbol, ASTDefinition definition) {
         changes.push(new Change(symbol, symbol.getCurrentDef(), symbol.getCurrentScope()));
         symbol.setCurrentDef(definition);
         symbol.setCurrentScope(currentScope);
@@ -77,7 +77,7 @@ public class SymbolTable {
      * @param symbol The symbol to look up
      * @return The current definition of this symbol
      */
-    public Definition lookup(Symbol symbol) {
+    public ASTDefinition lookup(Symbol symbol) {
         return symbol.getCurrentDef();
     }
 
@@ -89,5 +89,13 @@ public class SymbolTable {
     public boolean isDefinedInCurrentScope(Symbol symbol) {
         return symbol.getCurrentScope() == currentScope;
     }
-    
+
+    /**
+     * checks, whether the given symbol has a definition, which is not in the outest scope
+     * @param symbol The symbol to check for
+     * @return Whether the symbol has a definition, which is not in the outest scope
+     */
+    public boolean isDefinedInNotOutestScope(Symbol symbol){
+        return symbol.getCurrentScope() != null && symbol.getCurrentScope().getParent() != null;
+    }
 }

@@ -80,6 +80,11 @@ public class CommandLineOptions {
     }
 
     /**
+     * return true if check command been given
+     */
+    public boolean check() { return cmd.hasOption(COMMAND_CHECK); }
+
+    /**
      * @return true if the lexTest printPosition option has been given
      */
     public boolean printPosition() {
@@ -111,6 +116,11 @@ public class CommandLineOptions {
      * @return true if the stacktrace of exceptions should be printed
      */
     public boolean printStacktrace() { return cmd.hasOption(COMMAND_PRINT_STACKTRACE); }
+
+    /**
+     * @return true, if the pipeline should be printed
+     */
+    public boolean printPipeline() { return cmd.hasOption(OPTION_PRINT_PIPELINE); }
 
     /**
      * Sets the global state for the color output

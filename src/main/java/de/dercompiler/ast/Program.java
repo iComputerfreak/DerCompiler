@@ -4,8 +4,11 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.StringTable;
+import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -27,6 +30,15 @@ import java.util.List;
 public final class Program extends ASTNode {
 
     private final List<ClassDeclaration> classes;
+    private boolean isIndexed;
+    // TODO: SymbolTable field, getter and init in constructor
+    private final SymbolTable symbolTable;
+
+    public HashMap<String, ClassDeclaration> getClassMap() {
+        return classMap;
+    }
+
+    private final HashMap<String, ClassDeclaration> classMap;
 
     /**
      * Creates a new Program
@@ -36,6 +48,10 @@ public final class Program extends ASTNode {
     public Program(SourcePosition position, List<ClassDeclaration> classes) {
         super(position);
         this.classes = classes;
+        this.symbolTable = new SymbolTable();
+        isIndexed = false;
+
+        classMap = new HashMap<String, ClassDeclaration>();
     }
 
     /**
@@ -43,6 +59,10 @@ public final class Program extends ASTNode {
      */
     public List<ClassDeclaration> getClasses() {
         return classes;
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
     }
 
     @Override
@@ -61,5 +81,13 @@ public final class Program extends ASTNode {
             new OutputMessageHandler(MessageOrigin.AST).internalError("Tried to sort immutable list of ClassDeclarations.");
         }
         astNodeVisitor.visitProgram(this);
+    }
+
+    public boolean isIndexed() {
+        return isIndexed;
+    }
+
+    public void indexed() {
+        isIndexed = true;
     }
 }

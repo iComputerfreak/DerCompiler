@@ -21,6 +21,7 @@ public class CommandLineBuilder {
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_LEX_TEST, false, DESCRIPTION_LEX_TEST)); // --lextest
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PARSE_TEST, false, DESCRIPTION_PARSE_TEST)); // --parsetest
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_AST, false, DESCRIPTION_PRINT_AST)); // --parsetest
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_CHECK, false, DESCRIPTION_CHECK)); // --check
         options.addOption(new Option(COMMAND_HELP_SHORT, COMMAND_HELP, false, DESCRIPTION_HELP)); // --help, -h
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_WORKING_DIR, true, DESCRIPTION_WORKING_DIR)); // --working-directory
 
@@ -30,6 +31,7 @@ public class CommandLineBuilder {
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_STATEMENT, false, ""));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_EXPRESSION, false, ""));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRETTY_PRINT, false, DESCRIPTION_PRETTY_PRINT));
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_PIPELINE, false, DESCRIPTION_PRINT_PIPELINE));
 
         // colors
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_NO_COLOR, false, DESCRIPTION_PRINT_NO_COLOR)); // --no-color

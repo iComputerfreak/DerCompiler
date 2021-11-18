@@ -1,11 +1,13 @@
 package de.dercompiler.semantic;
 
+import de.dercompiler.ast.expression.ASTDefinition;
+
 /**
  * Represents a change of a definition for a given symbol in a given scope
  */
 public class Change {
     private Symbol symbol;
-    private Definition previousDefinition;
+    private ASTDefinition previousDefinition;
     private Scope previousScope;
 
     /**
@@ -14,7 +16,7 @@ public class Change {
      * @param previousDefinition The previous definition of that symbol that was overridden by the change
      * @param previousScope The previous scope, this definition was valid in
      */
-    public Change(Symbol symbol, Definition previousDefinition, Scope previousScope) {
+    public Change(Symbol symbol, ASTDefinition previousDefinition, Scope previousScope) {
         this.symbol = symbol;
         this.previousDefinition = previousDefinition;
         this.previousScope = previousScope;
@@ -37,14 +39,14 @@ public class Change {
     /**
      * Returns the previous definition of this symbol that was overridden
      */
-    public Definition getPreviousDefinition() {
+    public ASTDefinition getPreviousDefinition() {
         return previousDefinition;
     }
 
     /**
      * Sets the previous definition of this symbol that was overridden
      */
-    public void setPreviousDefinition(Definition previousDefinition) {
+    public void setPreviousDefinition(ASTDefinition previousDefinition) {
         this.previousDefinition = previousDefinition;
     }
 

@@ -4,10 +4,17 @@ import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
+import javax.print.PrintService;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +22,15 @@ import java.util.Objects;
 
 public class PassManager {
 
-    List<Pass> passes;
+
+    private static long passIDs = 1;
+    private static boolean printPipeline = false;
+    private List<Pass> passes;
+    private PassPipeline pipeline;
+
+    public PassManager() {
+        passes = new LinkedList<>();
+    }
 
     private void addPassAfterCheck(Pass pass) {
         passes.add(pass);
@@ -31,6 +46,7 @@ public class PassManager {
                 .printWarning(PassWarningIds.NULL_AS_PASS_NOT_ALLOWED,"Something may be wrong with the compiler we tried to add a null value as Pass, please report your current setup to the Developers.");
         if (pass instanceof ClassPass cp) addPassAfterCheck(cp);
         else if (pass instanceof MethodPass mp) addPassAfterCheck(mp);
+        else if (pass instanceof BasicBlockPass bbp) addPassAfterCheck(bbp);
         else if (pass instanceof StatementPass sp) addPassAfterCheck(sp);
         else if (pass instanceof ExpressionPass ep) addPassAfterCheck(ep);
         else
@@ -38,31 +54,40 @@ public class PassManager {
     }
 
     private PassPipeline generateOrder(List<Pass> passes) {
-        List<Pass> ordered = PassDagSolver.solveDependencies(passes);
-        if (Objects.isNull(ordered)) {
-            return new PassPipeline(new LinkedList<>());
-        }
-        return new PassPipeline(ordered);
+        return PassDagSolver.solveDependencies(passes, this);
     }
 
     private void initializeMissingPasses() {
         HashSet<Long> ids = new HashSet<>();
         for (Pass pass : passes) {
+            if (pass.registerID(passIDs) == passIDs) passIDs++;
+            pass.registerPassManager(this);
             ids.add(pass.getID());
         }
-        for (Pass pass : passes) {
-            List<Pass> deps = PassHelper.transform(pass.getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass);
-            for (Pass dep : deps) {
-                if (!ids.contains(dep.getID())) {
-                    ids.add(dep.getID());
-                    passes.add(dep);
+        int size = 0;
+        List<Pass> tmp = new LinkedList<>();
+        while (size != passes.size()) {
+            size = passes.size();
+            for (Pass pass : passes) {
+                List<Pass> deps = PassHelper.transform(pass.getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass);
+                for (Pass dep : deps) {
+                    if (dep.registerID(passIDs) == passIDs) passIDs++;
+                    dep.registerPassManager(this);
+                    if (!ids.contains(dep.getID())) {
+                        ids.add(dep.getID());
+                        tmp.add(dep);
+                    }
                 }
             }
+            passes.addAll(tmp);
+            tmp.clear();
         }
     }
 
     private void initializePasses(Program program) {
         for (Pass pass : passes) {
+            //set passID if not set and increment counter because id is used
+            if (pass.registerID(passIDs) == passIDs) passIDs++;
             pass.registerPassManager(this);
             pass.doInitialization(program);
         }
@@ -73,7 +98,17 @@ public class PassManager {
     }
 
     private void traverseTree(PassPipeline pipeline, Program program) {
-
+        if (!program.isIndexed()) {
+            pipeline.addASTReferencePass();
+        }
+        if (printPipeline) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream stream = new PrintStream(baos);
+            pipeline.printPipeline(stream);
+            new OutputMessageHandler(MessageOrigin.PASSES)
+                    .printInfo("Pipeline:\n" + baos.toString(StandardCharsets.UTF_8));
+        }
+        while (pipeline.traverseTreeStep(program)) {}
     }
 
     /**
@@ -84,40 +119,36 @@ public class PassManager {
     public void run(Program program) {
         initializeMissingPasses();
         initializePasses(program);
-        traverseTree(generateOrder(passes), program);
+        pipeline = generateOrder(passes);
+        pipeline.compress();
+        traverseTree(pipeline, program);
         finalizePasses(program);
     }
 
-    private class PassPipeline {
+    private ClassDeclaration cur_classDeclaration = null;
+    private Method cur_method = null;
+    private BasicBlock cur_basicBlock = null;
+    private Statement cur_statement = null;
+    private Expression cur_expression = null;
 
-        LinkedList<List<Pass>> pipeline;
+    public void setCurrentClassDeclaration(ClassDeclaration declaration) {
+        cur_classDeclaration = declaration;
+    }
 
-        public PassPipeline(List<Pass> passes) {
+    public void setCurrentMethod(Method method) {
+        cur_method = method;
+    }
 
-            pipeline = new LinkedList<>();
-            LinkedList<Pass> step = new LinkedList<>();
+    public void setCurrentBasicBlock(BasicBlock block) {
+        cur_basicBlock = block;
+    }
 
-            PassDependencyType last = null;
+    public void setCurrentStatement(Statement statement) {
+        cur_statement = statement;
+    }
 
-            for (Pass pass : passes) {
-                boolean newStep =
-                        !pass.getMinDependencyType().usesNaturalOrdering() || Objects.isNull(last)
-                        || !last.usesNaturalOrdering()
-                        || last.ordinal() > pass.getMinDependencyType().ordinal();
-
-                if (newStep && !step.isEmpty()) {
-                    pipeline.addLast(step);
-                    step = new LinkedList<>();
-                }
-                step.add(pass);
-                last = pass.getMaxDependencyType();
-            }
-            if (!step.isEmpty()) {
-                pipeline.addLast(step);
-            }
-        }
-
-
+    public void setCurrentExpression(Expression expression) {
+        cur_expression = expression;
     }
 
     /**
@@ -126,7 +157,7 @@ public class PassManager {
      * @return the current Class-Declaration
      */
     public ClassDeclaration getCurrentClass() {
-        return null;
+        return cur_classDeclaration;
     }
 
     /**
@@ -135,7 +166,16 @@ public class PassManager {
      * @return the current Method
      */
     public Method getCurrentMethod() {
-        return null;
+        return cur_method;
+    }
+
+    /**
+     * Returns the current BasicBlock of the AST.
+     *
+     * @return the current BasicBlock
+     */
+    public BasicBlock getCurrentBasicBlock() {
+        return cur_basicBlock;
     }
 
     /**
@@ -144,7 +184,7 @@ public class PassManager {
      * @return the current Statement
      */
     public Statement getCurrentStatement() {
-        return null;
+        return cur_statement;
     }
 
     /**
@@ -154,6 +194,12 @@ public class PassManager {
      * @return the current Expression
      */
     public Expression getCurrentExpression() {
-        return null;
+        return cur_expression;
+    }
+
+    public static void setPrintPipeline(boolean print) { printPipeline = print; }
+
+    public PassPipeline getCurrentPipeline() {
+        return pipeline;
     }
 }

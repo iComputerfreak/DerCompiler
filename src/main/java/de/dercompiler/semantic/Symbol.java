@@ -1,24 +1,16 @@
 package de.dercompiler.semantic;
 
+import de.dercompiler.ast.expression.ASTDefinition;
+
 /**
  * Represents a symbol in the program that has a definition and a scope in which the symbol is valid in
  */
 public class Symbol {
     private String name;
     private Scope currentScope;
-    private Definition currentDef;
+    private ASTDefinition currentDef;
 
-    /**
-     * Creates a new symbol with the given name, scope and definition
-     * @param name The name of the symbol
-     * @param currentScope The scope, the symbol was defined in
-     * @param currentDef The definition of the symbol
-     */
-    public Symbol(String name, Scope currentScope, Definition currentDef) {
-        this.name = name;
-        this.currentScope = currentScope;
-        this.currentDef = currentDef;
-    }
+
 
     /**
      * Creates a new symbol when only the name is given
@@ -59,14 +51,14 @@ public class Symbol {
     /**
      * Returns the current definition of the symbol
      */
-    public Definition getCurrentDef() {
+    public ASTDefinition getCurrentDef() {
         return currentDef;
     }
 
     /**
      * Sets the current definition of the symbol
      */
-    public void setCurrentDef(Definition currentDef) {
+    public void setCurrentDef(ASTDefinition currentDef) {
         this.currentDef = currentDef;
     }
 }

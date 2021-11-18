@@ -5,9 +5,11 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.StringTable;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,6 +24,22 @@ public final class ClassDeclaration extends ASTNode {
     
     private final String identifier;
     private final List<ClassMember> members;
+    private final StringTable stringTable;
+
+    public HashMap<String, Field> getFieldMap() {
+        return fieldMap;
+    }
+
+    private HashMap<String, Field> fieldMap;
+
+    public HashMap<String, Method> getMethodMap() {
+        return methodMap;
+    }
+
+    private HashMap<String, Method> methodMap;
+
+
+
 
     /**
      * Creates a new ClassDeclaration
@@ -33,7 +51,12 @@ public final class ClassDeclaration extends ASTNode {
         super(position);
         this.identifier = identifier;
         this.members = members;
+        this.stringTable = new StringTable();
+
+        fieldMap = new HashMap<String, Field>();
+        methodMap = new HashMap<String, Method>();
     }
+
 
     /**
      * Returns the identifier of the class
@@ -47,6 +70,10 @@ public final class ClassDeclaration extends ASTNode {
      */
     public List<ClassMember> getMembers() {
         return members;
+    }
+    
+    public StringTable getStringTable() {
+        return stringTable;
     }
 
     @Override

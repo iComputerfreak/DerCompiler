@@ -18,6 +18,7 @@ public class CommandLineStrings {
     public static final String COMMAND_LEX_TEST = "lextest";
     public static final String COMMAND_PARSE_TEST = "parsetest";
     public static final String COMMAND_PRINT_AST = "print-ast";
+    public static final String COMMAND_CHECK = "check";
     public static final String COMMAND_HELP = "help";
     public static final String COMMAND_HELP_SHORT = "h";
     public static final String COMMAND_WORKING_DIR = "working-directory";
@@ -41,6 +42,8 @@ public class CommandLineStrings {
 
     public static final String OPTION_PRETTY_PRINT = "pretty-print";
 
+    public static final String OPTION_PRINT_PIPELINE = "print-pipeline";
+
 
 
     // Descriptions
@@ -48,6 +51,7 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_LEX_TEST = "Prints the sequence of tokens in the input";
     public static final String DESCRIPTION_PARSE_TEST = "Prints an error if the input could not be parsed correctly";
     public static final String DESCRIPTION_PRINT_AST = "Pretty-prints the generated AST to the console.";
+    public static final String DESCRIPTION_CHECK = "Checks the code for semantics.";
 
     public static final String DESCRIPTION_HELP = "Print all options";
     public static final String DESCRIPTION_WORKING_DIR = "Overrides the working directory of the compiler";
@@ -63,5 +67,7 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_LEX_STRING = "(--lextest) Lexes a String instead of a file";
     public static final String DESCRIPTION_PRINT_POSITION = "(--lextest) Prints the positions of the token occurrences";
     public static final String DESCRIPTION_PRETTY_PRINT = "(--parsetest) Pretty prints the constructed AST as code.";
+
+    public static final String DESCRIPTION_PRINT_PIPELINE = "Prints the pipeline whenever one is used.";
 
 }

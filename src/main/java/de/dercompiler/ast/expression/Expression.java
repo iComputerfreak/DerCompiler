@@ -25,6 +25,8 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
         return surrounding;
     }
 
+
+    //getType(HashMap<String, StringTable> fieldStringtables, HashMap<String, StringTable> methodStringTables
     public Type getType() {
         return this.type;
     }

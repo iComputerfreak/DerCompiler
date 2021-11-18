@@ -1,0 +1,23 @@
+class Foo {
+	public int a;
+	public Bar b;
+	
+	public void test() {
+		b = new Bar();
+		b.f = 6;
+		int c = 0;
+		int d = a + c + b.f;
+		return;
+	}
+}
+
+class Bar {
+	public int f;
+	public boolean g;
+}
+
+class Main {
+    public static void main(String[] args) {
+		
+    }
+}

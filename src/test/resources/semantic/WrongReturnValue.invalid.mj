@@ -1,0 +1,30 @@
+class Aka {
+	public boolean a;
+	
+	public int a(int a, int b){
+		int i = a + b;
+		
+		if (a<b){
+			return i;
+		} else {
+			return a >= b;
+		}
+		
+		return a;;
+	
+	}
+	
+	
+}
+
+class HH {
+	public static void main(String[] args) {
+    }
+	
+	public Aka b; 	
+	
+}
+
+class Test2 {
+
+}

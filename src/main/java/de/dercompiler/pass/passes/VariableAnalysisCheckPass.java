@@ -1,105 +1,139 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.*;
-import de.dercompiler.ast.statement.BasicBlock;
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.expression.*;
+import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.type.BooleanType;
 import de.dercompiler.ast.type.Type;
-import de.dercompiler.pass.AnalysisUsage;
-import de.dercompiler.pass.ClassPass;
-import de.dercompiler.pass.PassManager;
+import de.dercompiler.pass.*;
 import de.dercompiler.semantic.*;
+import de.dercompiler.util.Utils;
 
-public class VariableAnalysisCheckPass implements ClassPass {
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * hier werden für jede Klasse ihre Variablendeklarationen überprüft
+ */
+public class VariableAnalysisCheckPass implements ClassPass, MethodPass, StatementPass, ExpressionPass {
+
+    private SymbolTable symbolTable;
+    
+    private StringTable stringTable;
+
+    @Override
+    public void doInitialization(Program program) {
+        // Get the symbol table from the Program.
+        // We only need a single SymbolTable for the whole analysis, since we can differentiate between
+        // Symbols for variables and symbols for methods via the StringTables.
+        this.symbolTable = program.getSymbolTable();
+    }
+
+    @Override
+    public void doFinalization(Program program) {}
+    
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
-        SymbolTable symbolTable = new SymbolTable();
-        symbolTable.enterScope();
+        stringTable = new StringTable();
 
-        StringTable stringTable = new StringTable();
-
-        //hier werden erst die Feldernamen gesammelt
-        for(ClassMember classMember: classDeclaration.getMembers()){
-            if (classMember instanceof Field){
-                Field field = (Field) classMember;
-
-                insert(field.getIdentifier(), field.getType(), symbolTable, stringTable);
+        for (ClassMember classMember : classDeclaration.getMembers()) {
+            if (classMember instanceof Field field) {
+                insert(field.getIdentifier(), field, true);
             }
         }
-
-        //jetzt werden in die Methoden gesprungen
-        for(ClassMember classMember: classDeclaration.getMembers()){
-            symbolTable.enterScope();
-
-            if (classMember instanceof Method){
-
-                Method method = (Method) classMember;
-
-                for (Parameter parameter: method.getParameters()){
-                    insert(parameter.getIdentifier(), parameter.getType(), symbolTable, stringTable);
-                }
-
-                for (Statement statement: method.getBlock().getStatements()){
-                    visitStatement(statement, symbolTable, stringTable);
-                }
-
-
-
-            }
-        }
-
-
+        
         return false;
     }
 
-    private void visitStatement(Statement statement, SymbolTable symbolTable, StringTable stringTable){
-        if (statement instanceof BasicBlock){
+    @Override
+    public boolean runOnMethod(Method method) {
 
+        for (Parameter parameter : method.getParameters()) {
+            insert(parameter.getIdentifier(), parameter);
         }
+        return false;
+    }
+    
+    @Override
+    public boolean runOnStatement(Statement statement) {
 
+        // Insert variable
+        if (statement instanceof LocalVariableDeclarationStatement s){
+            insert(s.getIdentifier(), s);
+        }
+        
+        return false;
     }
 
-    private void insert(String identifier, Type type, SymbolTable symbolTable, StringTable stringTable){
+    @Override
+    public boolean runOnExpression(Expression expression) {
+        List<Variable> referencedVariables = Utils.getReferencedVariables(expression);
+
+        for(Variable variable: referencedVariables){
+            if (!stringTable.contains(variable.getName())){
+                // TODO: Error, da referenzierte Variable nicht existiert
+            }
+            variable.setDefinition(stringTable.findOrInsert(variable.getName()).getCurrentDef());
+        }
+        return false;
+    }
+
+    private void insert(String identifier, ASTDefinition definition){
+        insert(identifier, definition, false);
+    }
+
+    private void insert(String identifier, ASTDefinition definition, boolean inOutestScope){
         Symbol symbol = stringTable.findOrInsert(identifier);
         if (symbolTable.isDefinedInCurrentScope(symbol)){
             //Error, da identifier in diesem Scope schon definiert wurde
         }
-        Definition definition = new FieldDefinition(symbol, type);
+        if (!inOutestScope && symbolTable.isDefinedInNotOutestScope(symbol)){
+            //Error, da identifier schon definiert wurde und nicht im äußersten scope (klassenvariablen)
+        }
+
         symbolTable.insert(symbol, definition);
     }
 
 
     @Override
-    public void doInitialization(Program program) {
-
-    }
-
-    @Override
-    public void doFinalization(Program program) {
-
-    }
-
-    @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        return null;
+        usage.requireAnalysis(EnterScopePass.class);
+        usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
+        return usage;
     }
 
     @Override
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
+
+    private static long id = 0;
+    private PassManager manager = null;
 
     @Override
     public void registerPassManager(PassManager manager) {
-
+        this.manager = manager;
     }
 
     @Override
-    public long registerID(long id) {
-        return 0;
+    public PassManager getPassManager() {
+        return manager;
+    }
+
+    @Override
+    public long registerID(long rid) {
+        if (id != 0) return id;
+        id = rid;
+        return id;
     }
 
     @Override
     public long getID() {
-        return 0;
+        return id;
+    }
+
+    @Override
+    public AnalysisDirection getAnalysisDirection() {
+        return AnalysisDirection.TOP_DOWN;
     }
 }

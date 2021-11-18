@@ -1,0 +1,98 @@
+#Methodensammeln
+
+Class                   ::  Ident ClassMember *
+Class.methodDecls 	= concatAll(ClassMember_i.methodDecl)
+
+ClassMember 		=   Ident Method
+ClassMember.methodDecl  =   Ident.lexval -> Method.body
+
+ClassMember		=   Field
+ClassMember.methodDecl  =   Null
+
+ClassMember		=   MainMethod
+ClassMember.methodDecl  =   main -> MainMethod.body
+
+#Feldersammeln
+
+Class                   ::  Ident ClassMember *
+Class.env 		=   concatAll(ClassMember_i.env_part)
+ClassMember_i.env	=   Class.env
+
+ClassMember 		=   Ident Method
+ClassMember.env_part  	=   Null
+Method.env		=   ClassMember.env
+
+ClassMember		=   Field
+ClassMember.env_part  	=   Field.env
+
+ClassMember		=   MainMethod
+ClassMember.env_part 	=   Null
+MainMethod.env		=   ClassMember.env
+
+Field                   ::  Type Ident
+Field.env		=   Ident.lexval -> Type.type
+
+Method                  ::  ParameterList BasicBlock
+BasicBlock.env		=   concat(Method.env, ParameterList.env)
+
+MainMethod              ::  ParameterList BasicBlock
+BasicBlock.env		=   concat(Method.env, ParameterList.env)
+
+ParameterList           ::  Parameter *
+ParameterList.env	=   concatAll(Parameter_i.env)
+
+Parameter               ::  Type Ident
+Parameter.env		=   Ident.lexval -> Type.type
+
+Type                    ::  BasicType Dimension
+Type.type		=   Type(BasicType.type, Dimension.value)
+
+BasicBlock              ::  Declarations StatementList
+StatementList.env	=   concatAll(BasicBlock.env, Declarations.env)
+
+Declarations		::  Declaration *
+Declarations.env	=   concatAll(Declaration_i.env)
+
+Declaration		::  VariableDeclaration
+Declaration.env		=   VariableDeclaration.env
+
+
+StatementList           ::  Statement *
+Statement_i.env		=   StatementList.env
+
+Statement               =   IfStatement
+IfStatement.env		=   Statement.env
+
+Statement               =   WhileStatement
+WhileStatement.env	=   Statement.env
+
+Statement		=   BasicBlock 
+BasicBlock.env		=   Statement.env
+
+Statement		=   ExpressionsStatement 
+ExpressionsStatement.env=   Statement.env
+
+Statement		=   EmptyStatement 
+EmptyStatement.env	=   Statement.env
+
+Statement		=   ReturnStatement 
+ReturnStatement.env	=   Statement.env
+
+IfStatement             ::  Expression Statement Statement(MayNull)
+Statement_1.env		=   IfStatement.env
+Statement_2.env		=   IfStatement.env
+Expression.env		=   IfStatement.env
+
+WhileStatement          ::  Expression Statement
+Statement.env		=   WhileStatement.env
+Expression.env		=   WhileStatement.env
+
+VariableDeclaration     ::  Type Ident Expression
+Expression.env		=   VariableDeclaration.env
+
+ExpressionsStatement    ::  Expression
+Expression.env		=   ExpressionStatement.env
+
+ReturnStatement         ::  Expression
+Expression.env		=   ReturnStatement.env
+

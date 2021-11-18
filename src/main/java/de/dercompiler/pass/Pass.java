@@ -2,7 +2,7 @@ package de.dercompiler.pass;
 
 import de.dercompiler.ast.Program;
 
-public sealed interface Pass permits AnalysisPass, ClassPass, ExpressionPass, MethodPass, StatementPass {
+public sealed interface Pass permits AnalysisPass, BasicBlockPass, ClassPass, ExpressionPass, MethodPass, StatementPass {
 
     /**
      * DO necessary Initialization before running the Passes.
@@ -42,15 +42,10 @@ public sealed interface Pass permits AnalysisPass, ClassPass, ExpressionPass, Me
      * @param manager PassManager that runs this Pass
      */
     void registerPassManager(PassManager manager);
+    PassManager getPassManager();
 
     long registerID(long id);
     long getID();
 
-    default PassDependencyType getMinDependencyType() {
-        return PassDependencyType.SEPARATE_PASS;
-    }
-
-    default PassDependencyType getMaxDependencyType() {
-        return PassDependencyType.SEPARATE_PASS;
-    }
+    AnalysisDirection getAnalysisDirection();
 }

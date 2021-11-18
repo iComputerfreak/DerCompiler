@@ -3,8 +3,9 @@ package de.dercompiler.lexer.token;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.LexerErrorIds;
-import de.dercompiler.lexer.StringTable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public final class IdentifierToken implements IToken {
@@ -29,7 +30,15 @@ public final class IdentifierToken implements IToken {
         }
         return token;
     }
-    
+
+    public static IdentifierToken proto() {
+        return IdentifierToken.forIdentifier("proto");
+    }
+
+    public static IdentifierToken error() {
+        return IdentifierToken.forIdentifier("<error>");
+    }
+
     public String getIdentifier() {
         return this.identifier;
     }
@@ -37,5 +46,36 @@ public final class IdentifierToken implements IToken {
     @Override
     public String toString() {
         return "identifier %s".formatted(identifier);
+    }
+
+    private static class StringTable {
+
+        private Map<String, IdentifierToken> map;
+
+        private static StringTable singleton;
+
+        private StringTable() {
+            this.map = new HashMap<>();
+        }
+
+        public static StringTable getInstance() {
+            if (singleton == null) {
+                singleton = new StringTable();
+            }
+            return singleton;
+        }
+
+        public IdentifierToken get(String identifier) {
+            return this.map.get(identifier);
+        }
+
+        public void set(String identifier, IdentifierToken token) {
+            identifier = identifier.intern();
+            this.map.put(identifier, token);
+        }
+
+        public boolean hasKey(String identifier) {
+            return this.map.containsKey(identifier);
+        }
     }
 }
