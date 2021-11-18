@@ -9,16 +9,10 @@ import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 public interface ASTDefinition {
 
     enum DefinitionType {
-        CLASS, METHOD, PARAMETER, FIELD, LOCAL_VARIABLE;
+        PARAMETER, FIELD, LOCAL_VARIABLE;
     }
 
     public abstract DefinitionType getDefinitionType();
-
-    public boolean isClassMember();
-    public ClassDeclaration getClassDeclaration(); // returns null if isClassMember() == false
-
-    public boolean isMethod();
-    public Method getMethod();
 
     public boolean isParameter();
     public Parameter getParameter();

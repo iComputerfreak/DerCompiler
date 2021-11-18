@@ -55,25 +55,6 @@ public final class LocalVariableDeclarationStatement extends Statement implement
         return DefinitionType.LOCAL_VARIABLE;
     }
 
-    @Override
-    public boolean isClassMember() {
-        return false;
-    }
-
-    @Override
-    public ClassDeclaration getClassDeclaration() {
-        return null;
-    }
-
-    @Override
-    public boolean isMethod() {
-        return false;
-    }
-
-    @Override
-    public Method getMethod() {
-        return null;
-    }
 
     @Override
     public boolean isParameter() {

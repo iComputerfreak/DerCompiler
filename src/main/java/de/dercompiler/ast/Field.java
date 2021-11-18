@@ -66,25 +66,6 @@ public final class Field extends ClassMember implements ASTDefinition {
         return DefinitionType.FIELD;
     }
 
-    @Override
-    public boolean isClassMember() {
-        return false;
-    }
-
-    @Override
-    public ClassDeclaration getClassDeclaration() {
-        return null;
-    }
-
-    @Override
-    public boolean isMethod() {
-        return false;
-    }
-
-    @Override
-    public Method getMethod() {
-        return null;
-    }
 
     @Override
     public boolean isParameter() {

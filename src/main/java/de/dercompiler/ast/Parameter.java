@@ -69,26 +69,6 @@ public final class Parameter extends ASTNode implements ASTDefinition {
     }
 
     @Override
-    public boolean isClassMember() {
-        return false;
-    }
-
-    @Override
-    public ClassDeclaration getClassDeclaration() {
-        return null;
-    }
-
-    @Override
-    public boolean isMethod() {
-        return false;
-    }
-
-    @Override
-    public Method getMethod() {
-        return null;
-    }
-
-    @Override
     public boolean isParameter() {
         return true;
     }
