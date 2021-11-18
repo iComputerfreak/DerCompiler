@@ -15,3 +15,9 @@ class Bar {
 	public int f;
 	public boolean g;
 }
+
+class Main {
+    public static void main(String[] args) {
+		
+    }
+}

@@ -2,6 +2,7 @@ class Test {
 	public boolean a;
 	
 	public static void main(String[] args) {
+
     }
 	
 	public void a(int a, int b){
@@ -21,8 +22,8 @@ class Test2 {
 	
 	public void a(int a, int b){
 		int i = a + b;
-		b.a;
-		b.a(i, 1 +2*3);
+		this.b.a;
+		this.b.a(i, 1 +2*3);
 		return;
 	
 	}

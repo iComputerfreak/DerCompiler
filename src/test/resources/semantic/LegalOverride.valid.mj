@@ -2,7 +2,7 @@ class LegalOverride {
 
     public Type arg;
     
-    public void m(int arg) {
+    public int m(int arg) {
         boolean Type = false;
         Type t = new Type();
         this.arg.foo();
@@ -14,5 +14,11 @@ class LegalOverride {
 class Type {
     public void foo() {
     
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+		
     }
 }
