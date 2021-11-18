@@ -6,7 +6,7 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 
-interface ASTDefinition {
+public interface ASTDefinition {
 
     enum DefinitionType {
         CLASS, METHOD, PARAMETER, FIELD, LOCAL_VARIABLE;

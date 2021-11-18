@@ -1,6 +1,8 @@
 package de.dercompiler.ast;
 
+import de.dercompiler.ast.expression.ASTDefinition;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -14,7 +16,7 @@ import de.dercompiler.lexer.SourcePosition;
  *     }
  * </pre>
  */
-public final class Field extends ClassMember {
+public final class Field extends ClassMember implements ASTDefinition {
 
     private final Type type;
     private final String identifier;
@@ -57,5 +59,60 @@ public final class Field extends ClassMember {
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
         astNodeVisitor.visitField(this);
+    }
+
+    @Override
+    public DefinitionType getDefinitionType() {
+        return DefinitionType.FIELD;
+    }
+
+    @Override
+    public boolean isClassMember() {
+        return false;
+    }
+
+    @Override
+    public ClassDeclaration getClassDeclaration() {
+        return null;
+    }
+
+    @Override
+    public boolean isMethod() {
+        return false;
+    }
+
+    @Override
+    public Method getMethod() {
+        return null;
+    }
+
+    @Override
+    public boolean isParameter() {
+        return false;
+    }
+
+    @Override
+    public Parameter getParameter() {
+        return null;
+    }
+
+    @Override
+    public boolean isField() {
+        return true;
+    }
+
+    @Override
+    public Field getField() {
+        return this;
+    }
+
+    @Override
+    public boolean isLocalVariable() {
+        return false;
+    }
+
+    @Override
+    public LocalVariableDeclarationStatement getLocalVariable() {
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package de.dercompiler.ast.statement;
 
-import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.*;
+import de.dercompiler.ast.expression.ASTDefinition;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
@@ -8,7 +9,7 @@ import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
-public final class LocalVariableDeclarationStatement extends Statement {
+public final class LocalVariableDeclarationStatement extends Statement implements ASTDefinition{
 
     Type type;
     String identifier;
@@ -47,5 +48,60 @@ public final class LocalVariableDeclarationStatement extends Statement {
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
         astNodeVisitor.visitLocalVariableDeclarationStatement(this);
+    }
+
+    @Override
+    public DefinitionType getDefinitionType() {
+        return DefinitionType.LOCAL_VARIABLE;
+    }
+
+    @Override
+    public boolean isClassMember() {
+        return false;
+    }
+
+    @Override
+    public ClassDeclaration getClassDeclaration() {
+        return null;
+    }
+
+    @Override
+    public boolean isMethod() {
+        return false;
+    }
+
+    @Override
+    public Method getMethod() {
+        return null;
+    }
+
+    @Override
+    public boolean isParameter() {
+        return false;
+    }
+
+    @Override
+    public Parameter getParameter() {
+        return null;
+    }
+
+    @Override
+    public boolean isField() {
+        return false;
+    }
+
+    @Override
+    public Field getField() {
+        return null;
+    }
+
+    @Override
+    public boolean isLocalVariable() {
+        return true;
+    }
+
+    @Override
+    public LocalVariableDeclarationStatement getLocalVariable() {
+        return this;
     }
 }

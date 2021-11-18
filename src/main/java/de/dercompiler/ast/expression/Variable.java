@@ -9,6 +9,17 @@ import java.util.Objects;
 public final class Variable extends PrimaryExpression {
 
     private String name;
+
+    public ASTDefinition getDefinition() {
+        return definition;
+    }
+
+    public void setDefinition(ASTDefinition definition) {
+        this.definition = definition;
+    }
+
+    private ASTDefinition definition;
+
     public Variable(SourcePosition position, String name) {
         super(position);
         this.name = name;

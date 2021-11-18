@@ -1,5 +1,7 @@
 package de.dercompiler.semantic;
 
+import de.dercompiler.ast.expression.ASTDefinition;
+
 import java.util.Stack;
 
 /**
@@ -64,7 +66,7 @@ public class SymbolTable {
      * @param symbol The symbol for which the definition has changed
      * @param definition The new definition
      */
-    public void insert(Symbol symbol, Definition definition) {
+    public void insert(Symbol symbol, ASTDefinition definition) {
         changes.push(new Change(symbol, symbol.getCurrentDef(), symbol.getCurrentScope()));
         symbol.setCurrentDef(definition);
         symbol.setCurrentScope(currentScope);
@@ -75,7 +77,7 @@ public class SymbolTable {
      * @param symbol The symbol to look up
      * @return The current definition of this symbol
      */
-    public Definition lookup(Symbol symbol) {
+    public ASTDefinition lookup(Symbol symbol) {
         return symbol.getCurrentDef();
     }
 
