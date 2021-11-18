@@ -29,17 +29,17 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
     }
 
     @Override
-    public boolean checkExpression(Expression expression) {
+    public boolean shouldRunOnExpression(Expression expression) {
         return shouldRun;
     }
 
     @Override
-    public boolean checkMethod(Method method) {
+    public boolean shouldRunOnMethod(Method method) {
         return shouldRun;
     }
 
     @Override
-    public boolean checkStatement(Statement statement) {
+    public boolean shouldRunOnStatement(Statement statement) {
         return shouldRun;
     }
 

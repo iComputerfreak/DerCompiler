@@ -4,38 +4,10 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.pass.*;
+import de.dercompiler.pass.passes.VariableAnalysisCheckPass;
 
 public class TypeAnalysisPass implements MethodPass, ExpressionPass {
-    @Override
-    public boolean runOnExpression(Expression expression) {
-        return false;
-    }
-
-    @Override
-    public boolean checkExpression(Expression expression) {
-        return ExpressionPass.super.checkExpression(expression);
-    }
-
-    @Override
-    public boolean runOnMethod(Method method) {
-        return false;
-    }
-
-    @Override
-    public boolean checkMethod(Method method) {
-        return MethodPass.super.checkMethod(method);
-    }
-
-    @Override
-    public PassDependencyType getMinDependencyType() {
-        return MethodPass.super.getMinDependencyType();
-    }
-
-    @Override
-    public PassDependencyType getMaxDependencyType() {
-        return MethodPass.super.getMaxDependencyType();
-    }
-
+    
     @Override
     public void doInitialization(Program program) {
 
@@ -47,27 +19,66 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass {
     }
 
     @Override
+    public boolean runOnExpression(Expression expression) {
+        return false;
+    }
+
+    @Override
+    public boolean shouldRunOnExpression(Expression expression) {
+        return ExpressionPass.super.shouldRunOnExpression(expression);
+    }
+
+    @Override
+    public boolean runOnMethod(Method method) {
+        return false;
+    }
+
+    @Override
+    public boolean shouldRunOnMethod(Method method) {
+        return MethodPass.super.shouldRunOnMethod(method);
+    }
+
+
+    @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        return null;
+        usage.requireAnalysis(VariableAnalysisCheckPass.class);
+        usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
+        return usage;
     }
 
     @Override
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
+
+    private static long id = 0;
+    private PassManager manager = null;
 
     @Override
     public void registerPassManager(PassManager manager) {
-
+        this.manager = manager;
     }
 
     @Override
-    public long registerID(long id) {
-        return 0;
+    public PassManager getPassManager() {
+        return manager;
+    }
+
+    @Override
+    public long registerID(long rid) {
+        if (id != 0) return id;
+        id = rid;
+        return id;
     }
 
     @Override
     public long getID() {
-        return 0;
+        return id;
+    }
+
+    @Override
+    public AnalysisDirection getAnalysisDirection() {
+        // TODO: Change direction?
+        return AnalysisDirection.TOP_DOWN;
     }
 }

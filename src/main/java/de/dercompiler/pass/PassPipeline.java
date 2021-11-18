@@ -144,10 +144,10 @@ class PassPipeline {
             Expression old = manager.getCurrentExpression();
             manager.setCurrentExpression(expression);
             for (ExpressionPass TDExpressionsPass : td_expressionPasses) {
-                if (TDExpressionsPass.checkExpression(expression)) TDExpressionsPass.runOnExpression(expression);
+                if (TDExpressionsPass.shouldRunOnExpression(expression)) TDExpressionsPass.runOnExpression(expression);
             }
             for (ExpressionPass BUExpressionPass : bu_expressionPasses) {
-                if (BUExpressionPass.checkExpression(expression)) BUExpressionPass.runOnExpression(expression);
+                if (BUExpressionPass.shouldRunOnExpression(expression)) BUExpressionPass.runOnExpression(expression);
             }
             manager.setCurrentExpression(old);
         }
@@ -156,7 +156,7 @@ class PassPipeline {
             Statement old = manager.getCurrentStatement();
             manager.setCurrentStatement(statement);
             for (StatementPass TDStatementPass : td_statementPasses) {
-                if (TDStatementPass.checkStatement(statement)) TDStatementPass.runOnStatement(statement);
+                if (TDStatementPass.shouldRunOnStatement(statement)) TDStatementPass.runOnStatement(statement);
             }
 
             if (statement instanceof ExpressionStatement es) {
@@ -192,7 +192,7 @@ class PassPipeline {
             }
 
             for (StatementPass BUStatementPass : bu_statementPasses) {
-                if (BUStatementPass.checkStatement(statement)) BUStatementPass.runOnStatement(statement);
+                if (BUStatementPass.shouldRunOnStatement(statement)) BUStatementPass.runOnStatement(statement);
             }
             manager.setCurrentStatement(old);
         }
@@ -222,13 +222,13 @@ class PassPipeline {
             Method old = manager.getCurrentMethod();
             manager.setCurrentMethod(method);
             for (MethodPass TDMethodPass : td_methodPasses) {
-                if (TDMethodPass.checkMethod(method)) TDMethodPass.runOnMethod(method);
+                if (TDMethodPass.shouldRunOnMethod(method)) TDMethodPass.runOnMethod(method);
             }
 
             traverseBasicBlock(method.getBlock());
 
             for (MethodPass BUMethodPass : bu_methodPasses) {
-                if (BUMethodPass.checkMethod(method)) BUMethodPass.runOnMethod(method);
+                if (BUMethodPass.shouldRunOnMethod(method)) BUMethodPass.runOnMethod(method);
             }
             manager.setCurrentMethod(old);
         }
@@ -237,7 +237,7 @@ class PassPipeline {
             ClassDeclaration old = manager.getCurrentClass();
             manager.setCurrentClassDeclaration(declaration);
             for (ClassPass TDClassPass : td_classPasses) {
-                if (TDClassPass.checkClass(declaration)) TDClassPass.runOnClass(declaration);
+                if (TDClassPass.shouldRunOnClass(declaration)) TDClassPass.runOnClass(declaration);
             }
 
             for (ClassMember classMember : declaration.getMembers()) {
@@ -247,7 +247,7 @@ class PassPipeline {
             }
 
             for (ClassPass BUClassPass : bu_classPasses) {
-                if (BUClassPass.checkClass(declaration)) BUClassPass.runOnClass(declaration);
+                if (BUClassPass.shouldRunOnClass(declaration)) BUClassPass.runOnClass(declaration);
             }
             manager.setCurrentClassDeclaration(old);
         }

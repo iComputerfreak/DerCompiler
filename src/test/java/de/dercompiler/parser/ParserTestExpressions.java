@@ -1,11 +1,12 @@
 package de.dercompiler.parser;
 
-import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.IntType;
 import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.lexer.Lexer;
+import de.dercompiler.lexer.SourcePosition;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ParserTestExpressions {
+
+    public static SourcePosition DEFAULT_POS = Lexer.forString("").peek().position();
 
     private ParserTestHelper pth = new ParserTestHelper();
 
