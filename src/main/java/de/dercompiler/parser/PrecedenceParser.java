@@ -37,7 +37,8 @@ public class PrecedenceParser {
             //don't assign token here, we need it maybe for error printing
             lexer.nextToken();
             //ank right or do we have to add
-            Expression rhs = parseExpression(ank,prec + 1);
+            //all right associate operators have precedence 0
+            Expression rhs = parseExpression(ank,prec == 0 ? prec : prec + 1);
             result = ExpressionFactory.createExpression(op, pos, result, rhs);
             if (result instanceof ErrorExpression) {
                 handleError(ank, token, pos, minPrec);
