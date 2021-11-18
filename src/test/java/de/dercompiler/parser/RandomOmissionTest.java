@@ -1,9 +1,12 @@
 package de.dercompiler.parser;
 
+import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.IdentifierToken;
 import de.dercompiler.lexer.token.IntegerToken;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -16,6 +19,16 @@ import static de.dercompiler.lexer.token.Token.EOF;
 public class RandomOmissionTest {
 
     private static final int OMISSION_COUNT = 2;
+
+    @BeforeAll
+    public static void setup() {
+        OutputMessageHandler.setTestOutput(false);
+    }
+
+    @AfterAll
+    public static void cleanup() {
+        OutputMessageHandler.setTestOutput(true);
+    }
 
     @Test
     public void omissionTest() {
@@ -32,7 +45,7 @@ public class RandomOmissionTest {
         for (int i = 0; i < OMISSION_COUNT; i++) {
             int index = (int) (Math.random() * tokens.size());
             t = tokens.remove(index);
-            System.out.println("Removed " + t.toString());
+            //System.out.println("Removed " + t.toString());
         }
 
         String input = tokensToString(tokens);
@@ -59,7 +72,7 @@ public class RandomOmissionTest {
 
             t = tokens.get(index);
             tokens.add(target, t);
-            System.out.println("Inserted " + t.type() + " at " + tokens.get(target).position());
+            //System.out.println("Inserted " + t.type() + " at " + tokens.get(target).position());
         }
 
         String input = tokensToString(tokens);
