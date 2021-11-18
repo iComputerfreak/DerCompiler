@@ -1,0 +1,40 @@
+class Square {
+    
+    public int width;
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        width = height;
+    }
+
+    public int area() {
+        return width * width;
+    }
+}
+
+class Rectangle {
+
+    public int width;
+    public int height;
+
+        public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int area() {
+        return width * height;
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+		
+    }
+}

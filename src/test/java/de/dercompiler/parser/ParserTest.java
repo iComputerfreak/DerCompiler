@@ -35,7 +35,7 @@ public class ParserTest {
 
     @BeforeAll
     static void setup() {
-        //OutputMessageHandler.setDebug();
+        OutputMessageHandler.setDebug();
     }
 
     @BeforeEach
@@ -156,6 +156,7 @@ public class ParserTest {
 
     @Test
     void testCases() {
+        OutputMessageHandler.setTestOutput(false);
         // Test the output for all files
         for (File file : getResourceFolderFiles("parser")) {
             String filename = file.getName();
@@ -165,7 +166,7 @@ public class ParserTest {
             Lexer l = Lexer.forFile(new File(file.getPath()));
             Parser p = new Parser(l);
 
-            OutputMessageHandler.setDebug();
+
 
             // Tests that should succeed
             if (filename.endsWith(".valid.mj")) {
@@ -186,6 +187,7 @@ public class ParserTest {
 
             }
         }
+        OutputMessageHandler.setTestOutput(true);
     }
 
     private static File[] getResourceFolderFiles(String folder) {

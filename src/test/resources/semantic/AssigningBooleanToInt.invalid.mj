@@ -5,3 +5,9 @@ class Foo {
 		a = true;
 	}
 }
+
+class Main {
+    public static void main(String[] args) {
+		
+    }
+}

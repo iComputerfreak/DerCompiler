@@ -38,7 +38,8 @@ public class ParserTestExpressions {
         String[] pc = {
                 "foo = bar + baz",
                 "foo = bar + baz * foo",
-                "foo = foo % 5 == 0 || bar != baz && baz * baz / baz <= baz"
+                "foo = foo % 5 == 0 || bar != baz && baz * baz / baz <= baz",
+                "foo = bar = baz"
         };
         Variable foo = new Variable(DEFAULT_POS,"foo");
         Variable bar = new Variable(DEFAULT_POS,"bar");
@@ -57,6 +58,7 @@ public class ParserTestExpressions {
                                 )
                         )
                 )),
+                new AssignmentExpression(DEFAULT_POS, foo, new AssignmentExpression(DEFAULT_POS, bar, baz)),
         };
         testLexstringEqualASTNode(pc, pc_expected, Parser::parseExpression);
     }

@@ -1,0 +1,31 @@
+class Test0 {
+	public Test1[][] a;
+	
+	public static void main(String[] args) {
+		int i = 1;
+		
+		a[i][1].a.a.a.a.a[i][1<2];
+		
+		return;
+	
+    } 
+	
+}
+
+class Test1 {
+	
+	public Test2 a;	
+	
+}
+
+class Test2 {
+	public Test3  a;
+}
+
+class Test3 {
+	public Test4 a;
+}
+
+class Test4 {
+	public Test0 a;
+}
