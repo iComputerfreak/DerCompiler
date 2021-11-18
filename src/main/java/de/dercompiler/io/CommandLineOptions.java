@@ -80,6 +80,11 @@ public class CommandLineOptions {
     }
 
     /**
+     * return true if check command been given
+     */
+    public boolean check() { return cmd.hasOption(COMMAND_CHECK); }
+
+    /**
      * @return true if the lexTest printPosition option has been given
      */
     public boolean printPosition() {

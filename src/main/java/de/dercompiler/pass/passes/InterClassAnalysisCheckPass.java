@@ -2,6 +2,7 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.pass.AnalysisDirection;
 import de.dercompiler.pass.AnalysisUsage;
 import de.dercompiler.pass.ClassPass;
 import de.dercompiler.pass.PassManager;
@@ -75,26 +76,41 @@ public class InterClassAnalysisCheckPass implements ClassPass {
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
 
     @Override
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
+
+    private static long id = 0;
+    private PassManager manager = null;
 
     @Override
     public void registerPassManager(PassManager manager) {
-
+        this.manager = manager;
     }
 
     @Override
-    public long registerID(long id) {
-        return 0;
+    public PassManager getPassManager() {
+        return manager;
+    }
+
+    @Override
+    public long registerID(long rid) {
+        if (id != 0) return id;
+        id = rid;
+        return id;
     }
 
     @Override
     public long getID() {
-        return 0;
+        return id;
+    }
+
+    @Override
+    public AnalysisDirection getAnalysisDirection() {
+        return AnalysisDirection.TOP_DOWN;
     }
 }
