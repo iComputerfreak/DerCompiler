@@ -5,10 +5,7 @@ import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
-import de.dercompiler.pass.passes.EnterScopePass;
-import de.dercompiler.pass.passes.InterClassAnalysisCheckPass;
-import de.dercompiler.pass.passes.LeaveScopePass;
-import de.dercompiler.pass.passes.VariableAnalysisCheckPass;
+import de.dercompiler.pass.passes.*;
 
 public class CheckAction extends Action {
 
@@ -32,6 +29,7 @@ public class CheckAction extends Action {
         manager.addPass(new LeaveScopePass());
 
         //type-analysis passes
+        manager.addPass(new TypeAnalysisPass());
 
         manager.run(program);
     }

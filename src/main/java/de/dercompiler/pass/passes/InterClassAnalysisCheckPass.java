@@ -47,8 +47,6 @@ public class InterClassAnalysisCheckPass implements ClassPass {
        return false;
     }
 
-
-
     @Override
     public void doInitialization(Program program) {
         classMap = program.getClassMap();
