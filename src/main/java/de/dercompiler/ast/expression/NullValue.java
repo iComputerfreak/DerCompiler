@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -17,6 +18,11 @@ public final class NullValue extends PrimaryExpression {
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
         return other instanceof NullValue;
+    }
+
+    @Override
+    public void accept(ASTExpressionVisitor astExpressionVisitor) {
+        astExpressionVisitor.visitNullValue(this);
     }
 
     @Override

@@ -2,8 +2,8 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
-import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.type.Type;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,7 +14,7 @@ public class Arguments extends ASTNode {
 
     private LinkedList<Expression> arguments;
 
-    private List<Type> expectedTypes;
+    private List<de.dercompiler.semantic.type.Type> expectedTypes;
 
     public Arguments(SourcePosition position) {
         super(position);
@@ -50,7 +50,7 @@ public class Arguments extends ASTNode {
         return false;
     }
 
-    public void setExpectedTypes(List<Type> expectedTypes) {
+    public void setExpectedTypes(List<de.dercompiler.semantic.type.Type> expectedTypes) {
         this.expectedTypes = expectedTypes;
     }
 

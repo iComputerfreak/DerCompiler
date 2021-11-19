@@ -6,25 +6,23 @@ import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
-import de.dercompiler.ast.statement.IfStatement;
-import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
-import de.dercompiler.ast.statement.ReturnStatement;
-import de.dercompiler.ast.statement.WhileStatement;
+import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.BasicType;
+import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.type.*;
 
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressionVisitor  {
+public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpressionVisitor  {
 
     private final OutputMessageHandler logger;
-    private Program.ProgramNameSpace globalNameSpace;
+    private GlobalScope globalScope;
 
 
     public TypeAnalysisPass() {
@@ -33,7 +31,8 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
 
     @Override
     public void doInitialization(Program program) {
-        this.globalNameSpace = program.getNameSpace();
+        TypeFactory.getInstance().initialize(program);
+        this.globalScope = program.getGlobalScope();
     }
 
     @Override
@@ -43,30 +42,15 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
    
     @Override
     public boolean runOnExpression(Expression expression) {
-        expression.accept(this);
+
         return false;
-    }
-
-    @Override
-    public boolean shouldRunOnExpression(Expression expression) {
-        return ExpressionPass.super.shouldRunOnExpression(expression);
-    }
-
-    @Override
-    public boolean runOnMethod(Method method) {
-        return false;
-    }
-
-    @Override
-    public boolean shouldRunOnMethod(Method method) {
-        return MethodPass.super.shouldRunOnMethod(method);
     }
 
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
         usage.requireAnalysis(VariableAnalysisCheckPass.class);
-        usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
+        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 
@@ -103,7 +87,7 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
     @Override
     public AnalysisDirection getAnalysisDirection() {
         // TODO: Change direction?
-        return AnalysisDirection.TOP_DOWN;
+        return AnalysisDirection.BOTTOM_UP;
     }
 
     private void failTypeCheck(Expression expr, String description) {
@@ -122,8 +106,8 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
         }
     }
 
-    private CustomType assertCustomBasicType(Expression expr, String description) {
-        if (expr.getType() instanceof CustomType type) {
+    private ClassType assertCustomBasicType(Expression expr, String description) {
+        if (expr.getType() instanceof ClassType type) {
             return type;
         }
 
@@ -146,7 +130,7 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
 
     @Override
     public void visitArrayAccess(ArrayAccess arrayAccess) {
-        SourcePosition pos = arrayAccess.getSourcePosition();
+
         Expression arrayExpr = arrayAccess.getEncapsulated();
         Expression indexExpr = arrayAccess.getIndex();
 
@@ -195,6 +179,7 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
 
             case EQUAL, NOT_EQUAL:
                 assertTypeEqual(lhs, rhs, "operands of equality operation");
+                binaryExpression.setType(new BooleanType());
                 break;
 
             case LESS_THAN, LESS_THAN_EQUAL, GREATER_THAN, GREATER_THAN_EQUAL:
@@ -234,9 +219,10 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
     @Override
     public void visitFieldAccess(FieldAccess fieldAccess) {
         // TODO: Where to find Field Type in SymbolTable?
-        fieldAccess.getEncapsulated().accept(this);
-        if (fieldAccess.getType() instanceof CustomType type) {
-            Field field = globalNameSpace.getField(type.getIdentifier(), fieldAccess.getFieldName());
+        Expression refObj = fieldAccess.getEncapsulated();
+        refObj.accept(this);
+        if (refObj.getType() instanceof ClassType type) {
+            Field field = globalScope.getField(type.getIdentifier(), fieldAccess.getFieldName());
             fieldAccess.setType(field.getRefType());
         }
 
@@ -264,16 +250,16 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
         Expression refObj = methodInvocation.getEncapsulated();
         refObj.accept(this);
 
-        CustomType type = assertCustomBasicType(refObj, "reference object of method invocation");
+        ClassType type = assertCustomBasicType(refObj, "reference object of method invocation");
 
-        Method method = globalNameSpace.getMethod(type.getIdentifier(), methodInvocation.getFunctionName());
-        Type returnType = method.getType();
+        Method method = globalScope.getMethod(type.getIdentifier(), methodInvocation.getFunctionName());
+        MethodType methodType = method.getReferenceType();
 
-        methodInvocation.setType(returnType);
+        methodInvocation.setType(methodType.getReturnType());
 
         List<Type> parameterTypes = method.getParameters().stream().map(Parameter::getRefType).collect(Collectors.toList());
         Arguments arguments = methodInvocation.getArguments();
-        arguments.setExpectedTypes(parameterTypes);
+        arguments.setExpectedTypes(methodType.getParameterTypes());
         this.visitArguments(arguments);
     }
 
@@ -302,18 +288,15 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
         if (basicType instanceof de.dercompiler.ast.type.VoidType) {
             failTypeCheck(newArrayExpression, "array type");
         }
-        // TODO: get semantic type of element type
-        newArrayExpression.setType(new ArrayType());
+
+        newArrayExpression.setType(TypeFactory.getInstance().create(new de.dercompiler.ast.type.Type(null, basicType, newArrayExpression.getDimension())));
     }
 
     @Override
     public void visitNewObjectExpression(NewObjectExpression newObjectExpression) {
-        SourcePosition pos = newObjectExpression.getSourcePosition();
-
-        de.dercompiler.ast.type.CustomType objectType = newObjectExpression.getObjectType();
-
-        // TODO where to get semantic type out of ClassDeclaration globalNameSpace.getClass(objectType.getIdentifier())
-        // TODO newObjectExpression.setType(....);
+        CustomType objectType = newObjectExpression.getObjectType();
+        ClassType classType = globalScope.getClass(objectType.getIdentifier());
+        newObjectExpression.setType(classType);
     }
 
     @Override
@@ -324,7 +307,17 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
     @Override
     public void visitPrimaryExpression(PrimaryExpression primaryExpression) {
         // abstract type
+
     }
+
+    @Override
+    public void visitThisValue(ThisValue thisValue) {
+        Method method = thisValue.getSurroundingStatement().getSurroundingMethod();
+        String className = method.getSurroundingClass().getIdentifier();
+        ClassType classType = globalScope.getClass(className);
+        thisValue.setType(classType);
+    }
+
 
     @Override
     public void visitUninitializedValue(UninitializedValue uninitializedValue) {
@@ -351,27 +344,47 @@ public class TypeAnalysisPass implements MethodPass, ExpressionPass, ASTExpressi
         }
     }
 
+    @Override
+    public boolean runOnStatement(Statement statement) {
+        if (statement instanceof IfStatement ifStatement) visitIfStatement(ifStatement);
+        else if (statement instanceof LocalVariableDeclarationStatement decl) visitLocalVariableDeclarationStatement(decl);
+        else if (statement instanceof ReturnStatement returnStatement) visitReturnStatement(returnStatement);
+        else if (statement instanceof WhileStatement whileStatement) visitWhileStatement(whileStatement);
+        return false;
+    }
+
     public void visitIfStatement(IfStatement ifStatement) {
         ifStatement.getCondition().accept(this);
         assertTypeEquals(ifStatement.getCondition(), new BooleanType(),  "if condition");
     }
 
-    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement localVariableDeclarationStatement) {
-        Expression expr = localVariableDeclarationStatement.getExpression();
+    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement decl) {
+        Expression expr = decl.getExpression();
         expr.accept(this);
-        // TODO: how to get _current_ variable definition from SymbolTable?
-        // assertTypeEquals(expr, type, "assignment to new %s variable".formatted(type);
+
+        Type expectedType = decl.getRefType();
+        assertTypeEquals(expr, expectedType, "assignment to new %s variable".formatted(expectedType));
     }
 
     public void visitReturnStatement(ReturnStatement returnStatement) {
         Expression expr = returnStatement.getExpression();
-        expr.accept(this);
+        Type returnType = getPassManager().getCurrentMethod().getReferenceType().getReturnType();
 
-        assertTypeEquals(expr, returnStatement.getSurroundingMethod().getRefType(), "return value for %s method");
+        if (expr instanceof UninitializedValue uninitialized) {
+            uninitialized.setType(new VoidType());
+            if (!returnType.isCompatibleTo(new VoidType())) {
+                failTypeCheck(uninitialized, "return value for %s method".formatted(returnType));
+            }
+
+        } else {
+            expr.accept(this);
+            assertTypeEquals(expr, returnType, "return value for %s method".formatted(returnType));
+        }
     }
 
     public void visitWhileStatement(WhileStatement whileStatement) {
         whileStatement.getCondition().accept(this);
         assertTypeEquals(whileStatement.getCondition(), new BooleanType(), "while condition");
     }
+
 }

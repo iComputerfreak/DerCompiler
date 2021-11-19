@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -37,7 +38,13 @@ public final class Variable extends PrimaryExpression {
     }
 
     @Override
+    public void accept(ASTExpressionVisitor astExpressionVisitor) {
+        astExpressionVisitor.visitVariable(this);
+    }
+
+    @Override
     public String toString() {
         return name;
     }
+
 }

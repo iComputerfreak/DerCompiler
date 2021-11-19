@@ -1,56 +1,53 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.*;
-import de.dercompiler.ast.type.Type;
 import de.dercompiler.pass.AnalysisDirection;
 import de.dercompiler.pass.AnalysisUsage;
 import de.dercompiler.pass.ClassPass;
 import de.dercompiler.pass.PassManager;
-import de.dercompiler.semantic.*;
+import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.type.ClassType;
 
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * hier werden für jede Klasse ihre öffentlichen Felder und methoden gesammelt
  */
 public class InterClassAnalysisCheckPass implements ClassPass {
-    //hier werden die Felder und Methoden in der Hashmap gespeichert. Der Key ist der Klassenname
 
-    private HashMap<String, ClassDeclaration> classMap;
+
+    private GlobalScope globalScope;
 
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
-        if (classMap.containsKey(classDeclaration.getIdentifier())){
+        if (globalScope.hasClass(classDeclaration.getIdentifier())) {
             //Error, da Klasse mit gleichem Namen schon vorhanden
         }
 
-        HashMap<String, Field> fieldMap = classDeclaration.getFieldMap();
-        HashMap<String, Method> methodMap = classDeclaration.getMethodMap();
+        ClassType newClass = new ClassType(classDeclaration.getIdentifier());
 
-       for(ClassMember classMember: classDeclaration.getMembers()){
-         if (classMember instanceof Method method){
-             if (methodMap.containsKey(method.getIdentifier())){
-                 //Error, da Methode mit gleichem Namen in der Klasse schon existiert
-             }
-             methodMap.put(method.getIdentifier(), method);
-         } else if (classMember instanceof Field field){
-            if (fieldMap.containsKey(field.getIdentifier())){
-                //Error, da Feld mit gleichem Namen in der Klasse schon existiert
+        for (ClassMember classMember : classDeclaration.getMembers()) {
+            if (classMember instanceof Method method) {
+                if (newClass.hasMethod(method.getIdentifier())) {
+                    //Error, da Methode mit gleichem Namen in der Klasse schon existiert
+                }
+                newClass.addMethod(method.getIdentifier(), method);
+            } else if (classMember instanceof Field field) {
+                if (newClass.hasField(field.getIdentifier())) {
+                    //Error, da Feld mit gleichem Namen in der Klasse schon existiert
+                }
+                newClass.addField(field.getIdentifier(), field);
             }
-            fieldMap.put(field.getIdentifier(), field);
-         }
-       }
+        }
 
+        globalScope.addClass(newClass);
 
-
-       return false;
+        return false;
     }
 
     @Override
     public void doInitialization(Program program) {
-        classMap = program.getClassMap();
-
+        globalScope = program.getGlobalScope();
     }
 
     @Override

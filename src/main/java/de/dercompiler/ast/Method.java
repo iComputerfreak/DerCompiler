@@ -5,6 +5,7 @@ import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.StringTable;
+import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.util.Utils;
 
 import java.util.LinkedList;
@@ -29,7 +30,7 @@ public final class Method extends ClassMember {
     private final MethodRest methodRest;
     private final BasicBlock block;
     private ClassDeclaration surrounding;
-    private final StringTable stringTable;
+    private MethodType referenceType;
 
     /**
      * Creates a new Method
@@ -47,7 +48,6 @@ public final class Method extends ClassMember {
         this.parameters = Objects.requireNonNullElseGet(parameters, LinkedList::new);
         this.methodRest = methodRest;
         this.block = block;
-        this.stringTable = new StringTable();
     }
 
     /**
@@ -56,6 +56,10 @@ public final class Method extends ClassMember {
      */
     public Type getType() {
         return type;
+    }
+    
+    public MethodType getReferenceType() {
+        return this.referenceType;
     }
 
     /**
@@ -84,10 +88,6 @@ public final class Method extends ClassMember {
      */
     public BasicBlock getBlock() {
         return block;
-    }
-
-    public StringTable getStringTable() {
-        return stringTable;
     }
 
     @Override
@@ -120,5 +120,9 @@ public final class Method extends ClassMember {
 
     public ClassDeclaration getSurroundingClass() {
         return surrounding;
+    }
+
+    public void setReferenceType(MethodType methodType) {
+        this.referenceType = methodType;
     }
 }

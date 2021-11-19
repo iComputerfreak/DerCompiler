@@ -14,6 +14,7 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     Type type;
     String identifier;
     Expression valueExpression;
+    private de.dercompiler.semantic.type.Type refType;
 
     public LocalVariableDeclarationStatement(SourcePosition position, Type type, String identifier, Expression valueExpression) {
         super(position);
@@ -27,7 +28,11 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     }
 
     public de.dercompiler.semantic.type.Type getRefType() {
-        return null;
+        return this.refType;
+    }
+
+    public void setRefType(de.dercompiler.semantic.type.Type refType) {
+        this.refType = refType;
     }
 
     public String getIdentifier() {

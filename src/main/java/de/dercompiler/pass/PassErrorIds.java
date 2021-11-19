@@ -4,7 +4,7 @@ import de.dercompiler.io.message.IErrorIds;
 
 public enum PassErrorIds implements IErrorIds {
 
-    ;
+    UNKNOWN_EXPRESSION(700);
 
     private int id;
 

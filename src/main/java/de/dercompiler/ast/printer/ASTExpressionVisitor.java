@@ -17,7 +17,9 @@ public interface ASTExpressionVisitor {
     void visitNewObjectExpression(NewObjectExpression newObjectExpression);
     void visitNullValue(NullValue nullValue);
     void visitPrimaryExpression(PrimaryExpression primaryExpression);
+    void visitThisValue(ThisValue thisValue);
     void visitUninitializedValue(UninitializedValue uninitializedValue);
     void visitVariable(Variable variable);
     void visitVoidExpression(VoidExpression voidExpression);
+
 }

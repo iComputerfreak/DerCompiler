@@ -19,7 +19,7 @@ public class PassDagSolver {
         ArrayList<List<Pass>> directAfter = new ArrayList<>(vertices.length);
         int[] count = new int[vertices.length];
         DependencyType[] depType = new DependencyType[vertices.length];
-        Arrays.fill(depType, DependencyType.RUN_DIRECT_AFTER);
+        Arrays.fill(depType, DependencyType.RUN_DIRECTLY_AFTER);
         Map<Long, Integer> lookupTable = new HashMap<>();
 
         for(int i = 0; i < vertices.length; i++) {
@@ -61,7 +61,7 @@ public class PassDagSolver {
                 int i = lookupTable.get(pass.getID());
 
                 List<? extends Pass> deps = edges.get(i);
-                if (depType[i] == DependencyType.RUN_DIRECT_AFTER && deps.size() != 0) {
+                if (depType[i] == DependencyType.RUN_DIRECTLY_AFTER && deps.size() != 0) {
                     /* moved to else
                     if (deps.size() == 0) {
                         pipeline.addPass(pass);

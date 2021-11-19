@@ -38,14 +38,6 @@ public final class Field extends ClassMember implements ASTDefinition {
     }
 
     /**
-     * Returns the type of the field
-     * @return
-     */
-    public de.dercompiler.semantic.type.Type getRefType() {
-        return null;
-    }
-
-    /**
      * Returns the identifier of the field
      */
     public String getIdentifier() {

@@ -1,7 +1,15 @@
 package de.dercompiler.semantic.type;
 
-public class ArrayType implements Type {
+import java.lang.reflect.Array;
+
+public final class ArrayType implements ReferenceType {
     private Type elementType;
+
+    public ArrayType(Type elementType) {
+        this.elementType = elementType;
+    }
+
+
 
     @Override
     public boolean isCompatibleTo(Type other) {

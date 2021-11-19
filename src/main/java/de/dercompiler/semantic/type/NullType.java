@@ -4,6 +4,6 @@ public class NullType implements Type {
 
     @Override
     public boolean isCompatibleTo(Type other) {
-        return true;
+        return other instanceof ReferenceType || other instanceof NullType;
     }
 }

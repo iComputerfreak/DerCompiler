@@ -9,6 +9,8 @@ import de.dercompiler.ast.type.Type;
 import java.util.Objects;
 import java.util.Stack;
 
+import static de.dercompiler.lexer.token.Token.THIS;
+
 
 public class PrettyPrinter implements ASTNodeVisitor {
 
@@ -170,7 +172,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitVariable(Variable variable) {
-
+        sb.append(variable.getName());
     }
 
     public void visitBasicBlock(BasicBlock block) {
@@ -195,6 +197,11 @@ public class PrettyPrinter implements ASTNodeVisitor {
     @Override
     public void visitPrimaryExpression(PrimaryExpression primaryExpression) {
         sb.append(primaryExpression.toString());
+    }
+
+    @Override
+    public void visitThisValue(ThisValue thisValue) {
+        sb.append(THIS.toString());
     }
 
     public void visitExpressionStatement(ExpressionStatement exprStmt) {
@@ -406,7 +413,14 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitArrayAccess(ArrayAccess arrayAccess) {
-        arrayAccess.getEncapsulated().accept(this);
+        Expression array = arrayAccess.getEncapsulated();
+        if (needsParentheses(array)) {
+            sb.append("(");
+            array.accept(this);
+            sb.append(")");
+        } else {
+            array.accept(this);
+        }
         sb.append("[");
         arrayAccess.getIndex().accept(this);
         sb.append("]");

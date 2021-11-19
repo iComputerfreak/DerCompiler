@@ -284,7 +284,7 @@ public class DAG1Passes {
         @Override
         public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
             usage.requireAnalysis(D_DAG1.class);
-            usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
+            usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
             return usage;
         }
 
@@ -406,7 +406,7 @@ public class DAG1Passes {
         @Override
         public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
             usage.requireAnalysis(F_DAG1.class);
-            usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
+            usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
             return usage;
         }
 
@@ -533,7 +533,7 @@ public class DAG1Passes {
         @Override
         public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
             usage.requireAnalysis(H_DAG1.class);
-            usage.setDependency(DependencyType.RUN_DIRECT_AFTER);
+            usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
             return usage;
         }
 
