@@ -9,7 +9,7 @@ import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
 
-public final class LocalVariableDeclarationStatement extends Statement implements ASTDefinition{
+public final class LocalVariableDeclarationStatement extends Statement implements ASTDefinition {
 
     Type type;
     String identifier;
@@ -24,6 +24,10 @@ public final class LocalVariableDeclarationStatement extends Statement implement
 
     public Type getType() {
         return type;
+    }
+
+    public de.dercompiler.semantic.type.Type getRefType() {
+        return null;
     }
 
     public String getIdentifier() {

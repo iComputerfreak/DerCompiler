@@ -14,11 +14,11 @@ public class VariableDefinition implements Definition {
 
     @Override
     public Symbol getSymbol() {
-        return null;
+        return symbol;
     }
 
     @Override
     public Type getType() {
-        return null;
+        return type;
     }
 }

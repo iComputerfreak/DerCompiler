@@ -76,11 +76,6 @@ public class PrettyPrinter implements ASTNodeVisitor {
     }
 
     @Override
-    public void visitExpression(Expression expression) {
-
-    }
-
-    @Override
     public void visitErrorStatement(ErrorStatement errorStatement) {
         sb.append("<errorStatement>");
     }
@@ -126,6 +121,16 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append(fieldAccess.getFieldName());
     }
 
+    @Override
+    public void visitIntegerValue(IntegerValue integerValue) {
+        sb.append(integerValue.toString());
+    }
+
+    @Override
+    public void visitBooleanValue(BooleanValue booleanValue) {
+        sb.append(booleanValue.getValue());
+    }
+
     public void visitMethod(Method m) {
         sb.append(INDENT.repeat(this.state.getIndent()));
         sb.append("public ");
@@ -160,6 +165,11 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitUninitializedValue(UninitializedValue uninitializedValue) {
+
+    }
+
+    @Override
+    public void visitVariable(Variable variable) {
 
     }
 
@@ -328,6 +338,11 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append("()");
     }
 
+    @Override
+    public void visitNullValue(NullValue nullValue) {
+
+    }
+
     public void visitMethodInvocation(MethodInvocationOnObject invocation) {
         Expression referenceObject = invocation.getReferenceObject();
         if (needsParentheses(referenceObject)) {
@@ -396,6 +411,8 @@ public class PrettyPrinter implements ASTNodeVisitor {
         arrayAccess.getIndex().accept(this);
         sb.append("]");
     }
+
+
 
     public void visitBasicType(BasicType type) {
         sb.append(type.toString());

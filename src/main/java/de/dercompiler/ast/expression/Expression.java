@@ -4,7 +4,7 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.statement.Statement;
-import de.dercompiler.ast.type.Type;
+import de.dercompiler.semantic.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 
 public abstract sealed class Expression extends ASTNode permits BinaryExpression, ErrorExpression, PrimaryExpression, UnaryExpression, UninitializedValue, VoidExpression {
@@ -14,7 +14,6 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
 
     protected Expression(SourcePosition position) {
         super(position);
-        this.type = null;
     }
 
     public void setSurroundingStatement(Statement statement) {
@@ -35,7 +34,10 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
         this.type = type;
     }
 
-    public void accept(ASTExpressionVisitor astExpressionVisitor) {
-        astExpressionVisitor.visitExpression(this);
+    public abstract void accept(ASTExpressionVisitor astExpressionVisitor);
+
+    @Override
+    public void accept(ASTNodeVisitor astNodeVisitor) {
+        this.accept((ASTExpressionVisitor) astNodeVisitor);
     }
 }

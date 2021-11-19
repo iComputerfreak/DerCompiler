@@ -30,6 +30,7 @@ import java.util.List;
 public final class Program extends ASTNode {
 
     private final List<ClassDeclaration> classes;
+    private final ProgramNameSpace nameSpace;
     private boolean isIndexed;
     // TODO: SymbolTable field, getter and init in constructor
     private final SymbolTable symbolTable;
@@ -52,6 +53,7 @@ public final class Program extends ASTNode {
         isIndexed = false;
 
         classMap = new HashMap<String, ClassDeclaration>();
+        this.nameSpace = this.new ProgramNameSpace();
     }
 
     /**
@@ -89,5 +91,24 @@ public final class Program extends ASTNode {
 
     public void indexed() {
         isIndexed = true;
+    }
+
+    public ProgramNameSpace getNameSpace() {
+        return nameSpace;
+    }
+
+    public class ProgramNameSpace {
+
+        public Method getMethod(String className, String methodName) {
+            return getClass(className).getMethodMap().get(methodName);
+        }
+
+        public Field getField(String className, String fieldName) {
+            return getClass(className).getFieldMap().get(fieldName);
+        }
+
+        public ClassDeclaration getClass(String className) {
+            return Program.this.getClassMap().get(className);
+        }
     }
 }

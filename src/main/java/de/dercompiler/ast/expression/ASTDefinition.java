@@ -1,10 +1,9 @@
 package de.dercompiler.ast.expression;
 
-import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Field;
-import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.semantic.type.Type;
 
 public interface ASTDefinition {
 
@@ -22,5 +21,7 @@ public interface ASTDefinition {
 
     public boolean isLocalVariable();
     public LocalVariableDeclarationStatement getLocalVariable();
+
+    public Type getRefType();
 }
 

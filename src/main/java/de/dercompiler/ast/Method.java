@@ -52,6 +52,7 @@ public final class Method extends ClassMember {
 
     /**
      * Returns the return type of this method
+     * @return
      */
     public Type getType() {
         return type;

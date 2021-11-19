@@ -37,9 +37,15 @@ public final class Parameter extends ASTNode implements ASTDefinition {
 
     /**
      * Returns the parameter type
+     * @return
      */
     public Type getType() {
         return type;
+    }
+
+
+    public de.dercompiler.semantic.type.Type getRefType() {
+        return null;
     }
 
     /**

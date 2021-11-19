@@ -1,5 +1,6 @@
 package de.dercompiler.ast.expression;
 
+import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -31,7 +32,7 @@ public abstract sealed class BinaryExpression extends Expression permits Assignm
     public abstract OperatorToken getOperator();
 
     @Override
-    public void accept(ASTNodeVisitor astNodeVisitor) {
-        astNodeVisitor.visitBinaryExpression(this);
+    public void accept(ASTExpressionVisitor astExpressionVisitor) {
+        astExpressionVisitor.visitBinaryExpression(this);
     }
 }

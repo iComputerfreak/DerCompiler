@@ -1,7 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -22,7 +22,7 @@ public final class NegativeExpression extends UnaryExpression {
     }
 
     @Override
-    public void accept(ASTNodeVisitor astNodeVisitor) {
-        astNodeVisitor.visitNegativeExpression(this);
+    public void accept(ASTExpressionVisitor astExpressionVisitor) {
+        astExpressionVisitor.visitNegativeExpression(this);
     }
 }

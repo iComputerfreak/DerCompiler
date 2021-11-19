@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
@@ -19,8 +20,8 @@ public final class UninitializedValue extends Expression {
     }
 
     @Override
-    public void accept(ASTNodeVisitor astNodeVisitor) {
-        astNodeVisitor.visitUninitializedValue(this);
+    public void accept(ASTExpressionVisitor astExpressionVisitor) {
+        astExpressionVisitor.visitUninitializedValue(this);
     }
 
 }
