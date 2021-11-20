@@ -29,6 +29,10 @@ public class PrettyPrinter implements ASTNodeVisitor {
         return expr instanceof IntegerValue || expr instanceof BooleanValue || expr instanceof NullValue || expr instanceof ThisValue || expr instanceof Variable;
     }
 
+    protected void append(String s) {
+        sb.append(s);
+    }
+
     public void visitProgram(Program program) {
         for (ClassDeclaration cls : program.getClasses()) {
             cls.accept(this);

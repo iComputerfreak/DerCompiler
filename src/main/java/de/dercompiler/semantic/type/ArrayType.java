@@ -20,4 +20,9 @@ public final class ArrayType implements ReferenceType {
     public Type getElementType() {
         return elementType;
     }
+
+    @Override
+    public String toString() {
+        return elementType.toString() + "[]";
+    }
 }

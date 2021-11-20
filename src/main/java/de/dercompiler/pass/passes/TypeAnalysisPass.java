@@ -1,9 +1,6 @@
 package de.dercompiler.pass.passes;
 
-import de.dercompiler.ast.Field;
-import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Parameter;
-import de.dercompiler.ast.Program;
+import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.statement.*;
@@ -19,7 +16,7 @@ import de.dercompiler.semantic.type.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpressionVisitor  {
+public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpressionVisitor {
 
     private final OutputMessageHandler logger;
     private GlobalScope globalScope;
@@ -39,10 +36,10 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     public void doFinalization(Program program) {
 
     }
-   
+
     @Override
     public boolean runOnExpression(Expression expression) {
-
+        expression.accept(this);
         return false;
     }
 
@@ -86,12 +83,11 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        // TODO: Change direction?
         return AnalysisDirection.BOTTOM_UP;
     }
 
     private void failTypeCheck(Expression expr, String description) {
-        // TODO implement
+        logger.printErrorAndExit(PassErrorIds.TYPE_MISMATCH, "Illegal type " + expr.getType() + " for " + description);
     }
 
     private void assertTypeEqual(Expression lhs, Expression rhs, String description) {
@@ -102,7 +98,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     private void assertTypeEquals(Expression expr, Type type, String description) {
         if (!expr.getType().isCompatibleTo(type)) {
-
+            failTypeCheck(expr, description);
         }
     }
 
@@ -172,7 +168,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
             case AND_LAZY, OR_LAZY:
                 assertTypeEquals(lhs, new BooleanType(), "operand of comparison operation");
-                assertTypeEquals(rhs, new BooleanType(),  "operand of comparison operation");
+                assertTypeEquals(rhs, new BooleanType(), "operand of comparison operation");
                 // Position is synthesized from left operator
                 binaryExpression.setType(lhs.getType());
                 break;
@@ -183,15 +179,15 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
                 break;
 
             case LESS_THAN, LESS_THAN_EQUAL, GREATER_THAN, GREATER_THAN_EQUAL:
-                assertTypeEquals(lhs, new IntegerType(),  "operand of comparison operation");
-                assertTypeEquals(rhs, new IntegerType(),  "operand of comparison operation");
+                assertTypeEquals(lhs, new IntegerType(), "operand of comparison operation");
+                assertTypeEquals(rhs, new IntegerType(), "operand of comparison operation");
                 // Position is synthesized from left operator
                 binaryExpression.setType(new BooleanType());
                 break;
 
             case PLUS, MINUS, STAR, SLASH, PERCENT_SIGN:
-                assertTypeEquals(lhs, new IntegerType(),  "operand of arithmetic operation");
-                assertTypeEquals(rhs, new IntegerType(),  "operand of arithmetic operation");
+                assertTypeEquals(lhs, new IntegerType(), "operand of arithmetic operation");
+                assertTypeEquals(rhs, new IntegerType(), "operand of arithmetic operation");
                 // Position is synthesized from left operator
                 binaryExpression.setType(lhs.getType());
                 break;
@@ -218,15 +214,15 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public void visitFieldAccess(FieldAccess fieldAccess) {
-        // TODO: Where to find Field Type in SymbolTable?
+
         Expression refObj = fieldAccess.getEncapsulated();
         refObj.accept(this);
         if (refObj.getType() instanceof ClassType type) {
             Field field = globalScope.getField(type.getIdentifier(), fieldAccess.getFieldName());
             fieldAccess.setType(field.getRefType());
+        } else {
+            failTypeCheck(fieldAccess, "field access");
         }
-
-        //TODO: fieldAccess.getType() has no fields!
     }
 
     @Override
@@ -262,7 +258,6 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         arguments.setExpectedTypes(methodType.getParameterTypes());
         this.visitArguments(arguments);
     }
-
 
 
     @Override
@@ -301,7 +296,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public void visitNullValue(NullValue nullValue) {
-    nullValue.setType(new NullType());
+        nullValue.setType(new NullType());
     }
 
     @Override
@@ -312,9 +307,8 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public void visitThisValue(ThisValue thisValue) {
-        Method method = thisValue.getSurroundingStatement().getSurroundingMethod();
-        String className = method.getSurroundingClass().getIdentifier();
-        ClassType classType = globalScope.getClass(className);
+        ClassDeclaration classDecl = getPassManager().getCurrentClass();
+        ClassType classType = globalScope.getClass(classDecl.getIdentifier());
         thisValue.setType(classType);
     }
 
@@ -338,16 +332,32 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     public void visitArguments(Arguments arguments) {
         List<Type> expectedTypes = arguments.getExpectedTypes();
+
+        ASTNode expr;
+        switch (Integer.signum(arguments.getLength() - expectedTypes.size())) {
+            case 1:
+                expr = arguments.get(expectedTypes.size());
+                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too many arguments");
+                break;
+            case -1:
+                // Maybe for later: SourcePosition of Error
+                int index = arguments.getLength() - 1;
+                expr = index >= 0 ? arguments.get(index) : arguments;
+                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too few arguments");
+                break;
+        }
+
         for (int i = 0; i < arguments.getLength(); i++) {
             arguments.get(i).accept(this);
-            assertTypeEquals(arguments.get(i), expectedTypes.get(i), "argument for expected type " + expectedTypes.get(i).toString());
+            assertTypeEquals(arguments.get(i), expectedTypes.get(i), "expected %s argument".formatted(expectedTypes.get(i).toString()));
         }
     }
 
     @Override
     public boolean runOnStatement(Statement statement) {
         if (statement instanceof IfStatement ifStatement) visitIfStatement(ifStatement);
-        else if (statement instanceof LocalVariableDeclarationStatement decl) visitLocalVariableDeclarationStatement(decl);
+        else if (statement instanceof LocalVariableDeclarationStatement decl)
+            visitLocalVariableDeclarationStatement(decl);
         else if (statement instanceof ReturnStatement returnStatement) visitReturnStatement(returnStatement);
         else if (statement instanceof WhileStatement whileStatement) visitWhileStatement(whileStatement);
         return false;
@@ -355,7 +365,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     public void visitIfStatement(IfStatement ifStatement) {
         ifStatement.getCondition().accept(this);
-        assertTypeEquals(ifStatement.getCondition(), new BooleanType(),  "if condition");
+        assertTypeEquals(ifStatement.getCondition(), new BooleanType(), "if condition");
     }
 
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement decl) {

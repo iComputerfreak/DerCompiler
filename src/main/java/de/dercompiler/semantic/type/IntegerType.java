@@ -10,4 +10,9 @@ public class IntegerType implements Type{
     public boolean isCompatibleTo(Type other) {
         return other instanceof IntegerType;
     }
+
+    @Override
+    public String toString() {
+        return "int";
+    }
 }

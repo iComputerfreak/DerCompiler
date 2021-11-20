@@ -55,14 +55,6 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
 
     @Override
     public boolean runOnMethod(Method method) {
-        TypeFactory typeFactory = TypeFactory.getInstance();
-        Type returnType = typeFactory.create(method.getType());
-        List<Type> parameterTypes = method.getParameters().stream()
-                .map(p -> typeFactory.create(p.getType()))
-                .collect(Collectors.toList());
-        method.setReferenceType(new MethodType(returnType, parameterTypes));
-
-
         for (Parameter parameter : method.getParameters()) {
             insert(parameter.getIdentifier(), parameter);
         }
@@ -95,8 +87,7 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
         for (Expression ex : references) {
             if (ex instanceof Variable variable) {
                 if (!stringTable.contains(variable.getName())) {
-                    // TODO: Error, da referenzierte Variable nicht existiert
-                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_EXPRESSION, "Lol");
+                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNDEFINED_VARIABLE, "Variable %s is unknown".formatted(variable.getName()));
                 }
                 variable.setDefinition(stringTable.findOrInsert(variable.getName()).getCurrentDef());
                 variable.setType(variable.getDefinition().getRefType());
@@ -104,26 +95,22 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
                 Type refObj = call.getReferenceObject().getType();
                 if (refObj instanceof ClassType cObj) {
                     if (!cObj.hasMethod(call.getFunctionName())) {
-                        //TODO : Error - "Unknown method on %s object".formatted(cObj.getIdentifier())
-                        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_EXPRESSION, "Lol");
+                        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_METHOD, "Unknown method \"%s\" on %s object".formatted(cObj.getIdentifier()));
                     }
                     call.setType(cObj.getMethod(call.getFunctionName()).getReferenceType().getReturnType());
 
                 } else {
-                    //TODO : Error - "Cannot invoke method on %s object".formatted(cObj.getIdentifier())
-                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_EXPRESSION, "Lol");
+                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.ILLEGAL_METHOD_CALL, "Cannot invoke method on %s object".formatted(call.getReferenceObject().getType()));
                 }
             } else if (ex instanceof FieldAccess field) {
                 Type refObj = field.getEncapsulated().getType();
                 if (refObj instanceof ClassType cObj) {
                     if (!cObj.hasField(field.getFieldName())) {
-                        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_EXPRESSION, "Lol");
-                        //TODO : Error - "Unknown field on %s object".formatted(cObj.getIdentifier())
+                        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_FIELD, "Unknown field on %s object".formatted(cObj.getIdentifier()));
                     }
                     field.setType(cObj.getField(field.getFieldName()).getRefType());
                 } else {
-                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_EXPRESSION, "Lol");
-                    //TODO : Error - "Cannot access field on %s object".formatted(cObj.getIdentifier())
+                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.ILLEGAL_FIELD_REFERENCE, "Cannot access field on %s object".formatted(field.getFieldName()));
                 }
             } else if (ex instanceof ArrayAccess arrayAccess) {
                 ArrayType type = (ArrayType) arrayAccess.getEncapsulated().getType();

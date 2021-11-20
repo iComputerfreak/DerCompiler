@@ -1,9 +1,6 @@
 package de.dercompiler.pass;
 
-import de.dercompiler.ast.ClassDeclaration;
-import de.dercompiler.ast.ClassMember;
-import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.pass.passes.ASTReferencePass;
@@ -243,7 +240,10 @@ class PassPipeline {
             for (ClassMember classMember : declaration.getMembers()) {
                 if (classMember instanceof Method m) {
                     traverseMethod(m);
+                } else if (classMember instanceof MainMethod mm) {
+
                 }
+
             }
 
             for (ClassPass BUClassPass : bu_classPasses) {
@@ -251,6 +251,8 @@ class PassPipeline {
             }
             manager.setCurrentClassDeclaration(old);
         }
+
+
 
         public void traverseTree(Program program) {
             for (ClassDeclaration declaration : program.getClasses()) {

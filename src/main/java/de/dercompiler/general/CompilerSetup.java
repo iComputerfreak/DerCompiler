@@ -77,9 +77,6 @@ public class CompilerSetup {
             action.setPrint(options.prettyPrint());
             setAction(action);
         } else {
-            if (Objects.isNull(parseOption) && options.prettyPrint()) {
-                parseOption = OPTION_PRETTY_PRINT;
-            }
             if (!Objects.isNull(parseOption)) {
                 new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "Invalid argument: --'%s' only works with --parsetest".formatted(parseOption));
             }
@@ -93,7 +90,7 @@ public class CompilerSetup {
 
         if (options.check()) {
             Source src = getSourceFromArgs(options);
-            CheckAction action = new CheckAction(src);
+            CheckAction action = new CheckAction(src, options.prettyPrint());
             setAction(action);
         }
 

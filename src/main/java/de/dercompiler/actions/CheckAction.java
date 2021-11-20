@@ -11,9 +11,11 @@ public class CheckAction extends Action {
 
     private static final String ACTION_ID = "check";
     private Source source;
+    private boolean printTypeAnnotation;
 
-    public CheckAction(Source src) {
+    public CheckAction(Source src, boolean printTypeAnnotation) {
         this.source = src;
+        this.printTypeAnnotation = printTypeAnnotation;
     }
 
     public void run() {
@@ -24,6 +26,7 @@ public class CheckAction extends Action {
 
         //name-analysis passes
         manager.addPass(new InterClassAnalysisCheckPass());
+        manager.addPass(new MethodDeclarationPass());
         manager.addPass(new EnterScopePass());
         manager.addPass(new VariableAnalysisCheckPass());
         manager.addPass(new LeaveScopePass());
@@ -32,6 +35,11 @@ public class CheckAction extends Action {
         manager.addPass(new TypeAnalysisPass());
 
         manager.run(program);
+        if (this.printTypeAnnotation) {
+            TypeAnnotationPrinter typeAnnotationPrinter = new TypeAnnotationPrinter(true);
+            typeAnnotationPrinter.visitProgram(program);
+            System.out.println(typeAnnotationPrinter.flush());
+        }
     }
 
     @Override

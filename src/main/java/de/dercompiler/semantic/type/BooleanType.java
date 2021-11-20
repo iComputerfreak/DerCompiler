@@ -6,4 +6,9 @@ public class BooleanType implements Type {
     public boolean isCompatibleTo(Type other) {
         return other instanceof BooleanType;
     }
+
+    @Override
+    public String toString() {
+        return "boolean";
+    }
 }

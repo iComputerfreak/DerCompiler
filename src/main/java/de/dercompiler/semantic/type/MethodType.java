@@ -3,6 +3,7 @@ package de.dercompiler.semantic.type;
 import de.dercompiler.ast.Parameter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MethodType implements Type {
 
@@ -25,5 +26,10 @@ public class MethodType implements Type {
 
     public Type getReturnType() {
         return returnType;
+    }
+
+    @Override
+    public String toString() {
+        return "%s -> %s".formatted(parameterTypes.stream().map(t -> "\\" + t.toString() + " ").collect(Collectors.joining()), returnType);
     }
 }

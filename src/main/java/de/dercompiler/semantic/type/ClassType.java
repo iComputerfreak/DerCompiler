@@ -50,4 +50,9 @@ public final class ClassType implements ReferenceType {
     public void addField(String identifier, Field field) {
         fieldMap.put(identifier, field);
     }
+
+    @Override
+    public String toString() {
+        return identifier;
+    }
 }
