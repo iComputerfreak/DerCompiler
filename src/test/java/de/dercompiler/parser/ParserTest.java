@@ -79,7 +79,7 @@ public class ParserTest {
 
         // MainMethod
         assertSyntaxEquals(parser("public static void main(String[] args) throws Nothing {}").parseClassMember(new AnchorSet()),
-                new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "Nothing"), new BasicBlock(POS)));
+                new MainMethod(POS, POS, "main", new Parameter(POS, new Type(POS, new CustomType(POS, "String"), 1), "args"), new MethodRest(POS, "Nothing"), new BasicBlock(POS)));
 
         // Method & MethodRest & Parameter
         assertSyntaxEquals(parser("public void[] function(String[] args) throws SomeError {}").parseClassMember(new AnchorSet()),
@@ -115,7 +115,7 @@ public class ParserTest {
                         new Method(POS, new Type(POS, new CustomType(POS, "String"), 0), "foo", List.of(
                                 new Parameter(POS, BOOLEAN_TYPE, "b")
                         ), null, new BasicBlock(POS)),
-                        new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
+                        new MainMethod(POS, POS, "main", new Parameter(POS, new Type(POS, new CustomType(POS, "String"), 1), "args"), new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
                 )));
     }
 
@@ -129,7 +129,7 @@ public class ParserTest {
                                 new Method(POS, new Type(POS, new CustomType(POS, "String"), 0), "foo", List.of(
                                         new Parameter(POS, BOOLEAN_TYPE, "b")
                                 ), null, new BasicBlock(POS)),
-                                new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
+                                new MainMethod(POS, POS, "main", new Parameter(POS, new Type(POS, new CustomType(POS, "String"), 1), "args"), new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
                         )),
 
                         new ClassDeclaration(POS, "_Foo123", List.of(
@@ -137,7 +137,7 @@ public class ParserTest {
                                 new Method(POS, new Type(POS, new CustomType(POS, "String"), 0), "foo", List.of(
                                         new Parameter(POS, BOOLEAN_TYPE, "b")
                                 ), null, new BasicBlock(POS)),
-                                new MainMethod(POS, "main", new Type(POS, new CustomType(POS, "String"), 1), "args", new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
+                                new MainMethod(POS, POS, "main", new Parameter(POS, new Type(POS, new CustomType(POS, "String"), 1), "args"), new MethodRest(POS, "NullPointerException"), new BasicBlock(POS))
                         ))
                 )));
     }
@@ -151,7 +151,7 @@ public class ParserTest {
                 new Method(POS, INT_TYPE, "foo", new ArrayList<>(), null, new BasicBlock(POS, sampleStatementsResult)));
 
         assertSyntaxEquals(parser("public static void foo(int args) { " + sampleStatements + " }").parseClassMember(new AnchorSet()),
-                new MainMethod(POS,"foo", INT_TYPE, "args", null, new BasicBlock(POS, sampleStatementsResult)));
+                new MainMethod(POS, POS,"foo", new Parameter(POS, INT_TYPE, "args"), null, new BasicBlock(POS, sampleStatementsResult)));
     }
 
     @Test

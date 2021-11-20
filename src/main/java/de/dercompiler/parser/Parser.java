@@ -166,13 +166,17 @@ public class Parser {
     public ClassMember parseMainMethod(AnchorSet ank) {
         // public static void IDENT ( Type IDENT ) MethodRest? Block
         SourcePosition pos = lexer.peek().position();
+        SourcePosition voidPos;
+        SourcePosition paramPos;
         IdentifierToken name;
         Type paramType;
         IdentifierToken paramName;
         try {
+            voidPos = lexer.peek().position();
             expect(VOID_TYPE, ank, "void type of main method");
             name = expectIdentifier(ank, "identifier of main method");
             expect(L_PAREN, ank, "start of parameters of main method");
+            paramPos = lexer.peek().position();
             paramType = parseType(ank, "main method return type");
             paramName = expectIdentifier(ank, "identifier of main method parameter");
             expect(R_PAREN, ank, "end of parameters of main method");
@@ -185,7 +189,7 @@ public class Parser {
             methodRest = parseMethodRest(ank.fork(L_CURLY_BRACKET));
         }
         BasicBlock block = parseBasicBlock(ank);
-        return new MainMethod(pos, name.getIdentifier(), paramType, paramName.getIdentifier(), methodRest, block);
+        return new MainMethod(pos, voidPos, name.getIdentifier(), new Parameter(paramPos ,paramType, paramName.getIdentifier()), methodRest, block);
     }
 
     /**

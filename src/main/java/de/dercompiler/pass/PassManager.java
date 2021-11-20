@@ -60,6 +60,7 @@ public class PassManager {
     private void initializeMissingPasses() {
         HashSet<Long> ids = new HashSet<>();
         for (Pass pass : passes) {
+            //set passID if not set and increment counter because id is used
             if (pass.registerID(passIDs) == passIDs) passIDs++;
             pass.registerPassManager(this);
             ids.add(pass.getID());
@@ -71,6 +72,7 @@ public class PassManager {
             for (Pass pass : passes) {
                 List<Pass> deps = PassHelper.transform(pass.getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass);
                 for (Pass dep : deps) {
+                    //set passID if not set and increment counter because id is used
                     if (dep.registerID(passIDs) == passIDs) passIDs++;
                     dep.registerPassManager(this);
                     if (!ids.contains(dep.getID())) {
@@ -86,9 +88,6 @@ public class PassManager {
 
     private void initializePasses(Program program) {
         for (Pass pass : passes) {
-            //set passID if not set and increment counter because id is used
-            if (pass.registerID(passIDs) == passIDs) passIDs++;
-            pass.registerPassManager(this);
             pass.doInitialization(program);
         }
     }
@@ -109,6 +108,30 @@ public class PassManager {
                     .printInfo("Pipeline:\n" + baos.toString(StandardCharsets.UTF_8));
         }
         while (pipeline.traverseTreeStep(program)) {}
+    }
+
+    public List<Pass> getPassesFromUsage(Pass pass) {
+        List<Pass> next;
+        List<Pass> current;
+        final List<Pass> tmp = new LinkedList<>();
+
+        next =  PassHelper.transform(pass.getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass);
+
+        while (next.size() > 0) {
+            current = next;
+            next = new LinkedList<>();
+            for (Pass cur : current) {
+                tmp.add(cur);
+                next.addAll(PassHelper.transform(cur.getAnalysisUsage(new AnalysisUsage()).getAnalyses(), PassHelper.AnalysisUsageToPass));
+            }
+        }
+        List<Pass> result = new LinkedList<>(passes);
+        return result.stream().filter((p) -> {
+           for (Pass needed : tmp) {
+               if (needed.getID() == p.getID()) return true;
+           }
+           return false;
+        }).toList();
     }
 
     /**

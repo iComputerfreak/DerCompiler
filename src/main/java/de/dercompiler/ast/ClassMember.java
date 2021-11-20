@@ -3,10 +3,7 @@ package de.dercompiler.ast;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.StringTable;
 
-/**
- * Represents a class member, such as a field, method or main method
- */
-public abstract sealed class ClassMember extends ASTNode permits Field, Method, MainMethod, ErrorClassMember {
+public abstract sealed class ClassMember extends ASTNode permits Field, Method, ErrorClassMember {
 
     /**
      * Creates a new ClassMember
@@ -27,15 +24,8 @@ public abstract sealed class ClassMember extends ASTNode permits Field, Method, 
                     if (b instanceof Field) return -1;
                     else if (b instanceof Method mb)
                         return ma.getIdentifier().compareTo(mb.getIdentifier());
-                    else if (b instanceof MainMethod mmb) {
-                        return ma.getIdentifier().compareTo(mmb.getIdentifier());
-                    }
-                } else if (a instanceof MainMethod mma) {
-                    if (b instanceof Field) return -1;
-                    else if (b instanceof Method mb)
-                        return mma.getIdentifier().compareTo(mb.getIdentifier());
                 } else if (a instanceof Field fa) {
-                    if (b instanceof Method || b instanceof MainMethod) return 1;
+                    if (b instanceof Method) return 1;
                     else if (b instanceof Field fb) {
                         return fa.getIdentifier().compareTo(fb.getIdentifier());
                     }

@@ -5,7 +5,8 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
-import de.dercompiler.semantic.type.TypeFactory;
+
+import java.util.List;
 
 /**
  * Represents a parameter in a MiniJava program. Example:
@@ -98,5 +99,9 @@ public final class Parameter extends ASTNode implements ASTDefinition {
     @Override
     public LocalVariableDeclarationStatement getLocalVariable() {
         return null;
+    }
+
+    public List<Parameter> asList() {
+        return List.of(this);
     }
 }
