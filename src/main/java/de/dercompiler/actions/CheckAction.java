@@ -22,7 +22,7 @@ public class CheckAction extends Action {
         Lexer lexer = new Lexer(this.source);
         Program program = new Parser(lexer).parseProgram();
 
-        PassManager manager = new PassManager();
+        PassManager manager = new PassManager(lexer);
 
         //name-analysis passes
         manager.addPass(new InterClassAnalysisCheckPass());

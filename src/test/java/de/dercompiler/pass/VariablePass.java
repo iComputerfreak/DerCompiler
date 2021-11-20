@@ -46,10 +46,11 @@ public class VariablePass {
     @Test
     @DisplayName("run check 1")
     void runCheck1() {
-        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
+        Lexer lexer = Lexer.forString(testProgram);
+        Program program = new Parser(lexer).parseProgram();
         program.indexed();
 
-        PassManager manager = new PassManager();
+        PassManager manager = new PassManager(lexer);
 
         manager.addPass(new InterClassAnalysisCheckPass());
         manager.addPass(new EnterScopePass());
