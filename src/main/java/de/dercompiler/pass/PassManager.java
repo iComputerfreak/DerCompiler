@@ -8,6 +8,7 @@ import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.lexer.Lexer;
 
 import javax.print.PrintService;
 import java.io.ByteArrayOutputStream;
@@ -27,9 +28,11 @@ public class PassManager {
     private static boolean printPipeline = false;
     private List<Pass> passes;
     private PassPipeline pipeline;
+    private Lexer lexer;
 
-    public PassManager() {
+    public PassManager(Lexer lex) {
         passes = new LinkedList<>();
+        lexer = lex;
     }
 
     private void addPassAfterCheck(Pass pass) {
@@ -224,5 +227,9 @@ public class PassManager {
 
     public PassPipeline getCurrentPipeline() {
         return pipeline;
+    }
+
+    public Lexer getLexer() {
+        return lexer;
     }
 }

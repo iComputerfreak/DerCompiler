@@ -45,10 +45,11 @@ class pip { /* 1 */
     @Test
     @DisplayName("run check 1")
     void runCheck1() {
-        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
+        Lexer lexer = Lexer.forString(testProgram);
+        Program program = new Parser(lexer).parseProgram();
         program.indexed();
 
-        PassManager manager = new PassManager();
+        PassManager manager = new PassManager(lexer);
         final int[] count = {0};
         PassMockFactory.RunOnXY counter = new PassMockFactory.RunOnXY() {
             @Override
@@ -71,8 +72,9 @@ class pip { /* 1 */
     @Test
     @DisplayName("resolve DAG-1")
     void resolveDag1() {
-        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
-        PassManager manager = new PassManager();
+        Lexer lexer = Lexer.forString(testProgram);
+        Program program = new Parser(lexer).parseProgram();
+        PassManager manager = new PassManager(lexer);
 
         manager.addPass(new DAG1Passes.A_DAG1());
         manager.addPass(new DAG1Passes.B_DAG1());
@@ -99,8 +101,9 @@ class pip { /* 1 */
     @Test
     @DisplayName("build DAG1")
     void buildDAG1() {
-        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
-        PassManager manager = new PassManager();
+        Lexer lexer = Lexer.forString(testProgram);
+        Program program = new Parser(lexer).parseProgram();
+        PassManager manager = new PassManager(lexer);
 
         manager.addPass(new DAG1Passes.B_DAG1());
         manager.addPass(new DAG1Passes.E_DAG1());
@@ -122,8 +125,9 @@ class pip { /* 1 */
     @Test
     @DisplayName("resolve DAG2")
     void resolveDAG2() {
-        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
-        PassManager manager = new PassManager();
+        Lexer lexer = Lexer.forString(testProgram);
+        Program program = new Parser(lexer).parseProgram();
+        PassManager manager = new PassManager(lexer);
 
         manager.addPass(new DAG2Passes.A_DAG2());
         manager.addPass(new DAG2Passes.B_DAG2());
@@ -148,8 +152,9 @@ class pip { /* 1 */
     @Test
     @DisplayName("resolve DAG2")
     void buildDAG2() {
-        Program program = new Parser(Lexer.forString(testProgram)).parseProgram();
-        PassManager manager = new PassManager();
+        Lexer lexer = Lexer.forString(testProgram);
+        Program program = new Parser(lexer).parseProgram();
+        PassManager manager = new PassManager(lexer);
 
         manager.addPass(new DAG2Passes.G_DAG2());
 
