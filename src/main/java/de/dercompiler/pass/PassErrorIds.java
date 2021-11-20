@@ -1,5 +1,6 @@
 package de.dercompiler.pass;
 
+import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.io.message.IErrorIds;
 
 public enum PassErrorIds implements IErrorIds {
@@ -11,8 +12,9 @@ public enum PassErrorIds implements IErrorIds {
     ILLEGAL_METHOD_CALL(704),
     UNKNOWN_FIELD(705),
     ILLEGAL_FIELD_REFERENCE(706),
-    ARGUMENTS_MISMATCH(707);
-
+    ARGUMENTS_MISMATCH(707),
+    DUPLICATE_CLASS(708),
+    SPECS_VIOLATION(709), ILLEGAL_ARRAY_ACCESS(710), ILLEGAL_ASSIGNMENT(711);
     private int id;
 
     PassErrorIds(int id) {

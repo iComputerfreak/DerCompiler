@@ -11,11 +11,6 @@ public class TypeAnnotationPrinter extends PrettyPrinter {
     }
 
     @Override
-    public void visitMainMethod(MainMethod main) {
-
-    }
-
-    @Override
     public void visitBooleanValue(BooleanValue booleanValue) {
         super.visitBooleanValue(booleanValue);
         printTypeAnnotation(booleanValue);
@@ -91,7 +86,7 @@ public class TypeAnnotationPrinter extends PrettyPrinter {
 
     private void printTypeAnnotation(Expression expr) {
         append("{");
-        append(expr.getType().toString());
+        append(expr.getType() == null? "ERROR" : expr.getType().toString());
         append("}");
     }
 

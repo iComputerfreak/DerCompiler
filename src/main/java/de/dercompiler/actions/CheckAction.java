@@ -24,15 +24,18 @@ public class CheckAction extends Action {
 
         PassManager manager = new PassManager(lexer);
 
-        //name-analysis passes
+        // name-analysis passes
         manager.addPass(new InterClassAnalysisCheckPass());
         manager.addPass(new MethodDeclarationPass());
         manager.addPass(new EnterScopePass());
         manager.addPass(new VariableAnalysisCheckPass());
         manager.addPass(new LeaveScopePass());
 
-        //type-analysis passes
+        // type-analysis passes
         manager.addPass(new TypeAnalysisPass());
+
+        // specification-related passes
+        manager.addPass(new SpecificationConformityPass());
 
         manager.run(program);
         if (this.printTypeAnnotation) {

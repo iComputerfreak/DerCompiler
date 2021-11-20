@@ -1,18 +1,34 @@
 package de.dercompiler.pass.passes;
 
-import de.dercompiler.ast.Method;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents an {@link ASTExpressionVisitor} that collects references to nodes that can be assigned a type. This is to separate the traversal of the Expression trees from the actual usage of the nodes, of which there may be various different ones.
+ */
 public class ReferencesCollector implements ASTExpressionVisitor {
+
+    private final boolean collectVariables;
+    private final boolean collectFieldAccesses;
+    private final boolean collectMethodInvocations;
+    private final boolean collectArrayAccesses;
+    private final boolean collectAssignmentExpressions;
 
     private ArrayList<Expression> expressions;
 
     public ReferencesCollector() {
+        this(true, true, true, true, true);
+    }
 
+    public ReferencesCollector(boolean collectVariables, boolean collectFieldAccesses, boolean collectMethodInvocations, boolean collectArrayAccesses, boolean collectAssignmentExpressions) {
+        this.collectVariables = collectVariables;
+        this.collectFieldAccesses = collectFieldAccesses;
+        this.collectMethodInvocations = collectMethodInvocations;
+        this.collectArrayAccesses = collectArrayAccesses;
+        this.collectAssignmentExpressions = collectAssignmentExpressions;
     }
 
     public List<Expression> analyze(Expression ex) {
@@ -25,7 +41,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     public void visitArrayAccess(ArrayAccess arrayAccess) {
         arrayAccess.getEncapsulated().accept(this);
         arrayAccess.getIndex().accept(this);
-        expressions.add(arrayAccess);
+        if (collectArrayAccesses) expressions.add(arrayAccess);
     }
 
     @Override
@@ -37,6 +53,8 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
         binaryExpression.getLhs().accept(this);
         binaryExpression.getRhs().accept(this);
+        if (binaryExpression instanceof AssignmentExpression ass && collectAssignmentExpressions)
+            expressions.add(ass);
     }
 
     @Override
@@ -47,7 +65,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     @Override
     public void visitFieldAccess(FieldAccess fieldAccess) {
         fieldAccess.getEncapsulated().accept(this);
-        expressions.add(fieldAccess);
+        if (collectFieldAccesses) expressions.add(fieldAccess);
     }
 
     @Override
@@ -67,7 +85,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
         for (int i = 0; i < arguments.getLength(); i++) {
             arguments.get(i).accept(this);
         }
-        expressions.add(methodInvocation);
+        if (collectMethodInvocations) expressions.add(methodInvocation);
     }
 
     @Override
@@ -107,7 +125,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitVariable(Variable variable) {
-        expressions.add(variable);
+        if (collectVariables) expressions.add(variable);
     }
 
     @Override

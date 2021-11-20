@@ -59,39 +59,6 @@ public final class LocalVariableDeclarationStatement extends Statement implement
         astNodeVisitor.visitLocalVariableDeclarationStatement(this);
     }
 
-    @Override
-    public DefinitionType getDefinitionType() {
-        return DefinitionType.LOCAL_VARIABLE;
-    }
 
 
-    @Override
-    public boolean isParameter() {
-        return false;
-    }
-
-    @Override
-    public Parameter getParameter() {
-        return null;
-    }
-
-    @Override
-    public boolean isField() {
-        return false;
-    }
-
-    @Override
-    public Field getField() {
-        return null;
-    }
-
-    @Override
-    public boolean isLocalVariable() {
-        return true;
-    }
-
-    @Override
-    public LocalVariableDeclarationStatement getLocalVariable() {
-        return this;
-    }
 }

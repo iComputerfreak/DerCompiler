@@ -66,41 +66,6 @@ public final class Parameter extends ASTNode implements ASTDefinition {
         astNodeVisitor.visitParameter(this);
     }
 
-    @Override
-    public DefinitionType getDefinitionType() {
-        return DefinitionType.PARAMETER;
-    }
-
-    @Override
-    public boolean isParameter() {
-        return true;
-    }
-
-    @Override
-    public Parameter getParameter() {
-        return this;
-    }
-
-    @Override
-    public boolean isField() {
-        return false;
-    }
-
-    @Override
-    public Field getField() {
-        return null;
-    }
-
-    @Override
-    public boolean isLocalVariable() {
-        return false;
-    }
-
-    @Override
-    public LocalVariableDeclarationStatement getLocalVariable() {
-        return null;
-    }
-
     public List<Parameter> asList() {
         return List.of(this);
     }

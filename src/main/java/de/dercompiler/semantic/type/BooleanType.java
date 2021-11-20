@@ -4,7 +4,7 @@ public class BooleanType implements Type {
 
     @Override
     public boolean isCompatibleTo(Type other) {
-        return other instanceof BooleanType;
+        return other instanceof BooleanType || other instanceof AnyType;
     }
 
     @Override

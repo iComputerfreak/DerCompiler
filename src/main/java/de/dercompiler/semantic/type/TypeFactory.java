@@ -34,7 +34,7 @@ public class TypeFactory {
         if (basicType instanceof de.dercompiler.ast.type.BooleanType) return new BooleanType();
         else if (basicType instanceof IntType) return new IntegerType();
         else if (basicType instanceof de.dercompiler.ast.type.VoidType) return new VoidType();
-        else if (basicType instanceof CustomType customType) return globalScope.getClass(customType.getIdentifier());
+        else if (basicType instanceof CustomType customType) return create(customType);
         else {
             // TODO: Type is ErrorType, how do we react?
             return null;
@@ -47,5 +47,9 @@ public class TypeFactory {
         } else {
             return new ArrayType(create(new de.dercompiler.ast.type.Type(null, basicType, 0)));
         }
+    }
+
+    public Type create(CustomType customType) {
+        return globalScope.getClass(customType.getIdentifier());
     }
 }

@@ -15,7 +15,6 @@ import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.semantic.type.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Checks for any reference to variables whether they are defined in their scope.
@@ -26,23 +25,74 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
 
     private StringTable stringTable;
     private GlobalScope globalScope;
+    private OutputMessageHandler logger;
 
     @Override
     public void doInitialization(Program program) {
         // Get the symbol table from the Program.
         // We only need a single SymbolTable for the whole analysis, since we can differentiate between
         // Symbols for variables and symbols for methods via the StringTables.
+        this.logger = new OutputMessageHandler(MessageOrigin.PASSES);
         this.symbolTable = program.getSymbolTable();
         this.globalScope = program.getGlobalScope();
+
+        initializeString();
+    }
+
+    private void initializeString() {
+        // Set up String (not overridable)
+        globalScope.addClass(new ClassType("String"));
+        ClassType systemType = new LibraryClass("System");
+        Field systemOut1 = new Field(null, new de.dercompiler.ast.type.Type(null, new CustomType(null, "SystemOut"), 0), "out");
+        systemType.addField("out", systemOut1);
+
+        Field systemIn1 = new Field(null, new de.dercompiler.ast.type.Type(null, new CustomType(null, "SystemIn"), 0), "in");
+        systemType.addField("in", systemIn1);
+        globalScope.addClass(systemType);
+
+        ClassType systemOut = new LibraryClass("SystemOut");
+        ClassType systemIn = new LibraryClass("SystemIn");
+
+        Method println = new Method(null, null, "println", null, null, null);
+        println.setReferenceType(new MethodType(new VoidType(), List.of(new AnyType())));
+        systemOut.addMethod("println", println);
+
+        Method write = new Method(null, null, "write", null, null, null);
+        write.setReferenceType(new MethodType(new VoidType(), List.of(new AnyType())));
+        systemOut.addMethod("write", write);
+
+        Method flush = new Method(null, null, "flush", null, null, null);
+        flush.setReferenceType(new MethodType(new VoidType(), List.of()));
+        systemOut.addMethod("flush", flush);
+
+        Method read = new Method(null, new de.dercompiler.ast.type.Type(null, new CustomType(null,"String"), 0), "read", null, null, null);
+        read.setReferenceType(new MethodType(new AnyType(), List.of()));
+        systemIn.addMethod("read", read);
+
+        globalScope.addClass(systemOut);
+        globalScope.addClass(systemIn);
+    }
+
+    private void initializeSystemOut() {
+        // Set up System.out (overridable)
+        Symbol systemSymbol = stringTable.findOrInsert("System");
+        ASTDefinition systemDef = new GlobalConstant("System");
+
+
+        symbolTable.insert(systemSymbol, systemDef);
     }
 
     @Override
     public void doFinalization(Program program) {
     }
 
+
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
         stringTable = new StringTable();
+
+        // Do not add the object 'System' if there is a custom class System present
+        if (globalScope.getClass("System") instanceof LibraryClass) initializeSystemOut();
 
         for (ClassMember classMember : classDeclaration.getMembers()) {
             if (classMember instanceof Field field) {
@@ -87,7 +137,8 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
         for (Expression ex : references) {
             if (ex instanceof Variable variable) {
                 if (!stringTable.contains(variable.getName())) {
-                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNDEFINED_VARIABLE, "Variable %s is unknown".formatted(variable.getName()));
+                    failVariableAnalysis(PassErrorIds.UNDEFINED_VARIABLE, "Variable %s is unknown".formatted(variable.getName()), variable);
+                    continue;
                 }
                 variable.setDefinition(stringTable.findOrInsert(variable.getName()).getCurrentDef());
                 variable.setType(variable.getDefinition().getRefType());
@@ -95,34 +146,55 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
                 Type refObj = call.getReferenceObject().getType();
                 if (refObj instanceof ClassType cObj) {
                     if (!cObj.hasMethod(call.getFunctionName())) {
-                        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_METHOD, "Unknown method \"%s\" on %s object".formatted(cObj.getIdentifier()));
+                        failVariableAnalysis(PassErrorIds.UNKNOWN_METHOD, "Unknown method \'%s\' of %s object".formatted(cObj.getIdentifier()), call);
+                        continue;
                     }
                     call.setType(cObj.getMethod(call.getFunctionName()).getReferenceType().getReturnType());
 
                 } else {
-                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.ILLEGAL_METHOD_CALL, "Cannot invoke method on %s object".formatted(call.getReferenceObject().getType()));
+                    failVariableAnalysis(PassErrorIds.ILLEGAL_METHOD_CALL, "Cannot invoke method on %s object".formatted(call.getReferenceObject().getType()), ex);
+                    continue;
                 }
             } else if (ex instanceof FieldAccess field) {
-                Type refObj = field.getEncapsulated().getType();
-                if (refObj instanceof ClassType cObj) {
+                Type refType = field.getEncapsulated().getType();
+                if (refType instanceof ClassType cObj) {
                     if (!cObj.hasField(field.getFieldName())) {
-                        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_FIELD, "Unknown field on %s object".formatted(cObj.getIdentifier()));
+                        failVariableAnalysis(PassErrorIds.UNKNOWN_FIELD, "Unknown field \'%s\' of %s object".formatted(field.getFieldName(), cObj.getIdentifier()), field);
+                        continue;
                     }
                     field.setType(cObj.getField(field.getFieldName()).getRefType());
                 } else {
-                    new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.ILLEGAL_FIELD_REFERENCE, "Cannot access field on %s object".formatted(field.getFieldName()));
+                    failVariableAnalysis(PassErrorIds.ILLEGAL_FIELD_REFERENCE, "Cannot access field on %s object".formatted(field.getFieldName()), field);
+                    continue;
                 }
             } else if (ex instanceof ArrayAccess arrayAccess) {
-                ArrayType type = (ArrayType) arrayAccess.getEncapsulated().getType();
-                arrayAccess.setType(type.getElementType());
+                Type innerType = arrayAccess.getEncapsulated().getType();
+                if (innerType instanceof ArrayType type) {
+                    arrayAccess.setType(type.getElementType());
+                } else {
+                    failVariableAnalysis(PassErrorIds.ILLEGAL_ARRAY_ACCESS, "Illegal array access on non-array object", arrayAccess);
+                }
             } else if (ex instanceof ThisValue) {
                 ClassDeclaration classDeclaration = getPassManager().getCurrentClass();
                 ClassType type = globalScope.getClass(classDeclaration.getIdentifier());
+                ex.setType(type);
+            } else if (ex instanceof NewArrayExpression newArray) {
+                newArray.setType(TypeFactory.getInstance().createArrayType(newArray.getBasicType(), newArray.getDimension()));
+            } else if (ex instanceof NewObjectExpression newObject) {
+                newObject.setType(TypeFactory.getInstance().create(newObject.getObjectType()));
+            } else if (ex instanceof AssignmentExpression ass) {
+                Type type = ass.getRhs().getType();
+                if (type == null) type = ass.getLhs().getType();
                 ex.setType(type);
             }
         }
 
         return false;
+    }
+
+    private void failVariableAnalysis(PassErrorIds errorId, String msg, ASTNode node) {
+        System.err.println(getPassManager().getLexer().printSourceText(node.getSourcePosition()));
+        logger.printErrorAndExit(errorId, msg);
     }
 
     private void insert(String identifier, ASTDefinition definition) {

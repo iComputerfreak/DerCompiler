@@ -58,39 +58,4 @@ public final class Field extends ClassMember implements ASTDefinition {
         astNodeVisitor.visitField(this);
     }
 
-    @Override
-    public DefinitionType getDefinitionType() {
-        return DefinitionType.FIELD;
-    }
-
-
-    @Override
-    public boolean isParameter() {
-        return false;
-    }
-
-    @Override
-    public Parameter getParameter() {
-        return null;
-    }
-
-    @Override
-    public boolean isField() {
-        return true;
-    }
-
-    @Override
-    public Field getField() {
-        return this;
-    }
-
-    @Override
-    public boolean isLocalVariable() {
-        return false;
-    }
-
-    @Override
-    public LocalVariableDeclarationStatement getLocalVariable() {
-        return null;
-    }
 }

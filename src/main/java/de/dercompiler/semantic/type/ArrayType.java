@@ -13,7 +13,8 @@ public final class ArrayType implements ReferenceType {
 
     @Override
     public boolean isCompatibleTo(Type other) {
-        return other instanceof ArrayType array && this.elementType.isCompatibleTo(array.elementType);
+        return other instanceof ArrayType array && this.elementType.isCompatibleTo(array.elementType)
+                || other instanceof NullType || other instanceof AnyType;
     }
 
 

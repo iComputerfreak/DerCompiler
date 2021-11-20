@@ -784,6 +784,7 @@ public class Parser {
         IdentifierToken ident;
         try {
             expect(DOT, ank, "'.' of field access");
+            pos = wlexer.position();
             ident = expectIdentifier(ank, "field identifier");
         } catch (ExpectedTokenError e) {
             return new ErrorExpression(pos);
@@ -793,15 +794,16 @@ public class Parser {
 
     public Expression parseArrayAccess(AnchorSet ank, Expression expression) {
         SourcePosition pos = wlexer.position();
-        Expression arrayPosition;
+        Expression arrayIndex;
         try {
             expect(L_SQUARE_BRACKET, ank, "'[' of array access expression");
-            arrayPosition = parseExpression(ank.fork(R_SQUARE_BRACKET));
+            pos = wlexer.position();
+            arrayIndex = parseExpression(ank.fork(R_SQUARE_BRACKET));
             expect(R_SQUARE_BRACKET, ank, "']' of array access expression");
         } catch (ExpectedTokenError e) {
             return new ErrorExpression(pos);
         }
-        return new ArrayAccess(pos, expression, arrayPosition);
+        return new ArrayAccess(pos, expression, arrayIndex);
     }
 
     private boolean isExpression(IToken token) {

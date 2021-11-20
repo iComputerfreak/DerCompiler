@@ -8,7 +8,7 @@ public class IntegerType implements Type{
 
     @Override
     public boolean isCompatibleTo(Type other) {
-        return other instanceof IntegerType;
+        return other instanceof IntegerType || other instanceof AnyType;
     }
 
     @Override

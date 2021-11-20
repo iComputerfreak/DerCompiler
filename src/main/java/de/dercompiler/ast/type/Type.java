@@ -51,4 +51,9 @@ public final class Type extends ASTNode {
     public void accept(ASTNodeVisitor astNodeVisitor) {
         astNodeVisitor.visitType(this);
     }
+
+    @Override
+    public String toString() {
+        return basicType.toString() +"[]".repeat(arrayDimension);
+    }
 }

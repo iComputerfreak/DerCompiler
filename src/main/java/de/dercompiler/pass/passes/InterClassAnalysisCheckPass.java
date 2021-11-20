@@ -1,12 +1,12 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.*;
-import de.dercompiler.pass.AnalysisDirection;
-import de.dercompiler.pass.AnalysisUsage;
-import de.dercompiler.pass.ClassPass;
-import de.dercompiler.pass.PassManager;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.semantic.type.LibraryClass;
 
 import java.util.HashMap;
 
@@ -17,14 +17,18 @@ public class InterClassAnalysisCheckPass implements ClassPass {
 
 
     private GlobalScope globalScope;
+    private OutputMessageHandler logger;
+
 
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
-        if (globalScope.hasClass(classDeclaration.getIdentifier())) {
-            //Error, da Klasse mit gleichem Namen schon vorhanden
+        String className = classDeclaration.getIdentifier();
+        if (globalScope.hasClass(className) && !(globalScope.getClass(className) instanceof LibraryClass)) {
+            logger.printErrorAndExit(PassErrorIds.DUPLICATE_CLASS, "Class definition of %s may not be overridden.".formatted(className));
         }
 
-        ClassType newClass = new ClassType(classDeclaration.getIdentifier());
+        ClassType newClass = new ClassType(className);
+        newClass.setDecl(classDeclaration);
 
         for (ClassMember classMember : classDeclaration.getMembers()) {
             if (classMember instanceof Method method) {
@@ -48,6 +52,7 @@ public class InterClassAnalysisCheckPass implements ClassPass {
     @Override
     public void doInitialization(Program program) {
         globalScope = program.getGlobalScope();
+         logger = new OutputMessageHandler(MessageOrigin.PASSES);
     }
 
     @Override

@@ -21,7 +21,7 @@ public abstract class ASTNode {
     /**
      * Checks, whether the given node and this node are syntactically equal
      * @param other The other ASTNode
-     * @return Whether the node are syntactically equal
+     * @return true if the nodes are syntactically equal
      */
     public boolean syntaxEquals(ASTNode other) {
         return other != null;

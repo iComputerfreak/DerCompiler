@@ -355,7 +355,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitNullValue(NullValue nullValue) {
-
+        sb.append("null");
     }
 
     public void visitMethodInvocation(MethodInvocationOnObject invocation) {

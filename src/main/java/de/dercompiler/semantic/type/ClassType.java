@@ -1,16 +1,19 @@
 package de.dercompiler.semantic.type;
 
+import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Field;
 import de.dercompiler.ast.Method;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ClassType implements ReferenceType {
+public sealed class ClassType implements ReferenceType permits LibraryClass {
 
     private String identifier;
     private Map<String, Field> fieldMap;
     private Map<String, Method> methodMap;
+
+    private ClassDeclaration decl;
 
     public ClassType(String identifier) {
         this.identifier = identifier;
@@ -24,7 +27,7 @@ public final class ClassType implements ReferenceType {
 
     @Override
     public boolean isCompatibleTo(Type other) {
-        return this == other;
+        return this == other || other instanceof NullType || other instanceof AnyType;
     }
 
     public Method getMethod(String methodName) {
@@ -49,6 +52,15 @@ public final class ClassType implements ReferenceType {
 
     public void addField(String identifier, Field field) {
         fieldMap.put(identifier, field);
+    }
+
+
+    public ClassDeclaration getDecl() {
+        return decl;
+    }
+
+    public void setDecl(ClassDeclaration decl) {
+        this.decl = decl;
     }
 
     @Override

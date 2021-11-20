@@ -14,7 +14,6 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.type.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpressionVisitor {
 
@@ -87,7 +86,13 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     }
 
     private void failTypeCheck(Expression expr, String description) {
-        logger.printErrorAndExit(PassErrorIds.TYPE_MISMATCH, "Illegal type " + expr.getType() + " for " + description);
+        failTypeCheck(expr, description, "Illegal type " + expr.getType());
+    }
+
+
+    private void failTypeCheck(Expression expr, String locationDescription, String errorDescription) {
+        System.err.println(getPassManager().getLexer().printSourceText(expr.getSourcePosition()));
+        logger.printErrorAndExit(PassErrorIds.TYPE_MISMATCH, errorDescription + " for " + locationDescription);
     }
 
     private void assertTypeEqual(Expression lhs, Expression rhs, String description) {
@@ -140,7 +145,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
         ArrayType arrayType = (ArrayType) arrayExpr.getType();
 
-        if (!(arrayAccess.getType() instanceof IntegerType index)) {
+        if (!(indexExpr.getType() instanceof IntegerType index)) {
             failTypeCheck(indexExpr, "index expression");
         }
 
@@ -162,8 +167,12 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         rhs.accept(this);
         switch (binaryExpression.getOperator()) {
             case ASSIGN:
+                if (!(lhs instanceof Variable || lhs instanceof FieldAccess || lhs instanceof ArrayAccess)) {
+                    failTypeCheck(lhs, "assignee".formatted(lhs.getClass().getName()));
+                }
                 assertTypeEqual(lhs, rhs, "assignment");
-                binaryExpression.setType(rhs.getType());
+                Type assType = lhs.getType(); // rhs might be null which would invalidate method and field calls
+                binaryExpression.setType(assType);
                 break;
 
             case AND_LAZY, OR_LAZY:
@@ -248,12 +257,13 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
         ClassType type = assertCustomBasicType(refObj, "reference object of method invocation");
 
+        if (type == null) return;
+
         Method method = globalScope.getMethod(type.getIdentifier(), methodInvocation.getFunctionName());
         MethodType methodType = method.getReferenceType();
 
         methodInvocation.setType(methodType.getReturnType());
 
-        List<Type> parameterTypes = method.getParameters().stream().map(Parameter::getRefType).collect(Collectors.toList());
         Arguments arguments = methodInvocation.getArguments();
         arguments.setExpectedTypes(methodType.getParameterTypes());
         this.visitArguments(arguments);
@@ -263,7 +273,6 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     @Override
     public void visitNegativeExpression(NegativeExpression negativeExpression) {
         Expression expr = negativeExpression.getEncapsulated();
-        SourcePosition pos = negativeExpression.getSourcePosition();
 
         expr.accept(this);
         assertTypeEquals(expr, new IntegerType(), "integer operation");
@@ -274,7 +283,6 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     @Override
     public void visitNewArrayExpression(NewArrayExpression newArrayExpression) {
         Expression dimExpr = newArrayExpression.getSize();
-        SourcePosition pos = newArrayExpression.getSourcePosition();
 
         dimExpr.accept(this);
         assertTypeEquals(dimExpr, new IntegerType(), "dimension expression");
@@ -307,6 +315,9 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public void visitThisValue(ThisValue thisValue) {
+        if (getPassManager().getCurrentMethod().isStatic()) {
+            failTypeCheck(thisValue, "static method", "Illegal access to 'this'");
+        }
         ClassDeclaration classDecl = getPassManager().getCurrentClass();
         ClassType classType = globalScope.getClass(classDecl.getIdentifier());
         thisValue.setType(classType);
@@ -326,24 +337,23 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public void visitVoidExpression(VoidExpression voidExpression) {
-        SourcePosition pos = voidExpression.getSourcePosition();
         voidExpression.setType(new VoidType());
     }
 
     public void visitArguments(Arguments arguments) {
         List<Type> expectedTypes = arguments.getExpectedTypes();
 
-        ASTNode expr;
+        // Maybe for later: SourcePosition of Error
+        ASTNode node;
         switch (Integer.signum(arguments.getLength() - expectedTypes.size())) {
             case 1:
-                expr = arguments.get(expectedTypes.size());
-                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too many arguments");
+                node = arguments.get(expectedTypes.size());
+                logger.printErrorAndContinue(PassErrorIds.ARGUMENTS_MISMATCH, "Too many arguments");
                 break;
             case -1:
-                // Maybe for later: SourcePosition of Error
                 int index = arguments.getLength() - 1;
-                expr = index >= 0 ? arguments.get(index) : arguments;
-                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too few arguments");
+                node = index >= 0 ? arguments.get(index) : arguments;
+                logger.printErrorAndContinue(PassErrorIds.ARGUMENTS_MISMATCH, "Too few arguments");
                 break;
         }
 
@@ -372,8 +382,10 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         Expression expr = decl.getExpression();
         expr.accept(this);
 
-        Type expectedType = decl.getRefType();
-        assertTypeEquals(expr, expectedType, "assignment to new %s variable".formatted(expectedType));
+        if (!(expr instanceof UninitializedValue)) {
+            Type expectedType = decl.getRefType();
+            assertTypeEquals(expr, expectedType, "assignment to new %s variable".formatted(expectedType));
+        }
     }
 
     public void visitReturnStatement(ReturnStatement returnStatement) {
