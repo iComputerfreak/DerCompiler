@@ -7,6 +7,7 @@ import de.dercompiler.lexer.token.OperatorToken;
 import java.util.Objects;
 
 import static de.dercompiler.lexer.token.OperatorToken.LESS_THAN;
+import static de.dercompiler.lexer.token.OperatorToken.LESS_THAN_EQUAL;
 
 public final class LessEqualExpression extends BinaryExpression {
     public LessEqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
@@ -15,7 +16,7 @@ public final class LessEqualExpression extends BinaryExpression {
 
     @Override
     public OperatorToken getOperator() {
-        return LESS_THAN;
+        return LESS_THAN_EQUAL;
     }
 
     @Override

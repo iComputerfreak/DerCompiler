@@ -1,0 +1,13 @@
+class Foo {
+	public int a;
+	
+	public void test() {
+		a = true;
+	}
+}
+
+class Main {
+    public static void main(String[] args) {
+		
+    }
+}

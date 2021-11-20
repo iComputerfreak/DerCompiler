@@ -29,7 +29,7 @@ class pip { /* 1 */
     @BeforeAll
     static void setup() {
         OutputMessageHandler.setDebug();
-        PassManager.setPrintPipeline(true);
+        PassManager.setPrintPipeline(false);
     }
 
     @AfterEach
