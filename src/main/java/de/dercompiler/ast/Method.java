@@ -8,7 +8,7 @@ import de.dercompiler.util.Utils;
 
 import java.util.List;
 
-public final class Method extends ClassMember {
+public sealed class Method extends ClassMember permits MainMethod {
 
     private final Type type;
     private final String identifier;
@@ -26,6 +26,8 @@ public final class Method extends ClassMember {
         this.methodRest = methodRest;
         this.block = block;
     }
+
+    public boolean isStatic() { return false; }
 
     public Type getType() {
         return type;
@@ -47,21 +49,26 @@ public final class Method extends ClassMember {
         return block;
     }
 
+    protected boolean internalEquals(Method otherMethod) {
+        if (this.methodRest == null && otherMethod.methodRest != null) {
+            return false;
+        }
+        // If this rest is not null, both rests must have equal syntax
+        if (this.methodRest != null && !this.methodRest.syntaxEquals(otherMethod.methodRest)) {
+            return false;
+        }
+        return this.type.syntaxEquals(otherMethod.type)
+                && this.identifier.equals(otherMethod.identifier)
+                && Utils.syntaxEquals(this.parameters, otherMethod.parameters)
+                && this.block.syntaxEquals(otherMethod.block);
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (other instanceof Method otherMethod) {
+            if (otherMethod instanceof MainMethod) return false;
             // If this rest is null, but the other is not, return false
-            if (this.methodRest == null && otherMethod.methodRest != null) {
-                return false;
-            }
-            // If this rest is not null, both rests must have equal syntax
-            if (this.methodRest != null && !this.methodRest.syntaxEquals(otherMethod.methodRest)) {
-                return false;
-            }
-            return this.type.syntaxEquals(otherMethod.type)
-                    && this.identifier.equals(otherMethod.identifier)
-                    && Utils.syntaxEquals(this.parameters, otherMethod.parameters)
-                    && this.block.syntaxEquals(otherMethod.block);
+            return internalEquals(otherMethod);
         }
         return false;
     }

@@ -86,11 +86,16 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append(main.getIdentifier());
 
         sb.append("(");
-        main.getParameterType().accept(this);
-        sb.append(" ");
-        sb.append(main.getParameterName());
-
+        int paramCount = main.getParameters().size();
+        for (int i = 0; i < paramCount - 1; i++) {
+            main.getParameters().get(i).accept(this);
+            sb.append(", ");
+        }
+        if (paramCount > 0) {
+            visitParameter(main.getParameters().get(paramCount - 1));
+        }
         sb.append(") ");
+
         visitMethodRest(main.getMethodRest());
         main.getBlock().accept(this);
 
@@ -128,7 +133,6 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append(" ");
         sb.append(m.getIdentifier());
         sb.append("(");
-
         int paramCount = m.getParameters().size();
         for (int i = 0; i < paramCount - 1; i++) {
             m.getParameters().get(i).accept(this);

@@ -1,9 +1,6 @@
 package de.dercompiler.pass;
 
-import de.dercompiler.ast.ClassDeclaration;
-import de.dercompiler.ast.ClassMember;
-import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.pass.passes.ASTReferencePass;
@@ -92,35 +89,35 @@ class PassPipeline {
         public void printStep(PrintStream stream) {
             stream.println("  TopDown:");
             for (Pass pass : td_classPasses) {
-                printPass(stream, "    ", pass.getClass().getName());
+                printPass(stream, "C - ", pass.getClass().getName());
             }
             for (Pass pass : td_methodPasses) {
-                printPass(stream, "      ", pass.getClass().getName());
+                printPass(stream, "M --- ", pass.getClass().getName());
             }
             for (Pass pass : td_basicBlockPasses) {
-                printPass(stream, "        ", pass.getClass().getName());
+                printPass(stream, "B ----- ", pass.getClass().getName());
             }
             for (Pass pass : td_statementPasses) {
-                printPass(stream, "          ", pass.getClass().getName());
+                printPass(stream, "S ------- ", pass.getClass().getName());
             }
             for (Pass pass : td_expressionPasses) {
-                printPass(stream, "            ", pass.getClass().getName());
+                printPass(stream, "E --------- ", pass.getClass().getName());
             }
             stream.println("  BottomUp:");
             for (Pass pass : bu_expressionPasses) {
-                printPass(stream, "            ", pass.getClass().getName());
+                printPass(stream, "E --------- ", pass.getClass().getName());
             }
             for (Pass pass : bu_statementPasses) {
-                printPass(stream, "          ", pass.getClass().getName());
+                printPass(stream, "S ------- ", pass.getClass().getName());
             }
             for (Pass pass : bu_basicBlockPasses) {
-                printPass(stream, "        ", pass.getClass().getName());
+                printPass(stream, "B ----- ", pass.getClass().getName());
             }
             for (Pass pass : bu_methodPasses) {
-                printPass(stream, "      ", pass.getClass().getName());
+                printPass(stream, "M --- ", pass.getClass().getName());
             }
             for (Pass pass : bu_classPasses) {
-                printPass(stream, "    ", pass.getClass().getName());
+                printPass(stream, "C - ", pass.getClass().getName());
             }
         }
 

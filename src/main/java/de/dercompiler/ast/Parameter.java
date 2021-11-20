@@ -4,6 +4,10 @@ import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.LinkedList;
+
 public final class Parameter extends ASTNode {
 
     private final Type type;
@@ -30,6 +34,10 @@ public final class Parameter extends ASTNode {
                     && this.identifier.equals(otherParam.identifier);
         }
         return false;
+    }
+
+    public List<Parameter> asList() {
+        return List.of(this);
     }
 
     @Override
