@@ -16,6 +16,26 @@ public class TypeAnnotationPrinter extends PrettyPrinter {
     }
 
     @Override
+    public void visitBooleanValue(BooleanValue booleanValue) {
+        super.visitBooleanValue(booleanValue);
+        printTypeAnnotation(booleanValue);
+    }
+
+    @Override
+    public void visitArguments(Arguments args) {
+        for (int i = 0; i < args.getLength() - 1; i++) {
+            args.get(i).accept(this);
+            printTypeAnnotation(args.get(i));
+            append(", ");
+
+        }
+        if (args.getLength() > 0) {
+            args.get(args.getLength() - 1).accept(this);
+            printTypeAnnotation(args.get(args.getLength() - 1));
+        }
+    }
+
+    @Override
     public void visitIntegerValue(IntegerValue integerValue) {
         super.visitIntegerValue(integerValue);
         printTypeAnnotation(integerValue);
