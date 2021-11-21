@@ -27,9 +27,9 @@ public class CommandLineBuilder {
 
         // options
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_POSITION, false, DESCRIPTION_PRINT_POSITION));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_METHOD, false, ""));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_STATEMENT, false, ""));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_EXPRESSION, false, ""));
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_METHOD, false, DESCRIPTION_PARSE_METHOD));
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_STATEMENT, false, DESCRIPTION_PARSE_STATEMENT));
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_EXPRESSION, false, DESCRIPTION_PARSE_EXPRESSION));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRETTY_PRINT, false, DESCRIPTION_PRETTY_PRINT));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_PIPELINE, false, DESCRIPTION_PRINT_PIPELINE));
 

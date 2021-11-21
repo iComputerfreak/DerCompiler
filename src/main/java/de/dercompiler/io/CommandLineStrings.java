@@ -59,6 +59,10 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_STACKTRACE = "Prints the stacktrace of the error or warning if available";
     public static final String DESCRIPTION_WARNINGS_AS_ERRORS = "All warnings are treated as errors";
 
+    public static final String DESCRIPTION_PARSE_METHOD = "(--parseTest) Starts to parse at Method level instead of Program level";
+    public static final String DESCRIPTION_PARSE_STATEMENT = "(--parseTest) Starts to parse at Statement level instead of Program level";
+    public static final String DESCRIPTION_PARSE_EXPRESSION = "(--parseTest) Starts to parse at Expression level instead of Program level";
+
     public static final String DESCRIPTION_PRINT_NO_COLOR = "No color output";
     public static final String DESCRIPTION_PRINT_ANSI_COLOR = "Classic 16-bit color output";
     public static final String DESCRIPTION_PRINT_8BIT_COLOR = "8-bit color output";
