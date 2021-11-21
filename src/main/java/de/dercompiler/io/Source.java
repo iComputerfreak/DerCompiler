@@ -1,6 +1,8 @@
 package de.dercompiler.io;
 
 import java.io.*;
+import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.lexer.LexerErrorIds;
 
 public abstract class Source {
 
@@ -41,7 +43,8 @@ class FileSource extends Source {
             if (isOpen()) reader.close();
             reader = new BufferedReader(new FileReader(file));
         } catch (IOException e) {
-            e.printStackTrace();
+            (new OutputMessageHandler(MessageOrigin.LEXER)).printErrorAndExit(LexerErrorIds.FILE_NOT_FOUND, 
+                    "The file does not exist or is not readable", e);
         }
         return reader;
     }

@@ -10,7 +10,8 @@ public enum LexerErrorIds implements IErrorIds {
     UNKNOWN_SYMBOL(204),
     INVALID_INTEGER_LITERAL(205),
     UNCLOSED_COMMENT(206),
-    INVALID_IDENTIFIER(208);
+    INVALID_IDENTIFIER(208),
+    FILE_NOT_FOUND(209);
 
     private int id;
 
