@@ -111,11 +111,11 @@ class PassPipeline {
                 }
             } else {
                 if (pass instanceof ClassPass cp) {
-                    bu_classPasses.addFirst(cp);
+                    bu_classPasses.addLast(cp);
                     updateDepth(DEPTH.CLASS);
                 }
                 if (pass instanceof MethodPass mp) {
-                    bu_methodPasses.addFirst(mp);
+                    bu_methodPasses.addLast(mp);
                     updateDepth(DEPTH.METHOD);
                 }
                 if (pass instanceof BasicBlockPass bbp) {
@@ -123,11 +123,11 @@ class PassPipeline {
                     updateDepth(DEPTH.BASICBLOCK);
                 }
                 if (pass instanceof StatementPass sp) {
-                    bu_statementPasses.addFirst(sp);
+                    bu_statementPasses.addLast(sp);
                     updateDepth(DEPTH.STATEMENT);
                 }
                 if (pass instanceof ExpressionPass ep) {
-                    bu_expressionPasses.addFirst(ep);
+                    bu_expressionPasses.addLast(ep);
                     updateDepth(DEPTH.EXPRESSION);
                 }
             }
