@@ -2,6 +2,7 @@ package de.dercompiler.io;
 
 import java.io.*;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.lexer.Lexer;
 import de.dercompiler.lexer.LexerErrorIds;
 
 public abstract class Source {
@@ -86,7 +87,8 @@ class StringSource extends Source {
             try {
                 reader.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                new OutputMessageHandler(MessageOrigin.LEXER)
+                        .printErrorAndExit(LexerErrorIds.STRING_NOT_READABLE, "The command-line string couln't be used as Reader: ", e);
             }
         }
         reader = new BufferedReader(new StringReader(this.input));
