@@ -13,6 +13,11 @@ public abstract class Source {
      */
     public abstract BufferedReader getNewReader();
 
+    /**
+     * @return a new OutputStream for the Source.
+     */
+    public abstract InputStream getNewStream();
+
     public static Source forFile(File file) {
         return new FileSource(file);
     }
@@ -50,6 +55,18 @@ class FileSource extends Source {
     }
 
     @Override
+    public InputStream getNewStream() {
+        try {
+            return new BufferedInputStream(new FileInputStream(file));
+        } catch (IOException e) {
+            (new OutputMessageHandler(MessageOrigin.LEXER)).printErrorAndExit(LexerErrorIds.FILE_NOT_FOUND,
+                    "The file does not exist or is not readable", e);
+            //we never return
+            return null;
+        }
+    }
+
+    @Override
     public String toString() {
         return file.getName();
     }
@@ -74,6 +91,11 @@ class StringSource extends Source {
         }
         reader = new BufferedReader(new StringReader(this.input));
         return reader;
+    }
+
+    @Override
+    public InputStream getNewStream() {
+        return new BufferedInputStream(new ByteArrayInputStream(input.getBytes()));
     }
 
     @Override
