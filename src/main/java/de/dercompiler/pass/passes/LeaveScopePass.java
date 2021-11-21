@@ -41,7 +41,7 @@ public class LeaveScopePass implements ClassPass, MethodPass, BasicBlockPass {
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        usage.requireAnalysis(VariableAnalysisCheckPass.class);
+        usage.requireAnalysis(TypeAnalysisPass.class);
         usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }

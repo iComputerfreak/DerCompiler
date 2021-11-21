@@ -79,7 +79,7 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
                 && findReturnStatement(ifElse.getElseStatement())) return true;
         else if (stmt instanceof BasicBlock block
                 && block.getStatements().stream().map(this::findReturnStatement)
-                .reduce(false, (acc, b) -> acc || b).booleanValue()) return true;
+                .reduce(false, (acc, b) -> acc || b)) return true;
         else return false;
     }
 
@@ -123,8 +123,8 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        usage.needsAnalysis(TypeAnalysisPass.class);
-        usage.setDependency(DependencyType.RUN_IN_NEXT_STEP);
+        usage.requireAnalysis(LeaveScopePass.class);
+        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 
@@ -157,7 +157,7 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        return AnalysisDirection.TOP_DOWN;
+        return AnalysisDirection.BOTTOM_UP;
     }
 
 }
