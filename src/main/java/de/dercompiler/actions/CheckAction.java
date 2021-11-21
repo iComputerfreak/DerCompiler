@@ -6,6 +6,7 @@ import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
+import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.pass.passes.*;
 
 public class CheckAction extends Action {
@@ -28,21 +29,9 @@ public class CheckAction extends Action {
         }
 
         PassManager manager = new PassManager(lexer);
-
-        // name-analysis passes
-        manager.addPass(new InterClassAnalysisCheckPass());
-        manager.addPass(new MethodDeclarationPass());
-        manager.addPass(new EnterScopePass());
-        manager.addPass(new VariableAnalysisCheckPass());
-        manager.addPass(new LeaveScopePass());
-
-        // type-analysis passes
-        manager.addPass(new TypeAnalysisPass());
-
-        // specification-related passes
-        manager.addPass(new SpecificationConformityPass());
-
+        PassManagerBuilder.buildSemanticsPipeline(manager);
         manager.run(program);
+
         if (this.printTypeAnnotation) {
             TypeAnnotationPrinter typeAnnotationPrinter = new TypeAnnotationPrinter(true);
             typeAnnotationPrinter.visitProgram(program);

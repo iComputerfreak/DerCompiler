@@ -1,10 +1,18 @@
 package de.dercompiler.actions;
 
+import de.dercompiler.ast.Program;
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.general.GeneralWarningIds;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.lexer.Lexer;
+import de.dercompiler.parser.Parser;
+import de.dercompiler.pass.PassManager;
+import de.dercompiler.pass.PassManagerBuilder;
+import de.dercompiler.pass.passes.*;
+import de.dercompiler.util.ErrorStatus;
 
 import java.io.File;
 
@@ -16,28 +24,33 @@ public class CompileAction extends Action {
     private static final String compilerName = "DerCompiler";
     
     // The input file containing the source code to compile
-    private final File input;
+    private final Source source;
 
     /**
      * Creates a new CompileAction with the given source code file
-     * @param input The file containing the MiniJava source code
+     * @param source The Source containing the MiniJava source code
      */
-    public CompileAction(File input) {
-        this.input = input;
+    public CompileAction(Source source) {
+        this.source = source;
     }
 
     public void run() {
-        new OutputMessageHandler(MessageOrigin.GENERAL)
-            .printInfo("Compiler not Implemented YET!");
-        for (MessageOrigin origin : MessageOrigin.values()) {
-            new OutputMessageHandler(origin)
-                    .printInfo(origin.name());
-        }
-        System.out.println();
-        new OutputMessageHandler(MessageOrigin.GENERAL)
-                .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, "warning");
-        new OutputMessageHandler(MessageOrigin.GENERAL)
-                .printErrorAndContinue(GeneralErrorIds.INVALID_COMMAND_LINE_ARGUMENTS, "error");
+        //Step 1: build AST
+        Lexer lexer = new Lexer(source);
+        Parser parser = new Parser(lexer);
+        Program program = parser.parseProgram();
+
+        ErrorStatus.exitProgramIfError();
+
+        //Step 2: check AST
+        PassManager manager = new PassManager(lexer);
+        PassManagerBuilder.buildSemanticsPipeline(manager);
+        manager.run(program);
+
+        ErrorStatus.exitProgramIfError();
+
+        //Step 3: Transformation
+
     }
 
     public void help() {

@@ -95,8 +95,8 @@ public class CompilerSetup {
         }
 
         if (Objects.isNull(action)) {
-            File input = options.getFileArgument();
-            action = new CompileAction(input);
+            Source src = getSourceFromArgs(options);
+            action = new CompileAction(src);
         }
 
 

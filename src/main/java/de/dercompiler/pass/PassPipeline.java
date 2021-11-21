@@ -3,6 +3,8 @@ package de.dercompiler.pass;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.*;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.passes.ASTReferencePass;
 
 import java.io.PrintStream;
@@ -12,6 +14,15 @@ import java.util.List;
 class PassPipeline {
 
     static class PassStep {
+
+        enum DEPTH {
+            UNINITALIZED,
+            CLASS,
+            METHOD,
+            BASICBLOCK,
+            STATEMENT,
+            EXPRESSION,
+        }
 
         private final LinkedList<ClassPass> td_classPasses;
         private final LinkedList<MethodPass> td_methodPasses;
@@ -27,8 +38,12 @@ class PassPipeline {
 
         private final PassManager manager;
         private int num;
+        private DEPTH minDepth;
+        private DEPTH maxDepth;
 
         public PassStep(PassManager manager) {
+            minDepth = DEPTH.UNINITALIZED;
+            maxDepth = DEPTH.UNINITALIZED;
             td_classPasses = new LinkedList<>();
             td_methodPasses = new LinkedList<>();
             td_basicBlockPasses = new LinkedList<>();
@@ -45,39 +60,75 @@ class PassPipeline {
             this.num = 0;
         }
 
+        private void updateDepth(DEPTH d) {
+            if (d == DEPTH.UNINITALIZED) return;
+            if (minDepth == DEPTH.UNINITALIZED) {
+                minDepth = d;
+                maxDepth = d;
+            }
+            if (minDepth.ordinal() > d.ordinal()) {
+                minDepth = d;
+            }
+            if (maxDepth.ordinal() < d.ordinal()) {
+                maxDepth = d;
+            }
+        }
+
+        private boolean overMinBound(DEPTH d) {
+            return minDepth.ordinal() <= d.ordinal();
+        }
+
+        private boolean underMaxBound(DEPTH d) {
+            return maxDepth.ordinal() >= d.ordinal();
+        }
+
+        private boolean inRange(DEPTH d) {
+            return minDepth.ordinal() <= d.ordinal() && d.ordinal() <= maxDepth.ordinal();
+        }
+
         void addPass(Pass pass) {
             num++;
             if (pass.getAnalysisDirection() == AnalysisDirection.TOP_DOWN) {
                 if (pass instanceof ClassPass cp) {
                     td_classPasses.addLast(cp);
+                    updateDepth(DEPTH.CLASS);
                 }
                 if (pass instanceof MethodPass mp) {
                     td_methodPasses.addLast(mp);
+                    updateDepth(DEPTH.METHOD);
                 }
                 if (pass instanceof BasicBlockPass bbp) {
                     td_basicBlockPasses.addLast(bbp);
+                    updateDepth(DEPTH.BASICBLOCK);
                 }
                 if (pass instanceof StatementPass sp) {
                     td_statementPasses.addLast(sp);
+                    updateDepth(DEPTH.STATEMENT);
                 }
                 if (pass instanceof ExpressionPass ep) {
                     td_expressionPasses.addLast(ep);
+                    updateDepth(DEPTH.EXPRESSION);
                 }
             } else {
                 if (pass instanceof ClassPass cp) {
                     bu_classPasses.addFirst(cp);
+                    updateDepth(DEPTH.CLASS);
                 }
                 if (pass instanceof MethodPass mp) {
                     bu_methodPasses.addFirst(mp);
+                    updateDepth(DEPTH.METHOD);
                 }
                 if (pass instanceof BasicBlockPass bbp) {
                     bu_basicBlockPasses.addLast(bbp);
+                    updateDepth(DEPTH.BASICBLOCK);
                 }
                 if (pass instanceof StatementPass sp) {
                     bu_statementPasses.addFirst(sp);
+                    updateDepth(DEPTH.STATEMENT);
                 }
                 if (pass instanceof ExpressionPass ep) {
                     bu_expressionPasses.addFirst(ep);
+                    updateDepth(DEPTH.EXPRESSION);
                 }
             }
         }
@@ -89,35 +140,35 @@ class PassPipeline {
         public void printStep(PrintStream stream) {
             stream.println("  TopDown:");
             for (Pass pass : td_classPasses) {
-                printPass(stream, "C - ", pass.getClass().getName());
+                printPass(stream, "  C - ", pass.getClass().getName());
             }
             for (Pass pass : td_methodPasses) {
-                printPass(stream, "M --- ", pass.getClass().getName());
+                printPass(stream, "  M --- ", pass.getClass().getName());
             }
             for (Pass pass : td_basicBlockPasses) {
-                printPass(stream, "B ----- ", pass.getClass().getName());
+                printPass(stream, "  B ----- ", pass.getClass().getName());
             }
             for (Pass pass : td_statementPasses) {
-                printPass(stream, "S ------- ", pass.getClass().getName());
+                printPass(stream, "  S ------- ", pass.getClass().getName());
             }
             for (Pass pass : td_expressionPasses) {
-                printPass(stream, "E --------- ", pass.getClass().getName());
+                printPass(stream, "  E --------- ", pass.getClass().getName());
             }
             stream.println("  BottomUp:");
             for (Pass pass : bu_expressionPasses) {
-                printPass(stream, "E --------- ", pass.getClass().getName());
+                printPass(stream, "  E --------- ", pass.getClass().getName());
             }
             for (Pass pass : bu_statementPasses) {
-                printPass(stream, "S ------- ", pass.getClass().getName());
+                printPass(stream, "  S ------- ", pass.getClass().getName());
             }
             for (Pass pass : bu_basicBlockPasses) {
-                printPass(stream, "B ----- ", pass.getClass().getName());
+                printPass(stream, "  B ----- ", pass.getClass().getName());
             }
             for (Pass pass : bu_methodPasses) {
-                printPass(stream, "M --- ", pass.getClass().getName());
+                printPass(stream, "  M --- ", pass.getClass().getName());
             }
             for (Pass pass : bu_classPasses) {
-                printPass(stream, "C - ", pass.getClass().getName());
+                printPass(stream, "  C - ", pass.getClass().getName());
             }
         }
 
@@ -140,6 +191,7 @@ class PassPipeline {
         private void traverseExpression(Expression expression) {
             Expression old = manager.getCurrentExpression();
             manager.setCurrentExpression(expression);
+            //no check needed we know it already
             for (ExpressionPass TDExpressionsPass : td_expressionPasses) {
                 if (TDExpressionsPass.shouldRunOnExpression(expression)) TDExpressionsPass.runOnExpression(expression);
             }
@@ -152,16 +204,18 @@ class PassPipeline {
         private void traverseStatement(Statement statement) {
             Statement old = manager.getCurrentStatement();
             manager.setCurrentStatement(statement);
-            for (StatementPass TDStatementPass : td_statementPasses) {
-                if (TDStatementPass.shouldRunOnStatement(statement)) TDStatementPass.runOnStatement(statement);
+            if (inRange(DEPTH.STATEMENT)) {
+                for (StatementPass TDStatementPass : td_statementPasses) {
+                    if (TDStatementPass.shouldRunOnStatement(statement)) TDStatementPass.runOnStatement(statement);
+                }
             }
 
             if (statement instanceof ExpressionStatement es) {
-                traverseExpression(es.getExpression());
+                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(es.getExpression());
             } else if (statement instanceof LocalVariableDeclarationStatement lvds) {
-                traverseExpression(lvds.getExpression());
+                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(lvds.getExpression());
             } else if (statement instanceof IfStatement ifs) {
-                traverseExpression(ifs.getCondition());
+                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(ifs.getCondition());
                 Statement then = ifs.getThenStatement();
                 if (then instanceof BasicBlock bb) {
                     traverseBasicBlock(bb);
@@ -177,7 +231,7 @@ class PassPipeline {
                     }
                 }
             } else if (statement instanceof WhileStatement ws) {
-                traverseExpression(ws.getCondition());
+                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(ws.getCondition());
                 Statement body = ws.getStatement();
                 if (body instanceof BasicBlock bb) {
                     traverseBasicBlock(bb);
@@ -185,11 +239,13 @@ class PassPipeline {
                     traverseStatement(body);
                 }
             } else if (statement instanceof ReturnStatement rs) {
-                traverseExpression(rs.getExpression());
+                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(rs.getExpression());
             }
 
-            for (StatementPass BUStatementPass : bu_statementPasses) {
-                if (BUStatementPass.shouldRunOnStatement(statement)) BUStatementPass.runOnStatement(statement);
+            if (inRange(DEPTH.STATEMENT)) {
+                for (StatementPass BUStatementPass : bu_statementPasses) {
+                    if (BUStatementPass.shouldRunOnStatement(statement)) BUStatementPass.runOnStatement(statement);
+                }
             }
             manager.setCurrentStatement(old);
         }
@@ -197,20 +253,25 @@ class PassPipeline {
         private void traverseBasicBlock(BasicBlock block) {
             BasicBlock old = manager.getCurrentBasicBlock();
             manager.setCurrentBasicBlock(block);
-            for (BasicBlockPass TDBasicBlockPass : td_basicBlockPasses) {
-                if (TDBasicBlockPass.checkClass(block)) TDBasicBlockPass.runOnBasicBlock(block);
+            if (overMinBound(DEPTH.BASICBLOCK)) {
+                for (BasicBlockPass TDBasicBlockPass : td_basicBlockPasses) {
+                    if (TDBasicBlockPass.checkClass(block)) TDBasicBlockPass.runOnBasicBlock(block);
+                }
             }
 
             for (Statement statement : block.getStatements()) {
                 if (statement instanceof BasicBlock bb) {
                     traverseBasicBlock(bb);
                 } else {
+                    //no check statements could contain basic blocks
                     traverseStatement(statement);
                 }
             }
 
-            for (BasicBlockPass BUBasicBlockPass : bu_basicBlockPasses) {
-                if (BUBasicBlockPass.checkClass(block)) BUBasicBlockPass.runOnBasicBlock(block);
+            if (overMinBound(DEPTH.BASICBLOCK)) {
+                for (BasicBlockPass BUBasicBlockPass : bu_basicBlockPasses) {
+                    if (BUBasicBlockPass.checkClass(block)) BUBasicBlockPass.runOnBasicBlock(block);
+                }
             }
             manager.setCurrentBasicBlock(old);
         }
@@ -218,14 +279,19 @@ class PassPipeline {
         private void traverseMethod(Method method) {
             Method old = manager.getCurrentMethod();
             manager.setCurrentMethod(method);
-            for (MethodPass TDMethodPass : td_methodPasses) {
-                if (TDMethodPass.shouldRunOnMethod(method)) TDMethodPass.runOnMethod(method);
+            if (overMinBound(DEPTH.METHOD)) {
+                for (MethodPass TDMethodPass : td_methodPasses) {
+                    if (TDMethodPass.shouldRunOnMethod(method)) TDMethodPass.runOnMethod(method);
+                }
             }
 
-            traverseBasicBlock(method.getBlock());
-
-            for (MethodPass BUMethodPass : bu_methodPasses) {
-                if (BUMethodPass.shouldRunOnMethod(method)) BUMethodPass.runOnMethod(method);
+            if (underMaxBound(DEPTH.BASICBLOCK)) {
+                traverseBasicBlock(method.getBlock());
+            }
+            if (overMinBound(DEPTH.METHOD)) {
+                for (MethodPass BUMethodPass : bu_methodPasses) {
+                    if (BUMethodPass.shouldRunOnMethod(method)) BUMethodPass.runOnMethod(method);
+                }
             }
             manager.setCurrentMethod(old);
         }
@@ -233,27 +299,35 @@ class PassPipeline {
         private void traverseClass(ClassDeclaration declaration) {
             ClassDeclaration old = manager.getCurrentClass();
             manager.setCurrentClassDeclaration(declaration);
-            for (ClassPass TDClassPass : td_classPasses) {
-                if (TDClassPass.shouldRunOnClass(declaration)) TDClassPass.runOnClass(declaration);
-            }
-
-            for (ClassMember classMember : declaration.getMembers()) {
-                if (classMember instanceof Method m) {
-                    traverseMethod(m);
+            if (overMinBound(DEPTH.CLASS)) {
+                for (ClassPass TDClassPass : td_classPasses) {
+                    if (TDClassPass.shouldRunOnClass(declaration)) TDClassPass.runOnClass(declaration);
                 }
             }
 
-            for (ClassPass BUClassPass : bu_classPasses) {
-                if (BUClassPass.shouldRunOnClass(declaration)) BUClassPass.runOnClass(declaration);
+            if (underMaxBound(DEPTH.METHOD)) {
+                for (ClassMember classMember : declaration.getMembers()) {
+                    if (classMember instanceof Method m) {
+                        traverseMethod(m);
+                    }
+                }
+            }
+
+            if (overMinBound(DEPTH.CLASS)) {
+                for (ClassPass BUClassPass : bu_classPasses) {
+                    if (BUClassPass.shouldRunOnClass(declaration)) BUClassPass.runOnClass(declaration);
+                }
             }
             manager.setCurrentClassDeclaration(old);
         }
 
-
-
         public void traverseTree(Program program) {
-            for (ClassDeclaration declaration : program.getClasses()) {
-                traverseClass(declaration);
+            if (minDepth != DEPTH.UNINITALIZED) {
+                for (ClassDeclaration declaration : program.getClasses()) {
+                    traverseClass(declaration);
+                }
+            } else {
+                new OutputMessageHandler(MessageOrigin.PASSES).printInfo("Empty Step detected, may run --print-pipeline, something may be odd.");
             }
         }
     }
