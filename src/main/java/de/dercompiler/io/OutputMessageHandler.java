@@ -179,7 +179,7 @@ public final class OutputMessageHandler {
         if (debug_mode) {
             debugEvents.add(new DebugEvent(origin, id, errorMessage));
         } else {
-            System.exit(ERROR_CODE);
+            ErrorStatus.exit(ERROR_CODE);
         }
     }
 
@@ -206,7 +206,7 @@ public final class OutputMessageHandler {
         if (debug_mode) {
             debugEvents.add(new DebugEvent(origin, id, errorMessage));
         } else {
-            System.exit(ERROR_CODE);
+            ErrorStatus.exit(ERROR_CODE);
         }
     }
 
@@ -234,13 +234,13 @@ public final class OutputMessageHandler {
     private void internalError(String message, StackTraceElement element) {
         formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
                 + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor);
-        System.exit(-1);
+        ErrorStatus.exit(-1);
     }
 
     private void internalError(String message, StackTraceElement element, Exception e) {
         formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
                 + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor, e);
-        System.exit(-1);
+        ErrorStatus.exit(-1);
     }
 
     /**

@@ -32,6 +32,7 @@ public class CommandLineBuilder {
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_EXPRESSION, false, DESCRIPTION_PARSE_EXPRESSION));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRETTY_PRINT, false, DESCRIPTION_PRETTY_PRINT));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_PIPELINE, false, DESCRIPTION_PRINT_PIPELINE));
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_TIME_EXECUTION, false, DESCRIPTION_TIME_EXECUTION));
 
         // colors
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_NO_COLOR, false, DESCRIPTION_PRINT_NO_COLOR)); // --no-color
