@@ -23,9 +23,7 @@ public abstract class ASTNode {
      * @param other The other ASTNode
      * @return true if the nodes are syntactically equal
      */
-    public boolean syntaxEquals(ASTNode other) {
-        return other != null;
-    }
+    public abstract boolean syntaxEquals(ASTNode other);
 
     /**
      * Returns the position of this node in the source code

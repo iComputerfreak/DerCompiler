@@ -6,6 +6,11 @@ package de.dercompiler.semantic;
 public class Scope {
     private Scope parent;
     private int oldSize;
+    private int level;
+
+    public static final int PROGRAM_LEVEL = 0;
+    public static final int CLASS_LEVEL = 1;
+    public static final int METHOD_LEVEL = 2;
 
     /**
      * Creates a new Scope object
@@ -15,6 +20,7 @@ public class Scope {
     public Scope(Scope parent, int oldSize) {
         this.parent = parent;
         this.oldSize = oldSize;
+        this.level = parent == null? 0 : parent.level + 1;
     }
 
     /**
@@ -43,5 +49,9 @@ public class Scope {
      */
     public void setOldSize(int oldSize) {
         this.oldSize = oldSize;
+    }
+
+    public int getLevel() {
+        return level;
     }
 }

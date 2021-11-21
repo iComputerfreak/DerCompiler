@@ -11,6 +11,17 @@ public final class IntegerValue extends PrimaryExpression {
 
     private String value;
 
+    /**
+        True if an odd number of NegativeExpressions directly surrounds this IntegerValue. Used for type checking.
+     */
+    private boolean negative;
+
+    /**
+     *  This value reflects the unsigned value of this integer literal and is thus non-negative;
+     *  only if the value is -MIN_VALUE, then it is set to MIN_VALUE.
+     */
+    private int unsignedValue;
+
     public IntegerValue(SourcePosition position, String value) {
         super(position);
         this.value = value;
@@ -33,5 +44,17 @@ public final class IntegerValue extends PrimaryExpression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitIntegerValue(this);
+    }
+
+    public boolean isNegative() {
+        return negative;
+    }
+
+    public void setNegative(boolean b) {
+        this.negative = b;
+    }
+
+    public void setValue(int value) {
+        this.unsignedValue = value;
     }
 }

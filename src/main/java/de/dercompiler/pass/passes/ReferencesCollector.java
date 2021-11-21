@@ -16,19 +16,21 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     private final boolean collectMethodInvocations;
     private final boolean collectArrayAccesses;
     private final boolean collectAssignmentExpressions;
+    private final boolean collectNewObjectExpressions;
 
     private ArrayList<Expression> expressions;
 
     public ReferencesCollector() {
-        this(true, true, true, true, true);
+        this(true, true, true, true, true, true);
     }
 
-    public ReferencesCollector(boolean collectVariables, boolean collectFieldAccesses, boolean collectMethodInvocations, boolean collectArrayAccesses, boolean collectAssignmentExpressions) {
+    public ReferencesCollector(boolean collectVariables, boolean collectFieldAccesses, boolean collectMethodInvocations, boolean collectArrayAccesses, boolean collectAssignmentExpressions, boolean collectNewObjectExpressions) {
         this.collectVariables = collectVariables;
         this.collectFieldAccesses = collectFieldAccesses;
         this.collectMethodInvocations = collectMethodInvocations;
         this.collectArrayAccesses = collectArrayAccesses;
         this.collectAssignmentExpressions = collectAssignmentExpressions;
+        this.collectNewObjectExpressions = collectNewObjectExpressions;
     }
 
     public List<Expression> analyze(Expression ex) {
@@ -80,7 +82,12 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitMethodInvocation(MethodInvocationOnObject methodInvocation) {
-        methodInvocation.getEncapsulated().accept(this);
+        Expression refObj = methodInvocation.getEncapsulated();
+        if (refObj == null) {
+            expressions.add(new ThisValue(methodInvocation.getSourcePosition()));
+        } else {
+            refObj.accept(this);
+        }
         Arguments arguments = methodInvocation.getArguments();
         for (int i = 0; i < arguments.getLength(); i++) {
             arguments.get(i).accept(this);
@@ -100,7 +107,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitNewObjectExpression(NewObjectExpression newObjectExpression) {
-
+        if (collectNewObjectExpressions) expressions.add(newObjectExpression);
     }
 
     @Override

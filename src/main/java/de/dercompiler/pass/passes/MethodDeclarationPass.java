@@ -4,14 +4,15 @@ import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
-import de.dercompiler.semantic.type.MethodType;
-import de.dercompiler.semantic.type.Type;
-import de.dercompiler.semantic.type.TypeFactory;
+import de.dercompiler.semantic.type.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MethodDeclarationPass implements MethodPass {
 
@@ -25,7 +26,15 @@ public class MethodDeclarationPass implements MethodPass {
         List<Type> parameterTypes = method.getParameters().stream()
                 .map(p -> typeFactory.create(p.getType()))
                 .collect(Collectors.toList());
-        method.setReferenceType(new MethodType(returnType, parameterTypes));
+
+        int faultyTypeParamIdx = IntStream.range(0, parameterTypes.size())
+                .filter(idx -> parameterTypes.get(idx) instanceof LibraryClass)
+                .findAny().orElse(-1);
+        if (faultyTypeParamIdx >= 0) {
+            new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.ILLEGAL_PARAMETER_TYPE,
+                    "Illegal type %s for a method parameter".formatted(parameterTypes.get(faultyTypeParamIdx)));
+        }
+        method.setReferenceType(new MethodType(returnType, parameterTypes, method.isStatic()));
 
         return false;
     }
@@ -43,7 +52,7 @@ public class MethodDeclarationPass implements MethodPass {
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
         usage.requireAnalysis(InterClassAnalysisCheckPass.class);
-        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
+        usage.setDependency(DependencyType.RUN_IN_NEXT_STEP);
         return usage;
     }
 

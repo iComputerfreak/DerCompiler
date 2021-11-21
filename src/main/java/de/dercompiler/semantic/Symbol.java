@@ -1,6 +1,6 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.ast.expression.ASTDefinition;
+import de.dercompiler.ast.ASTDefinition;
 
 /**
  * Represents a symbol in the program that has a definition and a scope in which the symbol is valid in

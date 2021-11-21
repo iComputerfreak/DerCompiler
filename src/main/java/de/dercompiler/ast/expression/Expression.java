@@ -11,6 +11,7 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
 
     private Statement surrounding = null;
     private Type type;
+    private boolean inParentheses;
 
     protected Expression(SourcePosition position) {
         super(position);
@@ -39,5 +40,13 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
         this.accept((ASTExpressionVisitor) astNodeVisitor);
+    }
+
+    public void setInParentheses(boolean inParentheses) {
+        this.inParentheses = inParentheses;
+    }
+
+    public boolean isInParentheses() {
+        return inParentheses;
     }
 }

@@ -8,6 +8,11 @@ import java.util.Objects;
 
 public final class NegativeExpression extends UnaryExpression {
 
+    /**
+     * True if an odd number of NegativeExpressions surround this NegativeExpression, which in turn would make its content positive.
+     */
+    private boolean negative;
+
     public NegativeExpression(SourcePosition position, Expression encapsulated) {
         super(position, encapsulated);
     }
@@ -24,5 +29,13 @@ public final class NegativeExpression extends UnaryExpression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitNegativeExpression(this);
+    }
+
+    public void setNegative(boolean b) {
+        this.negative = b;
+    }
+
+    public boolean isNegative() {
+        return negative;
     }
 }

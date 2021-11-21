@@ -1,7 +1,7 @@
 package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.*;
-import de.dercompiler.ast.expression.ASTDefinition;
+import de.dercompiler.ast.ASTDefinition;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;

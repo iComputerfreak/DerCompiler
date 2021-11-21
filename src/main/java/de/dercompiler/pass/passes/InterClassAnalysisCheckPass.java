@@ -1,6 +1,7 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.*;
+import de.dercompiler.ast.type.VoidType;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
@@ -11,7 +12,7 @@ import de.dercompiler.semantic.type.LibraryClass;
 import java.util.HashMap;
 
 /**
- * hier werden für jede Klasse ihre öffentlichen Felder und methoden gesammelt
+ * Collects all fields and methods of all classes.
  */
 public class InterClassAnalysisCheckPass implements ClassPass {
 
@@ -33,12 +34,15 @@ public class InterClassAnalysisCheckPass implements ClassPass {
         for (ClassMember classMember : classDeclaration.getMembers()) {
             if (classMember instanceof Method method) {
                 if (newClass.hasMethod(method.getIdentifier())) {
-                    //Error, da Methode mit gleichem Namen in der Klasse schon existiert
+                    failAnalysis(PassErrorIds.DUPLICATE_METHOD, method, "Method %s is already defined in class %s".formatted(method.getIdentifier(), newClass.getIdentifier()));
                 }
                 newClass.addMethod(method.getIdentifier(), method);
             } else if (classMember instanceof Field field) {
+                if (field.getType().getBasicType() instanceof VoidType) {
+                    failAnalysis(PassErrorIds.ILLEGAL_FIELD_TYPE, field, "Illegal type %s for attribute %s".formatted(field.getType(), field.getIdentifier()));
+                }
                 if (newClass.hasField(field.getIdentifier())) {
-                    //Error, da Feld mit gleichem Namen in der Klasse schon existiert
+                    failAnalysis(PassErrorIds.DUPLICATE_FIELD, field, "Field %s is already defined in class %s".formatted(field.getIdentifier(), newClass.getIdentifier()));
                 }
                 newClass.addField(field.getIdentifier(), field);
             }
@@ -47,6 +51,12 @@ public class InterClassAnalysisCheckPass implements ClassPass {
         globalScope.addClass(newClass);
 
         return false;
+    }
+
+    private void failAnalysis(PassErrorIds errorId, ASTNode node, String message) {
+        getPassManager().getLexer().printSourceText(node.getSourcePosition());
+        logger.printErrorAndExit(errorId, message);
+        getPassManager().quitOnError();
     }
 
     @Override

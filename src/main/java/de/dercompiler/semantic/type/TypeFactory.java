@@ -4,6 +4,8 @@ import de.dercompiler.ast.Program;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.IntType;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
 
 import java.util.Objects;
@@ -50,6 +52,9 @@ public class TypeFactory {
     }
 
     public Type create(CustomType customType) {
+        if (!globalScope.hasClass(customType.getIdentifier())) {
+            new OutputMessageHandler(MessageOrigin.PASSES).internalError("Could not find type '%s' in globalScope, although clearly it should be there. Oh oh!".formatted(customType.getIdentifier()));
+        }
         return globalScope.getClass(customType.getIdentifier());
     }
 }

@@ -1,6 +1,6 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.ast.expression.ASTDefinition;
+import de.dercompiler.ast.ASTDefinition;
 
 /**
  * Represents a change of a definition for a given symbol in a given scope

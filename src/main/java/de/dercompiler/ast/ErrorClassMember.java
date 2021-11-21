@@ -20,4 +20,9 @@ public final class ErrorClassMember extends ClassMember {
     public void accept(ASTNodeVisitor astNodeVisitor) {
         astNodeVisitor.visitErrorClassMember(this);
     }
+
+    @Override
+    public boolean syntaxEquals(ASTNode node) {
+        return false;
+    }
 }

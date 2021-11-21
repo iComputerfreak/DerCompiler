@@ -5,15 +5,16 @@ import de.dercompiler.ast.expression.AssignmentExpression;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.MethodInvocationOnObject;
 import de.dercompiler.ast.expression.Variable;
-import de.dercompiler.ast.statement.ExpressionStatement;
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.type.VoidType;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class SpecificationConformityPass implements MethodPass, StatementPass, ExpressionPass {
@@ -25,13 +26,14 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
 
     @Override
     public void doInitialization(Program program) {
-         globalScope = program.getGlobalScope();
+        globalScope = program.getGlobalScope();
     }
 
 
     private void failSpecs(ASTNode node, String message) {
         System.err.println(getPassManager().getLexer().printSourceText(node.getSourcePosition()));
         new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.SPECS_VIOLATION, message);
+        getPassManager().quitOnError();
     }
 
     @Override
@@ -60,7 +62,26 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
                 default -> failSpecs(parameters.get(1), "Too many parameters for main method; must be 1");
             }
         }
+
+        if (!method.getReferenceType().getReturnType().isCompatibleTo(new VoidType())) {
+            if (!findReturnStatement(method.getBlock())) {
+                failSpecs(method, "Method is missing a return statement");
+            }
+
+        }
+
         return false;
+    }
+
+    private boolean findReturnStatement(Statement stmt) {
+        if (stmt instanceof ReturnStatement) return true;
+        else if (stmt instanceof WhileStatement loop && findReturnStatement(loop.getStatement())) return false;
+        else if (stmt instanceof IfStatement ifElse && findReturnStatement(ifElse.getThenStatement())
+                && findReturnStatement(ifElse.getElseStatement())) return true;
+        else if (stmt instanceof BasicBlock block
+                && block.getStatements().stream().map(this::findReturnStatement)
+                .reduce(false, (acc, b) -> acc || b).booleanValue()) return true;
+        else return false;
     }
 
     @Override
@@ -77,11 +98,19 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
     @Override
     public boolean runOnExpression(Expression expression) {
         if (getPassManager().getCurrentMethod().isStatic()) {
-            List<Expression> subExpressions = new ReferencesCollector(true, false, false, false, false).analyze(expression);
-            Variable argsRef = (Variable) subExpressions.stream().filter(ex -> ex instanceof Variable var && var.getDefinition() instanceof Parameter).findAny().orElse(null);
+            List<Expression> variables = new ReferencesCollector(true, false, false, false, false, false).analyze(expression);
+            Variable argsRef = (Variable) variables.stream().filter(ex -> ex instanceof Variable var && var.getDefinition() instanceof Parameter).findAny().orElse(null);
             if (argsRef != null) {
                 failSpecs(argsRef, "Illegal reference to parameter %s of main method".formatted(argsRef.getName()));
             }
+        }
+
+        List<Expression> methodInvocations = new ReferencesCollector(false, false, true, false, false, false).analyze(expression);
+        MethodInvocationOnObject mainMethodCall = (MethodInvocationOnObject) methodInvocations.stream()
+                .filter(ex -> ex instanceof MethodInvocationOnObject methodCall && methodCall.getMethodType().isStaticMethod())
+                .findAny().orElse(null);
+        if (mainMethodCall != null) {
+            failSpecs(mainMethodCall, "Illegal call to main method");
         }
         return false;
     }

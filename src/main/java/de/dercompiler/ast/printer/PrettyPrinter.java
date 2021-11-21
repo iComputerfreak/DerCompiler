@@ -134,7 +134,11 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitIntegerValue(IntegerValue integerValue) {
-        sb.append(integerValue.toString());
+        if (integerValue.isInParentheses()) {
+            sb.append("(%s)".formatted(integerValue.toString()));
+        } else {
+            sb.append(integerValue.toString());
+        }
     }
 
     @Override
@@ -360,14 +364,16 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     public void visitMethodInvocation(MethodInvocationOnObject invocation) {
         Expression referenceObject = invocation.getReferenceObject();
-        if (needsParentheses(referenceObject)) {
-            sb.append("(");
-            referenceObject.accept(this);
-            sb.append(")");
-        } else {
-            referenceObject.accept(this);
+        if (!invocation.hasImplicitThis()) {
+            if (needsParentheses(referenceObject)) {
+                sb.append("(");
+                referenceObject.accept(this);
+                sb.append(")");
+            } else {
+                referenceObject.accept(this);
+            }
+            sb.append(".");
         }
-        sb.append(".");
         sb.append(invocation.getFunctionName());
         sb.append("(");
         invocation.getArguments().accept(this);
@@ -433,7 +439,6 @@ public class PrettyPrinter implements ASTNodeVisitor {
         arrayAccess.getIndex().accept(this);
         sb.append("]");
     }
-
 
 
     public void visitBasicType(BasicType type) {

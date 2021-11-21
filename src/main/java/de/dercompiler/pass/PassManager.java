@@ -110,7 +110,14 @@ public class PassManager {
             new OutputMessageHandler(MessageOrigin.PASSES)
                     .printInfo("Pipeline:\n" + baos.toString(StandardCharsets.UTF_8));
         }
-        while (pipeline.traverseTreeStep(program)) {}
+        while (true) {
+            try {
+                boolean changed = pipeline.traverseTreeStep(program);
+                if (!changed) break;
+            } catch (PassException e) {
+                break;
+            }
+        }
     }
 
     public List<Pass> getPassesFromUsage(Pass pass) {
@@ -231,5 +238,14 @@ public class PassManager {
 
     public Lexer getLexer() {
         return lexer;
+    }
+
+    public void quitOnError() {
+        throw new PassException("Quit on error!");
+    }
+
+    private class PassException extends RuntimeException {
+        public PassException(String s) {
+        }
     }
 }

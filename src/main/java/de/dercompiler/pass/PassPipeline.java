@@ -240,10 +240,7 @@ class PassPipeline {
             for (ClassMember classMember : declaration.getMembers()) {
                 if (classMember instanceof Method m) {
                     traverseMethod(m);
-                } else if (classMember instanceof MainMethod mm) {
-
                 }
-
             }
 
             for (ClassPass BUClassPass : bu_classPasses) {

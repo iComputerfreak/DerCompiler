@@ -1,8 +1,6 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.expression.ASTDefinition;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
-import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 

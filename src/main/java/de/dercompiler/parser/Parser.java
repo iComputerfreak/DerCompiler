@@ -854,7 +854,10 @@ public class Parser {
                     arguments.addArgument(new ErrorExpression(posParen));
                 }
                 //we create a ThisValue out of nowhere, because methods only can be invoked on other objects or the own object(this)
-                expression = new MethodInvocationOnObject(pos, new ThisValue(pos), ident.getIdentifier(), arguments);
+                MethodInvocationOnObject call = new MethodInvocationOnObject(pos, new ThisValue(pos), ident.getIdentifier(), arguments);
+                call.setImplicitThis(true);
+                expression = call;
+
             } else {
                 expression = new Variable(pos, ident.getIdentifier());
             }
@@ -883,6 +886,7 @@ public class Parser {
                     try {
                         expect(L_PAREN, ank, "start of expression in parentheses");
                         expression = parseExpression(ank.fork(R_PAREN));
+                        expression.setInParentheses(true);
                         expect(R_PAREN, ank, "end of expression in parentheses");
                     } catch (ExpectedTokenError e) {
                         //do nothing errorExpression is already set

@@ -1,6 +1,6 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.ast.expression.ASTDefinition;
+import de.dercompiler.ast.ASTDefinition;
 
 import java.util.Stack;
 
@@ -8,7 +8,7 @@ import java.util.Stack;
  * Represents a table to store symbols and their definitions in various scopes of the program
  */
 public class SymbolTable {
-    
+
     private final Stack<Change> changes;
     private Scope currentScope;
 
@@ -18,7 +18,6 @@ public class SymbolTable {
     public SymbolTable() {
         this.changes = new Stack<Change>();
         this.currentScope = null;
-        enterScope();
     }
 
     /**
@@ -91,11 +90,11 @@ public class SymbolTable {
     }
 
     /**
-     * checks, whether the given symbol has a definition, which is not in the outest scope
+     * checks, whether the given symbol has a definition, which is still in the current method
      * @param symbol The symbol to check for
-     * @return Whether the symbol has a definition, which is not in the outest scope
+     * @return Whether the symbol has a definition, which is still in the current method
      */
-    public boolean isDefinedInNotOutestScope(Symbol symbol){
-        return symbol.getCurrentScope() != null && symbol.getCurrentScope().getParent() != null;
+    public boolean isDefinedInsideCurrentMethod(Symbol symbol){
+        return symbol.getCurrentScope() != null && symbol.getCurrentScope().getLevel() >= Scope.METHOD_LEVEL;
     }
 }

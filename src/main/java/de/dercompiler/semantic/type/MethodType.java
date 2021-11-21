@@ -1,18 +1,18 @@
 package de.dercompiler.semantic.type;
 
-import de.dercompiler.ast.Parameter;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class MethodType implements Type {
 
+    private final boolean staticMethod;
     private List<Type> parameterTypes;
     private Type returnType;
 
-    public MethodType(Type type, List<Type> parameters) {
+    public MethodType(Type type, List<Type> parameters, boolean isStatic) {
         this.returnType = type;
         this.parameterTypes = parameters;
+        this.staticMethod = isStatic;
     }
 
     @Override
@@ -30,6 +30,11 @@ public class MethodType implements Type {
 
     @Override
     public String toString() {
-        return "%s -> %s".formatted(parameterTypes.stream().map(t -> "\\" + t.toString() + " ").collect(Collectors.joining()), returnType);
+        String params = parameterTypes.isEmpty() ? "void" : parameterTypes.stream().map(t -> "\\" + t.toString() + " ").collect(Collectors.joining());
+        return "%s -> %s".formatted(params, returnType);
+    }
+
+    public boolean isStaticMethod() {
+        return staticMethod;
     }
 }

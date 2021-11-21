@@ -90,7 +90,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     }
 
 
-    private void failTypeCheck(Expression expr, String locationDescription, String errorDescription) {
+    private void failTypeCheck(ASTNode expr, String locationDescription, String errorDescription) {
         System.err.println(getPassManager().getLexer().printSourceText(expr.getSourcePosition()));
         logger.printErrorAndExit(PassErrorIds.TYPE_MISMATCH, errorDescription + " for " + locationDescription);
     }
@@ -237,6 +237,26 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     @Override
     public void visitIntegerValue(IntegerValue integerValue) {
         integerValue.setType(new IntegerType());
+        setIntegerValue(integerValue);
+    }
+
+    private void setIntegerValue(IntegerValue integerValue) {
+        String strValue = integerValue.toString();
+        int value;
+        try {
+            value = Integer.parseUnsignedInt(strValue);
+        } catch (NumberFormatException e) {
+            failTypeCheck(integerValue, "integer literal");
+            return;
+        }
+        // Expected values: "0" to "2147483648". "2147483648" is represented as -214783648,
+        // all other negative values indicate too large values
+        // e.g. "2147483649" -> -214783647, so not allowed.
+        if ((value == Integer.MIN_VALUE && (!integerValue.isNegative()) || integerValue.isInParentheses()) || (Integer.MIN_VALUE < value && value < 0)) {
+            failTypeCheck(integerValue, "integer literal");
+        }
+
+        integerValue.setValue(value);
     }
 
     @Override
@@ -262,7 +282,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         Method method = globalScope.getMethod(type.getIdentifier(), methodInvocation.getFunctionName());
         MethodType methodType = method.getReferenceType();
 
-        methodInvocation.setType(methodType.getReturnType());
+        methodInvocation.setMethodType(methodType);
 
         Arguments arguments = methodInvocation.getArguments();
         arguments.setExpectedTypes(methodType.getParameterTypes());
@@ -273,6 +293,12 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     @Override
     public void visitNegativeExpression(NegativeExpression negativeExpression) {
         Expression expr = negativeExpression.getEncapsulated();
+
+        if (expr instanceof IntegerValue intValue) {
+            intValue.setNegative(!negativeExpression.isNegative());
+        } else if (expr instanceof NegativeExpression negValue) {
+            negValue.setNegative(!negativeExpression.isNegative());
+        }
 
         expr.accept(this);
         assertTypeEquals(expr, new IntegerType(), "integer operation");
@@ -300,6 +326,9 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         CustomType objectType = newObjectExpression.getObjectType();
         ClassType classType = globalScope.getClass(objectType.getIdentifier());
         newObjectExpression.setType(classType);
+        if (classType.getIdentifier().equals("String")) {
+            failTypeCheck(newObjectExpression, "new object");
+        }
     }
 
     @Override
@@ -332,6 +361,10 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     @Override
     public void visitVariable(Variable variable) {
         ASTDefinition declaration = variable.getDefinition();
+        if (declaration instanceof Field && getPassManager().getCurrentMethod().isStatic()) {
+            failTypeCheck(variable, "illegal reference to object attribute inside static method");
+        }
+
         variable.setType(declaration.getRefType());
     }
 
@@ -348,12 +381,12 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         switch (Integer.signum(arguments.getLength() - expectedTypes.size())) {
             case 1:
                 node = arguments.get(expectedTypes.size());
-                logger.printErrorAndContinue(PassErrorIds.ARGUMENTS_MISMATCH, "Too many arguments");
+                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too many arguments");
                 break;
             case -1:
                 int index = arguments.getLength() - 1;
                 node = index >= 0 ? arguments.get(index) : arguments;
-                logger.printErrorAndContinue(PassErrorIds.ARGUMENTS_MISMATCH, "Too few arguments");
+                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too few arguments");
                 break;
         }
 
@@ -381,6 +414,13 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement decl) {
         Expression expr = decl.getExpression();
         expr.accept(this);
+
+        if (decl.getType().getBasicType() instanceof de.dercompiler.ast.type.VoidType) {
+            failTypeCheck(decl, "variable declaration", "illegal type 'void'");
+        } else if (decl.getRefType() instanceof LibraryClass) {
+            //System and String are illegal variable types
+            failTypeCheck(decl, "variable declaration", "Illegal type '%s'".formatted(decl.getRefType()));
+        }
 
         if (!(expr instanceof UninitializedValue)) {
             Type expectedType = decl.getRefType();
