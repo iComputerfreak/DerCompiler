@@ -93,6 +93,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     private void failTypeCheck(ASTNode expr, String locationDescription, String errorDescription) {
         System.err.println(getPassManager().getLexer().printSourceText(expr.getSourcePosition()));
         logger.printErrorAndExit(PassErrorIds.TYPE_MISMATCH, errorDescription + " for " + locationDescription);
+        getPassManager().quitOnError();
     }
 
     private void assertTypeEqual(Expression lhs, Expression rhs, String description) {
@@ -381,12 +382,12 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         switch (Integer.signum(arguments.getLength() - expectedTypes.size())) {
             case 1:
                 node = arguments.get(expectedTypes.size());
-                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too many arguments");
+                failTypeCheck(node, "Too many arguments", "method (expected %d)".formatted(expectedTypes.size()));
                 break;
             case -1:
                 int index = arguments.getLength() - 1;
                 node = index >= 0 ? arguments.get(index) : arguments;
-                logger.printErrorAndExit(PassErrorIds.ARGUMENTS_MISMATCH, "Too few arguments");
+                failTypeCheck(node, "Too few arguments", "method (expected %d)".formatted(expectedTypes.size()));
                 break;
         }
 

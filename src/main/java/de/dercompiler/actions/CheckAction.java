@@ -1,6 +1,7 @@
 package de.dercompiler.actions;
 
 import de.dercompiler.ast.Program;
+import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
@@ -21,6 +22,10 @@ public class CheckAction extends Action {
     public void run() {
         Lexer lexer = new Lexer(this.source);
         Program program = new Parser(lexer).parseProgram();
+
+        if (!OutputMessageHandler.getEvents().isEmpty()) {
+            return;
+        }
 
         PassManager manager = new PassManager(lexer);
 

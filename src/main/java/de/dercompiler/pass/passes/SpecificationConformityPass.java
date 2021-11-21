@@ -14,7 +14,6 @@ import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.type.VoidType;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class SpecificationConformityPass implements MethodPass, StatementPass, ExpressionPass {
@@ -30,42 +29,42 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
     }
 
 
-    private void failSpecs(ASTNode node, String message) {
+    private void failSpecs(ASTNode node, String message, boolean quit) {
         System.err.println(getPassManager().getLexer().printSourceText(node.getSourcePosition()));
         new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.SPECS_VIOLATION, message);
-        getPassManager().quitOnError();
+        if (quit) getPassManager().quitOnError();
     }
 
     @Override
     public boolean runOnMethod(Method method) {
         if (method.isStatic()) {
             if (main != null) {
-                failSpecs(method, "Duplicate main method; there must be exactly one in the program.");
+                failSpecs(method, "Duplicate main method; there must be exactly one in the program.", true);
             }
             main = (MainMethod) method;
 
             if (!method.getIdentifier().equals("main")) {
-                failSpecs(method, "Illegal name for static method; must be 'main'");
+                failSpecs(method, "Illegal name for static method; must be 'main'", true);
             }
 
             List<Parameter> parameters = method.getParameters();
             switch (parameters.size()) {
-                case 0 -> failSpecs(method, "Missing parameter of main method");
+                case 0 -> failSpecs(method, "Missing parameter of main method", true);
                 case 1 -> {
                     Parameter parameter = parameters.get(0);
                     Type type = parameter.getType();
                     Type stringType = new Type(null, new CustomType(null, "String"), 1);
                     if (!type.syntaxEquals(stringType)) {
-                        failSpecs(parameter, "Illegal type %s for main method parameter; must be String[]".formatted(parameter.getType().toString()));
+                        failSpecs(parameter, "Illegal type %s for main method parameter; must be String[]".formatted(parameter.getType().toString()), true);
                     }
                 }
-                default -> failSpecs(parameters.get(1), "Too many parameters for main method; must be 1");
+                default -> failSpecs(parameters.get(1), "Too many parameters for main method; must be 1", true);
             }
         }
 
         if (!method.getReferenceType().getReturnType().isCompatibleTo(new VoidType())) {
             if (!findReturnStatement(method.getBlock())) {
-                failSpecs(method, "Method is missing a return statement");
+                failSpecs(method, "Method is missing a return statement", true);
             }
 
         }
@@ -89,7 +88,7 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
         if (statement instanceof ExpressionStatement exprStmt) {
             Expression expr = exprStmt.getExpression();
             if (!(expr instanceof MethodInvocationOnObject || expr instanceof AssignmentExpression)) {
-                failSpecs(expr, "Illegal statement: must have side-effect.");
+                failSpecs(expr, "Illegal statement: must have side-effect.", true);
             }
         }
         return false;
@@ -101,7 +100,7 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
             List<Expression> variables = new ReferencesCollector(true, false, false, false, false, false).analyze(expression);
             Variable argsRef = (Variable) variables.stream().filter(ex -> ex instanceof Variable var && var.getDefinition() instanceof Parameter).findAny().orElse(null);
             if (argsRef != null) {
-                failSpecs(argsRef, "Illegal reference to parameter %s of main method".formatted(argsRef.getName()));
+                failSpecs(argsRef, "Illegal reference to parameter %s of main method".formatted(argsRef.getName()), true);
             }
         }
 
@@ -110,7 +109,7 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
                 .filter(ex -> ex instanceof MethodInvocationOnObject methodCall && methodCall.getMethodType().isStaticMethod())
                 .findAny().orElse(null);
         if (mainMethodCall != null) {
-            failSpecs(mainMethodCall, "Illegal call to main method");
+            failSpecs(mainMethodCall, "Illegal call to main method", true);
         }
         return false;
     }
@@ -118,7 +117,7 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
     @Override
     public void doFinalization(Program program) {
         if (main == null) {
-            failSpecs(null, "No main method found.");
+            failSpecs(program, "No main method found.", false);
         }
     }
 

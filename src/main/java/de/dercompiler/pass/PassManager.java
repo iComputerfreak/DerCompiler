@@ -29,6 +29,7 @@ public class PassManager {
     private List<Pass> passes;
     private PassPipeline pipeline;
     private Lexer lexer;
+    private boolean errorMode;
 
     public PassManager(Lexer lex) {
         passes = new LinkedList<>();
@@ -96,6 +97,7 @@ public class PassManager {
     }
 
     private void finalizePasses(Program program) {
+        if (this.errorMode) return;
         for (Pass pass : passes) pass.doFinalization(program);
     }
 
@@ -115,6 +117,7 @@ public class PassManager {
                 boolean changed = pipeline.traverseTreeStep(program);
                 if (!changed) break;
             } catch (PassException e) {
+                this.errorMode = true;
                 break;
             }
         }

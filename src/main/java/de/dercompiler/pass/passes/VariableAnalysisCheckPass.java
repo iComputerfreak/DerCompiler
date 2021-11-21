@@ -152,7 +152,7 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
                 Type refObj = call.getReferenceObject().getType();
                 if (refObj instanceof ClassType cObj) {
                     if (!cObj.hasMethod(call.getFunctionName())) {
-                        failVariableAnalysis(PassErrorIds.UNKNOWN_METHOD, "Unknown method \'%s\' of %s object".formatted(cObj.getIdentifier()), call.getSourcePosition());
+                        failVariableAnalysis(PassErrorIds.UNKNOWN_METHOD, "Unknown method \'%s\' of %s object".formatted(call.getFunctionName(), cObj.getIdentifier()), call.getSourcePosition());
                         continue;
                     }
                     call.setType(cObj.getMethod(call.getFunctionName()).getReferenceType().getReturnType());
