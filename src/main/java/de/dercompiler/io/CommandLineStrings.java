@@ -44,6 +44,8 @@ public class CommandLineStrings {
 
     public static final String OPTION_PRINT_PIPELINE = "print-pipeline";
 
+    public static final String OPTION_TIME_EXECUTION = "time";
+
 
 
     // Descriptions
@@ -69,5 +71,6 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRETTY_PRINT = "(--parsetest) Pretty prints the constructed AST as code.";
 
     public static final String DESCRIPTION_PRINT_PIPELINE = "Prints the pipeline whenever one is used.";
+    public static final String DESCRIPTION_TIME_EXECUTION = "Prints the execution-time at the end of execution";
 
 }

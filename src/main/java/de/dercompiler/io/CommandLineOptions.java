@@ -103,6 +103,8 @@ public class CommandLineOptions {
      */
     public boolean help() { return cmd.hasOption(COMMAND_HELP); }
 
+    public boolean time() { return cmd.hasOption(OPTION_TIME_EXECUTION); }
+
     public String getOptionArgument(String optionName) {
         return cmd.getOptionValue(optionName);
     }

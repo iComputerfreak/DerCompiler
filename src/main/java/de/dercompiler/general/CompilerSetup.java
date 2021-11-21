@@ -7,6 +7,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.PassManager;
+import de.dercompiler.util.ErrorStatus;
 
 import java.io.File;
 import java.util.Objects;
@@ -30,6 +31,7 @@ public class CompilerSetup {
         OutputMessageHandler.setPrintStackTrace(options.printStacktrace());
 
         PassManager.setPrintPipeline(options.printPipeline());
+        if (options.time()) ErrorStatus.setPrintTIme();
 
         //sets Value in OutputMessageHandler
         options.resolveColorOutput();
