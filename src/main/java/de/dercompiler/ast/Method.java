@@ -20,7 +20,6 @@ public sealed class Method extends ClassMember permits MainMethod {
     private final MethodRest methodRest;
     private final BasicBlock block;
     private ClassDeclaration surrounding;
-    private MethodType referenceType;
 
     /**
      * Creates a new Method
@@ -44,10 +43,6 @@ public sealed class Method extends ClassMember permits MainMethod {
 
     public Type getType() {
         return type;
-    }
-    
-    public MethodType getReferenceType() {
-        return this.referenceType;
     }
 
     /**
@@ -115,7 +110,4 @@ public sealed class Method extends ClassMember permits MainMethod {
         return surrounding;
     }
 
-    public void setReferenceType(MethodType methodType) {
-        this.referenceType = methodType;
-    }
 }

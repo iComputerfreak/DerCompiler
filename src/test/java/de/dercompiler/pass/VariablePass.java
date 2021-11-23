@@ -1,13 +1,12 @@
 package de.dercompiler.pass;
 
+import de.dercompiler.actions.CheckAction;
 import de.dercompiler.ast.Program;
 import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
-import de.dercompiler.pass.passes.EnterScopePass;
-import de.dercompiler.pass.passes.InterClassAnalysisCheckPass;
-import de.dercompiler.pass.passes.LeaveScopePass;
-import de.dercompiler.pass.passes.VariableAnalysisCheckPass;
+import de.dercompiler.pass.passes.*;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,19 +45,7 @@ public class VariablePass {
     @Test
     @DisplayName("run check 1")
     void runCheck1() {
-        Lexer lexer = Lexer.forString(testProgram);
-        Program program = new Parser(lexer).parseProgram();
-        program.indexed();
-
-        PassManager manager = new PassManager(lexer);
-
-        manager.addPass(new InterClassAnalysisCheckPass());
-        manager.addPass(new EnterScopePass());
-        manager.addPass(new VariableAnalysisCheckPass());
-        manager.addPass(new LeaveScopePass());
-
-        manager.run(program);
-
-
+        Source source = Source.forString(testProgram);
+        new CheckAction(source, false).run();
     }
 }

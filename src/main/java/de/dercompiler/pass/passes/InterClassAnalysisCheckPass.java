@@ -5,14 +5,15 @@ import de.dercompiler.ast.type.VoidType;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.ClassType;
-import de.dercompiler.semantic.type.LibraryClass;
-
-import java.util.HashMap;
+import de.dercompiler.semantic.type.InternalClass;
+import de.dercompiler.semantic.type.MethodType;
 
 /**
- * Collects all fields and methods of all classes.
+ *  (Pass 2) Collects all fields and methods of all classes.
  */
 public class InterClassAnalysisCheckPass implements ClassPass {
 
@@ -24,7 +25,7 @@ public class InterClassAnalysisCheckPass implements ClassPass {
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
         String className = classDeclaration.getIdentifier();
-        if (globalScope.hasClass(className) && !(globalScope.getClass(className) instanceof LibraryClass)) {
+        if (globalScope.hasClass(className) && !(globalScope.getClass(className) instanceof InternalClass)) {
             logger.printErrorAndExit(PassErrorIds.DUPLICATE_CLASS, "Class definition of %s may not be overridden.".formatted(className));
         }
 
@@ -36,7 +37,8 @@ public class InterClassAnalysisCheckPass implements ClassPass {
                 if (newClass.hasMethod(method.getIdentifier())) {
                     failAnalysis(PassErrorIds.DUPLICATE_METHOD, method, "Method %s is already defined in class %s".formatted(method.getIdentifier(), newClass.getIdentifier()));
                 }
-                newClass.addMethod(method.getIdentifier(), method);
+                MethodDefinition methodDefinition = new MethodDefinition(method.getIdentifier(), newClass);
+                newClass.addMethod(methodDefinition);
             } else if (classMember instanceof Field field) {
                 if (field.getType().getBasicType() instanceof VoidType) {
                     failAnalysis(PassErrorIds.ILLEGAL_FIELD_TYPE, field, "Illegal type %s for attribute %s".formatted(field.getType(), field.getIdentifier()));
@@ -44,7 +46,9 @@ public class InterClassAnalysisCheckPass implements ClassPass {
                 if (newClass.hasField(field.getIdentifier())) {
                     failAnalysis(PassErrorIds.DUPLICATE_FIELD, field, "Field %s is already defined in class %s".formatted(field.getIdentifier(), newClass.getIdentifier()));
                 }
-                newClass.addField(field.getIdentifier(), field);
+                FieldDefinition fieldDefinition = new FieldDefinition(field.getIdentifier(), newClass);
+                fieldDefinition.setNode(field);
+                newClass.addField(fieldDefinition);
             }
         }
 
@@ -72,6 +76,8 @@ public class InterClassAnalysisCheckPass implements ClassPass {
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
+        usage.requireAnalysis(ASTReferencePass.class);
+        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 
@@ -107,6 +113,7 @@ public class InterClassAnalysisCheckPass implements ClassPass {
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        return AnalysisDirection.TOP_DOWN;
+        // direction does not matter here
+        return AnalysisDirection.BOTTOM_UP;
     }
 }

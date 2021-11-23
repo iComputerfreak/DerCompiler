@@ -69,4 +69,9 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         }
         this.methodType = methodType;
     }
+
+    @Override
+    public void setInternal(boolean internal) {
+        super.setInternal(internal);
+    }
 }

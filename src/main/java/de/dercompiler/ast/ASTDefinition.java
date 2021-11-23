@@ -14,4 +14,3 @@ public interface ASTDefinition {
     SourcePosition getSourcePosition();
 
 }
-

@@ -1,17 +1,18 @@
 package de.dercompiler.semantic.type;
 
 import de.dercompiler.ast.ClassDeclaration;
-import de.dercompiler.ast.Field;
-import de.dercompiler.ast.Method;
+import de.dercompiler.semantic.FieldDefinition;
+import de.dercompiler.semantic.MethodDefinition;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public sealed class ClassType implements ReferenceType permits LibraryClass {
+public sealed class ClassType implements ReferenceType permits InternalClass {
 
     private final String identifier;
-    private final Map<String, Field> fieldMap;
-    private final Map<String, Method> methodMap;
+    private final Map<String, FieldDefinition> fieldMap;
+    private final Map<String, MethodDefinition> methodMap;
 
     private ClassDeclaration decl;
 
@@ -30,28 +31,32 @@ public sealed class ClassType implements ReferenceType permits LibraryClass {
         return this == other || other instanceof NullType || other instanceof AnyType;
     }
 
-    public Method getMethod(String methodName) {
+    public MethodDefinition getMethod(String methodName) {
         return methodMap.getOrDefault(methodName, null);
     }
 
-    public Field getField(String fieldName) {
+    public FieldDefinition getField(String fieldName) {
         return fieldMap.getOrDefault(fieldName, null);
+    }
+
+    public List<FieldDefinition> getFields() {
+        return List.copyOf(fieldMap.values());
     }
 
     public boolean hasMethod(String identifier) {
         return methodMap.containsKey(identifier);
     }
 
-    public void addMethod(String identifier, Method method) {
-        methodMap.put(identifier, method);
+    public void addMethod(MethodDefinition method) {
+        methodMap.put(method.getIdentifier(), method);
     }
 
     public boolean hasField(String identifier) {
         return fieldMap.containsKey(identifier);
     }
 
-    public void addField(String identifier, Field field) {
-        fieldMap.put(identifier, field);
+    public void addField(FieldDefinition field) {
+        fieldMap.put(field.getIdentifier(), field);
     }
 
 

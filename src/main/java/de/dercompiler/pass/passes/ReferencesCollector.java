@@ -4,33 +4,36 @@ import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
- * This class represents an {@link ASTExpressionVisitor} that collects references to nodes that can be assigned a type. This is to separate the traversal of the Expression trees from the actual usage of the nodes, of which there may be various different ones.
+ * This class represents an {@link ASTExpressionVisitor} that collects references to nodes that can be assigned a type.
+ * This is to separate the traversal of the Expression trees from the actual usage of the nodes, of which there may be various different ones.
  */
 public class ReferencesCollector implements ASTExpressionVisitor {
 
-    private final boolean collectVariables;
-    private final boolean collectFieldAccesses;
-    private final boolean collectMethodInvocations;
-    private final boolean collectArrayAccesses;
-    private final boolean collectAssignmentExpressions;
-    private final boolean collectNewObjectExpressions;
+    private EnumSet<ReferenceType> types;
 
     private ArrayList<Expression> expressions;
+    private boolean visitInternal;
 
-    public ReferencesCollector() {
-        this(true, true, true, true, true, true);
+
+    enum ReferenceType {
+        VARIABLE, FIELD, METHOD_INVOCATION, ARRAY_ACCESS, ASSIGNMENT_EXPRESSION, NEW_OBJECT, NEW_ARRAY, UNINITIALIZED_VALUE
     }
 
-    public ReferencesCollector(boolean collectVariables, boolean collectFieldAccesses, boolean collectMethodInvocations, boolean collectArrayAccesses, boolean collectAssignmentExpressions, boolean collectNewObjectExpressions) {
-        this.collectVariables = collectVariables;
-        this.collectFieldAccesses = collectFieldAccesses;
-        this.collectMethodInvocations = collectMethodInvocations;
-        this.collectArrayAccesses = collectArrayAccesses;
-        this.collectAssignmentExpressions = collectAssignmentExpressions;
-        this.collectNewObjectExpressions = collectNewObjectExpressions;
+    public ReferencesCollector() {
+        types = EnumSet.allOf(ReferenceType.class);
+    }
+
+    public ReferencesCollector(ReferenceType... types) {
+         this.types = EnumSet.noneOf(ReferenceType.class);
+         for (ReferenceType type : types) this.types.add(type);
+    }
+
+    private boolean collects(ReferenceType type) {
+        return types.contains(type);
     }
 
     public List<Expression> analyze(Expression ex) {
@@ -43,7 +46,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     public void visitArrayAccess(ArrayAccess arrayAccess) {
         arrayAccess.getEncapsulated().accept(this);
         arrayAccess.getIndex().accept(this);
-        if (collectArrayAccesses) expressions.add(arrayAccess);
+        if (collects(ReferenceType.ARRAY_ACCESS)) expressions.add(arrayAccess);
     }
 
     @Override
@@ -55,7 +58,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
         binaryExpression.getLhs().accept(this);
         binaryExpression.getRhs().accept(this);
-        if (binaryExpression instanceof AssignmentExpression ass && collectAssignmentExpressions)
+        if (binaryExpression instanceof AssignmentExpression ass && collects(ReferenceType.ASSIGNMENT_EXPRESSION))
             expressions.add(ass);
     }
 
@@ -66,8 +69,9 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitFieldAccess(FieldAccess fieldAccess) {
-        fieldAccess.getEncapsulated().accept(this);
-        if (collectFieldAccesses) expressions.add(fieldAccess);
+        if (this.visitInternal || !fieldAccess.getEncapsulated().isInternal())
+            fieldAccess.getEncapsulated().accept(this);
+        if (collects(ReferenceType.FIELD)) expressions.add(fieldAccess);
     }
 
     @Override
@@ -83,16 +87,14 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     @Override
     public void visitMethodInvocation(MethodInvocationOnObject methodInvocation) {
         Expression refObj = methodInvocation.getEncapsulated();
-        if (refObj == null) {
-            expressions.add(new ThisValue(methodInvocation.getSourcePosition()));
-        } else {
+        if (this.visitInternal || !refObj.isInternal())
             refObj.accept(this);
-        }
+
         Arguments arguments = methodInvocation.getArguments();
         for (int i = 0; i < arguments.getLength(); i++) {
             arguments.get(i).accept(this);
         }
-        if (collectMethodInvocations) expressions.add(methodInvocation);
+        if (collects(ReferenceType.METHOD_INVOCATION)) expressions.add(methodInvocation);
     }
 
     @Override
@@ -102,12 +104,13 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitNewArrayExpression(NewArrayExpression newArrayExpression) {
+        if (collects(ReferenceType.NEW_ARRAY)) expressions.add(newArrayExpression);
         newArrayExpression.getSize().accept(this);
     }
 
     @Override
     public void visitNewObjectExpression(NewObjectExpression newObjectExpression) {
-        if (collectNewObjectExpressions) expressions.add(newObjectExpression);
+        if (collects(ReferenceType.NEW_OBJECT)) expressions.add(newObjectExpression);
     }
 
     @Override
@@ -127,12 +130,12 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitUninitializedValue(UninitializedValue uninitializedValue) {
-
+        if (collects(ReferenceType.UNINITIALIZED_VALUE)) expressions.add(uninitializedValue);
     }
 
     @Override
     public void visitVariable(Variable variable) {
-        if (collectVariables) expressions.add(variable);
+        if (collects(ReferenceType.VARIABLE)) expressions.add(variable);
     }
 
     @Override
@@ -140,5 +143,8 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     }
 
+    public void setVisitInternalNodes(boolean visitInternal) {
+        this.visitInternal = visitInternal;
+    }
 
 }

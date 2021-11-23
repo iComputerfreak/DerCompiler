@@ -1,24 +1,24 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.ast.type.Type;
+import de.dercompiler.semantic.type.Type;
 
 public class VariableDefinition implements Definition {
 
-    private final Symbol symbol;
+    private final String identifier;
     private final Type type;
 
-    public VariableDefinition(Symbol symbol, Type type) {
-        this.symbol = symbol;
+    public VariableDefinition(String identifier, Type type) {
+        this.identifier = identifier;
         this.type = type;
     }
 
     @Override
-    public Symbol getSymbol() {
-        return symbol;
+    public String getIdentifier() {
+        return identifier;
     }
 
     @Override
-    public Type getType() {
+    public de.dercompiler.semantic.type.Type getType() {
         return type;
     }
 }

@@ -11,7 +11,10 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
 
     private Statement surrounding = null;
     private Type type;
+    // True if this expression is directly surrounded by parentheses.
     private boolean inParentheses;
+    // True if the type of this expression is an instance of InternalClass.
+    private boolean internal;
 
     protected Expression(SourcePosition position) {
         super(position);
@@ -25,8 +28,6 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
         return surrounding;
     }
 
-
-    //getType(HashMap<String, StringTable> fieldStringtables, HashMap<String, StringTable> methodStringTables
     public Type getType() {
         return this.type;
     }
@@ -48,5 +49,13 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
 
     public boolean isInParentheses() {
         return inParentheses;
+    }
+
+    public void setInternal(boolean internal) {
+        this.internal = internal;
+    }
+
+    public boolean isInternal() {
+        return internal;
     }
 }

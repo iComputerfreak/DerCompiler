@@ -1,5 +1,6 @@
 package de.dercompiler.semantic.type;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,10 @@ public class MethodType implements Type {
         this.returnType = type;
         this.parameterTypes = parameters;
         this.staticMethod = isStatic;
+    }
+
+    public MethodType(Type returnType, Type... parameterTypes) {
+        this(returnType, Arrays.asList(parameterTypes), false);
     }
 
     @Override

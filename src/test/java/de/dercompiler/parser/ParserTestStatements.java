@@ -155,7 +155,7 @@ public class ParserTestStatements {
         Variable foo = new Variable(DEFAULT_POS, "foo");
         Variable bar = new Variable(DEFAULT_POS, "bar");
         ASTNode[] returns_expected = {
-            new ReturnStatement(DEFAULT_POS, new VoidExpression(DEFAULT_POS)),
+            new ReturnStatement(DEFAULT_POS, new UninitializedValue(DEFAULT_POS)),
             new ReturnStatement(DEFAULT_POS, foo),
             new ReturnStatement(DEFAULT_POS, new AddExpression(DEFAULT_POS, foo, bar))
         };

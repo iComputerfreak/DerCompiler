@@ -7,7 +7,7 @@ public class PassManagerBuilder {
     public static void buildSemanticsPipeline(PassManager manager) {
         // name-analysis passes
         manager.addPass(new InterClassAnalysisCheckPass());
-        manager.addPass(new MethodDeclarationPass());
+        manager.addPass(new MemberDeclarationPass());
         manager.addPass(new EnterScopePass());
         manager.addPass(new VariableAnalysisCheckPass());
         manager.addPass(new LeaveScopePass());

@@ -1,11 +1,11 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.ast.type.Type;
+import de.dercompiler.semantic.type.Type;
 
 /**
  * Represents a definition of a symbol with a given type
  */
 public interface Definition {
-    Symbol getSymbol();
+    String getIdentifier();
     Type getType();
 }

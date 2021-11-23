@@ -3,6 +3,9 @@ package de.dercompiler.semantic;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *  Maps {@link String} identifiers to {@link Symbol}s.
+ */
 public class StringTable {
 
     private final Map<String, Symbol> map;
