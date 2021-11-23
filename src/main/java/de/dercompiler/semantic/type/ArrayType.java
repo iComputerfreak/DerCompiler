@@ -1,8 +1,7 @@
 package de.dercompiler.semantic.type;
 
-import java.lang.reflect.Array;
-
 public final class ArrayType implements ReferenceType {
+    
     private Type elementType;
 
     public ArrayType(Type elementType) {
@@ -21,7 +20,17 @@ public final class ArrayType implements ReferenceType {
     public Type getElementType() {
         return elementType;
     }
-
+    
+    /**
+     * Returns the dimension of this array type
+     */
+    public int getDimension() {
+        if (elementType instanceof ArrayType a) {
+            return a.getDimension() + 1;
+        }
+        return 0;
+    }
+    
     @Override
     public String toString() {
         return elementType.toString() + "[]";
