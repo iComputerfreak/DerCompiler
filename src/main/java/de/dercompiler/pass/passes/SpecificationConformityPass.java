@@ -21,6 +21,9 @@ import de.dercompiler.pass.passes.ReferencesCollector.ReferenceType;
 
 import java.util.List;
 
+/**
+ *  (Pass 8) Checks for specified constraints.
+ */
 public class SpecificationConformityPass implements ClassPass, MethodPass, StatementPass, ExpressionPass {
 
     private PassManager passManager;

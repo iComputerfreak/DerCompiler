@@ -7,6 +7,9 @@ import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.SymbolTable;
 
+/**
+ *  (Pass 4) Enters a scope for each class, method and basic block.
+ */
 public class EnterScopePass implements ClassPass, MethodPass, BasicBlockPass {
     
     private SymbolTable symbolTable;

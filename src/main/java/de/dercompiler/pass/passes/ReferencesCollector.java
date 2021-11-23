@@ -8,7 +8,8 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
- * This class represents an {@link ASTExpressionVisitor} that collects references to nodes that can be assigned a type. This is to separate the traversal of the Expression trees from the actual usage of the nodes, of which there may be various different ones.
+ * This class represents an {@link ASTExpressionVisitor} that collects references to nodes that can be assigned a type.
+ * This is to separate the traversal of the Expression trees from the actual usage of the nodes, of which there may be various different ones.
  */
 public class ReferencesCollector implements ASTExpressionVisitor {
 

@@ -7,6 +7,9 @@ import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.SymbolTable;
 
+/**
+ *  (Pass 7) Leaves the scope of all classes, methods and basic blocks.
+ */
 public class LeaveScopePass implements ClassPass, MethodPass, BasicBlockPass {
 
     private SymbolTable symbolTable;

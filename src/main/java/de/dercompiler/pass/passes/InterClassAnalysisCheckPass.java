@@ -13,7 +13,7 @@ import de.dercompiler.semantic.type.InternalClass;
 import de.dercompiler.semantic.type.MethodType;
 
 /**
- * Collects all fields and methods of all classes.
+ *  (Pass 2) Collects all fields and methods of all classes.
  */
 public class InterClassAnalysisCheckPass implements ClassPass {
 

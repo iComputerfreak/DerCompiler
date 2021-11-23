@@ -8,7 +8,7 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.pass.*;
 
 /**
- *  (Pass 1) Sets
+ *  (Pass 1) Sets references from many syntactic elements to their surrounding parent of the next higher syntactic category.
  */
 public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass,  ExpressionPass {
 

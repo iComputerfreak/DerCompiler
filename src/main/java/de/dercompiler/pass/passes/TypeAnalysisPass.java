@@ -17,7 +17,8 @@ import de.dercompiler.semantic.type.*;
 import java.util.List;
 
 /**
- *  Types any expression
+ *  (Pass 6) Types any expression and primitive literals.
+ *  Checks for many constraints regarding types.
  */
 public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpressionVisitor {
 

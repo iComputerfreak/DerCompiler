@@ -59,8 +59,8 @@ public class CompilerSetup {
      */
     public Action parseAction(CommandLineOptions options) {
         if (options.echo()) {
-            File input = options.getFileArgument();
-            setAction(new EchoAction(input));
+            Source source = getSourceFromArgs(options);
+            setAction(new EchoAction(source));
         }
 
         if (options.lexTest()) {

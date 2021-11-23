@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ *  (Pass 3) Sets the types of method definitions and fields.
+ */
 public class MemberDeclarationPass implements ClassPass, MethodPass {
 
     private PassManager passManager;
