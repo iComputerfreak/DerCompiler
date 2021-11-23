@@ -7,6 +7,9 @@ import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.pass.*;
 
+/**
+ *  (Pass 1) Sets
+ */
 public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass,  ExpressionPass {
 
     private boolean shouldRun = false;

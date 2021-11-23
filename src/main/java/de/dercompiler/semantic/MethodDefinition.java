@@ -1,24 +1,41 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.ast.type.Type;
+import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.semantic.type.MethodType;
+import de.dercompiler.semantic.type.Type;
 
 public class MethodDefinition implements Definition {
-    
-    private final Symbol symbol;
-    private final Type type;
 
-    public MethodDefinition(Symbol symbol, Type type) {
-        this.symbol = symbol;
+    private final ClassType referenceType;
+    private final String identifier;
+    private MethodType type;
+
+    public MethodDefinition(String identifier, MethodType type, ClassType referenceType) {
+        this.identifier = identifier;
+        this.type = type;
+        this.referenceType = referenceType;
+    }
+
+    public MethodDefinition(String identifier, ClassType referenceType) {
+        this.identifier = identifier;
+        this.type = null;
+        this.referenceType = referenceType;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    @Override
+    public MethodType getType() {
+        return type;
+    }
+
+    public void setType(MethodType type) {
         this.type = type;
     }
 
-    @Override
-    public Symbol getSymbol() {
-        return null;
-    }
-
-    @Override
-    public Type getType() {
-        return null;
+    public ClassType getReferenceType() {
+        return referenceType;
     }
 }

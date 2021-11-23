@@ -640,10 +640,10 @@ public class Parser {
         } catch (ExpectedTokenError e) {
             return new ErrorStatement(pos);
         }
-        Expression returnExpression = new VoidExpression(pos);
-        if (wlexer.peek() != SEMICOLON) {
-            returnExpression = parseExpression(ank.fork(SEMICOLON));
-        }
+        Expression returnExpression = (wlexer.peek() == SEMICOLON) ?
+                new UninitializedValue(pos)
+                : parseExpression(ank.fork(SEMICOLON));
+
         SourcePosition pos2 = wlexer.position();
         try {
             expect(SEMICOLON, ank, "end of return statement");

@@ -16,11 +16,11 @@ public class GlobalScope {
         this.classMap = new HashMap<>();
     }
 
-    public Method getMethod(String className, String methodName) {
+    public MethodDefinition getMethod(String className, String methodName) {
         return getClass(className).getMethod(methodName);
     }
 
-    public Field getField(String className, String fieldName) {
+    public FieldDefinition getField(String className, String fieldName) {
         return getClass(className).getField(fieldName);
     }
 

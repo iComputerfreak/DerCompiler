@@ -10,6 +10,8 @@ import java.util.Objects;
 public final class Variable extends PrimaryExpression {
 
     private String name;
+    // True if the type of this Variable is an instance of InternalClass.
+    private boolean internal;
 
     public ASTDefinition getDefinition() {
         return definition;

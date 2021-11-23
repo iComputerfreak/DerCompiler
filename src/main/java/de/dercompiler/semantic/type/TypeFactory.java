@@ -6,6 +6,11 @@ import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.IntType;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.pass.Pass;
+import de.dercompiler.pass.PassErrorIds;
+import de.dercompiler.pass.PassManager;
+import de.dercompiler.pass.PassManagerBuilder;
+import de.dercompiler.pass.passes.TypeAnalysisPass;
 import de.dercompiler.semantic.GlobalScope;
 
 import java.util.Objects;
@@ -14,6 +19,7 @@ public class TypeFactory {
 
     private static TypeFactory singleton;
     private GlobalScope globalScope;
+    private TypeAnalysisPass pass;
 
     private TypeFactory() {
 
@@ -23,8 +29,9 @@ public class TypeFactory {
         return Objects.isNull(singleton) ? (singleton = new TypeFactory()) : singleton;
     }
 
-    public void initialize(Program program) {
+    public void initialize(Program program, TypeAnalysisPass pass) {
         this.globalScope = program.getGlobalScope();
+        this.pass = pass;
     }
 
     public Type create(de.dercompiler.ast.type.Type type) {
@@ -33,6 +40,10 @@ public class TypeFactory {
             return createArrayType(basicType, type.getArrayDimension());
         }
 
+        return create(basicType);
+    }
+
+    private Type create(BasicType basicType) {
         if (basicType instanceof de.dercompiler.ast.type.BooleanType) return new BooleanType();
         else if (basicType instanceof IntType) return new IntegerType();
         else if (basicType instanceof de.dercompiler.ast.type.VoidType) return new VoidType();
@@ -44,16 +55,24 @@ public class TypeFactory {
     }
 
     public ArrayType createArrayType(BasicType basicType, int dimension) {
+
         if (dimension > 1) {
             return new ArrayType(createArrayType(basicType, dimension - 1));
         } else {
-            return new ArrayType(create(new de.dercompiler.ast.type.Type(null, basicType, 0)));
+            Type elementType = create(basicType);
+            if (elementType instanceof InternalClass) {
+                System.err.println(pass.getPassManager().getLexer().printSourceText(basicType.getSourcePosition()));
+                pass.getLogger().printErrorAndExit(PassErrorIds.ILLEGAL_ARRAY_TYPE, "Illegal reference to internal construct '%s'".formatted(elementType));
+                pass.getPassManager().quitOnError();
+            }
+
+            return new ArrayType(elementType);
         }
     }
 
     public Type create(CustomType customType) {
         if (!globalScope.hasClass(customType.getIdentifier())) {
-            new OutputMessageHandler(MessageOrigin.PASSES).internalError("Could not find type '%s' in globalScope, although clearly it should be there. Oh oh!".formatted(customType.getIdentifier()));
+            new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_TYPE, "Type '%s' is unknown".formatted(customType.getIdentifier()));
         }
         return globalScope.getClass(customType.getIdentifier());
     }
