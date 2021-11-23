@@ -15,6 +15,7 @@ public sealed class ClassType implements ReferenceType permits InternalClass {
     private final Map<String, MethodDefinition> methodMap;
 
     private ClassDeclaration decl;
+    private firm.ClassType firmType;
 
     public ClassType(String identifier) {
         this.identifier = identifier;
@@ -29,6 +30,14 @@ public sealed class ClassType implements ReferenceType permits InternalClass {
     @Override
     public boolean isCompatibleTo(Type other) {
         return this == other || other instanceof NullType || other instanceof AnyType;
+    }
+    
+    public firm.ClassType getFirmType() {
+        return firmType;
+    }
+    
+    public void setFirmType(firm.ClassType firmType) {
+        this.firmType = firmType;
     }
 
     public MethodDefinition getMethod(String methodName) {

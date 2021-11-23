@@ -2,12 +2,12 @@ package de.dercompiler.semantic;
 
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.MethodType;
-import de.dercompiler.semantic.type.Type;
 
 public class MethodDefinition implements Definition {
 
     private final ClassType referenceType;
     private final String identifier;
+    private firm.MethodType firmType;
     private MethodType type;
 
     public MethodDefinition(String identifier, MethodType type, ClassType referenceType) {
@@ -34,7 +34,15 @@ public class MethodDefinition implements Definition {
     public void setType(MethodType type) {
         this.type = type;
     }
-
+    
+    public firm.MethodType getFirmType() {
+        return firmType;
+    }
+    
+    public void setFirmType(firm.MethodType firmType) {
+        this.firmType = firmType;
+    }
+    
     public ClassType getReferenceType() {
         return referenceType;
     }
