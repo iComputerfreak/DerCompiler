@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public final class NewObjectExpression extends PrimaryExpression {
 
-    private CustomType objType;
+    private final CustomType objType;
     public NewObjectExpression(SourcePosition position, CustomType type) {
         super(position);
         this.objType = type;

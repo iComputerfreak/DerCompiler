@@ -26,9 +26,9 @@ public class PassManager {
 
     private static long passIDs = 1;
     private static boolean printPipeline = false;
-    private List<Pass> passes;
+    private final List<Pass> passes;
     private PassPipeline pipeline;
-    private Lexer lexer;
+    private final Lexer lexer;
     private boolean errorMode;
 
     public PassManager(Lexer lex) {

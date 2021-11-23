@@ -10,7 +10,7 @@ import java.util.Objects;
  * Parsing the value is delegated to later stages where the sign of the integer is clear.
  */
 public final class IntegerToken implements IToken {
-    private String value;
+    private final String value;
 
     public IntegerToken(String value) {
         if (Objects.isNull(value) || value.length() == 0) {

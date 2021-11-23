@@ -6,7 +6,7 @@ package de.dercompiler.semantic;
 public class Scope {
     private Scope parent;
     private int oldSize;
-    private int level;
+    private final int level;
 
     public static final int PROGRAM_LEVEL = 0;
     public static final int CLASS_LEVEL = 1;

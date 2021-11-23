@@ -4,8 +4,8 @@ import de.dercompiler.ast.type.Type;
 
 public class FieldDefinition implements Definition{
 
-    private Symbol symbol;
-    private Type type;
+    private final Symbol symbol;
+    private final Type type;
 
     public FieldDefinition(Symbol symbol, Type type){
         this.symbol = symbol;

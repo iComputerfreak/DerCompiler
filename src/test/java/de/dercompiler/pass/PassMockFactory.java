@@ -39,8 +39,8 @@ public class PassMockFactory {
 
         return new ClassPass() {
             private long id = 0;
-            private AnalysisDirection dir = direction;
-            private AnalysisUsage use = usage;
+            private final AnalysisDirection dir = direction;
+            private final AnalysisUsage use = usage;
             private PassManager manager;
 
             @Override
@@ -101,8 +101,8 @@ public class PassMockFactory {
     public static Pass generateClassMethodPass(AnalysisUsage usage, AnalysisDirection direction, RunOnXY classRun, RunOnXY methodRun) {
         return new ClassMethodPass() {
             private long id = 0;
-            private AnalysisDirection dir = direction;
-            private AnalysisUsage use = usage;
+            private final AnalysisDirection dir = direction;
+            private final AnalysisUsage use = usage;
             private PassManager manager;
 
             @Override
@@ -173,8 +173,8 @@ public class PassMockFactory {
     public static Pass generateMethodPass(AnalysisUsage usage, AnalysisDirection direction, RunOnXY run) {
         return new MethodPass() {
             private long id = 0;
-            private AnalysisDirection dir = direction;
-            private AnalysisUsage use = usage;
+            private final AnalysisDirection dir = direction;
+            private final AnalysisUsage use = usage;
             private PassManager manager;
 
             @Override
@@ -239,8 +239,8 @@ public class PassMockFactory {
     public static Pass generateBlockPass(AnalysisUsage usage, AnalysisDirection direction, RunOnXY run) {
         return new BasicBlockPass() {
             private long id = 0;
-            private AnalysisDirection dir = direction;
-            private AnalysisUsage use = usage;
+            private final AnalysisDirection dir = direction;
+            private final AnalysisUsage use = usage;
             private PassManager manager;
 
             @Override
@@ -305,8 +305,8 @@ public class PassMockFactory {
     public static Pass generateMethodStatementPass(AnalysisUsage usage, AnalysisDirection direction, RunOnXY runMethod, RunOnXY runStatement) {
         return new MethodStatementPass() {
             private long id = 0;
-            private AnalysisDirection dir = direction;
-            private AnalysisUsage use = usage;
+            private final AnalysisDirection dir = direction;
+            private final AnalysisUsage use = usage;
             private PassManager manager;
             @Override
             public boolean runOnMethod(Method method) {
@@ -442,8 +442,8 @@ public class PassMockFactory {
     public static Pass generateStatementExpressionPass(AnalysisUsage usage, AnalysisDirection direction, RunOnXY runStatement, RunOnXY runExpression) {
         return new StatementExpressionPass() {
             private long id = 0;
-            private AnalysisDirection dir = direction;
-            private AnalysisUsage use = usage;
+            private final AnalysisDirection dir = direction;
+            private final AnalysisUsage use = usage;
             private PassManager manager;
 
             @Override
@@ -514,8 +514,8 @@ public class PassMockFactory {
     public static Pass generateExpressionPass(AnalysisUsage usage, AnalysisDirection direction, RunOnXY run) {
         return new ExpressionPass() {
             private long id = 0;
-            private AnalysisDirection dir = direction;
-            private AnalysisUsage use = usage;
+            private final AnalysisDirection dir = direction;
+            private final AnalysisUsage use = usage;
             private PassManager manager;
 
             @Override

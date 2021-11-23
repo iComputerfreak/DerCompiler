@@ -10,7 +10,7 @@ import java.util.Map;
 public class GlobalScope {
 
 
-    private Map<String, ClassType> classMap;
+    private final Map<String, ClassType> classMap;
 
     public GlobalScope() {
         this.classMap = new HashMap<>();

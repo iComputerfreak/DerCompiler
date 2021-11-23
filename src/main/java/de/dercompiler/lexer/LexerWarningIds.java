@@ -6,7 +6,7 @@ public enum LexerWarningIds implements IWarningIds {
     NESTED_COMMENT(210);
 
 
-    private int id;
+    private final int id;
 
     LexerWarningIds(int id) {
         this.id = id;

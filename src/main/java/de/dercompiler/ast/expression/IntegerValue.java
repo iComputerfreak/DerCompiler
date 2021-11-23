@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public final class IntegerValue extends PrimaryExpression {
 
-    private String value;
+    private final String value;
 
     /**
         True if an odd number of NegativeExpressions directly surrounds this IntegerValue. Used for type checking.

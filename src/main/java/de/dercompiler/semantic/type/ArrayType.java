@@ -2,7 +2,7 @@ package de.dercompiler.semantic.type;
 
 public final class ArrayType implements ReferenceType {
     
-    private Type elementType;
+    private final Type elementType;
 
     public ArrayType(Type elementType) {
         this.elementType = elementType;

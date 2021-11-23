@@ -5,9 +5,9 @@ import de.dercompiler.io.message.MessageOrigin;
 
 public class DebugEvent {
 
-    private MessageOrigin origin;
-    private IErrorIds errorId;
-    private String message;
+    private final MessageOrigin origin;
+    private final IErrorIds errorId;
+    private final String message;
 
     public DebugEvent(MessageOrigin origin, IErrorIds ids, String message) {
         this.origin = origin;

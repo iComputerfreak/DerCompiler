@@ -8,7 +8,7 @@ public class ErrorStatus {
     private static final int NO_ERROR = 0;
     private static int errorCode = 0;
     private static boolean hasError = false;
-    private static long start = System.currentTimeMillis();
+    private static final long start = System.currentTimeMillis();
     private static boolean printTime = false;
 
     public static void reportError(int error) {

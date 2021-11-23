@@ -23,7 +23,7 @@ public class Lexer {
     private static final int SLL_CONSTANT = 4;
     private final RingBuffer<TokenOccurrence> tokenBuffer;
     private BufferedReader reader;
-    private Source source;
+    private final Source source;
 
     // position of the currentChar in the source, NOT the position of the reader in the source (with is one char further along)
     private final Position position;

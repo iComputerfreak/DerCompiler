@@ -30,13 +30,13 @@ public final class ClassDeclaration extends ASTNode {
         return fieldMap;
     }
 
-    private HashMap<String, Field> fieldMap;
+    private final HashMap<String, Field> fieldMap;
 
     public HashMap<String, Method> getMethodMap() {
         return methodMap;
     }
 
-    private HashMap<String, Method> methodMap;
+    private final HashMap<String, Method> methodMap;
 
 
 

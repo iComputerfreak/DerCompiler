@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class Arguments extends ASTNode {
 
-    private LinkedList<Expression> arguments;
+    private final LinkedList<Expression> arguments;
 
     private List<de.dercompiler.semantic.type.Type> expectedTypes;
 

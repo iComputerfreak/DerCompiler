@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public final class Variable extends PrimaryExpression {
 
-    private String name;
+    private final String name;
 
     public ASTDefinition getDefinition() {
         return definition;

@@ -19,7 +19,7 @@ import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;
 
 public class ParserTestStatements {
 
-    private static ParserTestHelper pth = new ParserTestHelper();
+    private static final ParserTestHelper pth = new ParserTestHelper();
 
     @BeforeAll
     static void setup() {
@@ -27,7 +27,7 @@ public class ParserTestStatements {
     }
 
     private void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes) {
-        pth.testLexstringEqualASTNode(strings, nodes, Parser::parseStatement);
+        ParserTestHelper.testLexstringEqualASTNode(strings, nodes, Parser::parseStatement);
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ParserTestStatements {
             new LocalVariableDeclarationStatement(DEFAULT_POS, bool, bar.getName(), new LogicalNotExpression(DEFAULT_POS, new BooleanValue(DEFAULT_POS, true))),
             new LocalVariableDeclarationStatement(DEFAULT_POS, fooType, bar.getName(), new NewObjectExpression(DEFAULT_POS, (CustomType) fooType.getBasicType()))
         };
-        pth.testLexstringEqualASTNode(locals, locals_expected, Parser::parseVariableDeclaration);
+        ParserTestHelper.testLexstringEqualASTNode(locals, locals_expected, Parser::parseVariableDeclaration);
     }
 
     @Test

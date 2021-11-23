@@ -53,7 +53,7 @@ public final class OutputMessageHandler {
 
     private static boolean debug_mode = false;
     private static boolean debug_print = true;
-    private static List<DebugEvent> debugEvents = new LinkedList<DebugEvent>();
+    private static final List<DebugEvent> debugEvents = new LinkedList<>();
 
     /**
      * Creates a new OutputMessageHandler with the given origin and stream

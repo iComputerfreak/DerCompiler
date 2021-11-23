@@ -37,7 +37,7 @@ public final class Program extends ASTNode {
     // TODO: SymbolTable field, getter and init in constructor
     private final SymbolTable symbolTable;
 
-    private GlobalScope globalScope;
+    private final GlobalScope globalScope;
 
 
     /**

@@ -11,7 +11,7 @@ import de.dercompiler.lexer.SourcePosition;
  * Used for 'System'.
  */
 public final class GlobalConstant implements ASTDefinition {
-    private Type type;
+    private final Type type;
 
     public GlobalConstant(String name) {
         this.type = new Type(null, new CustomType(null, name), 0);

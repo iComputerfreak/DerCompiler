@@ -6,7 +6,7 @@ import java.util.EnumSet;
 
 public class AnchorSet {
 
-    private EnumSet<Token> keywordsAndSeparators;
+    private final EnumSet<Token> keywordsAndSeparators;
     private boolean operators;
     private boolean number;
     private boolean ident;

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class AnalysisUsage {
 
-    private List<Class<? extends Pass>> analyses;
+    private final List<Class<? extends Pass>> analyses;
     private DependencyType type;
 
     public AnalysisUsage() {

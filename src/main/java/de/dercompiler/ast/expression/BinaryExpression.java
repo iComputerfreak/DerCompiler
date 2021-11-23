@@ -1,15 +1,14 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import de.dercompiler.lexer.token.OperatorToken;
 
 public abstract sealed class BinaryExpression extends Expression permits AssignmentExpression, AddExpression, DivisionExpression, EqualExpression, GreaterEqualExpression, GreaterExpression, LessEqualExpression, LessExpression, LogicalAndExpression, LogicalOrExpression, ModuloExpression, MultiplyExpression, SubtractExpression, NotEqualExpression {
 
-    private Expression lhs;
-    private Expression rhs;
+    private final Expression lhs;
+    private final Expression rhs;
 
     public BinaryExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position);

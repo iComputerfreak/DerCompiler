@@ -10,9 +10,9 @@ import java.util.Objects;
 
 public final class NewArrayExpression extends PrimaryExpression {
 
-    private BasicType type;
-    private Expression size;
-    private int dimension;
+    private final BasicType type;
+    private final Expression size;
+    private final int dimension;
 
     public NewArrayExpression(SourcePosition position, BasicType type, Expression size, int dimension) {
         super(position);

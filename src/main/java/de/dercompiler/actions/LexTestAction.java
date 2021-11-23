@@ -8,7 +8,7 @@ public class LexTestAction extends Action {
 
     public static final String HELP_TEXT = "--lexTest <file>: Generates a sequence of tokens out of the file and prints it to the console.";
     public static final String COMMAND_LINE_NAME = "lexTest";
-    private Source source;
+    private final Source source;
     private boolean printPosition;
 
     /**

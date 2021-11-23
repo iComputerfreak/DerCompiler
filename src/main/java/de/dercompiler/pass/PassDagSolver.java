@@ -80,7 +80,7 @@ public class PassDagSolver {
                         for (Pass dep : deps) {
                             sb.append(dep.getClass().getName()).append(", ");
                         }
-                        new OutputMessageHandler(MessageOrigin.PASSES).internalError( "Pass: " + pass.getClass().getName() + " has more than one Predecessor: " + sb.toString());
+                        new OutputMessageHandler(MessageOrigin.PASSES).internalError( "Pass: " + pass.getClass().getName() + " has more than one Predecessor: " + sb);
                     }
                 } else {
                     pipeline.addPass(pass);

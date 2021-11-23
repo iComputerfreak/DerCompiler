@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 public class MethodType implements Type {
 
     private final boolean staticMethod;
-    private List<Type> parameterTypes;
-    private Type returnType;
+    private final List<Type> parameterTypes;
+    private final Type returnType;
 
     public MethodType(Type type, List<Type> parameters, boolean isStatic) {
         this.returnType = type;

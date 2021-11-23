@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RingBuffer<T> {
-    private List<T> elements;
+    private final List<T> elements;
     private int nextIndex;
     private int tailIndex;
     private int length;
-    private int capacity;
+    private final int capacity;
 
     public RingBuffer(int capacity) {
         this.elements = new ArrayList<>(capacity);

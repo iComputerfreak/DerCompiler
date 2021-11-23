@@ -152,7 +152,7 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
                 Type refObj = call.getReferenceObject().getType();
                 if (refObj instanceof ClassType objType) {
                     if (!objType.hasMethod(call.getFunctionName())) {
-                        failVariableAnalysis(PassErrorIds.UNKNOWN_METHOD, "Unknown method \'%s\' of %s object".formatted(call.getFunctionName(), objType.getIdentifier()), call.getSourcePosition());
+                        failVariableAnalysis(PassErrorIds.UNKNOWN_METHOD, "Unknown method '%s' of %s object".formatted(call.getFunctionName(), objType.getIdentifier()), call.getSourcePosition());
                         continue;
                     }
                     call.setType(objType.getMethod(call.getFunctionName()).getReferenceType().getReturnType());
@@ -165,7 +165,7 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
                 Type refType = field.getEncapsulated().getType();
                 if (refType instanceof ClassType cObj) {
                     if (!cObj.hasField(field.getFieldName())) {
-                        failVariableAnalysis(PassErrorIds.UNKNOWN_FIELD, "Unknown field \'%s\' of %s object".formatted(field.getFieldName(), cObj.getIdentifier()), field.getSourcePosition());
+                        failVariableAnalysis(PassErrorIds.UNKNOWN_FIELD, "Unknown field '%s' of %s object".formatted(field.getFieldName(), cObj.getIdentifier()), field.getSourcePosition());
                         continue;
                     }
                     field.setType(cObj.getField(field.getFieldName()).getRefType());

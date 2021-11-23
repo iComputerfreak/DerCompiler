@@ -137,7 +137,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         if (integerValue.isInParentheses()) {
             sb.append("(%s)".formatted(integerValue.toString()));
         } else {
-            sb.append(integerValue.toString());
+            sb.append(integerValue);
         }
     }
 
@@ -213,7 +213,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
 
     @Override
     public void visitThisValue(ThisValue thisValue) {
-        sb.append(THIS.toString());
+        sb.append(THIS);
     }
 
     public void visitExpressionStatement(ExpressionStatement exprStmt) {
@@ -456,7 +456,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         private boolean indentBefore;
         private boolean newLineAfter;
 
-        private static Stack<PrinterState> saved = new Stack<>();
+        private static final Stack<PrinterState> saved = new Stack<>();
 
         public PrinterState() {
             this(0, false, false);

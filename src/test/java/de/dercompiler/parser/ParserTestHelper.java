@@ -32,7 +32,7 @@ public class ParserTestHelper {
     }
 
     public interface ParserFunction {
-        public ASTNode parse(Parser parser, AnchorSet ank);
+        ASTNode parse(Parser parser, AnchorSet ank);
     }
 
     public static void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes, ParserFunction func) {

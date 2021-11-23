@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public final class BasicBlock extends Statement {
 
-    private LinkedList<Statement> statements;
+    private final LinkedList<Statement> statements;
 
     public BasicBlock(SourcePosition position) {
         super(position);statements = new LinkedList<>();

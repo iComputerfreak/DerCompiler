@@ -6,7 +6,7 @@ import de.dercompiler.lexer.token.IToken;
 
 public class LexerWrapper {
 
-    private Lexer lexer;
+    private final Lexer lexer;
 
     public LexerWrapper(Lexer lexer) {
         this.lexer = lexer;

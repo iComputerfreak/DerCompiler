@@ -16,7 +16,7 @@ public enum LexerErrorIds implements IErrorIds {
 
     ;
 
-    private int id;
+    private final int id;
 
     LexerErrorIds(int id) {
         this.id = id;

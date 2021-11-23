@@ -12,8 +12,8 @@ import java.util.Objects;
 
 public final class MethodInvocationOnObject extends UnaryExpression {
 
-    private Arguments arguments;
-    private String functionName;
+    private final Arguments arguments;
+    private final String functionName;
     private boolean implicitThis;
     private MethodType methodType;
 

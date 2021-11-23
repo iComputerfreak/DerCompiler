@@ -10,7 +10,7 @@ public class PrintAstAction extends Action {
 
 
     private static final String ACTION_ID = "print-ast";
-    private Source source;
+    private final Source source;
 
     public PrintAstAction(Source src) {
         this.source = src;

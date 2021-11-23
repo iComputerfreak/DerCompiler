@@ -9,9 +9,9 @@ import java.util.Map;
 
 public sealed class ClassType implements ReferenceType permits LibraryClass {
 
-    private String identifier;
-    private Map<String, Field> fieldMap;
-    private Map<String, Method> methodMap;
+    private final String identifier;
+    private final Map<String, Field> fieldMap;
+    private final Map<String, Method> methodMap;
 
     private ClassDeclaration decl;
 

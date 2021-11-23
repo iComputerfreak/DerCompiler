@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public final class ArrayAccess extends PostfixExpression {
 
-    private Expression index;
+    private final Expression index;
 
     public ArrayAccess(SourcePosition position, Expression encapsulated, Expression index) {
         super(position, encapsulated);

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class IdentifierToken implements IToken {
-    private String identifier;
+    private final String identifier;
 
     private IdentifierToken(String identifier) {
         this.identifier = identifier;
@@ -50,7 +50,7 @@ public final class IdentifierToken implements IToken {
 
     private static class StringTable {
 
-        private Map<String, IdentifierToken> map;
+        private final Map<String, IdentifierToken> map;
 
         private static StringTable singleton;
 

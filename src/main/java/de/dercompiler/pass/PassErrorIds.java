@@ -15,7 +15,7 @@ public enum PassErrorIds implements IErrorIds {
     ARGUMENTS_MISMATCH(707),
     DUPLICATE_CLASS(708),
     SPECS_VIOLATION(709), ILLEGAL_ARRAY_ACCESS(710), ILLEGAL_ASSIGNMENT(711), UNKNOWN_TYPE(712), DUPLICATE_VARIABLE(713), DUPLICATE_FIELD(714), DUPLICATE_METHOD(715), ILLEGAL_FIELD_TYPE(716), ILLEGAL_PARAMETER_TYPE(717);
-    private int id;
+    private final int id;
 
     PassErrorIds(int id) {
         this.id = id;

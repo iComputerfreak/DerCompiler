@@ -12,8 +12,8 @@ import de.dercompiler.pass.passes.*;
 public class CheckAction extends Action {
 
     private static final String ACTION_ID = "check";
-    private Source source;
-    private boolean printTypeAnnotation;
+    private final Source source;
+    private final boolean printTypeAnnotation;
 
     public CheckAction(Source src, boolean printTypeAnnotation) {
         this.source = src;

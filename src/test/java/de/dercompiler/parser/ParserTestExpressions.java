@@ -19,7 +19,7 @@ public class ParserTestExpressions {
 
     public static SourcePosition DEFAULT_POS = Lexer.forString("").peek().position();
 
-    private ParserTestHelper pth = new ParserTestHelper();
+    private final ParserTestHelper pth = new ParserTestHelper();
 
     @BeforeAll
     static void setup() {
@@ -32,7 +32,7 @@ public class ParserTestExpressions {
     }
 
     private void testLexstringEqualASTNode(String[] strings, ASTNode[] nodes, ParserTestHelper.ParserFunction func) {
-        pth.testLexstringEqualASTNode(strings, nodes, func);
+        ParserTestHelper.testLexstringEqualASTNode(strings, nodes, func);
     }
 
     @Test
