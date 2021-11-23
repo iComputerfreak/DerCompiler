@@ -2,7 +2,6 @@ package de.dercompiler.actions;
 
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 
 import java.io.*;
@@ -16,23 +15,26 @@ public class EchoAction extends Action {
     /**
      * The file to echo
      */
-    private final Source source;
+    private final File input;
 
     private final static String HELP_TEXT = "--echo <file>: prints the content of the file to the console.";
     private final static String COMMAND_LINE_NAME = "echo";
     /**
      * Creates a new EchoAction with the given input file
-     * @param source The source to print
+     * @param input The file to print
      */
-    public EchoAction(Source source) {
-        this.source = source;
+    public EchoAction(File input) {
+        this.input = input;
     }
 
     public void run() {
-        try {
-            source.getNewStream().transferTo(System.out);
+        if (Objects.isNull(input)) {
+            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.MISSING_INPUT_FILE, "No input-file given.");
+        }
+        try (FileInputStream file = new FileInputStream(input)) {
+            file.transferTo(System.out);
         } catch (IOException e) {
-            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong, while reading the input (" + source + ")!", e);
+            new OutputMessageHandler(MessageOrigin.GENERAL).printErrorAndExit(GeneralErrorIds.FILE_NOT_FOUND, "Something went wrong, while reading input-file (" + input.getAbsolutePath() + ")!", e);
         }
     }
 

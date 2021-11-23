@@ -1,0 +1,7 @@
+class A {
+
+    public System getSystem() {
+        return System;
+    }
+    public static void main(String[] args) {}
+}

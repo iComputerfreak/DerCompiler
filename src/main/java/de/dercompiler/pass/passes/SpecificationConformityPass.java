@@ -11,12 +11,17 @@ import de.dercompiler.ast.type.Type;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.semantic.type.InternalClass;
 import de.dercompiler.semantic.type.VoidType;
+import de.dercompiler.pass.passes.ReferencesCollector.ReferenceType;
 
 import java.util.List;
 
-public class SpecificationConformityPass implements MethodPass, StatementPass, ExpressionPass {
+public class SpecificationConformityPass implements ClassPass, MethodPass, StatementPass, ExpressionPass {
 
     private PassManager passManager;
     private static long id;
@@ -62,11 +67,12 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
             }
         }
 
-        if (!method.getReferenceType().getReturnType().isCompatibleTo(new VoidType())) {
+        ClassType type = globalScope.getClass(getPassManager().getCurrentClass().getIdentifier());
+        MethodDefinition methodDef = type.getMethod(method.getIdentifier());
+        if (!methodDef.getType().getReturnType().isCompatibleTo(new VoidType())) {
             if (!findReturnStatement(method.getBlock())) {
                 failSpecs(method, "Method is missing a return statement", true);
             }
-
         }
 
         return false;
@@ -96,15 +102,20 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
 
     @Override
     public boolean runOnExpression(Expression expression) {
+            List<Expression> references = new ReferencesCollector(ReferenceType.VARIABLE, ReferenceType.FIELD).analyze(expression);
         if (getPassManager().getCurrentMethod().isStatic()) {
-            List<Expression> variables = new ReferencesCollector(true, false, false, false, false, false).analyze(expression);
-            Variable argsRef = (Variable) variables.stream().filter(ex -> ex instanceof Variable var && var.getDefinition() instanceof Parameter).findAny().orElse(null);
+            Variable argsRef = (Variable) references.stream().filter(ex -> ex instanceof Variable var && var.getDefinition() instanceof Parameter).findAny().orElse(null);
             if (argsRef != null) {
                 failSpecs(argsRef, "Illegal reference to parameter %s of main method".formatted(argsRef.getName()), true);
             }
+        } else {
+            Expression internalRef = references.stream().filter(Expression::isInternal).findAny().orElse(null);
+            if (internalRef != null) {
+                failSpecs(internalRef, "Illegal reference to internal construct", true);
+            }
         }
 
-        List<Expression> methodInvocations = new ReferencesCollector(false, false, true, false, false, false).analyze(expression);
+        List<Expression> methodInvocations = new ReferencesCollector(ReferenceType.METHOD_INVOCATION).analyze(expression);
         MethodInvocationOnObject mainMethodCall = (MethodInvocationOnObject) methodInvocations.stream()
                 .filter(ex -> ex instanceof MethodInvocationOnObject methodCall && methodCall.getMethodType().isStaticMethod())
                 .findAny().orElse(null);
@@ -160,4 +171,15 @@ public class SpecificationConformityPass implements MethodPass, StatementPass, E
         return AnalysisDirection.BOTTOM_UP;
     }
 
+    @Override
+    public boolean runOnClass(ClassDeclaration classDeclaration) {
+        ClassType type = globalScope.getClass(classDeclaration.getIdentifier());
+        List<FieldDefinition> fields = type.getFields();
+        for (FieldDefinition field : fields) {
+            if (field.getType() instanceof InternalClass) {
+                failSpecs(field.getNode(), "Illegal attribute type '%s'".formatted(field.getType()), true);
+            }
+        }
+        return false;
+    }
 }

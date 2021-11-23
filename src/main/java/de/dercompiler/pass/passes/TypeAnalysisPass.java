@@ -11,10 +11,14 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.*;
 
 import java.util.List;
 
+/**
+ *  Types any expression
+ */
 public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpressionVisitor {
 
     private final OutputMessageHandler logger;
@@ -27,7 +31,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public void doInitialization(Program program) {
-        TypeFactory.getInstance().initialize(program);
+        TypeFactory.getInstance().initialize(program, this);
         this.globalScope = program.getGlobalScope();
     }
 
@@ -85,26 +89,26 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         return AnalysisDirection.BOTTOM_UP;
     }
 
-    private void failTypeCheck(Expression expr, String description) {
-        failTypeCheck(expr, description, "Illegal type " + expr.getType());
+    private void failTypeCheck(ASTNode expr, String description) {
+        System.err.println(getPassManager().getLexer().printSourceText(expr.getSourcePosition()));
+        logger.printErrorAndExit(PassErrorIds.TYPE_MISMATCH, description);
+        getPassManager().quitOnError();
     }
 
 
     private void failTypeCheck(ASTNode expr, String locationDescription, String errorDescription) {
-        System.err.println(getPassManager().getLexer().printSourceText(expr.getSourcePosition()));
-        logger.printErrorAndExit(PassErrorIds.TYPE_MISMATCH, errorDescription + " for " + locationDescription);
-        getPassManager().quitOnError();
+        failTypeCheck(expr, errorDescription + " for " + locationDescription);
     }
 
     private void assertTypeEqual(Expression lhs, Expression rhs, String description) {
         if (!lhs.getType().isCompatibleTo(rhs.getType())) {
-            failTypeCheck(rhs, description);
+            failTypeCheck(rhs, "Types do not match in " + description);
         }
     }
 
     private void assertTypeEquals(Expression expr, Type type, String description) {
         if (!expr.getType().isCompatibleTo(type)) {
-            failTypeCheck(expr, description);
+            failTypeCheck(expr, "Type of %s must be %s".formatted(description, type));
         }
     }
 
@@ -113,22 +117,9 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
             return type;
         }
 
-        failTypeCheck(expr, description);
+        failTypeCheck(expr, "Illegal type %s for %s".formatted(expr.getType(), description));
         return null;
     }
-
-    private void assertNotVoid(Expression expr, String description) {
-        if (expr.getType() instanceof VoidType) {
-            failTypeCheck(expr, description);
-        }
-    }
-
-    private void assertNotArray(Expression expr, String description) {
-        if (expr.getType() instanceof ArrayType array) {
-            failTypeCheck(expr, description);
-        }
-    }
-
 
     @Override
     public void visitArrayAccess(ArrayAccess arrayAccess) {
@@ -140,19 +131,18 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         indexExpr.accept(this);
 
 
-        if (!(arrayExpr.getType() instanceof ArrayType)) {
-            failTypeCheck(arrayExpr, "array expression");
+        Type type = arrayExpr.getType();
+        if (!(type instanceof ArrayType)) {
+            failTypeCheck(arrayExpr, "Illegal type %s for array expression".formatted(type));
         }
 
-        ArrayType arrayType = (ArrayType) arrayExpr.getType();
+        ArrayType arrayType = (ArrayType) type;
 
         if (!(indexExpr.getType() instanceof IntegerType index)) {
-            failTypeCheck(indexExpr, "index expression");
+            failTypeCheck(indexExpr, "Illegal type %s for index expression".formatted(indexExpr.getType()));
         }
-
+        // typed by VariableAnalysis
         // Range check not required as per the specs, so we are all good now
-
-        arrayAccess.setType(arrayType.getElementType());
     }
 
     @Override
@@ -166,10 +156,15 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         lhs.accept(this);
         Expression rhs = binaryExpression.getRhs();
         rhs.accept(this);
+        if (lhs.isInternal()) {
+            failTypeCheck(lhs, "Illegal reference to internal construct");
+        } else if (rhs.isInternal()) {
+            failTypeCheck(rhs, "Illegal reference to internal construct");
+        }
         switch (binaryExpression.getOperator()) {
             case ASSIGN:
                 if (!(lhs instanceof Variable || lhs instanceof FieldAccess || lhs instanceof ArrayAccess)) {
-                    failTypeCheck(lhs, "assignee".formatted(lhs.getClass().getName()));
+                    failTypeCheck(lhs, "Illegal expression type %s as assignee".formatted(lhs.getClass().getName()));
                 }
                 assertTypeEqual(lhs, rhs, "assignment");
                 Type assType = lhs.getType(); // rhs might be null which would invalidate method and field calls
@@ -206,14 +201,13 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
                 assertTypeEqual(lhs, rhs, "operands of logical operation");
                 Type type = lhs.getType();
                 if (!(type instanceof IntegerType || type instanceof BooleanType)) {
-                    // fail
-                    failTypeCheck(lhs, "operand of logical operation");
+                    failTypeCheck(lhs, "Illegal type %s for operand of logical operation".formatted(type));
                 }
                 binaryExpression.setType(lhs.getType());
                 break;
 
             default:
-                failTypeCheck(binaryExpression, "unknown binary operator");
+                failTypeCheck(binaryExpression, "Could not process operator");
         }
     }
 
@@ -227,12 +221,10 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
         Expression refObj = fieldAccess.getEncapsulated();
         refObj.accept(this);
-        if (refObj.getType() instanceof ClassType type) {
-            Field field = globalScope.getField(type.getIdentifier(), fieldAccess.getFieldName());
-            fieldAccess.setType(field.getRefType());
-        } else {
-            failTypeCheck(fieldAccess, "field access");
+        if (refObj.isInternal()) {
+            fieldAccess.setInternal(true);
         }
+        // typed by VariableAnalysis
     }
 
     @Override
@@ -253,7 +245,8 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         // Expected values: "0" to "2147483648". "2147483648" is represented as -214783648,
         // all other negative values indicate too large values
         // e.g. "2147483649" -> -214783647, so not allowed.
-        if ((value == Integer.MIN_VALUE && (!integerValue.isNegative()) || integerValue.isInParentheses()) || (Integer.MIN_VALUE < value && value < 0)) {
+        if ((value == Integer.MIN_VALUE && (!integerValue.isNegative() || integerValue.isInParentheses()))
+                || (Integer.MIN_VALUE < value && value < 0)) {
             failTypeCheck(integerValue, "integer literal");
         }
 
@@ -275,13 +268,15 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     public void visitMethodInvocation(MethodInvocationOnObject methodInvocation) {
         Expression refObj = methodInvocation.getEncapsulated();
         refObj.accept(this);
-
+        if (refObj.isInternal()) {
+            methodInvocation.setInternal(true);
+        }
         ClassType type = assertCustomBasicType(refObj, "reference object of method invocation");
 
         if (type == null) return;
 
-        Method method = globalScope.getMethod(type.getIdentifier(), methodInvocation.getFunctionName());
-        MethodType methodType = method.getReferenceType();
+        MethodDefinition method = globalScope.getMethod(type.getIdentifier(), methodInvocation.getFunctionName());
+        MethodType methodType = method.getType();
 
         methodInvocation.setMethodType(methodType);
 
@@ -312,14 +307,16 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         Expression dimExpr = newArrayExpression.getSize();
 
         dimExpr.accept(this);
-        assertTypeEquals(dimExpr, new IntegerType(), "dimension expression");
+        assertTypeEquals(dimExpr, new IntegerType(), "Illegal dimension expression");
 
         BasicType basicType = newArrayExpression.getBasicType();
+        ArrayType arrayType = TypeFactory.getInstance().createArrayType(basicType, newArrayExpression.getDimension());
+
         if (basicType instanceof de.dercompiler.ast.type.VoidType) {
-            failTypeCheck(newArrayExpression, "array type");
+            failTypeCheck(basicType, "Illegal base type for array");
         }
 
-        newArrayExpression.setType(TypeFactory.getInstance().create(new de.dercompiler.ast.type.Type(null, basicType, newArrayExpression.getDimension())));
+        newArrayExpression.setType(arrayType);
     }
 
     @Override
@@ -367,6 +364,9 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         }
 
         variable.setType(declaration.getRefType());
+        if (variable.getType() instanceof InternalClass) {
+            variable.setInternal(true);
+        }
     }
 
     @Override
@@ -417,8 +417,8 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         expr.accept(this);
 
         if (decl.getType().getBasicType() instanceof de.dercompiler.ast.type.VoidType) {
-            failTypeCheck(decl, "variable declaration", "illegal type 'void'");
-        } else if (decl.getRefType() instanceof LibraryClass) {
+            failTypeCheck(decl, "variable declaration", "illegal type '%s'".formatted(decl.getType()));
+        } else if (decl.getRefType() instanceof InternalClass) {
             //System and String are illegal variable types
             failTypeCheck(decl, "variable declaration", "Illegal type '%s'".formatted(decl.getRefType()));
         }
@@ -431,14 +431,14 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     public void visitReturnStatement(ReturnStatement returnStatement) {
         Expression expr = returnStatement.getExpression();
-        Type returnType = getPassManager().getCurrentMethod().getReferenceType().getReturnType();
+        MethodDefinition methodDef = globalScope.getMethod(getPassManager().getCurrentClass().getIdentifier(),
+                getPassManager().getCurrentMethod().getIdentifier());
+        Type returnType = methodDef.getType().getReturnType();
 
-        if (expr instanceof UninitializedValue uninitialized) {
-            uninitialized.setType(new VoidType());
-            if (!returnType.isCompatibleTo(new VoidType())) {
-                failTypeCheck(uninitialized, "return value for %s method".formatted(returnType));
+        if (returnType.isCompatibleTo(new VoidType())) {
+            if (!(expr instanceof UninitializedValue)) {
+                failTypeCheck(expr, "void method cannot return a value");
             }
-
         } else {
             expr.accept(this);
             assertTypeEquals(expr, returnType, "return value for %s method".formatted(returnType));
@@ -450,4 +450,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         assertTypeEquals(whileStatement.getCondition(), new BooleanType(), "while condition");
     }
 
+    public OutputMessageHandler getLogger() {
+        return logger;
+    }
 }

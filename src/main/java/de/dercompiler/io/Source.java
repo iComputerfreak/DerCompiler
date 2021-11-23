@@ -1,9 +1,6 @@
 package de.dercompiler.io;
 
 import java.io.*;
-import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.lexer.Lexer;
-import de.dercompiler.lexer.LexerErrorIds;
 
 public abstract class Source {
 
@@ -13,11 +10,6 @@ public abstract class Source {
      * @return a new Reader for the Source, closing any previously created Readers for this Source.
      */
     public abstract BufferedReader getNewReader();
-
-    /**
-     * @return a new OutputStream for the Source.
-     */
-    public abstract InputStream getNewStream();
 
     public static Source forFile(File file) {
         return new FileSource(file);
@@ -49,22 +41,9 @@ class FileSource extends Source {
             if (isOpen()) reader.close();
             reader = new BufferedReader(new FileReader(file));
         } catch (IOException e) {
-            (new OutputMessageHandler(MessageOrigin.LEXER)).printErrorAndExit(LexerErrorIds.FILE_NOT_FOUND, 
-                    "The file does not exist or is not readable", e);
+            e.printStackTrace();
         }
         return reader;
-    }
-
-    @Override
-    public InputStream getNewStream() {
-        try {
-            return new BufferedInputStream(new FileInputStream(file));
-        } catch (IOException e) {
-            (new OutputMessageHandler(MessageOrigin.LEXER)).printErrorAndExit(LexerErrorIds.FILE_NOT_FOUND,
-                    "The file does not exist or is not readable", e);
-            //we never return
-            return null;
-        }
     }
 
     @Override
@@ -87,17 +66,11 @@ class StringSource extends Source {
             try {
                 reader.close();
             } catch (IOException e) {
-                new OutputMessageHandler(MessageOrigin.LEXER)
-                        .printErrorAndExit(LexerErrorIds.STRING_NOT_READABLE, "The command-line string couln't be used as Reader: ", e);
+                e.printStackTrace();
             }
         }
         reader = new BufferedReader(new StringReader(this.input));
         return reader;
-    }
-
-    @Override
-    public InputStream getNewStream() {
-        return new BufferedInputStream(new ByteArrayInputStream(input.getBytes()));
     }
 
     @Override
