@@ -2,16 +2,10 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
-import de.dercompiler.pass.AnalysisDirection;
-import de.dercompiler.pass.AnalysisUsage;
-import de.dercompiler.pass.MethodPass;
-import de.dercompiler.pass.PassManager;
+import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
-import firm.CompoundType;
-import firm.Construction;
-import firm.Entity;
-import firm.Graph;
+import firm.*;
 
 public class FirmMethodgraphPass implements MethodPass {
     private GlobalScope globalScope;
@@ -27,6 +21,8 @@ public class FirmMethodgraphPass implements MethodPass {
         Graph graph = new Graph(methodEntity, n_vars);
         Construction construction = new Construction(graph);
 
+        //Graph als .vcg datei erzeugen
+        Dump.dumpGraph(graph, method.getSurroundingClass().getIdentifier() +  "#" + method.getIdentifier());
         return false;
     }
 
@@ -42,7 +38,9 @@ public class FirmMethodgraphPass implements MethodPass {
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        return null;
+        usage.requireAnalysis(FirmTypePass.class);
+        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
+        return usage;
     }
 
     @Override
@@ -50,28 +48,33 @@ public class FirmMethodgraphPass implements MethodPass {
         return null;
     }
 
+    private static long id = 0;
+    private PassManager manager = null;
+
     @Override
     public void registerPassManager(PassManager manager) {
-
+        this.manager = manager;
     }
 
     @Override
     public PassManager getPassManager() {
-        return null;
+        return manager;
     }
 
     @Override
-    public long registerID(long id) {
-        return 0;
+    public long registerID(long rid) {
+        if (id != 0) return id;
+        id = rid;
+        return id;
     }
 
     @Override
     public long getID() {
-        return 0;
+        return id;
     }
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        return null;
+        return AnalysisDirection.TOP_DOWN;
     }
 }
