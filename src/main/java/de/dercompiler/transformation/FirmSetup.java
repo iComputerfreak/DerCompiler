@@ -1,0 +1,20 @@
+package de.dercompiler.transformation;
+
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+import firm.Firm;
+
+public class FirmSetup {
+
+    public static void firmSetUp() {
+        if (TargetTriple.isWindows()) {
+            Firm.VERSION = Firm.FirmVersion.RELEASE;
+        } else if (TargetTriple.isMacOS()) {
+            Firm.VERSION = Firm.FirmVersion.RELEASE;
+        } else if (TargetTriple.isLinus()) {
+            Firm.VERSION = Firm.FirmVersion.FIRM;
+        } else {
+            new OutputMessageHandler(MessageOrigin.GENERAL).printInfo("We didn't recognize your operatingsystem, this may result in undefined behaviour.");
+        }
+    }
+}

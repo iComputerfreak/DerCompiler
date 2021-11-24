@@ -5,6 +5,7 @@ import de.dercompiler.actions.Action;
 import de.dercompiler.general.CompilerSetup;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.CommandLineOptions;
+import de.dercompiler.transformation.FirmSetup;
 import de.dercompiler.util.ErrorStatus;
 import firm.Firm;
 
@@ -13,6 +14,9 @@ public class Compiler {
     public static void main(String[] args){
         // TODO: How to get target triple dynamically?
         // TODO: What does PIC do?
+
+        FirmSetup.firmSetUp();
+
         Firm.init(null, new String[]{ "pic=1" });
         System.out.println("Initialized libFirm Version: " + Firm.getMinorVersion() + "." + Firm.getMajorVersion());
         CommandLineBuilder clb = new CommandLineBuilder();
