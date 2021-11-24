@@ -13,7 +13,7 @@ public class Compiler {
     public static void main(String[] args){
         // TODO: How to get target triple dynamically?
         // TODO: What does PIC do?
-        Firm.init("x86_64-linux-gnu", new String[]{ "pic=1" });
+        Firm.init(null, new String[]{ "pic=1" });
         System.out.println("Initialized libFirm Version: " + Firm.getMinorVersion() + "." + Firm.getMajorVersion());
         CommandLineBuilder clb = new CommandLineBuilder();
         clb.parseArguments(args);
