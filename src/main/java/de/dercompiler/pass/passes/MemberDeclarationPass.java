@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 /**
  *  (Pass 3) Sets the types of method definitions and fields.
  */
-public class MemberDeclarationPass implements ClassPass, MethodPass {
+public class MemberDeclarationPass implements ClassPass {
 
     private PassManager passManager;
     private GlobalScope globalScope;
@@ -26,6 +26,8 @@ public class MemberDeclarationPass implements ClassPass, MethodPass {
         for (ClassMember member : classDeclaration.getMembers()) {
             if (member instanceof Field f) {
                 runOnField(f);
+            } else if (member instanceof Method m) {
+                runOnMethod(m);
             }
         }
         return false;
@@ -39,7 +41,6 @@ public class MemberDeclarationPass implements ClassPass, MethodPass {
         return false;
     }
 
-    @Override
     public boolean runOnMethod(Method method) {
 
         Type returnType = typeFactory.create(method.getType());
@@ -55,7 +56,9 @@ public class MemberDeclarationPass implements ClassPass, MethodPass {
                     "Illegal type %s for a method parameter".formatted(parameterTypes.get(faultyTypeParamIdx)));
         }
         ClassType tRefObj = globalScope.getClass(method.getSurroundingClass().getIdentifier());
-        tRefObj.getMethod(method.getIdentifier()).setType(new MethodType(returnType, parameterTypes, method.isStatic()));
+        MethodType methodType = new MethodType(returnType, parameterTypes, method.isStatic());
+        tRefObj.getMethod(method.getIdentifier()).setType(methodType);
+
         return false;
     }
 
@@ -67,14 +70,23 @@ public class MemberDeclarationPass implements ClassPass, MethodPass {
 
     @Override
     public void doFinalization(Program program) {
+        typeFactory.setCreateDummies(false);
+        DummyClassType leftoverDummy = (DummyClassType) globalScope.getClasses().stream().filter(c -> c instanceof DummyClassType).findAny().orElse(null);
+        if (leftoverDummy != null) {
+            fail(PassErrorIds.UNKNOWN_TYPE, "Type '%s' was referenced but never defined.".formatted(leftoverDummy.getIdentifier()));
+        }
+    }
 
+    private void fail(PassErrorIds errorId, String message) {
+        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(errorId, message);
+        getPassManager().quitOnError();
     }
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
         // First, ClassTypes need to be known, only then can MethodTyps and FieldTypes be assigned.
         usage.requireAnalysis(InterClassAnalysisCheckPass.class);
-        usage.setDependency(DependencyType.RUN_IN_NEXT_STEP);
+        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 
@@ -105,7 +117,7 @@ public class MemberDeclarationPass implements ClassPass, MethodPass {
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        return AnalysisDirection.TOP_DOWN;
+        return AnalysisDirection.BOTTOM_UP;
     }
 
 }

@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public sealed class ClassType implements ReferenceType permits InternalClass {
+public sealed class ClassType implements ReferenceType permits InternalClass, DummyClassType {
 
     private String identifier;
-    private Map<String, FieldDefinition> fieldMap;
-    private Map<String, MethodDefinition> methodMap;
+    protected Map<String, FieldDefinition> fieldMap;
+    protected Map<String, MethodDefinition> methodMap;
 
     private ClassDeclaration decl;
 
@@ -28,7 +28,10 @@ public sealed class ClassType implements ReferenceType permits InternalClass {
 
     @Override
     public boolean isCompatibleTo(Type other) {
-        return this == other || other instanceof NullType || other instanceof AnyType;
+        return this == other
+                || (other instanceof DummyClassType dummy && this.isCompatibleTo(dummy.getRealClass()))
+                || other instanceof NullType
+                || other instanceof AnyType;
     }
 
     public MethodDefinition getMethod(String methodName) {
@@ -39,16 +42,16 @@ public sealed class ClassType implements ReferenceType permits InternalClass {
         return fieldMap.getOrDefault(fieldName, null);
     }
 
-    public List<FieldDefinition> getFields() {
-        return List.copyOf(fieldMap.values());
-    }
-
     public boolean hasMethod(String identifier) {
         return methodMap.containsKey(identifier);
     }
 
     public void addMethod(MethodDefinition method) {
         methodMap.put(method.getIdentifier(), method);
+    }
+
+    public List<MethodDefinition> getMethods() {
+        return List.copyOf(methodMap.values());
     }
 
     public boolean hasField(String identifier) {
@@ -59,6 +62,9 @@ public sealed class ClassType implements ReferenceType permits InternalClass {
         fieldMap.put(field.getIdentifier(), field);
     }
 
+    public List<FieldDefinition> getFields() {
+        return List.copyOf(fieldMap.values());
+    }
 
     public ClassDeclaration getDecl() {
         return decl;
@@ -72,4 +78,5 @@ public sealed class ClassType implements ReferenceType permits InternalClass {
     public String toString() {
         return identifier;
     }
+
 }

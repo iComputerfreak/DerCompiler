@@ -1,0 +1,27 @@
+I.	  ASTReferencePass			TD	M B S E		ensures		∀el. el.getSurrounding() != null
+
+II.   InterClassAnalysisPass	TD  C			ensures		∀cl. globalScope.hasClass(cl)
+															   & globalScope.getClass(cl).getType != null
+															   & ∀mem ∈ cl. globalScope.getClass(cl).hasMember(mem)
+
+												fails if	∃cl1, cl2. cl1.name == cl2.name
+													 	 || ∃cl. (∃m1, m2 ∈ cl. m1.name == m2.name
+														 	   || ∃f1, f2 ∈ cl. f1.name == f2.name)
+
+III.  MemberDeclarationPass 	TD	M			ensures 	∀cl. ∀mem ∈ cl. globalScope.getClass(cl).getMember(m).getType() != null
+
+IV.   EnterScopePass		  	TD  C M B		ensures		currentScope.isEmpty() && currentScope.parent = \old(currentScope)
+
+V.	  VariableAnalysisPass		TD  C M   S E	ensures		∀ref. ref.type != null & ref.definition != null
+
+												fails if	∃ref. currentScope.get(ref) == null
+
+VI.   FirmTypePass				TD	C M S E
+
+VII.  TypeAnalysisPass			BU		S E		ensures		∀expr. expr.type != null
+
+		  										fails if	∃expr. !expr.expectedType.isCompatible(expr.type)
+
+VIII. LeaveScopePass		  	BU		S E		ensures		currentScope = \old(currentScope.parent)
+
+IX.   SpecificationPass	   		BU	M   S E		ensures		program is compilable

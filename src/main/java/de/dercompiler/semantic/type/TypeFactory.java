@@ -20,9 +20,10 @@ public class TypeFactory {
     private static TypeFactory singleton;
     private GlobalScope globalScope;
     private TypeAnalysisPass pass;
+    private boolean createDummies;
 
     private TypeFactory() {
-
+        this.createDummies = true;
     }
 
     public static TypeFactory getInstance() {
@@ -70,10 +71,22 @@ public class TypeFactory {
         }
     }
 
-    public Type create(CustomType customType) {
-        if (!globalScope.hasClass(customType.getIdentifier())) {
-            new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_TYPE, "Type '%s' is unknown".formatted(customType.getIdentifier()));
+    public ClassType create(CustomType customType) {
+        if (globalScope.hasClass(customType.getIdentifier())) {
+            return globalScope.getClass(customType.getIdentifier());
         }
-        return globalScope.getClass(customType.getIdentifier());
+
+        else if (createDummies) {
+            DummyClassType dummy = new DummyClassType(customType.getIdentifier());
+            globalScope.addClass(dummy);
+            return dummy;
+        }
+
+        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.UNKNOWN_TYPE, "Type '%s' is unknown".formatted(customType.getIdentifier()));
+        throw new RuntimeException();
+    }
+
+    public void setCreateDummies(boolean createDummies) {
+        this.createDummies = createDummies;
     }
 }

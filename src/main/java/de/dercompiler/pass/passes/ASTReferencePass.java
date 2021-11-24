@@ -72,6 +72,8 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
+        usage.requireAnalysis(InterClassAnalysisCheckPass.class);
+        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 
