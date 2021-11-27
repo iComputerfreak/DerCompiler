@@ -4,6 +4,9 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationState;
+import firm.Mode;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -23,6 +26,11 @@ public final class NullValue extends PrimaryExpression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitNullValue(this);
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        return state.construction.newConst(0, Mode.getP());
     }
 
     @Override

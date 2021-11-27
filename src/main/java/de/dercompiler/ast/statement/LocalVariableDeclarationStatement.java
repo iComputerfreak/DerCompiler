@@ -3,6 +3,7 @@ package de.dercompiler.ast.statement;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.ASTDefinition;
 import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.expression.Variable;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
@@ -11,18 +12,19 @@ import java.util.Objects;
 
 public final class LocalVariableDeclarationStatement extends Statement implements ASTDefinition {
 
+    Variable internalVar;
     Type type;
-    String identifier;
     Expression valueExpression;
     private de.dercompiler.semantic.type.Type refType;
-    int node_id;
+    int nodeId;
 
     public LocalVariableDeclarationStatement(SourcePosition position, Type type, String identifier, Expression valueExpression) {
         super(position);
+        internalVar = new Variable(position, identifier);
+        internalVar.setDefinition(this);
         this.type = type;
-        this.identifier = identifier;
         this.valueExpression = valueExpression;
-        node_id = -1;
+        nodeId = -1;
     }
 
     public Type getType() {
@@ -38,7 +40,7 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     }
 
     public String getIdentifier() {
-        return identifier;
+        return internalVar.getName();
     }
 
     public Expression getExpression() {
@@ -50,16 +52,24 @@ public final class LocalVariableDeclarationStatement extends Statement implement
         if (Objects.isNull(other)) return false;
         if (other instanceof LocalVariableDeclarationStatement lvds) {
             return type.syntaxEquals(lvds.type)
-                    && identifier.equals(lvds.identifier)
+                    && internalVar.syntaxEquals(lvds.internalVar)
                     && valueExpression.syntaxEquals(lvds.valueExpression);
         }
         return false;
     }
 
     public boolean setNodeId(int id) {
-        if (node_id > 0) return false;
-        node_id = id;
+        if (nodeId > 0) return false;
+        nodeId = id;
         return true;
+    }
+
+    public int getNodeId() {
+        return nodeId;
+    }
+
+    public Variable getVariable() {
+        return internalVar;
     }
 
     @Override

@@ -4,6 +4,8 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationState;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -22,6 +24,11 @@ public final class UninitializedValue extends Expression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitUninitializedValue(this);
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        return null;
     }
 
 }

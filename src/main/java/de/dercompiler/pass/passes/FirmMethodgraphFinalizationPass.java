@@ -2,6 +2,9 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
+import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
@@ -9,10 +12,11 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
-public class FirmMethodgraphFinalizationPass implements MethodPass  {
+public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPass, ExpressionPass  {
 
     private FirmMethodgraphStartupPass startUp;
     private TransformationState state;
@@ -22,6 +26,23 @@ public class FirmMethodgraphFinalizationPass implements MethodPass  {
         state.construction.finish();
         //Graph als .vcg datei erzeugen
         Dump.dumpGraph(state.graph, method.getSurroundingClass().getIdentifier() +  "#" + method.getIdentifier());
+        return false;
+    }
+
+    @Override
+    public boolean runOnStatement(Statement statement) {
+        if (statement instanceof LocalVariableDeclarationStatement lvds) {
+            int nodeId = lvds.getNodeId();
+
+            state.construction.setVariable(nodeId, state.res);
+            state.res = null;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean runOnExpression(Expression expression) {
+        state.res = expression.createNode(state);
         return false;
     }
 

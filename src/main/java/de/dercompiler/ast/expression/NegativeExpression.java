@@ -3,6 +3,8 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationState;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -29,6 +31,11 @@ public final class NegativeExpression extends UnaryExpression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitNegativeExpression(this);
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        return state.construction.newMinus(getEncapsulated().createNode(state));
     }
 
     public void setNegative(boolean b) {

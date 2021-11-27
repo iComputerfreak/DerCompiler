@@ -22,6 +22,7 @@ public final class Parameter extends ASTNode implements ASTDefinition {
 
     private final Type type;
     private final String identifier;
+    private int nodeId;
 
     /**
      * Creates a new Parameter
@@ -33,6 +34,7 @@ public final class Parameter extends ASTNode implements ASTDefinition {
         super(position);
         this.type = type;
         this.identifier = identifier;
+        this.nodeId = -1;
     }
 
     /**
@@ -57,6 +59,16 @@ public final class Parameter extends ASTNode implements ASTDefinition {
                     && this.identifier.equals(otherParam.identifier);
         }
         return false;
+    }
+
+    public boolean setNodeId(int id) {
+        if (nodeId > 0) return false;
+        nodeId = id;
+        return true;
+    }
+
+    public int getNodeId() {
+        return nodeId;
     }
 
     @Override

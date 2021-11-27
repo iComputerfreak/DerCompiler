@@ -4,6 +4,9 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationState;
+import firm.Mode;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -56,5 +59,11 @@ public final class IntegerValue extends PrimaryExpression {
 
     public void setValue(int value) {
         this.unsignedValue = value;
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        //todo check how to get Value, is the value for sure valid?
+        return state.construction.newConst(0, Mode.getIs());
     }
 }

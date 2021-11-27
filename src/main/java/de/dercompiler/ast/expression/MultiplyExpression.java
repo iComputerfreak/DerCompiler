@@ -3,6 +3,8 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationState;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -26,5 +28,14 @@ public final class MultiplyExpression extends BinaryExpression {
     @Override
     public OperatorToken getOperator() {
         return STAR;
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        createChildNodes(state);
+        Node res = state.construction.newMul(state.lhs, state.res);
+        state.lhs = null;
+        state.rhs = null;
+        return res;
     }
 }

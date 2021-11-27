@@ -1,19 +1,26 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
+import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 
 public class CountVariablesPass implements MethodPass, StatementPass {
 
     int localVars = 0;
+    Method method;
+    int parameterCount;
 
     @Override
     public void doInitialization(Program program) {
         localVars = 0;
+        method = null;
+        parameterCount = 0;
     }
 
     @Override
@@ -26,8 +33,17 @@ public class CountVariablesPass implements MethodPass, StatementPass {
         return statement instanceof LocalVariableDeclarationStatement;
     }
 
+    private void updateMethod() {
+        if (method == getPassManager().getCurrentMethod()) return;
+        method = getPassManager().getCurrentMethod();
+        assert(localVars == 0);
+        parameterCount = method.getParameters().size();
+        localVars = parameterCount;
+    }
+
     @Override
     public boolean runOnStatement(Statement statement) {
+        updateMethod();
         if (statement instanceof LocalVariableDeclarationStatement lvds) {
             if (lvds.setNodeId(localVars)) localVars++;
         }
@@ -36,6 +52,12 @@ public class CountVariablesPass implements MethodPass, StatementPass {
 
     @Override
     public boolean runOnMethod(Method method) {
+        int i = 0;
+        for (Parameter param : method.getParameters()) {
+            if (param.setNodeId(i)) i++;
+        }
+        if (i != parameterCount) new OutputMessageHandler(MessageOrigin.PASSES)
+                .internalError("something gone wrong, we can't count, the number of parameters is: " + parameterCount + ", but we counted until: " + i + " for method: " + method.getIdentifier() + "!");
         method.setNumLocalVariables(localVars);
         localVars = 0;
         return false;
