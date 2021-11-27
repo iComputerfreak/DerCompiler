@@ -37,7 +37,7 @@ public class ParserTest {
 
     @BeforeAll
     static void setup() {
-        FirmSetup.firmSetUp();
+        FirmSetup.firmSetupForTests();
         Firm.init(null, new String[]{ "pic=1" });
         System.out.println("Initialized libFirm Version: " + Firm.getMinorVersion() + "." + Firm.getMajorVersion());
         OutputMessageHandler.setDebug();

@@ -21,6 +21,8 @@ public sealed class Method extends ClassMember permits MainMethod {
     private final BasicBlock block;
     private ClassDeclaration surrounding;
 
+    private int numLocalVars;
+
     /**
      * Creates a new Method
      * @param position The source code position
@@ -37,6 +39,7 @@ public sealed class Method extends ClassMember permits MainMethod {
         this.parameters = Objects.requireNonNullElseGet(parameters, LinkedList::new);
         this.methodRest = methodRest;
         this.block = block;
+        this.numLocalVars = -1;
     }
 
     public boolean isStatic() { return false; }
@@ -110,4 +113,11 @@ public sealed class Method extends ClassMember permits MainMethod {
         return surrounding;
     }
 
+    public int getNumLocalVariables() {
+        return numLocalVars;
+    }
+
+    public void setNumLocalVariables(int numLocalVars) {
+        this.numLocalVars = numLocalVars;
+    }
 }

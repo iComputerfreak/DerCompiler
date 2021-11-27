@@ -15,12 +15,14 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     String identifier;
     Expression valueExpression;
     private de.dercompiler.semantic.type.Type refType;
+    int node_id;
 
     public LocalVariableDeclarationStatement(SourcePosition position, Type type, String identifier, Expression valueExpression) {
         super(position);
         this.type = type;
         this.identifier = identifier;
         this.valueExpression = valueExpression;
+        node_id = -1;
     }
 
     public Type getType() {
@@ -52,6 +54,12 @@ public final class LocalVariableDeclarationStatement extends Statement implement
                     && valueExpression.syntaxEquals(lvds.valueExpression);
         }
         return false;
+    }
+
+    public boolean setNodeId(int id) {
+        if (node_id > 0) return false;
+        node_id = id;
+        return true;
     }
 
     @Override

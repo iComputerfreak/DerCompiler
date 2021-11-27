@@ -8,21 +8,46 @@ import de.dercompiler.io.CommandLineOptions;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.FirmSetup;
+import de.dercompiler.transformation.TargetTriple;
 import de.dercompiler.util.ErrorStatus;
 import firm.Firm;
 
+import com.sun.jna.Native;
+import com.sun.jna.Library;
+import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
+
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+
 public class Compiler {
 
+    static final boolean debug = false;
+
+
     public static void main(String[] args){
+        if (debug && TargetTriple.isWindows()) {
+            System.out.println(ManagementFactory.getRuntimeMXBean().getName());
+            try {
+                System.in.read();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         CommandLineBuilder clb = new CommandLineBuilder();
         clb.parseArguments(args);
+
+
 
         CommandLineOptions options = clb.parseArguments(args);
 
         CompilerSetup.setupGlobalValues(options);
         Action action = new CompilerSetup().parseAction(options);
-
-        FirmSetup.firmSetUp();
+        if (debug) {
+            FirmSetup.firmSetupDebug();
+        } else {
+            FirmSetup.firmSetUp();
+        }
         // TODO: What does PIC do?
         Firm.init(null, new String[]{ "pic=1" });
         new OutputMessageHandler(MessageOrigin.GENERAL).printInfo("Initialized libFirm Version: " + Firm.getMinorVersion() + "." + Firm.getMajorVersion());

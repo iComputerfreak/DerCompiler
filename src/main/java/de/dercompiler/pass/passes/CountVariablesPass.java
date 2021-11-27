@@ -2,50 +2,55 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
+import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.pass.*;
-import de.dercompiler.semantic.GlobalScope;
-import de.dercompiler.semantic.MethodDefinition;
-import firm.*;
 
-public class FirmMethodgraphPass implements MethodPass {
-    private GlobalScope globalScope;
+public class CountVariablesPass implements MethodPass, StatementPass {
 
-    @Override
-    public boolean runOnMethod(Method method) {
-        MethodDefinition def = globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
-                method.getIdentifier());
-        //wie bekommt man den globalType??
-        CompoundType globalType = null;
-        Entity methodEntity = new Entity(globalType, method.getIdentifier(), def.getFirmType());
-        int n_vars = 42;
-        Graph graph = new Graph(methodEntity, n_vars);
-        Construction construction = new Construction(graph);
-
-        //Graph als .vcg datei erzeugen
-        Dump.dumpGraph(graph, method.getSurroundingClass().getIdentifier() +  "#" + method.getIdentifier());
-        return false;
-    }
+    int localVars = 0;
 
     @Override
     public void doInitialization(Program program) {
-        globalScope = program.getGlobalScope();
+        localVars = 0;
     }
 
     @Override
     public void doFinalization(Program program) {
+        assert(localVars == 0);
+    }
 
+    @Override
+    public boolean shouldRunOnStatement(Statement statement) {
+        return statement instanceof LocalVariableDeclarationStatement;
+    }
+
+    @Override
+    public boolean runOnStatement(Statement statement) {
+        if (statement instanceof LocalVariableDeclarationStatement lvds) {
+            if (lvds.setNodeId(localVars)) localVars++;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean runOnMethod(Method method) {
+        method.setNumLocalVariables(localVars);
+        localVars = 0;
+        return false;
     }
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        usage.requireAnalysis(FirmTypePass.class);
+        usage.requireAnalysis(VariableAnalysisCheckPass.class);
         usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 
     @Override
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
 
     private static long id = 0;
@@ -75,6 +80,6 @@ public class FirmMethodgraphPass implements MethodPass {
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        return AnalysisDirection.TOP_DOWN;
+        return AnalysisDirection.BOTTOM_UP;
     }
 }
