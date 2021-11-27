@@ -3,8 +3,10 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import firm.Mode;
+import firm.nodes.Block;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -43,6 +45,15 @@ public final class BooleanValue extends PrimaryExpression {
 
     @Override
     public Node createNode(TransformationState state) {
+        if (state.isCondition()) {
+            Block following;
+            if (value) {
+                following = state.trueB;
+            } else {
+                following = state.falseB;
+            }
+            TransformationHelper.createDirectJump(state, following);
+        }
         return state.construction.newConst(value ? 1 : 0, Mode.getBu());
     }
 

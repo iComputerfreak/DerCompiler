@@ -38,8 +38,7 @@ public final class ModuloExpression extends BinaryExpression {
         createChildNodes(state);
         Node mem = state.construction.getCurrentMem();
         Node div = state.construction.newMod(mem, state.lhs, state.res, binding_ircons.op_pin_state.op_pin_state_pinned);
-        state.lhs = null;
-        state.rhs = null;
+        clearChildNodes(state);
         //TODO get mode;
         Mode mode = null;
         state.construction.setCurrentMem(state.construction.newProj(div, mode, Div.pnM));

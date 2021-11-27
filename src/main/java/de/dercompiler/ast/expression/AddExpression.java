@@ -35,8 +35,7 @@ public final class AddExpression extends BinaryExpression {
     public Node createNode(TransformationState state) {
         createChildNodes(state);
         Node res = state.construction.newAdd(state.lhs, state.res);
-        state.lhs = null;
-        state.rhs = null;
+        clearChildNodes(state);
         return res;
     }
 }

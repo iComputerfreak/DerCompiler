@@ -2,9 +2,12 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationHelper;
+import de.dercompiler.transformation.TransformationState;
+import firm.Mode;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -47,5 +50,15 @@ public final class NewArrayExpression extends PrimaryExpression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitNewArrayExpression(this);
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        Node mem = state.construction.getCurrentMem();
+        //TODO getTypeSize();
+        Node type_size = state.construction.newConst(1, Mode.getIu());
+        //TODO getAlignment in bit or byte? 8byte because of 64bit?
+        int align = 0;
+        return state.construction.newAlloc(mem, TransformationHelper.calculateSize(state, type_size, getSize().createNode(state)), align);
     }
 }

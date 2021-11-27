@@ -28,6 +28,7 @@ public final class UninitializedValue extends Expression {
 
     @Override
     public Node createNode(TransformationState state) {
+        //TODO return 0? do nothing, because we don't create the variable at this point?
         return null;
     }
 

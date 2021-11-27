@@ -4,6 +4,7 @@ import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import de.dercompiler.lexer.token.OperatorToken;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import firm.nodes.Node;
 
@@ -36,6 +37,11 @@ public abstract sealed class BinaryExpression extends Expression permits Assignm
         Node nodeLhs = lhs.createNode(state);
         state.rhs = rhs.createNode(state);
         state.lhs = nodeLhs;
+    }
+
+    public void clearChildNodes(TransformationState state) {
+        state.lhs = null;
+        state.rhs = null;
     }
 
     @Override

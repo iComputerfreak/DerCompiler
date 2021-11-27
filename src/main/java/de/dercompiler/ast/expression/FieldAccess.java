@@ -3,6 +3,8 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationState;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -30,5 +32,13 @@ public final class FieldAccess extends PostfixExpression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitFieldAccess(this);
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        //TODO: how to
+        Node obj = encapsulated.createNode(state);
+
+        return null;
     }
 }

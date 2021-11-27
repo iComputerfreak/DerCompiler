@@ -1,8 +1,14 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
+import de.dercompiler.transformation.TransformationHelper;
+import de.dercompiler.transformation.TransformationState;
+import firm.nodes.Block;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -26,5 +32,24 @@ public final class LogicalAndExpression extends BinaryExpression {
     @Override
     public OperatorToken getOperator() {
         return AND_LAZY;
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        if (!state.isCondition()) {
+            TransformationHelper.createConditionError();
+        }
+        Block and = state.construction.newBlock();
+        Block current = state.construction.getCurrentBlock();
+        Block trueB = state.trueB;
+        state.trueB = and;
+        getLhs().createNode(state);
+        state.trueB = trueB;
+        state.construction.setCurrentBlock(and);
+        getRhs().createNode(state);
+        and.mature();
+        state.construction.setCurrentBlock(current);
+        //TODO return null or return something?
+        return null;
     }
 }

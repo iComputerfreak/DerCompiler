@@ -3,6 +3,10 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
+import de.dercompiler.transformation.TransformationHelper;
+import de.dercompiler.transformation.TransformationState;
+import firm.Relation;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -25,5 +29,16 @@ public final class GreaterExpression extends BinaryExpression {
             return syntaxEqualLhsRhs(ge);
         }
         return false;
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        createChildNodes(state);
+        Node cmp = TransformationHelper.createComp(state, Relation.Greater);
+        if (state.isCondition()) {
+            TransformationHelper.createConditionJumps(state, cmp);
+        }
+        clearChildNodes(state);
+        return cmp;
     }
 }

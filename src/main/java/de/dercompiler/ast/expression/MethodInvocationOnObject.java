@@ -7,6 +7,8 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.semantic.type.Type;
+import de.dercompiler.transformation.TransformationState;
+import firm.nodes.Node;
 
 import java.util.Objects;
 
@@ -49,6 +51,12 @@ public final class MethodInvocationOnObject extends UnaryExpression {
     @Override
     public void accept(ASTExpressionVisitor astExpressionVisitor) {
         astExpressionVisitor.visitMethodInvocation(this);
+    }
+
+    @Override
+    public Node createNode(TransformationState state) {
+        //TODO call method, but on what
+        return null;
     }
 
     public void setImplicitThis(boolean implicitThis) {

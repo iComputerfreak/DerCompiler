@@ -16,7 +16,7 @@ import firm.nodes.Node;
 
 import java.util.Objects;
 
-public class FirmMethodgraphStartupPass implements MethodPass {
+public class FirmMethodgraphStartupPass implements MethodPass, StatementPass {
     private TransformationState state;
     private FirmMethodgraphFinalizationPass finalization;
 
@@ -30,6 +30,12 @@ public class FirmMethodgraphStartupPass implements MethodPass {
         int n_vars = 42;
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
+        return false;
+    }
+
+    @Override
+    public boolean runOnStatement(Statement statement) {
+        //TODO if control structure setup blocks
         return false;
     }
 

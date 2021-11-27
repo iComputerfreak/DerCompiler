@@ -42,7 +42,12 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
 
     @Override
     public boolean runOnExpression(Expression expression) {
-        state.res = expression.createNode(state);
+        //if boolean blocks are set already
+        if (state.isCondition()) {
+            expression.createNode(state);
+        } else {
+            state.res = expression.createNode(state);
+        }
         return false;
     }
 

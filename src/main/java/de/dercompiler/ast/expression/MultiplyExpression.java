@@ -34,8 +34,7 @@ public final class MultiplyExpression extends BinaryExpression {
     public Node createNode(TransformationState state) {
         createChildNodes(state);
         Node res = state.construction.newMul(state.lhs, state.res);
-        state.lhs = null;
-        state.rhs = null;
+        clearChildNodes(state);
         return res;
     }
 }

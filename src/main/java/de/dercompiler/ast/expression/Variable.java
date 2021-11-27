@@ -54,18 +54,19 @@ public final class Variable extends PrimaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         ASTDefinition def = getDefinition();
-        int local_var_id;
         if (def instanceof LocalVariableDeclarationStatement lvds) {
-            local_var_id = lvds.getNodeId();
+            int nodeId = lvds.getNodeId();
+            //TODO how to get mode?
+            Mode mode = null; //-> from type?
+            return state.construction.getVariable(nodeId, mode);
         } else if (def instanceof Parameter p) {
-            local_var_id = p.getNodeId();
+            //TODO get mode;
+            Mode mode = null;
+            return state.construction.newProj(state.graph.getArgs(), mode , p.getNodeId());
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
             return null; //we never return
         }
-        //TODO how to get mode?
-        Mode mode = null; //-> from type?
-        return state.construction.getVariable(local_var_id, mode);
     }
 
     @Override
