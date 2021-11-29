@@ -269,9 +269,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     public void visitMethodInvocation(MethodInvocationOnObject methodInvocation) {
         Expression refObj = methodInvocation.getEncapsulated();
         refObj.accept(this);
-        if (refObj.isInternal()) {
-            methodInvocation.setInternal(true);
-        }
+
         ClassType type = assertCustomBasicType(refObj, "reference object of method invocation");
 
         if (type == null) return;

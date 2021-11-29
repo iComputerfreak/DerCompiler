@@ -11,9 +11,14 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
 
     private Statement surrounding = null;
     private Type type;
-    // True if this expression is directly surrounded by parentheses.
+    /**
+      * True if this expression is directly surrounded by parentheses.
+      */
     private boolean inParentheses;
-    // True if the type of this expression is an instance of InternalClass.
+
+    /** True if the type of this expression is an instance of InternalClass.
+     *  e.g. System, System.in, System.out, but not String or System.in.read()
+     */
     private boolean internal;
 
     protected Expression(SourcePosition position) {
