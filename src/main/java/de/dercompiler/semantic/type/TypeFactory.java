@@ -66,6 +66,11 @@ public class TypeFactory {
                 pass.getLogger().printErrorAndExit(PassErrorIds.ILLEGAL_ARRAY_TYPE, "Illegal reference to internal construct '%s'".formatted(elementType));
                 pass.getPassManager().quitOnError();
             }
+            if (elementType instanceof VoidType) {
+                System.err.println(pass.getPassManager().getLexer().printSourceText(basicType.getSourcePosition()));
+                pass.getLogger().printErrorAndExit(PassErrorIds.ILLEGAL_ARRAY_TYPE, "Illegal array base type void".formatted(elementType));
+                pass.getPassManager().quitOnError();
+            }
 
             return new ArrayType(elementType);
         }
