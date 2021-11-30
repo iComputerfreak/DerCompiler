@@ -36,8 +36,13 @@ public class FirmMethodgraphStartupPass implements MethodPass, StatementPass {
     @Override
     public boolean runOnStatement(Statement statement) {
         //TODO if control structure setup blocks
+        //neu blöcke erzeugen, richtig sprünge setzen/vorgänger nachfolger beachten
+        //stack befüllen zum abarbeiten der blöcke, wenn es basic_blocks sind
         return false;
     }
+
+    //runOnBasicBlock
+    //basic block auf stack pushen(when sie zu keiner kontrollstruktur/method gehören
 
     @Override
     public void doInitialization(Program program) {

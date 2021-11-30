@@ -31,8 +31,15 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
         return false;
     }
 
+    //runOnBasicBlock
+    //block.mature()
+    //von stack pullen
+
     @Override
     public boolean runOnStatement(Statement statement) {
+        //alle statements bearbeiten, result der nodes steht in state.res
+        //state.res auf null setzen
+
         if (statement instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
 

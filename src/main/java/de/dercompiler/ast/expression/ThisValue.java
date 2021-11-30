@@ -29,6 +29,7 @@ public final class ThisValue extends PrimaryExpression {
 
     @Override
     public Node createNode(TransformationState state) {
+
         //TODO fix, this should not return null, but we need to decide where we store class_pointer
         return state.construction.newConst(0, Mode.getP());
     }
