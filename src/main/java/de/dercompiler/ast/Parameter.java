@@ -23,6 +23,7 @@ public final class Parameter extends ASTNode implements ASTDefinition {
     private final Type type;
     private final String identifier;
     private int nodeId;
+    private firm.Type firmType;
 
     /**
      * Creates a new Parameter
@@ -45,10 +46,13 @@ public final class Parameter extends ASTNode implements ASTDefinition {
         return type;
     }
 
+    public void setFirmType(firm.Type firmType) {
+        this.firmType = firmType;
+    }
+    
     @Override
     public firm.Type getFirmType() {
-        //TODO implement @Jonas
-        return null;
+        return firmType;
     }
 
     /**

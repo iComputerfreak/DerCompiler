@@ -1,7 +1,7 @@
 package de.dercompiler.ast.statement;
 
-import de.dercompiler.ast.*;
 import de.dercompiler.ast.ASTDefinition;
+import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.Variable;
 import de.dercompiler.ast.printer.ASTNodeVisitor;
@@ -17,6 +17,8 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     Expression valueExpression;
     private de.dercompiler.semantic.type.Type refType;
     int nodeId;
+    
+    private firm.Type firmType;
 
     public LocalVariableDeclarationStatement(SourcePosition position, Type type, String identifier, Expression valueExpression) {
         super(position);
@@ -34,11 +36,14 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     public de.dercompiler.semantic.type.Type getRefType() {
         return this.refType;
     }
-
+    
+    public void setFirmType(firm.Type firmType) {
+        this.firmType = firmType;
+    }
+    
     @Override
     public firm.Type getFirmType() {
-        //TODO implement @Jonas
-        return null;
+        return firmType;
     }
 
     public void setRefType(de.dercompiler.semantic.type.Type refType) {

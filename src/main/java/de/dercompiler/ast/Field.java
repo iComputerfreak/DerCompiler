@@ -18,6 +18,7 @@ public final class Field extends ClassMember implements ASTDefinition {
 
     private final Type type;
     private final String identifier;
+    private firm.Type firmType;
 
     /**
      * Creates a new Field
@@ -34,11 +35,14 @@ public final class Field extends ClassMember implements ASTDefinition {
     public Type getType() {
         return type;
     }
+    
+    public void setFirmType(firm.Type firmType) {
+        this.firmType = firmType;
+    }
 
     @Override
     public firm.Type getFirmType() {
-        //TODO implement @Jonas
-        return null;
+        return firmType;
     }
 
     /**

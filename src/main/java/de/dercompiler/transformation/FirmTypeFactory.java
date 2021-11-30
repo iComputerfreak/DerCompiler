@@ -58,7 +58,7 @@ public class FirmTypeFactory {
         }
     }
     
-    public firm.ArrayType getOrCreateFirmArrayType(Type elementType, firm.Type elementFirmType, int numberOfElements) {
+    private firm.ArrayType getOrCreateFirmArrayType(Type elementType, firm.Type elementFirmType, int numberOfElements) {
         // Get the HashMap for the element type
         String identifier = getTypeIdentifier(elementType);
         if (!arrayTypes.containsKey(identifier)) {

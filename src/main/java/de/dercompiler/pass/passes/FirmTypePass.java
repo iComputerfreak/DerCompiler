@@ -1,8 +1,8 @@
 package de.dercompiler.pass.passes;
 
-import de.dercompiler.ast.ClassDeclaration;
-import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.ast.*;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
@@ -12,7 +12,7 @@ import de.dercompiler.transformation.FirmTypeFactory;
 /**
  * Sets the firm type(s) of every class, field, method and local variable
  */
-public class FirmTypePass implements ClassPass, MethodPass {
+public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
     // TODO: Add to PassManager
     private GlobalScope globalScope;
     private final FirmTypeFactory factory = FirmTypeFactory.getInstance();;
@@ -35,6 +35,15 @@ public class FirmTypePass implements ClassPass, MethodPass {
             firm.ClassType firmType = factory.createFirmClassType(def);
             def.setFirmType(firmType);
         }
+        
+        // Set the firm types for all fields
+        for (ClassMember member : classDeclaration.getMembers()) {
+            if (member instanceof Field f) {
+                if (f.getFirmType() == null) {
+                    f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
+                }
+            }
+        }
         return false;
     }
     
@@ -47,8 +56,13 @@ public class FirmTypePass implements ClassPass, MethodPass {
         firm.Type returnType = factory.getOrCreateFirmVariableType(def.getType().getReturnType());
         firm.Type[] parameterTypes = new firm.Type[method.getParameters().size()];
         for (int i = 0; i < parameterTypes.length; i++) {
-            // Convert the parameter type to a firm type
-            parameterTypes[i] = factory.getOrCreateFirmVariableType(method.getParameters().get(i).getRefType());
+            Parameter p = method.getParameters().get(i);
+            // If the parameter does not have a firm type set already, create one
+            if (p.getFirmType() == null) {
+                p.setFirmType(factory.getOrCreateFirmVariableType(p.getRefType()));
+            }
+            // Save the firm type to the array
+            parameterTypes[i] = p.getFirmType();
         }
         
         // The method firm type should never be set earlier, but just to be sure
@@ -59,7 +73,18 @@ public class FirmTypePass implements ClassPass, MethodPass {
         }
         return false;
     }
-    
+
+    @Override
+    public boolean runOnStatement(Statement statement) {
+        if (statement instanceof LocalVariableDeclarationStatement s) {
+            if (s.getFirmType() == null) {
+                firm.Type firmType = factory.getOrCreateFirmVariableType(s.getRefType());
+                s.setFirmType(firmType);
+            }
+        }
+        return false;
+    }
+
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
         usage.requireAnalysis(VariableAnalysisCheckPass.class);
