@@ -2,9 +2,12 @@ package de.dercompiler.semantic;
 
 import de.dercompiler.semantic.type.*;
 import de.dercompiler.transformation.FirmTypeFactory;
+import de.dercompiler.ast.ClassMember;
+import de.dercompiler.ast.Field;
+import de.dercompiler.ast.Method;
+import de.dercompiler.semantic.type.ClassType;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class GlobalScope {
     
@@ -43,5 +46,8 @@ public class GlobalScope {
     public void addClass(ClassType newClass) {
         classMap.put(newClass.getIdentifier(), newClass);
     }
-    
+
+    public List<ClassType> getClasses() {
+        return new ArrayList<>(this.classMap.values());
+    }
 }

@@ -105,4 +105,9 @@ public final class ClassDeclaration extends ASTNode {
             return o1.identifier.compareTo(o2.identifier);
         }
     }
+
+    @Override
+    public String toString() {
+        return "class " + identifier;
+    }
 }

@@ -165,7 +165,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         switch (binaryExpression.getOperator()) {
             case ASSIGN:
                 if (!(lhs instanceof Variable || lhs instanceof FieldAccess || lhs instanceof ArrayAccess)) {
-                    failTypeCheck(lhs, "Illegal expression type %s as assignee".formatted(lhs.getClass().getName()));
+                    failTypeCheck(lhs, "Illegal expression type %s as assignee".formatted(lhs.getClass().getCanonicalName()));
                 }
                 assertTypeEqual(lhs, rhs, "assignment");
                 Type assType = lhs.getType(); // rhs might be null which would invalidate method and field calls
@@ -269,9 +269,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
     public void visitMethodInvocation(MethodInvocationOnObject methodInvocation) {
         Expression refObj = methodInvocation.getEncapsulated();
         refObj.accept(this);
-        if (refObj.isInternal()) {
-            methodInvocation.setInternal(true);
-        }
+
         ClassType type = assertCustomBasicType(refObj, "reference object of method invocation");
 
         if (type == null) return;
@@ -378,12 +376,12 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         switch (Integer.signum(arguments.getLength() - expectedTypes.size())) {
             case 1:
                 node = arguments.get(expectedTypes.size());
-                failTypeCheck(node, "Too many arguments", "method (expected %d)".formatted(expectedTypes.size()));
+                failTypeCheck(node, "method (expected %d)".formatted(expectedTypes.size()), "Too many arguments");
                 break;
             case -1:
                 int index = arguments.getLength() - 1;
                 node = index >= 0 ? arguments.get(index) : arguments;
-                failTypeCheck(node, "Too few arguments", "method (expected %d)".formatted(expectedTypes.size()));
+                failTypeCheck(node, "method (expected %d)".formatted(expectedTypes.size()), "Too few arguments");
                 break;
         }
 

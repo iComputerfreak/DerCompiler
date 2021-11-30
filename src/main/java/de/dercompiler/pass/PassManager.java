@@ -103,7 +103,7 @@ public class PassManager {
 
     private void traverseTree(PassPipeline pipeline, Program program) {
         if (!program.isIndexed()) {
-            pipeline.addASTReferencePass();
+            pipeline.addASTReferencePass(program, this);
         }
         if (printPipeline) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

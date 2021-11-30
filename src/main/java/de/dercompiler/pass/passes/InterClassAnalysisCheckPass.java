@@ -8,9 +8,7 @@ import de.dercompiler.pass.*;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
-import de.dercompiler.semantic.type.ClassType;
-import de.dercompiler.semantic.type.InternalClass;
-import de.dercompiler.semantic.type.MethodType;
+import de.dercompiler.semantic.type.*;
 
 /**
  *  (Pass 2) Collects all fields and methods of all classes.
@@ -25,8 +23,8 @@ public class InterClassAnalysisCheckPass implements ClassPass {
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
         String className = classDeclaration.getIdentifier();
-        if (globalScope.hasClass(className) && !(globalScope.getClass(className) instanceof InternalClass)) {
-            logger.printErrorAndExit(PassErrorIds.DUPLICATE_CLASS, "Class definition of %s may not be overridden.".formatted(className));
+        if (globalScope.hasClass(className) && !(globalScope.getClass(className) instanceof InternalClass || globalScope.getClass(className) instanceof DummyClassType)) {
+            failAnalysis(PassErrorIds.DUPLICATE_CLASS, classDeclaration, "Class definition of %s may not be overridden.".formatted(className));
         }
 
         ClassType newClass = new ClassType(className);
@@ -52,13 +50,45 @@ public class InterClassAnalysisCheckPass implements ClassPass {
             }
         }
 
+        validateDummy(newClass);
         globalScope.addClass(newClass);
 
         return false;
     }
 
+    private void validateDummy(ClassType newClass) {
+        String className = newClass.getIdentifier();
+        if (!globalScope.hasClass(className) || globalScope.getClass(className) instanceof InternalClass) {
+            return;
+        }
+
+        ClassType duplicate = globalScope.getClass(className);
+
+        DummyClassType dummyType = (DummyClassType) duplicate;
+        for (FieldDefinition f : dummyType.getFields()) {
+            String fieldName = f.getIdentifier();
+            if (!newClass.hasField(fieldName)) {
+                failAnalysis(PassErrorIds.UNKNOWN_FIELD, null, "Field '%s' of type %s is not defined".formatted(fieldName, className));
+            } else {
+                Type fieldType = newClass.getField(fieldName).getType();
+                if (fieldType.isCompatibleTo(dummyType.getField(fieldName).getType())) {
+                    failAnalysis(PassErrorIds.UNKNOWN_FIELD, null, "Field '%s' of type %s was supposed to be type %s".formatted(fieldName, className, fieldType));
+                }
+            }
+        }
+        for (MethodDefinition m : dummyType.getMethods()) {
+            String methodName = m.getIdentifier();
+            if (!newClass.hasMethod(methodName)) {
+                failAnalysis(PassErrorIds.UNKNOWN_METHOD, null, "Method '%s' of type %s is not defined".formatted(methodName, className));
+            }
+        }
+
+        // From now on, dummy acts as a proxy of the real type.
+        dummyType.setRealType(newClass);
+    }
+
     private void failAnalysis(PassErrorIds errorId, ASTNode node, String message) {
-        getPassManager().getLexer().printSourceText(node.getSourcePosition());
+        if (node != null) getPassManager().getLexer().printSourceText(node.getSourcePosition());
         logger.printErrorAndExit(errorId, message);
         getPassManager().quitOnError();
     }
@@ -66,7 +96,8 @@ public class InterClassAnalysisCheckPass implements ClassPass {
     @Override
     public void doInitialization(Program program) {
         globalScope = program.getGlobalScope();
-         logger = new OutputMessageHandler(MessageOrigin.PASSES);
+        logger = new OutputMessageHandler(MessageOrigin.PASSES);
+        TypeFactory.getInstance().setCreateDummies(true);
     }
 
     @Override
@@ -76,8 +107,8 @@ public class InterClassAnalysisCheckPass implements ClassPass {
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        usage.requireAnalysis(ASTReferencePass.class);
-        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
+       // usage.requireAnalysis(ASTReferencePass.class);
+       // usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 
@@ -114,6 +145,6 @@ public class InterClassAnalysisCheckPass implements ClassPass {
     @Override
     public AnalysisDirection getAnalysisDirection() {
         // direction does not matter here
-        return AnalysisDirection.BOTTOM_UP;
+        return AnalysisDirection.TOP_DOWN;
     }
 }

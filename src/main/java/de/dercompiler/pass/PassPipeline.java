@@ -369,12 +369,15 @@ class PassPipeline {
         return steps.size() > stepCount;
     }
 
-    public void addASTReferencePass() {
+    public void addASTReferencePass(Program program, PassManager passManager) {
         ASTReferencePass pass = new ASTReferencePass();
         steps.getFirst().td_methodPasses.addFirst(pass);
         steps.getFirst().td_basicBlockPasses.addFirst(pass);
         steps.getFirst().td_statementPasses.addFirst(pass);
         steps.getFirst().td_expressionPasses.addFirst(pass);
+        steps.getFirst().maxDepth = PassStep.DEPTH.EXPRESSION;
+        pass.doInitialization(program);
+        pass.registerPassManager(passManager);
     }
 
     public int numberPasses() {
