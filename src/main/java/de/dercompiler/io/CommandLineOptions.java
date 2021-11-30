@@ -85,6 +85,11 @@ public class CommandLineOptions {
     public boolean check() { return cmd.hasOption(COMMAND_CHECK); }
 
     /**
+     *
+     */
+    public boolean compileFirm() { return cmd.hasOption(COMMAND_COMPILE_FIRM); }
+
+    /**
      * @return true if the lexTest printPosition option has been given
      */
     public boolean printPosition() {

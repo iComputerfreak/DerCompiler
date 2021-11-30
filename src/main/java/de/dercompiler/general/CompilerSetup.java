@@ -96,6 +96,12 @@ public class CompilerSetup {
             setAction(action);
         }
 
+        if (options.compileFirm()) {
+            Source src = getSourceFromArgs(options);
+            FirmCompileAction action = new FirmCompileAction(src);
+            setAction(action);
+        }
+
         if (Objects.isNull(action)) {
             Source src = getSourceFromArgs(options);
             action = new CompileAction(src);

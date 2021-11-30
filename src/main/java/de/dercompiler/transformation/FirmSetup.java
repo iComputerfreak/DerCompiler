@@ -8,7 +8,7 @@ public class FirmSetup {
 
     public static void firmSetUp() {
         if (TargetTriple.isWindows()) {
-            Firm.VERSION = Firm.FirmVersion.DEBUG;
+            Firm.VERSION = Firm.FirmVersion.RELEASE;
         } else if (TargetTriple.isMacOS()) {
             Firm.VERSION = Firm.FirmVersion.FIRM;
         } else if (TargetTriple.isLinus()) {

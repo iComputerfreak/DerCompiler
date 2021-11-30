@@ -12,11 +12,6 @@ import de.dercompiler.transformation.TargetTriple;
 import de.dercompiler.util.ErrorStatus;
 import firm.Firm;
 
-import com.sun.jna.Native;
-import com.sun.jna.Library;
-import com.sun.jna.Platform;
-import com.sun.jna.Pointer;
-
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 
@@ -36,8 +31,6 @@ public class Compiler {
         }
         CommandLineBuilder clb = new CommandLineBuilder();
         clb.parseArguments(args);
-
-
 
         CommandLineOptions options = clb.parseArguments(args);
 

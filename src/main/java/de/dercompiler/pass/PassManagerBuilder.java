@@ -18,4 +18,16 @@ public class PassManagerBuilder {
         // specification-related passes
         manager.addPass(new SpecificationConformityPass());
     }
+
+    public static void buildTransformationPipeline(PassManager manager) {
+        buildSemanticsPipeline(manager);
+        manager.addPass(new FirmTypePass());
+
+        FirmMethodgraphStartupPass fms = new FirmMethodgraphStartupPass();
+        FirmMethodgraphFinalizationPass fmf = new FirmMethodgraphFinalizationPass();
+        fms.setFinalization(fmf);
+
+        manager.addPass(fms);
+        manager.addPass(fmf);
+    }
 }

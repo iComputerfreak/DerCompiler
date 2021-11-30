@@ -18,14 +18,15 @@ public class CommandLineBuilder {
     private static void buildOptions(Options options) {
         // general
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_ECHO, false, DESCRIPTION_ECHO)); // --echo
+        options.addOption(new Option(COMMAND_HELP_SHORT, COMMAND_HELP, false, DESCRIPTION_HELP)); // --help, -h
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_LEX_TEST, false, DESCRIPTION_LEX_TEST)); // --lextest
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PARSE_TEST, false, DESCRIPTION_PARSE_TEST)); // --parsetest
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_AST, false, DESCRIPTION_PRINT_AST)); // --parsetest
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_CHECK, false, DESCRIPTION_CHECK)); // --check
-        options.addOption(new Option(COMMAND_HELP_SHORT, COMMAND_HELP, false, DESCRIPTION_HELP)); // --help, -h
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_WORKING_DIR, true, DESCRIPTION_WORKING_DIR)); // --working-directory
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_COMPILE_FIRM, false, DESCRIPTION_COMPILE_FIRM)); //--compile-firm
 
         // options
+        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_WORKING_DIR, true, DESCRIPTION_WORKING_DIR)); // --working-directory
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_POSITION, false, DESCRIPTION_PRINT_POSITION));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_METHOD, false, DESCRIPTION_PARSE_METHOD));
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_STATEMENT, false, DESCRIPTION_PARSE_STATEMENT));

@@ -59,7 +59,7 @@ public class FirmMethodgraphStartupPass implements MethodPass, StatementPass {
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
         usage.requireAnalysis(FirmTypePass.class);
-        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
+        usage.setDependency(DependencyType.RUN_IN_NEXT_STEP);
         return usage;
     }
 

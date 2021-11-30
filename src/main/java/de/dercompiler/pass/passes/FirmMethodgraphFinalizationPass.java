@@ -116,7 +116,7 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
 
     @Override
     public AnalysisDirection getAnalysisDirection() {
-        return AnalysisDirection.TOP_DOWN;
+        return AnalysisDirection.BOTTOM_UP;
     }
 
     public void setStartup(FirmMethodgraphStartupPass pass) {
