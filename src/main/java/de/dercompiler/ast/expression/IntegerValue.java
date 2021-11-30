@@ -63,6 +63,13 @@ public final class IntegerValue extends PrimaryExpression {
 
     @Override
     public Node createNode(TransformationState state) {
+        int value;
+
+        if (this.unsignedValue == Integer.MIN_VALUE && this.negative) {
+            value = Integer.MIN_VALUE;
+        } else {
+            value = (negative ? -1 : 1) * unsignedValue;
+        }
         //todo check how to get Value, is the value for sure valid?
         return state.construction.newConst(0, Mode.getIs());
     }

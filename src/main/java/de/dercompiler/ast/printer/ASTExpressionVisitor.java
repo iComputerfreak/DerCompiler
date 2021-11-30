@@ -20,6 +20,5 @@ public interface ASTExpressionVisitor {
     void visitThisValue(ThisValue thisValue);
     void visitUninitializedValue(UninitializedValue uninitializedValue);
     void visitVariable(Variable variable);
-    void visitVoidExpression(VoidExpression voidExpression);
 
 }

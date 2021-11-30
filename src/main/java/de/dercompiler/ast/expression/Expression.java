@@ -9,7 +9,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
 import firm.nodes.Node;
 
-public abstract sealed class Expression extends ASTNode permits BinaryExpression, ErrorExpression, PrimaryExpression, UnaryExpression, UninitializedValue, VoidExpression {
+public abstract sealed class Expression extends ASTNode permits BinaryExpression, ErrorExpression, PrimaryExpression, UnaryExpression, UninitializedValue {
 
     private Statement surrounding = null;
     private Type type;

@@ -240,7 +240,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
     public void visitReturnStatement(ReturnStatement ret) {
         beforeStatement();
         sb.append("return");
-        if (!(ret.getExpression() instanceof VoidExpression)) sb.append(" ");
+        if (!(ret.getExpression() instanceof UninitializedValue)) sb.append(" ");
         ret.getExpression().accept(this);
         sb.append(";");
         afterStatement();
@@ -399,11 +399,6 @@ public class PrettyPrinter implements ASTNodeVisitor {
         } else {
             rhs.accept(this);
         }
-    }
-
-    @Override
-    public void visitVoidExpression(VoidExpression voidExpression) {
-
     }
 
     public void visitMethodRest(MethodRest rest) {

@@ -43,6 +43,6 @@ public final class EqualExpression extends BinaryExpression {
             TransformationHelper.createConditionJumps(state, cmp);
         }
         clearChildNodes(state);
-        return cmp;
+        return null;
     }
 }

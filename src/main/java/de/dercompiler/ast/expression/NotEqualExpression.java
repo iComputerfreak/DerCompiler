@@ -41,6 +41,6 @@ public final class NotEqualExpression extends BinaryExpression {
         }
         clearChildNodes(state);
         state.swapTrueFalseBlock();
-        return cmp;
+        return null;
     }
 }

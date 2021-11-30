@@ -138,11 +138,6 @@ public class ReferencesCollector implements ASTExpressionVisitor {
         if (collects(ReferenceType.VARIABLE)) expressions.add(variable);
     }
 
-    @Override
-    public void visitVoidExpression(VoidExpression voidExpression) {
-
-    }
-
     public void setVisitInternalNodes(boolean visitInternal) {
         this.visitInternal = visitInternal;
     }

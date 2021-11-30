@@ -370,11 +370,6 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         }
     }
 
-    @Override
-    public void visitVoidExpression(VoidExpression voidExpression) {
-        voidExpression.setType(new VoidType());
-    }
-
     public void visitArguments(Arguments arguments) {
         List<Type> expectedTypes = arguments.getExpectedTypes();
 

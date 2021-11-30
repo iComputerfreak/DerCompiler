@@ -39,6 +39,6 @@ public final class GreaterExpression extends BinaryExpression {
             TransformationHelper.createConditionJumps(state, cmp);
         }
         clearChildNodes(state);
-        return cmp;
+        return null;
     }
 }

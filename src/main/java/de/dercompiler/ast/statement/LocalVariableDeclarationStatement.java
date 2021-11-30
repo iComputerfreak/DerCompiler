@@ -35,6 +35,12 @@ public final class LocalVariableDeclarationStatement extends Statement implement
         return this.refType;
     }
 
+    @Override
+    public firm.Type getFirmType() {
+        //TODO implement @Jonas
+        return null;
+    }
+
     public void setRefType(de.dercompiler.semantic.type.Type refType) {
         this.refType = refType;
     }

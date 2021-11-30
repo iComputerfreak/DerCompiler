@@ -10,6 +10,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
 import firm.Mode;
+import firm.Type;
 import firm.nodes.Node;
 
 import java.util.Objects;

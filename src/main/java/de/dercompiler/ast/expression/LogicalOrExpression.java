@@ -47,7 +47,6 @@ public final class LogicalOrExpression extends BinaryExpression {
         getRhs().createNode(state);
         or.mature();
         state.construction.setCurrentBlock(current);
-        //TODO return null or return something?
         return null;
     }
 }

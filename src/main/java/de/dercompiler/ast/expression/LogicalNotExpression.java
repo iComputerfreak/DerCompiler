@@ -36,8 +36,8 @@ public final class LogicalNotExpression extends UnaryExpression {
             TransformationHelper.createConditionError();
         }
         state.swapTrueFalseBlock();
-        Node cond = encapsulated.createNode(state);
+        encapsulated.createNode(state);
         state.swapTrueFalseBlock();
-        return cond;
+        return null;
     }
 }

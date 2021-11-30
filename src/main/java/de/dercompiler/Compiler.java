@@ -48,7 +48,7 @@ public class Compiler {
         } else {
             FirmSetup.firmSetUp();
         }
-        // TODO: What does PIC do?
+
         Firm.init(null, new String[]{ "pic=1" });
         new OutputMessageHandler(MessageOrigin.GENERAL).printInfo("Initialized libFirm Version: " + Firm.getMinorVersion() + "." + Firm.getMajorVersion());
 

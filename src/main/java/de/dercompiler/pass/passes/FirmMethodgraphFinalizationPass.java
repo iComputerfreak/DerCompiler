@@ -3,6 +3,7 @@ package de.dercompiler.pass.passes;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.expression.UninitializedValue;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
@@ -10,6 +11,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
 import firm.nodes.Node;
@@ -38,6 +40,11 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
             state.res = null;
         }
         return false;
+    }
+
+    @Override
+    public boolean shouldRunOnExpression(Expression expression) {
+        return !(expression instanceof UninitializedValue);
     }
 
     @Override

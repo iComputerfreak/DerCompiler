@@ -8,6 +8,8 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.semantic.type.Type;
 import de.dercompiler.transformation.TransformationState;
+import firm.Entity;
+import firm.Program;
 import firm.nodes.Node;
 
 import java.util.Objects;

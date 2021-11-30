@@ -27,7 +27,7 @@ public class FirmMethodgraphStartupPass implements MethodPass, StatementPass {
         //wie bekommt man den globalType??
         CompoundType globalType = null;
         Entity methodEntity = new Entity(globalType, method.getIdentifier(), def.getFirmType());
-        int n_vars = 42;
+        int n_vars = method.getNumLocalVariables();
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
         return false;

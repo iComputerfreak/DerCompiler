@@ -44,11 +44,7 @@ public class TransformationHelper {
     }
 
     public static Node createComp(TransformationState state, Relation relation) {
-        Node cmp = state.construction.newCmp(state.lhs, state.rhs, relation);
-        Node cond = state.construction.newCond(cmp);
-        Node jmpTrue = state.construction.newProj(cond, Mode.getX(), Cond.pnTrue);
-        Node jmpFalse = state.construction.newProj(cond, Mode.getX(), Cond.pnFalse);
-        return cmp;
+        return state.construction.newCmp(state.lhs, state.rhs, relation);
     }
 
     public static void createConditionJumps(TransformationState state, Node cmp) {

@@ -35,6 +35,12 @@ public final class Field extends ClassMember implements ASTDefinition {
         return type;
     }
 
+    @Override
+    public firm.Type getFirmType() {
+        //TODO implement @Jonas
+        return null;
+    }
+
     /**
      * Returns the identifier of the field
      */

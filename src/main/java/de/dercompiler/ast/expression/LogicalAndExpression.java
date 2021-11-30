@@ -49,7 +49,6 @@ public final class LogicalAndExpression extends BinaryExpression {
         getRhs().createNode(state);
         and.mature();
         state.construction.setCurrentBlock(current);
-        //TODO return null or return something?
         return null;
     }
 }

@@ -45,6 +45,12 @@ public final class Parameter extends ASTNode implements ASTDefinition {
         return type;
     }
 
+    @Override
+    public firm.Type getFirmType() {
+        //TODO implement @Jonas
+        return null;
+    }
+
     /**
      * Returns the parameter name
      */
