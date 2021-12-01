@@ -16,8 +16,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.diogonunes/JColor
     implementation 'com.diogonunes:JColor:5.2.0'
 
-    implementation 'net.java.dev.jna:jna:4.5.2'
     implementation 'com.github.Firmwehr:jFirm:master-SNAPSHOT'
+    implementation 'net.java.dev.jna:jna:4.5.2!!'
 
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'

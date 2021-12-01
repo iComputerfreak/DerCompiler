@@ -4,16 +4,17 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
-import de.dercompiler.ast.statement.IfStatement;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
 import de.dercompiler.ast.statement.*;
-import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.type.BooleanType;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+
 import firm.*;
 import firm.nodes.Block;
 import firm.nodes.Node;
@@ -21,6 +22,8 @@ import firm.nodes.Node;
 import java.util.Objects;
 
 public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass {
+
+    static int i = 0;
 
     private FirmMethodGraphStartupPass startUp;
     private TransformationState state;
@@ -33,57 +36,51 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         return false;
     }
 
+    private void pullBlock() {
+        //skip block because we need to work on it
+        if (state.blockStack.peek() != state.construction.getCurrentBlock()) {
+            state.construction.getCurrentBlock().mature();
+        }
+        state.construction.setCurrentBlock(state.blockStack.pop());
+    }
+
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        state.construction.getCurrentBlock().mature();
-        Block currentBlock = state.blockStack.pop();
-        state.construction.setCurrentBlock(currentBlock);
+        pullBlock();
         return false;
     }
-    //runOnBasicBlock
-    //block.mature()
-    //von stack pullen
 
     @Override
     public boolean runOnStatement(Statement statement) {
-        //alle statements bearbeiten, result der nodes steht in state.res
-        //state.res auf null setzen
-
         statement.accept(this);
-
+        if (TransformationHelper.isControlStructure(statement.getSurroundingStatement()) && !(statement instanceof BasicBlock)) {
+            pullBlock();
+        }
         return false;
     }
 
     @Override
-    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement decl) {
-        int nodeId = decl.getNodeId();
+    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
+        System.out.println("visited: " + lvds.getIdentifier());
+        if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) return;
+        System.out.println(state.res);
+        int nodeId = lvds.getNodeId();
+        if (state.res != null) {
+            state.construction.setVariable(nodeId, state.res);
+        }
 
-        state.construction.setVariable(nodeId, state.res);
         state.res = null;
     }
 
     @Override
-    public void visitIfStatement(IfStatement ifStatement) {
-        Block trueBlock = state.construction.newBlock();
-        Block falseBlock = state.construction.newBlock();
-
-        Node jmp = state.construction.newJmp();
-        trueBlock.addPred(jmp);
-        falseBlock.addPred(jmp);
-
-        state.construction.setCurrentBlock(trueBlock);
-
-        state.trueBlock = trueBlock;
-        state.falseBlock = falseBlock;
-
-        //wie bringt man state.res ein?
-
-    }
+    public void visitExpressionStatement(ExpressionStatement expressionStatement) {/* do nothing */ }
 
     @Override
-    public void visitWhileStatement(WhileStatement whileStatement) {
-        super.visitWhileStatement(whileStatement);
+    public void visitReturnStatement(ReturnStatement returnStatement) {
+        if (returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) return;
+        TransformationHelper.createReturn(state, state.res);
+        state.construction.getCurrentBlock().mature();
     }
 
     @Override
@@ -96,6 +93,8 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         //if boolean blocks are set already
         if (state.isCondition()) {
             expression.createNode(state);
+            state.trueBlock = null;
+            state.falseBlock = null;
         } else {
             state.res = expression.createNode(state);
         }

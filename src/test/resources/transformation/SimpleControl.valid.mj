@@ -1,0 +1,25 @@
+class foo {
+
+    public static void main(String[] args) {
+        /*
+        if (5 == 6) {
+            int a = 3;
+        }
+        */
+        int i = 0;
+        
+        if (3 == 3) {
+            /*while(true) {
+                i = i + 2;
+            }*/
+        }
+        
+        
+    }
+
+    public int bar() {
+        int a = 2;
+        return a;
+    }
+
+}

@@ -54,7 +54,7 @@ public final class BooleanValue extends PrimaryExpression {
             }
             TransformationHelper.createDirectJump(state, following);
         }
-        return state.construction.newConst(value ? 1 : 0, Mode.getBu());
+        return TransformationHelper.createBooleanNode(state, value);
     }
 
 

@@ -1,5 +1,8 @@
 package de.dercompiler.transformation;
 
+import de.dercompiler.ast.statement.IfStatement;
+import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Mode;
@@ -53,6 +56,22 @@ public class TransformationHelper {
         Node jmpFalse = state.construction.newProj(cond, Mode.getX(), Cond.pnFalse);
         TransformationHelper.createJump(state, state.trueBlock, jmpTrue);
         TransformationHelper.createJump(state, state.falseBlock, jmpFalse);
+    }
+
+    public static boolean isControlStructure(Statement statement) {
+        return statement instanceof IfStatement || statement instanceof WhileStatement;
+    }
+
+    public static Node createBooleanNode(TransformationState state, boolean value) {
+        return state.construction.newConst(value ? 1 : 0, Mode.getBu());
+    }
+
+    public static void createReturn(TransformationState state, Node node) {
+        Node[] res = new Node[0];
+        if (node != null ) {
+            res = new Node[]{ node };
+        }
+        state.graph.getEndBlock().addPred(state.construction.newReturn(state.construction.getCurrentMem(), res));
     }
 
     public static void createConditionError() {

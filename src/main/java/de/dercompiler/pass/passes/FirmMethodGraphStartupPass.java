@@ -4,13 +4,14 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
-import de.dercompiler.ast.statement.BasicBlock;
-import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.semantic.type.BooleanType;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
 import firm.nodes.Block;
@@ -20,7 +21,7 @@ import firm.nodes.Start;
 import java.util.List;
 import java.util.Objects;
 
-public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, BasicBlockPass {
+public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, BasicBlockPass, ASTStatementVisitor {
     private TransformationState state;
     private FirmMethodGraphFinalizationPass finalization;
 
@@ -30,30 +31,121 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
                 method.getIdentifier());
         //wie bekommt man den globalType??
         CompoundType globalType = firm.Program.getGlobalType();
-        Entity methodEntity = new Entity(globalType, method.getIdentifier(), def.getFirmType());
+        Entity methodEntity = new Entity(globalType, method.getMangledIdentifier(), def.getFirmType());
         int n_vars = method.getNumLocalVariables();
+        System.out.println(method.getIdentifier() + " " + method.getNumLocalVariables());
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
+        //push so we set current block not mature
+        state.blockStack.push(state.construction.getCurrentBlock());
+        return false;
+    }
+
+    @Override
+    public boolean runOnBasicBlock(BasicBlock block) {
+        if (block.getSurroundingStatement() instanceof BasicBlock) {
+            Block b = state.construction.newBlock();
+            TransformationHelper.createDirectJump(state, b);
+            state.construction.getCurrentBlock().mature();
+            state.construction.setCurrentBlock(b);
+        }
         return false;
     }
 
     @Override
     public boolean runOnStatement(Statement statement) {
-        //TODO if control structure setup blocks
-        //neu blöcke erzeugen, richtig sprünge setzen/vorgänger nachfolger beachten
-        //stack befüllen zum abarbeiten der blöcke, wenn es basic_blocks sind
+        statement.accept(this);
         return false;
     }
 
-    //runOnBasicBlock
-    //basic block auf stack pushen(when sie zu keiner kontrollstruktur/method gehören
+    @Override
+    public void visitBasicBlock(BasicBlock basicBlock) { /* do nothing */ }
 
     @Override
-    public boolean runOnBasicBlock(BasicBlock block) {
-        Block currentBlock = state.construction.newBlock();
-        state.construction.setCurrentBlock(currentBlock);
-        state.blockStack.push(currentBlock);
-        return false;
+    public void visitEmptyStatement(EmptyStatement emptyStatement) {/* do nothing */ }
+
+    @Override
+    public void visitErrorStatement(ErrorStatement errorStatement) {/* do nothing */ }
+
+    @Override
+    public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        state.res = null;
+    }
+
+    @Override
+    public void visitIfStatement(IfStatement ifStatement) {
+        Block after = state.construction.newBlock();
+        Block then = state.construction.newBlock();
+        Block current = state.construction.getCurrentBlock();
+        state.construction.setCurrentBlock(then);
+        TransformationHelper.createDirectJump(state, after);
+        state.trueBlock = then;
+        state.falseBlock = after;
+        if (ifStatement.hasElse()) {
+            Block elseB = state.construction.newBlock();
+            state.construction.setCurrentBlock(elseB);
+            TransformationHelper.createDirectJump(state, after);
+            state.blockStack.push(elseB);
+        }
+        state.blockStack.push(then);
+        state.construction.setCurrentBlock(current);
+    }
+
+
+    @Override
+    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
+        if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
+            int nodeId = lvds.getNodeId();
+            state.construction.getCurrentBlock().mature();
+            Block after = state.construction.newBlock();
+            Block trueB = state.construction.newBlock();
+            Block falseB = state.construction.newBlock();
+            state.construction.setCurrentBlock(trueB);
+            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));
+            TransformationHelper.createDirectJump(state, after);
+            trueB.mature();
+            state.construction.setCurrentBlock(falseB);
+            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, false));
+            TransformationHelper.createDirectJump(state, after);
+            falseB.mature();
+            state.construction.setCurrentBlock(after);
+        }
+        /* do nothing */
+    }
+
+    @Override
+    public void visitReturnStatement(ReturnStatement returnStatement) {
+        //if boolean create to returns
+        if (returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) {
+            Block current = state.construction.getCurrentBlock();
+            Block trueB = state.construction.newBlock();
+            state.construction.setCurrentBlock(trueB);
+            TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, true));
+            trueB.mature();
+            Block falseB = state.construction.newBlock();
+            state.construction.setCurrentBlock(falseB);
+            TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
+            falseB.mature();
+            state.construction.setCurrentBlock(current);
+        }
+    }
+
+    @Override
+    public void visitWhileStatement(WhileStatement whileStatement) {
+        Block head = state.construction.newBlock();
+        Block loop = state.construction.newBlock();
+        Block after = state.construction.newBlock();
+
+        TransformationHelper.createDirectJump(state, head);
+        state.construction.getCurrentBlock().mature();
+        state.construction.setCurrentBlock(loop);
+        TransformationHelper.createDirectJump(state, head);
+        state.construction.setCurrentBlock(head);
+        state.construction.getCurrentMem();
+        state.trueBlock = loop;
+        state.falseBlock = after;
+        state.blockStack.push(after);
+        state.blockStack.push(loop);
     }
 
     @Override
@@ -119,6 +211,4 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
     public TransformationState getState() {
         return state;
     }
-
-
 }
