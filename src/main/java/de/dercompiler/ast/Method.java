@@ -121,6 +121,7 @@ public sealed class Method extends ClassMember permits MainMethod {
 
     @Override
     public String toString() {
+        if (getSurroundingClass() == null) return "Method " + getIdentifier();
         return "%s::%s".formatted(getSurroundingClass().getIdentifier(), getIdentifier());
     }
 }

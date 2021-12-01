@@ -419,6 +419,7 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
             Type expectedType = decl.getRefType();
             assertTypeEquals(expr, expectedType, "assignment to new %s variable".formatted(expectedType));
         }
+
     }
 
     public void visitReturnStatement(ReturnStatement returnStatement) {

@@ -33,12 +33,13 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
     @Override
     public void doInitialization(Program program) {
         globalScope = program.getGlobalScope();
+        logger = new OutputMessageHandler(MessageOrigin.PASSES);
     }
 
 
     private void failSpecs(ASTNode node, String message, boolean quit) {
         System.err.println(getPassManager().getLexer().printSourceText(node.getSourcePosition()));
-        logger = new OutputMessageHandler(MessageOrigin.PASSES);
+
         logger.printErrorAndExit(PassErrorIds.SPECS_VIOLATION, message);
         if (quit) getPassManager().quitOnError();
     }
@@ -126,14 +127,6 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
             failSpecs(mainMethodCall, "Illegal call to main method", true);
         }
 
-        List<Expression> nullValues = new ReferencesCollector(ReferenceType.NULL_VALUE).analyze(expression);
-        NullValue expTypeUndefined = (NullValue) nullValues.stream()
-                .filter(value -> value.getType() instanceof NullType nullType && nullType.getExpectedType() == null)
-                .findAny().orElse(null);
-        if (expTypeUndefined != null) {
-            System.err.println(passManager.getLexer().printSourceText(expTypeUndefined.getSourcePosition()));
-            logger.internalError("Expected type of this null value is undefined");
-        }
         return false;
     }
 

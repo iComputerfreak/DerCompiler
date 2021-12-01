@@ -66,7 +66,7 @@ class pip { /* 1 */
 
         manager.run(program);
 
-        assertEquals(10, count[0]);
+        assertEquals(11, count[0]);
     }
 
     @Test
