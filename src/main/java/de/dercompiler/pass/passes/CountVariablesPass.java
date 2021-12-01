@@ -38,7 +38,6 @@ public class CountVariablesPass implements MethodPass, StatementPass {
         method = getPassManager().getCurrentMethod();
         assert(localVars == 0);
         parameterCount = method.getParameters().size();
-        localVars = parameterCount;
     }
 
     @Override

@@ -3,22 +3,27 @@ package de.dercompiler.pass.passes;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
-import de.dercompiler.ast.statement.BasicBlock;
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.pass.*;
+
+import java.util.Objects;
+import java.util.Stack;
 
 /**
  *  (Pass 1) Sets references from many syntactic elements to their surrounding parent of the next higher syntactic category.
  */
-public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass,  ExpressionPass {
+public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass, ExpressionPass, ASTStatementVisitor {
 
     private boolean shouldRun = false;
+    private Stack<BasicBlock> blockStack;
 
     public ASTReferencePass() {}
 
     @Override
     public void doInitialization(Program program) {
         shouldRun = !program.isIndexed();
+        blockStack = new Stack<>();
     }
 
     @Override
@@ -49,18 +54,55 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
     @Override
     public boolean runOnMethod(Method method) {
         method.setSurroundingClass(manager.getCurrentClass());
+        blockStack.push(method.getBlock());
         return false;
+    }
+
+    @Override
+    public void visitBasicBlock(BasicBlock basicBlock) { }
+
+    @Override
+    public void visitEmptyStatement(EmptyStatement emptyStatement) { }
+
+    @Override
+    public void visitErrorStatement(ErrorStatement errorStatement) { }
+
+    @Override
+    public void visitExpressionStatement(ExpressionStatement expressionStatement) { }
+
+    @Override
+    public void visitIfStatement(IfStatement ifStatement) {
+        ifStatement.getThenStatement().setSurroundingStatement(ifStatement);
+        if (ifStatement.hasElse()) {
+            ifStatement.getElseStatement().setSurroundingStatement(ifStatement);
+        }
+    }
+
+    @Override
+    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement localVariableDeclarationStatement) { }
+
+    @Override
+    public void visitReturnStatement(ReturnStatement returnStatement) { }
+
+    @Override
+    public void visitWhileStatement(WhileStatement whileStatement) {
+        whileStatement.getStatement().setSurroundingStatement(whileStatement);
     }
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
         block.setSurroundingMethod(manager.getCurrentMethod());
+        blockStack.push(block);
         return false;
     }
 
     @Override
     public boolean runOnStatement(Statement statement) {
         statement.setSurroundingMethod(manager.getCurrentMethod());
+        if (Objects.isNull(statement.getSurroundingStatement())) {
+            statement.setSurroundingStatement(blockStack.peek());
+        }
+        statement.accept(this);
         return false;
     }
 
@@ -68,6 +110,10 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
     public boolean runOnExpression(Expression expression) {
         expression.setSurroundingStatement(manager.getCurrentStatement());
         return false;
+    }
+
+    public void pop() {
+        blockStack.pop();
     }
 
     @Override

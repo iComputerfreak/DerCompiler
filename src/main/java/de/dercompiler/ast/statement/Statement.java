@@ -9,9 +9,12 @@ import de.dercompiler.lexer.SourcePosition;
 public abstract sealed class Statement extends ASTNode permits BasicBlock, EmptyStatement, ErrorStatement, ExpressionStatement, IfStatement, LocalVariableDeclarationStatement, ReturnStatement, WhileStatement {
 
     public Method surrounding;
+    public Statement surround;
 
     public Statement(SourcePosition position) {
         super(position);
+        surround = null;
+        surrounding = null;
     }
 
     public void setSurroundingMethod(Method method) {
@@ -20,6 +23,14 @@ public abstract sealed class Statement extends ASTNode permits BasicBlock, Empty
 
     public Method getSurroundingMethod() {
         return surrounding;
+    }
+
+    public void setSurroundingStatement(Statement surrounding) {
+        surround = surrounding;
+    }
+
+    public Statement getSurroundingStatement() {
+        return surround;
     }
 
     public abstract void accept(ASTStatementVisitor astStatementVisitor);

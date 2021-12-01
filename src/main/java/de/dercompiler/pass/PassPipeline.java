@@ -7,6 +7,7 @@ import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.passes.ASTReferencePass;
+import de.dercompiler.pass.passes.ASTReferencePullPass;
 
 import java.io.PrintStream;
 import java.util.LinkedList;
@@ -388,11 +389,14 @@ class PassPipeline {
 
     public void addASTReferencePass(Program program, PassManager passManager) {
         ASTReferencePass pass = new ASTReferencePass();
+        ASTReferencePullPass pull = new ASTReferencePullPass();
+        pull.setRefPass(pass);
         steps.getFirst().td_methodPasses.addFirst(pass);
         steps.getFirst().td_basicBlockPasses.addFirst(pass);
         steps.getFirst().td_statementPasses.addFirst(pass);
         steps.getFirst().td_expressionPasses.addFirst(pass);
         steps.getFirst().maxDepth = PassStep.DEPTH.EXPRESSION;
+        steps.getFirst().bu_basicBlockPasses.addFirst(pull);
         pass.doInitialization(program);
         pass.registerPassManager(passManager);
     }
