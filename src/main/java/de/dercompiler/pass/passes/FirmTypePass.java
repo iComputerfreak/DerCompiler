@@ -15,7 +15,6 @@ import firm.Entity;
  * and creates entities for fields and local variable statements
  */
 public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
-    // TODO: Add to PassManager
     private GlobalScope globalScope;
     private final FirmTypeFactory factory = FirmTypeFactory.getInstance();;
     
@@ -55,7 +54,7 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
                 def.getFieldEntities().add(entity);
             }
         }
-        
+
         return false;
     }
 
@@ -91,13 +90,13 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             firm.MethodType firmType = factory.createFirmMethodType(parameterTypes, returnType);
             def.setFirmType(firmType);
         }
-        
+
         // Add the method entity to the parent class
         ClassDeclaration parentClass = method.getSurroundingClass();
         ClassType parentType = globalScope.getClass(parentClass.getIdentifier());
         Entity entity = new Entity(parentType.getFirmType(), method.getIdentifier(), def.getFirmType());
         parentType.getMethodEntities().add(entity);
-        
+
         return false;
     }
 

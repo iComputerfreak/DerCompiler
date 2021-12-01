@@ -1,10 +1,7 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.*;
-import de.dercompiler.ast.expression.AssignmentExpression;
-import de.dercompiler.ast.expression.Expression;
-import de.dercompiler.ast.expression.MethodInvocationOnObject;
-import de.dercompiler.ast.expression.Variable;
+import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.Type;
@@ -16,6 +13,7 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.InternalClass;
+import de.dercompiler.semantic.type.NullType;
 import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.pass.passes.ReferencesCollector.ReferenceType;
 
@@ -30,6 +28,7 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
     private static long id;
     private MainMethod main;
     private GlobalScope globalScope;
+    private OutputMessageHandler logger;
 
     @Override
     public void doInitialization(Program program) {
@@ -39,7 +38,8 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
 
     private void failSpecs(ASTNode node, String message, boolean quit) {
         System.err.println(getPassManager().getLexer().printSourceText(node.getSourcePosition()));
-        new OutputMessageHandler(MessageOrigin.PASSES).printErrorAndExit(PassErrorIds.SPECS_VIOLATION, message);
+        logger = new OutputMessageHandler(MessageOrigin.PASSES);
+        logger.printErrorAndExit(PassErrorIds.SPECS_VIOLATION, message);
         if (quit) getPassManager().quitOnError();
     }
 
@@ -124,6 +124,15 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
                 .findAny().orElse(null);
         if (mainMethodCall != null) {
             failSpecs(mainMethodCall, "Illegal call to main method", true);
+        }
+
+        List<Expression> nullValues = new ReferencesCollector(ReferenceType.NULL_VALUE).analyze(expression);
+        NullValue expTypeUndefined = (NullValue) nullValues.stream()
+                .filter(value -> value.getType() instanceof NullType nullType && nullType.getExpectedType() == null)
+                .findAny().orElse(null);
+        if (expTypeUndefined != null) {
+            System.err.println(passManager.getLexer().printSourceText(expTypeUndefined.getSourcePosition()));
+            logger.internalError("Expected type of this null value is undefined");
         }
         return false;
     }

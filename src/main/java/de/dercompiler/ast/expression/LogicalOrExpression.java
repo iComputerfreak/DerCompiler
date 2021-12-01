@@ -39,10 +39,10 @@ public final class LogicalOrExpression extends BinaryExpression {
         }
         Block or = state.construction.newBlock();
         Block current = state.construction.getCurrentBlock();
-        Block falseB = state.falseB;
-        state.falseB = or;
+        Block falseB = state.falseBlock;
+        state.falseBlock = or;
         getLhs().createNode(state);
-        state.falseB = falseB;
+        state.falseBlock = falseB;
         state.construction.setCurrentBlock(or);
         getRhs().createNode(state);
         or.mature();

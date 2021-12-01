@@ -35,10 +35,12 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
 
     @Override
     public boolean isCompatibleTo(Type other) {
+        if (other instanceof NullType nullType) {
+            nullType.setExpectedType(this);
+        }
         return this == other
                 || (other instanceof DummyClassType dummy && this.isCompatibleTo(dummy.getRealClass()))
-                || other instanceof NullType
-                || other instanceof AnyType;
+                || other instanceof NullType;
     }
     
     public firm.ClassType getFirmType() {

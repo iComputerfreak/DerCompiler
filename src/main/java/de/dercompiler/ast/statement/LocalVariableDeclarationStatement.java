@@ -4,8 +4,9 @@ import de.dercompiler.ast.ASTDefinition;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.Variable;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -69,10 +70,8 @@ public final class LocalVariableDeclarationStatement extends Statement implement
         return false;
     }
 
-    public boolean setNodeId(int id) {
-        if (nodeId > 0) return false;
+    public void setNodeId(int id) {
         nodeId = id;
-        return true;
     }
 
     public int getNodeId() {
@@ -84,10 +83,11 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     }
 
     @Override
-    public void accept(ASTNodeVisitor astNodeVisitor) {
-        astNodeVisitor.visitLocalVariableDeclarationStatement(this);
+    public void accept(ASTStatementVisitor astStatementVisitor) {
+        astStatementVisitor.visitLocalVariableDeclarationStatement(this);
     }
 
-
-
+    public boolean isIdSet() {
+        return nodeId > 0;
+    }
 }

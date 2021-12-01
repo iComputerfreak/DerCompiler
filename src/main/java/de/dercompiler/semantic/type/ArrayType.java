@@ -10,14 +10,23 @@ public final class ArrayType implements ReferenceType {
     
     @Override
     public boolean isCompatibleTo(Type other) {
+        if (other instanceof NullType nullType) {
+            nullType.setExpectedType(this);
+        }
+
         return other instanceof ArrayType array && this.elementType.isCompatibleTo(array.elementType)
-                || other instanceof NullType || other instanceof AnyType;
+                || other instanceof NullType;
     }
     
     public Type getElementType() {
         return elementType;
     }
-    
+
+    @Override
+    public firm.Type getFirmType() {
+        return null;
+    }
+
     @Override
     public String toString() {
         return elementType.toString() + "[]";

@@ -1,6 +1,6 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 /**

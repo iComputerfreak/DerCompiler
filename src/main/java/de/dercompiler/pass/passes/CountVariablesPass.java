@@ -45,16 +45,24 @@ public class CountVariablesPass implements MethodPass, StatementPass {
     public boolean runOnStatement(Statement statement) {
         updateMethod();
         if (statement instanceof LocalVariableDeclarationStatement lvds) {
-            if (lvds.setNodeId(localVars)) localVars++;
+            if (!lvds.isIdSet()) {
+                lvds.setNodeId(localVars);
+                localVars++;
+            }
         }
         return false;
     }
 
     @Override
     public boolean runOnMethod(Method method) {
+        // if this method contains no local variable declarations, this is necessary:
+        updateMethod();
         int i = 0;
         for (Parameter param : method.getParameters()) {
-            if (param.setNodeId(i)) i++;
+            if (!param.isIdSet()) {
+                param.setNodeId(i);
+                i++;
+            }
         }
         if (i != parameterCount) new OutputMessageHandler(MessageOrigin.PASSES)
                 .internalError("something gone wrong, we can't count, the number of parameters is: " + parameterCount + ", but we counted until: " + i + " for method: " + method.getIdentifier() + "!");

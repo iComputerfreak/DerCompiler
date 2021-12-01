@@ -1,9 +1,9 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.ast.type.VoidType;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 public final class MainMethod extends Method {

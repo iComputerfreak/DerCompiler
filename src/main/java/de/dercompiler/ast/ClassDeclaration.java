@@ -1,12 +1,10 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.expression.Variable;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.StringTable;
-import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
 import java.util.HashMap;

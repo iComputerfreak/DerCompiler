@@ -1,6 +1,7 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
+import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.BasicBlock;
@@ -9,25 +10,26 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
-import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
 import firm.nodes.Block;
 import firm.nodes.Node;
+import firm.nodes.Start;
 
+import java.util.List;
 import java.util.Objects;
 
-public class FirmMethodgraphStartupPass implements MethodPass, StatementPass, BasicBlockPass {
+public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, BasicBlockPass {
     private TransformationState state;
-    private FirmMethodgraphFinalizationPass finalization;
+    private FirmMethodGraphFinalizationPass finalization;
 
     @Override
     public boolean runOnMethod(Method method) {
         MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
                 method.getIdentifier());
         //wie bekommt man den globalType??
-        CompoundType globalType = null;
+        CompoundType globalType = firm.Program.getGlobalType();
         Entity methodEntity = new Entity(globalType, method.getIdentifier(), def.getFirmType());
         int n_vars = method.getNumLocalVariables();
         state.graph = new Graph(methodEntity, n_vars);
@@ -108,7 +110,7 @@ public class FirmMethodgraphStartupPass implements MethodPass, StatementPass, Ba
         return AnalysisDirection.TOP_DOWN;
     }
 
-    public void setFinalization(FirmMethodgraphFinalizationPass pass) {
+    public void setFinalization(FirmMethodGraphFinalizationPass pass) {
         if (finalization != null) return;
         this.finalization = pass;
         finalization.setStartup(this);

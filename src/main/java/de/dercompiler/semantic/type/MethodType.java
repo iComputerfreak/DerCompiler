@@ -25,6 +25,11 @@ public class MethodType implements Type {
         return false;
     }
 
+    @Override
+    public firm.Type getFirmType() {
+        return null;
+    }
+
     public List<Type> getParameterTypes() {
         return parameterTypes;
     }

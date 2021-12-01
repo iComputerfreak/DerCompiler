@@ -1,7 +1,7 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.List;
@@ -27,8 +27,9 @@ public final class Parameter extends ASTNode implements ASTDefinition {
 
     /**
      * Creates a new Parameter
-     * @param position The source code position
-     * @param type The type of the parameter
+     *
+     * @param position   The source code position
+     * @param type       The type of the parameter
      * @param identifier The name of the parameter
      */
     public Parameter(SourcePosition position, Type type, String identifier) {
@@ -40,6 +41,7 @@ public final class Parameter extends ASTNode implements ASTDefinition {
 
     /**
      * Returns the parameter type
+     *
      * @return
      */
     public Type getType() {
@@ -79,6 +81,10 @@ public final class Parameter extends ASTNode implements ASTDefinition {
 
     public int getNodeId() {
         return nodeId;
+    }
+
+    public boolean isIdSet() {
+        return nodeId > 0;
     }
 
     @Override

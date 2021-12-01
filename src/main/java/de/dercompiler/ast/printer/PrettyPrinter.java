@@ -5,6 +5,7 @@ import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 
 import java.util.Objects;
 import java.util.Stack;

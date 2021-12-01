@@ -2,10 +2,12 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.*;
-import de.dercompiler.ast.printer.ASTExpressionVisitor;
+import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.ast.type.CustomType;
+import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
+import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
@@ -20,7 +22,7 @@ import java.util.List;
  *  (Pass 6) Types any expression and primitive literals.
  *  Checks for many constraints regarding types.
  */
-public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpressionVisitor {
+public class TypeAnalysisPass extends ASTLazyStatementVisitor implements StatementPass, ExpressionPass, ASTExpressionVisitor {
 
     private final OutputMessageHandler logger;
     private GlobalScope globalScope;
@@ -214,8 +216,9 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public void visitErrorExpression(ErrorExpression errorExpression) {
-
+        // do nothing
     }
+
 
     @Override
     public void visitFieldAccess(FieldAccess fieldAccess) {
@@ -349,7 +352,6 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
         thisValue.setType(classType);
     }
 
-
     @Override
     public void visitUninitializedValue(UninitializedValue uninitializedValue) {
         // do nothing
@@ -393,11 +395,7 @@ public class TypeAnalysisPass implements StatementPass, ExpressionPass, ASTExpre
 
     @Override
     public boolean runOnStatement(Statement statement) {
-        if (statement instanceof IfStatement ifStatement) visitIfStatement(ifStatement);
-        else if (statement instanceof LocalVariableDeclarationStatement decl)
-            visitLocalVariableDeclarationStatement(decl);
-        else if (statement instanceof ReturnStatement returnStatement) visitReturnStatement(returnStatement);
-        else if (statement instanceof WhileStatement whileStatement) visitWhileStatement(whileStatement);
+        statement.accept(this);
         return false;
     }
 

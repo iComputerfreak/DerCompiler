@@ -1,7 +1,5 @@
 package de.dercompiler.transformation;
 
-import de.dercompiler.ast.printer.ASTExpressionVisitor;
-import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
@@ -22,8 +20,8 @@ public class TransformationState {
     public Node rhs;
     public Node res;
 
-    public Block trueB;
-    public Block falseB;
+    public Block trueBlock;
+    public Block falseBlock;
 
     public Stack<Block> blockStack;
 
@@ -31,34 +29,25 @@ public class TransformationState {
         this.globalScope = scope;
         graph = null;
         construction = null;
-        trueB = null;
-        falseB = null;
+        trueBlock = null;
+        falseBlock = null;
 
-        blockStack = new Stack<Block>();
+        blockStack = new Stack<>();
     }
 
     public boolean isCondition() {
-        if (Objects.isNull(trueB)) {
-            if (Objects.isNull(falseB)) {
-                return false;
-            } else {
-                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("We have a miss-formed TransformationState!");
-                return true; //we never return
-            }
-        } else {
-            if (Objects.isNull(falseB)) {
-                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("We have a miss-formed TransformationState!");
-                return false; //we never return
-            } else {
-                return true;
-            }
+        boolean wellFormed = Objects.isNull(trueBlock) == Objects.isNull(falseBlock);
+        if (!wellFormed) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("We have a miss-formed TransformationState!");
         }
+
+        return !Objects.isNull(trueBlock);
     }
 
     public void swapTrueFalseBlock() {
-        Block tmp = trueB;
-        trueB = falseB;
-        falseB = tmp;
+        Block tmp = trueBlock;
+        trueBlock = falseBlock;
+        falseBlock = tmp;
     }
 
 }

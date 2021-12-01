@@ -22,9 +22,10 @@ public class PassManagerBuilder {
     public static void buildTransformationPipeline(PassManager manager) {
         buildSemanticsPipeline(manager);
         manager.addPass(new FirmTypePass());
+        manager.addPass(new CountVariablesPass());
 
-        FirmMethodgraphStartupPass fms = new FirmMethodgraphStartupPass();
-        FirmMethodgraphFinalizationPass fmf = new FirmMethodgraphFinalizationPass();
+        FirmMethodGraphStartupPass fms = new FirmMethodGraphStartupPass();
+        FirmMethodGraphFinalizationPass fmf = new FirmMethodGraphFinalizationPass();
         fms.setFinalization(fmf);
 
         manager.addPass(fms);

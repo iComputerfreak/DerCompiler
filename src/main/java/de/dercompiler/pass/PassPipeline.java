@@ -3,6 +3,7 @@ package de.dercompiler.pass;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.passes.ASTReferencePass;
@@ -13,7 +14,9 @@ import java.util.List;
 
 class PassPipeline {
 
-    static class PassStep {
+
+
+    static class PassStep  implements ASTStatementVisitor {
 
         enum DEPTH {
             UNINITALIZED,
@@ -210,37 +213,7 @@ class PassPipeline {
                 }
             }
 
-            if (statement instanceof ExpressionStatement es) {
-                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(es.getExpression());
-            } else if (statement instanceof LocalVariableDeclarationStatement lvds) {
-                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(lvds.getExpression());
-            } else if (statement instanceof IfStatement ifs) {
-                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(ifs.getCondition());
-                Statement then = ifs.getThenStatement();
-                if (then instanceof BasicBlock bb) {
-                    traverseBasicBlock(bb);
-                } else {
-                    traverseStatement(then);
-                }
-                if (ifs.hasElse()) {
-                    Statement else_ = ifs.getElseStatement();
-                    if (else_ instanceof BasicBlock bb) {
-                        traverseBasicBlock(bb);
-                    } else {
-                        traverseStatement(else_);
-                    }
-                }
-            } else if (statement instanceof WhileStatement ws) {
-                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(ws.getCondition());
-                Statement body = ws.getStatement();
-                if (body instanceof BasicBlock bb) {
-                    traverseBasicBlock(bb);
-                } else {
-                    traverseStatement(body);
-                }
-            } else if (statement instanceof ReturnStatement rs) {
-                if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(rs.getExpression());
-            }
+            statement.accept(this);
 
             if (inRange(DEPTH.STATEMENT)) {
                 for (StatementPass BUStatementPass : bu_statementPasses) {
@@ -248,6 +221,55 @@ class PassPipeline {
                 }
             }
             manager.setCurrentStatement(old);
+        }
+
+        @Override
+        public void visitBasicBlock(BasicBlock basicBlock) {
+            traverseBasicBlock(basicBlock);
+        }
+
+        @Override
+        public void visitEmptyStatement(EmptyStatement emptyStatement) {
+
+        }
+
+        @Override
+        public void visitErrorStatement(ErrorStatement errorStatement) {
+
+        }
+
+        @Override
+        public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+            if (underMaxBound(PassStep.DEPTH.EXPRESSION)) traverseExpression(expressionStatement.getExpression());
+        }
+
+        @Override
+        public void visitIfStatement(IfStatement ifStatement) {
+            if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(ifStatement.getCondition());
+            Statement then = ifStatement.getThenStatement();
+
+            then.accept(this);
+            if (ifStatement.hasElse()) {
+                Statement else_ = ifStatement.getElseStatement();
+                else_.accept(this);
+            }
+        }
+
+        @Override
+        public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement decl) {
+            if (underMaxBound(PassStep.DEPTH.EXPRESSION)) traverseExpression(decl.getExpression());
+        }
+
+        @Override
+        public void visitReturnStatement(ReturnStatement returnStatement) {
+            if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(returnStatement.getExpression());
+        }
+
+        @Override
+        public void visitWhileStatement(WhileStatement whileStatement) {
+            if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(whileStatement.getCondition());
+            Statement body = whileStatement.getStatement();
+            body.accept(this);
         }
 
         private void traverseBasicBlock(BasicBlock block) {
@@ -260,12 +282,7 @@ class PassPipeline {
             }
 
             for (Statement statement : block.getStatements()) {
-                if (statement instanceof BasicBlock bb) {
-                    traverseBasicBlock(bb);
-                } else {
-                    //no check statements could contain basic blocks
-                    traverseStatement(statement);
-                }
+                traverseStatement(statement);
             }
 
             if (overMinBound(DEPTH.BASICBLOCK)) {

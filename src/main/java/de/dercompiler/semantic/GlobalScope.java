@@ -12,16 +12,6 @@ import java.util.*;
 public class GlobalScope {
     
     private final Map<String, ClassType> classMap;
-    
-    // Static global firm types
-    public static final firm.PrimitiveType intFirmType = FirmTypeFactory.getInstance()
-            .createFirmPrimitiveType(new IntegerType());
-    public static final firm.PrimitiveType booleanFirmType = FirmTypeFactory.getInstance()
-            .createFirmPrimitiveType(new BooleanType());
-    public static final firm.PrimitiveType voidFirmType = FirmTypeFactory.getInstance()
-            .createFirmPrimitiveType(new VoidType());
-    public static final firm.PrimitiveType nullFirmType = FirmTypeFactory.getInstance()
-            .createFirmPrimitiveType(new NullType());
 
     public GlobalScope() {
         this.classMap = new HashMap<>();

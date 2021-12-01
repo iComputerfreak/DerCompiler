@@ -1,4 +1,4 @@
-package de.dercompiler.ast.printer;
+package de.dercompiler.ast.visitor;
 
 import de.dercompiler.ast.expression.*;
 

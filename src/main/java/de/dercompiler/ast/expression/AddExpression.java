@@ -34,7 +34,8 @@ public final class AddExpression extends BinaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         createChildNodes(state);
-        Node res = state.construction.newAdd(state.lhs, state.res);
+        // TODO: rhs or res?
+        Node res = state.construction.newAdd(state.lhs, state.rhs);
         clearChildNodes(state);
         return res;
     }

@@ -1,8 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.printer.ASTExpressionVisitor;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
 import firm.Mode;
@@ -70,7 +69,6 @@ public final class IntegerValue extends PrimaryExpression {
         } else {
             value = (negative ? -1 : 1) * unsignedValue;
         }
-        //todo check how to get Value, is the value for sure valid?
-        return state.construction.newConst(0, Mode.getIs());
+        return state.construction.newConst(value, Mode.getIs());
     }
 }

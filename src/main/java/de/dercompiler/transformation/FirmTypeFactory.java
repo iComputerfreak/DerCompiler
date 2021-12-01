@@ -2,7 +2,6 @@ package de.dercompiler.transformation;
 
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.type.*;
 import firm.Mode;
 import firm.PrimitiveType;
@@ -50,7 +49,7 @@ public class FirmTypeFactory {
      *             otherwise the function throws an internal error
      * @return The created {@link firm.PrimitiveType}
      */
-    public firm.PrimitiveType createFirmPrimitiveType(Type type) {
+    public firm.Type createFirmPrimitiveType(Type type) {
         if (type instanceof IntegerType) {
             return new PrimitiveType(Mode.getIs());
         } else if (type instanceof BooleanType) {
@@ -59,9 +58,7 @@ public class FirmTypeFactory {
         } else if (type instanceof VoidType) {
             return null;
         } else if (type instanceof NullType t) {
-            // TODO: What type for null?
-            // return getOrCreateFirmVariableType(t.getExpectedType())
-            return null;
+            return getOrCreateFirmVariableType(t.getExpectedType());
         } else {
             // If we reach this, we requested a firm type for a semantic type that is not primitive
             new OutputMessageHandler(MessageOrigin.TRANSFORM)
@@ -123,13 +120,13 @@ public class FirmTypeFactory {
      */
     public firm.Type getOrCreateFirmVariableType(Type type) {
         if (type instanceof IntegerType) {
-            return GlobalScope.intFirmType;
+            return FirmTypes.intFirmType;
         } else if (type instanceof BooleanType) {
-            return GlobalScope.booleanFirmType;
+            return FirmTypes.booleanFirmType;
         } else if (type instanceof VoidType) {
-            return GlobalScope.voidFirmType;
-        } else if (type instanceof NullType) {
-            return GlobalScope.nullFirmType;
+            return FirmTypes.voidFirmType;
+        } else if (type instanceof NullType nullType) {
+            return getOrCreateFirmVariableType(nullType.getExpectedType());
         } else if (type instanceof ClassType t) {
             // Check if the firm type was already set, otherwise create and set it now
             if (t.getFirmType() == null) {

@@ -1,6 +1,7 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.Field;
 import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.io.OutputMessageHandler;
@@ -47,7 +48,13 @@ public final class AssignmentExpression extends BinaryExpression {
             } else if (v.getDefinition() instanceof Parameter p) {
                 state.construction.setVariable(p.getNodeId(), state.rhs);
                 res = state.rhs;
-            } else {
+            } else if (v.getDefinition() instanceof Field f) {
+                Node thisPtr = state.graph.getArgs();
+
+                // TODO currentMem.load(call.getArgs[0])
+                res = null;
+            }
+            else {
                 new OutputMessageHandler(MessageOrigin.PASSES).internalError("cannot assign Value to variable, because Definition is no local accessible function: " + v.getDefinition());
                 return null; //we never return
             }

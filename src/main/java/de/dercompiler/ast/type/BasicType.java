@@ -2,7 +2,7 @@ package de.dercompiler.ast.type;
 
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 /**

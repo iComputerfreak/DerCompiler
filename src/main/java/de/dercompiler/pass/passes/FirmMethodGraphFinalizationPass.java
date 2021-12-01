@@ -4,13 +4,15 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
+import de.dercompiler.ast.statement.IfStatement;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
 import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
-import de.dercompiler.semantic.GlobalScope;
-import de.dercompiler.semantic.MethodDefinition;
-import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
 import firm.nodes.Block;
@@ -18,9 +20,9 @@ import firm.nodes.Node;
 
 import java.util.Objects;
 
-public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPass, ExpressionPass, BasicBlockPass  {
+public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass {
 
-    private FirmMethodgraphStartupPass startUp;
+    private FirmMethodGraphStartupPass startUp;
     private TransformationState state;
 
     @Override
@@ -48,33 +50,41 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
         //alle statements bearbeiten, result der nodes steht in state.res
         //state.res auf null setzen
 
-        if (statement instanceof LocalVariableDeclarationStatement lvds) {
-            int nodeId = lvds.getNodeId();
+        statement.accept(this);
 
-            state.construction.setVariable(nodeId, state.res);
-            state.res = null;
-        } else if (statement instanceof IfStatement ifStatement){
-
-            Block trueBlock = state.construction.newBlock();
-            Block falseBlock = state.construction.newBlock();
-
-            Node jmp = state.construction.newJmp();
-            trueBlock.addPred(jmp);
-            falseBlock.addPred(jmp);
-
-            state.construction.setCurrentBlock(trueBlock);
-
-            state.trueB = trueBlock;
-            state.falseB = falseBlock;
-
-            //wie bringt man state.res ein?
-        } else if (statement instanceof WhileStatement whileStatement){
-
-        }
         return false;
     }
 
+    @Override
+    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement decl) {
+        int nodeId = decl.getNodeId();
 
+        state.construction.setVariable(nodeId, state.res);
+        state.res = null;
+    }
+
+    @Override
+    public void visitIfStatement(IfStatement ifStatement) {
+        Block trueBlock = state.construction.newBlock();
+        Block falseBlock = state.construction.newBlock();
+
+        Node jmp = state.construction.newJmp();
+        trueBlock.addPred(jmp);
+        falseBlock.addPred(jmp);
+
+        state.construction.setCurrentBlock(trueBlock);
+
+        state.trueBlock = trueBlock;
+        state.falseBlock = falseBlock;
+
+        //wie bringt man state.res ein?
+
+    }
+
+    @Override
+    public void visitWhileStatement(WhileStatement whileStatement) {
+        super.visitWhileStatement(whileStatement);
+    }
 
     @Override
     public boolean shouldRunOnExpression(Expression expression) {
@@ -106,7 +116,7 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        usage.requireAnalysis(FirmMethodgraphStartupPass.class);
+        usage.requireAnalysis(FirmMethodGraphStartupPass.class);
         usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
@@ -146,7 +156,7 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
         return AnalysisDirection.BOTTOM_UP;
     }
 
-    public void setStartup(FirmMethodgraphStartupPass pass) {
+    public void setStartup(FirmMethodGraphStartupPass pass) {
         if (startUp != null) return;
         this.startUp = pass;
         startUp.setFinalization(this);

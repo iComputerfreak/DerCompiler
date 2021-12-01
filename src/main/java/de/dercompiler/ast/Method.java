@@ -1,11 +1,9 @@
 package de.dercompiler.ast;
 
-import de.dercompiler.ast.printer.ASTNodeVisitor;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
+import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
-import de.dercompiler.semantic.StringTable;
-import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.util.Utils;
 
 import java.util.LinkedList;
@@ -119,5 +117,10 @@ public sealed class Method extends ClassMember permits MainMethod {
 
     public void setNumLocalVariables(int numLocalVars) {
         this.numLocalVars = numLocalVars;
+    }
+
+    @Override
+    public String toString() {
+        return "%s::%s".formatted(getSurroundingClass().getIdentifier(), getIdentifier());
     }
 }

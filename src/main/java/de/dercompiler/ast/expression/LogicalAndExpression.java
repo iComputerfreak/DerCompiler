@@ -1,8 +1,6 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
@@ -41,10 +39,10 @@ public final class LogicalAndExpression extends BinaryExpression {
         }
         Block and = state.construction.newBlock();
         Block current = state.construction.getCurrentBlock();
-        Block trueB = state.trueB;
-        state.trueB = and;
+        Block trueB = state.trueBlock;
+        state.trueBlock = and;
         getLhs().createNode(state);
-        state.trueB = trueB;
+        state.trueBlock = trueB;
         state.construction.setCurrentBlock(and);
         getRhs().createNode(state);
         and.mature();

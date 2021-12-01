@@ -1,7 +1,7 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.expression.*;
-import de.dercompiler.ast.printer.ASTExpressionVisitor;
+import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -20,7 +20,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
 
     enum ReferenceType {
-        VARIABLE, FIELD, METHOD_INVOCATION, ARRAY_ACCESS, ASSIGNMENT_EXPRESSION, NEW_OBJECT, NEW_ARRAY, UNINITIALIZED_VALUE
+        VARIABLE, FIELD, METHOD_INVOCATION, ARRAY_ACCESS, ASSIGNMENT_EXPRESSION, NEW_OBJECT, NEW_ARRAY, NULL_VALUE, UNINITIALIZED_VALUE
     }
 
     public ReferencesCollector() {
@@ -115,7 +115,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitNullValue(NullValue nullValue) {
-
+        if (collects(ReferenceType.NULL_VALUE)) expressions.add(nullValue);
     }
 
     @Override

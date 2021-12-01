@@ -2,7 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.expression.Expression;
-import de.dercompiler.ast.printer.ASTNodeVisitor;
+import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.lexer.SourcePosition;
 
 import java.util.Objects;
@@ -37,7 +37,7 @@ public final class WhileStatement extends Statement {
     }
 
     @Override
-    public void accept(ASTNodeVisitor astNodeVisitor) {
-        astNodeVisitor.visitWhileStatement(this);
+    public void accept(ASTStatementVisitor asTStatementVisitor) {
+        asTStatementVisitor.visitWhileStatement(this);
     }
 }

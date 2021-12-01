@@ -2,15 +2,13 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTDefinition;
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.Field;
 import de.dercompiler.ast.Parameter;
-import de.dercompiler.ast.printer.ASTExpressionVisitor;
+import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
 import firm.Mode;
-import firm.Type;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -57,15 +55,19 @@ public final class Variable extends PrimaryExpression {
         ASTDefinition def = getDefinition();
         if (def instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
+
             //TODO how to get mode?
-            Mode mode = null; //-> from type?
+            Mode mode = this.getType().getFirmType().getMode();; //-> from type?
             return state.construction.getVariable(nodeId, mode);
         } else if (def instanceof Parameter p) {
             //TODO get mode;
             Mode mode = null;
-            return state.construction.newProj(state.graph.getArgs(), mode , p.getNodeId());
+            return state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId());
+        } else if (def instanceof Field f) {
+            //TODO get node of reference object?
+            return null;
         } else {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
+            //new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
             return null; //we never return
         }
     }
