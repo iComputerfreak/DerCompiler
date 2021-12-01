@@ -4,9 +4,7 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
-import de.dercompiler.ast.statement.IfStatement;
-import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.statement.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
@@ -20,7 +18,7 @@ import firm.nodes.Node;
 
 import java.util.Objects;
 
-public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPass, ExpressionPass  {
+public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPass, ExpressionPass, BasicBlockPass  {
 
     private FirmMethodgraphStartupPass startUp;
     private TransformationState state;
@@ -33,6 +31,14 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
         return false;
     }
 
+
+    @Override
+    public boolean runOnBasicBlock(BasicBlock block) {
+        state.construction.getCurrentBlock().mature();
+        Block currentBlock = state.blockStack.pop();
+        state.construction.setCurrentBlock(currentBlock);
+        return false;
+    }
     //runOnBasicBlock
     //block.mature()
     //von stack pullen
@@ -62,6 +68,8 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
             state.falseB = falseBlock;
 
             //wie bringt man state.res ein?
+        } else if (statement instanceof WhileStatement whileStatement){
+
         }
         return false;
     }

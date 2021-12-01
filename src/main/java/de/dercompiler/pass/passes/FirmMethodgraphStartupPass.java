@@ -3,6 +3,7 @@ package de.dercompiler.pass.passes;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
@@ -12,11 +13,12 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
+import firm.nodes.Block;
 import firm.nodes.Node;
 
 import java.util.Objects;
 
-public class FirmMethodgraphStartupPass implements MethodPass, StatementPass {
+public class FirmMethodgraphStartupPass implements MethodPass, StatementPass, BasicBlockPass {
     private TransformationState state;
     private FirmMethodgraphFinalizationPass finalization;
 
@@ -43,6 +45,14 @@ public class FirmMethodgraphStartupPass implements MethodPass, StatementPass {
 
     //runOnBasicBlock
     //basic block auf stack pushen(when sie zu keiner kontrollstruktur/method gehören
+
+    @Override
+    public boolean runOnBasicBlock(BasicBlock block) {
+        Block currentBlock = state.construction.newBlock();
+        state.construction.setCurrentBlock(currentBlock);
+        state.blockStack.push(currentBlock);
+        return false;
+    }
 
     @Override
     public void doInitialization(Program program) {
@@ -107,4 +117,6 @@ public class FirmMethodgraphStartupPass implements MethodPass, StatementPass {
     public TransformationState getState() {
         return state;
     }
+
+
 }

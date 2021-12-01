@@ -1,6 +1,7 @@
 package de.dercompiler.transformation;
 
 import de.dercompiler.ast.printer.ASTExpressionVisitor;
+import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
@@ -10,6 +11,7 @@ import firm.nodes.Block;
 import firm.nodes.Node;
 
 import java.util.Objects;
+import java.util.Stack;
 
 public class TransformationState {
 
@@ -23,12 +25,16 @@ public class TransformationState {
     public Block trueB;
     public Block falseB;
 
+    public Stack<Block> blockStack;
+
     public TransformationState(GlobalScope scope) {
         this.globalScope = scope;
         graph = null;
         construction = null;
         trueB = null;
         falseB = null;
+
+        blockStack = new Stack<Block>();
     }
 
     public boolean isCondition() {
