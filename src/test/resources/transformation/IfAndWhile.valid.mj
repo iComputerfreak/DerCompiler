@@ -1,0 +1,28 @@
+class Main {
+	
+	public int a;
+	public boolean b;
+
+	public Main() {
+    	System.out.println(0);
+		this.a = 42;
+		this.b = true;
+		if ((this.a == f()) == b) {
+			System.out.println(1);
+		}
+		System.out.println(f());
+		while (this.b) {
+			System.out.println(2);
+			this.b = false;
+		}
+		System.out.println(3);
+	}
+	
+	public static void main(String[] args) {
+    	Main f = new Main();
+	}
+	
+	public int f() {
+		return 42;
+	}
+}
