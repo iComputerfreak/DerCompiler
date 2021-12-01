@@ -11,7 +11,7 @@ public class FirmSetup {
             Firm.VERSION = Firm.FirmVersion.RELEASE;
         } else if (TargetTriple.isMacOS()) {
             Firm.VERSION = Firm.FirmVersion.FIRM;
-        } else if (TargetTriple.isLinus()) {
+        } else if (TargetTriple.isLinux()) {
             Firm.VERSION = Firm.FirmVersion.RELEASE;
         } else {
             new OutputMessageHandler(MessageOrigin.GENERAL).printInfo("We didn't recognize your operatingsystem, this may result in undefined behaviour.");
@@ -24,7 +24,7 @@ public class FirmSetup {
             System.setProperty("jna.library.path", "B:\\debug_libfirm\\Debug");
         } else if (TargetTriple.isMacOS()) {
             Firm.VERSION = Firm.FirmVersion.FIRM;
-        } else if (TargetTriple.isLinus()) {
+        } else if (TargetTriple.isLinux()) {
             Firm.VERSION = Firm.FirmVersion.RELEASE;
         } else {
             new OutputMessageHandler(MessageOrigin.GENERAL).printInfo("We didn't recognize your operatingsystem, this may result in undefined behaviour.");
@@ -36,7 +36,7 @@ public class FirmSetup {
             Firm.VERSION = Firm.FirmVersion.RELEASE;
         } else if (TargetTriple.isMacOS()) {
             Firm.VERSION = Firm.FirmVersion.FIRM;
-        } else if (TargetTriple.isLinus()) {
+        } else if (TargetTriple.isLinux()) {
             Firm.VERSION = Firm.FirmVersion.RELEASE;
         } else {
             new OutputMessageHandler(MessageOrigin.GENERAL).printInfo("We didn't recognize your operatingsystem, this may result in undefined behaviour.");

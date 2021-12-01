@@ -3,6 +3,7 @@ package de.dercompiler.ast;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.util.Utils;
 
 /**
  * Represents a class field in a MiniJava program. Example:
@@ -50,6 +51,13 @@ public final class Field extends ClassMember implements ASTDefinition {
      */
     public String getIdentifier() {
         return identifier;
+    }
+
+    /**
+     * Returns the mangled identifier to use in firm
+     */
+    public String getMangledIdentifier() {
+        return Utils.transformVariableIdentifier(identifier);
     }
 
     @Override

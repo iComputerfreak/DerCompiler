@@ -3,6 +3,7 @@ package de.dercompiler.semantic.type;
 import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.util.Utils;
 import firm.Entity;
 
 import java.util.HashMap;
@@ -18,8 +19,8 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
 
     private ClassDeclaration decl;
     private firm.ClassType firmType;
-    private List<firm.Entity> methodEntities;
-    private List<firm.Entity> fieldEntities;
+    private final List<firm.Entity> methodEntities;
+    private final List<firm.Entity> fieldEntities;
 
     public ClassType(String identifier) {
         this.identifier = identifier;
@@ -31,6 +32,13 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
 
     public String getIdentifier() {
         return identifier;
+    }
+
+    /**
+     * Returns the mangled identifier to use in firm
+     */
+    public String getMangledIdentifier() {
+        return Utils.transformClassIdentifier(identifier);
     }
 
     @Override
@@ -55,16 +63,8 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
         return methodEntities;
     }
 
-    public void setMethodEntities(List<Entity> methodEntities) {
-        this.methodEntities = methodEntities;
-    }
-
     public List<Entity> getFieldEntities() {
         return fieldEntities;
-    }
-
-    public void setFieldEntities(List<Entity> fieldEntities) {
-        this.fieldEntities = fieldEntities;
     }
 
     public MethodDefinition getMethod(String methodName) {

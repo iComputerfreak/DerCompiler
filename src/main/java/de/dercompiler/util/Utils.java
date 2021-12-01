@@ -1,13 +1,8 @@
 package de.dercompiler.util;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.expression.*;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.pass.PassErrorIds;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Utils {
@@ -36,5 +31,16 @@ public class Utils {
         return true;
     }
 
+    public static String transformMethodIdentifier(String identifier) {
+        return "0m_" + identifier;
+    }
+
+    public static String transformVariableIdentifier(String identifier) {
+        return "0v_" + identifier;
+    }
+
+    public static String transformClassIdentifier(String identifier) {
+        return "0c_" + identifier;
+    }
 
 }

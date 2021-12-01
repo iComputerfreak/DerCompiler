@@ -40,7 +40,7 @@ public class FirmTypeFactory {
      * @return The created {@link firm.ClassType}
      */
     public firm.ClassType createFirmClassType(ClassType classType) {
-        return new firm.ClassType(classType.getIdentifier());
+        return new firm.ClassType(classType.getMangledIdentifier());
     }
     
     /**

@@ -4,13 +4,31 @@ import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.ast.type.VoidType;
 import de.dercompiler.ast.visitor.ASTNodeVisitor;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TargetTriple;
 
 public final class MainMethod extends Method {
     
     // INFO: methodRest may be null
     public MainMethod(SourcePosition position, SourcePosition voidPos, String identifier, Parameter arg, MethodRest methodRest, BasicBlock block) {
         super(position, new Type(voidPos, new VoidType(voidPos), 0), identifier, arg.asList(), methodRest, block);
+    }
+    
+    /**
+     * Returns the mangled identifier to use in firm
+     */
+    public String getMangledIdentifier() {
+        if (TargetTriple.isLinux()) {
+            return "main";
+        } else if (TargetTriple.isMacOS() || TargetTriple.isWindows()) {
+            return "_main";
+        } else {
+            (new OutputMessageHandler(MessageOrigin.TRANSFORM))
+                    .internalError("Target system is not supported. Cannot generate the mangled name for the main method");
+            throw new RuntimeException();
+        }
     }
 
     @Override

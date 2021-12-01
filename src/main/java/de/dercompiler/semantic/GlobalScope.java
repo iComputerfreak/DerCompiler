@@ -1,13 +1,11 @@
 package de.dercompiler.semantic;
 
-import de.dercompiler.semantic.type.*;
-import de.dercompiler.transformation.FirmTypeFactory;
-import de.dercompiler.ast.ClassMember;
-import de.dercompiler.ast.Field;
-import de.dercompiler.ast.Method;
 import de.dercompiler.semantic.type.ClassType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GlobalScope {
     
@@ -23,6 +21,17 @@ public class GlobalScope {
 
     public FieldDefinition getField(String className, String fieldName) {
         return getClass(className).getField(fieldName);
+    }
+
+    /**
+     * Returns the {@link firm.Entity} for the method or field in the given class with the given name
+     * @param className The unmangled class name
+     * @param memberName The mangled name of the member
+     * @return The requested {@link firm.Entity}
+     */
+    public firm.Entity getMemberEntity(String className, String memberName) {
+        ClassType c = classMap.get(className);
+        return c.getFirmType().getMemberByName(memberName);
     }
 
     public ClassType getClass(String className) {

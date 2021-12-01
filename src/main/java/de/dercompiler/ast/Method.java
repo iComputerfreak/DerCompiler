@@ -54,6 +54,13 @@ public sealed class Method extends ClassMember permits MainMethod {
     }
 
     /**
+     * Returns the mangled identifier to use in firm
+     */
+    public String getMangledIdentifier() {
+        return Utils.transformMethodIdentifier(identifier);
+    }
+    
+    /**
      * Returns the parameters of this method or an empty list, if there are none
      */
     public List<Parameter> getParameters() {

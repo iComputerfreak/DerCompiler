@@ -1,7 +1,5 @@
 package de.dercompiler.transformation;
 
-import java.util.Locale;
-
 public class TargetTriple {
 
     public static final String OS = System.getProperty("os.name").toLowerCase();
@@ -11,7 +9,7 @@ public class TargetTriple {
         return OS.contains("win");
     }
 
-    public static boolean isLinus() {
+    public static boolean isLinux() {
         return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
     }
 

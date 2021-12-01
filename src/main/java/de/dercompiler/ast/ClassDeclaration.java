@@ -62,6 +62,13 @@ public final class ClassDeclaration extends ASTNode {
     public String getIdentifier() {
         return identifier;
     }
+    
+    /**
+     * Returns the mangled identifier to use in firm
+     */
+    public String getMangledIdentifier() {
+        return Utils.transformClassIdentifier(identifier);
+    }
 
     /**
      * Returns all members of this class

@@ -50,7 +50,7 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
                     f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
                 }
                 // Add the field entity to the parent class
-                firm.Entity entity = new Entity(def.getFirmType(), f.getIdentifier(), f.getFirmType());
+                firm.Entity entity = new Entity(def.getFirmType(), f.getMangledIdentifier(), f.getFirmType());
                 def.getFieldEntities().add(entity);
             }
         }
@@ -94,7 +94,7 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
         // Add the method entity to the parent class
         ClassDeclaration parentClass = method.getSurroundingClass();
         ClassType parentType = globalScope.getClass(parentClass.getIdentifier());
-        Entity entity = new Entity(parentType.getFirmType(), method.getIdentifier(), def.getFirmType());
+        Entity entity = new Entity(parentType.getFirmType(), method.getMangledIdentifier(), def.getFirmType());
         parentType.getMethodEntities().add(entity);
 
         return false;
