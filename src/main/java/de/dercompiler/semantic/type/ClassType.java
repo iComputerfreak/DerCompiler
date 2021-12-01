@@ -3,8 +3,10 @@ package de.dercompiler.semantic.type;
 import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.MethodDefinition;
+import firm.Entity;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,11 +18,15 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
 
     private ClassDeclaration decl;
     private firm.ClassType firmType;
+    private List<firm.Entity> methodEntities;
+    private List<firm.Entity> fieldEntities;
 
     public ClassType(String identifier) {
         this.identifier = identifier;
         this.fieldMap = new HashMap<>();
         this.methodMap = new HashMap<>();
+        this.methodEntities = new LinkedList<>();
+        this.fieldEntities = new LinkedList<>();
     }
 
     public String getIdentifier() {
@@ -41,6 +47,22 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
     
     public void setFirmType(firm.ClassType firmType) {
         this.firmType = firmType;
+    }
+
+    public List<Entity> getMethodEntities() {
+        return methodEntities;
+    }
+
+    public void setMethodEntities(List<Entity> methodEntities) {
+        this.methodEntities = methodEntities;
+    }
+
+    public List<Entity> getFieldEntities() {
+        return fieldEntities;
+    }
+
+    public void setFieldEntities(List<Entity> fieldEntities) {
+        this.fieldEntities = fieldEntities;
     }
 
     public MethodDefinition getMethod(String methodName) {

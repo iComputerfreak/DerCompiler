@@ -8,9 +8,11 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.transformation.FirmTypeFactory;
+import firm.Entity;
 
 /**
- * Sets the firm type(s) of every class, field, method and local variable
+ * Sets the firm type(s) of every class, field, method and local variable statement
+ * and creates entities for fields and local variable statements
  */
 public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
     // TODO: Add to PassManager
@@ -24,7 +26,13 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
     
     @Override
     public void doFinalization(Program program) {}
-    
+
+    /**
+     * For each class, this pass creates the firm type representing the class and sets it on the class.
+     * Then the pass sets the corresponding firm types for all fields and creates entities for them.
+     * The pass then adds the entities to the class.
+     * @param classDeclaration The Class-Definition to run the Pass on.
+     */
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
         // Get the definition and set the firm type
@@ -36,17 +44,29 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             def.setFirmType(firmType);
         }
         
-        // Set the firm types for all fields
+        // Set the firm types for all fields and create entities for them
         for (ClassMember member : classDeclaration.getMembers()) {
             if (member instanceof Field f) {
                 if (f.getFirmType() == null) {
                     f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
                 }
+                // Add the field entity to the parent class
+                firm.Entity entity = new Entity(def.getFirmType(), f.getIdentifier(), f.getFirmType());
+                def.getFieldEntities().add(entity);
             }
         }
+        
         return false;
     }
-    
+
+    /**
+     * For each method, this pass
+     * 1. Checks whether the parameters already have a firm type set and creates new ones, if not
+     * 2. Creates a firm type for the return type and the method itself
+     * 3. Sets the firm type of the method
+     * 4. Creates an entity for the method and adds that entity to the surrounding class
+     * @param method The Method to run the Pass on.
+     */
     @Override
     public boolean runOnMethod(Method method) {
         // Get the definition and set the firm type
@@ -71,9 +91,20 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             firm.MethodType firmType = factory.createFirmMethodType(parameterTypes, returnType);
             def.setFirmType(firmType);
         }
+        
+        // Add the method entity to the parent class
+        ClassDeclaration parentClass = method.getSurroundingClass();
+        ClassType parentType = globalScope.getClass(parentClass.getIdentifier());
+        Entity entity = new Entity(parentType.getFirmType(), method.getIdentifier(), def.getFirmType());
+        parentType.getMethodEntities().add(entity);
+        
         return false;
     }
 
+    /**
+     * For each LocalVariableDeclarationStatement, this pass creates a new firm type and sets it on the statement
+     * @param statement The Statement to run the Pass on.
+     */
     @Override
     public boolean runOnStatement(Statement statement) {
         if (statement instanceof LocalVariableDeclarationStatement s) {

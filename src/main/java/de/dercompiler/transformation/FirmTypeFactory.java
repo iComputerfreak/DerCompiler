@@ -20,7 +20,13 @@ public class FirmTypeFactory {
     public static FirmTypeFactory getInstance() {
         return instance;
     }
-    
+
+    /**
+     * Creates a new {@link firm.MethodType} instance with the given properties
+     * @param parameterTypes The firm types of all parameters of the function
+     * @param returnType The return type of the function, or null, if the function returns void
+     * @return The created {@link firm.MethodType}
+     */
     public firm.MethodType createFirmMethodType(firm.Type[] parameterTypes, firm.Type returnType) {
         // Void functions have no return types
         if (returnType == null) {
@@ -28,15 +34,21 @@ public class FirmTypeFactory {
         }
         return new firm.MethodType(parameterTypes, new firm.Type[]{returnType});
     }
-    
+
+    /**
+     * Creates a new {@link firm.ClassType} instance from the given {@link ClassType}
+     * @param classType The class to create the firm type for
+     * @return The created {@link firm.ClassType}
+     */
     public firm.ClassType createFirmClassType(ClassType classType) {
         return new firm.ClassType(classType.getIdentifier());
     }
     
     /**
-     *
-     * @param type
-     * @return
+     * Creates a new {@link firm.PrimitiveType} instance from the given primitive type
+     * @param type The type to create a firm type for. May only be an IntegerType, BooleanType, VoidType or NullType,
+     *             otherwise the function throws an internal error
+     * @return The created {@link firm.PrimitiveType}
      */
     public firm.PrimitiveType createFirmPrimitiveType(Type type) {
         if (type instanceof IntegerType) {
@@ -57,7 +69,16 @@ public class FirmTypeFactory {
             throw new RuntimeException();
         }
     }
-    
+
+    /**
+     * Creates a new {@link firm.ArrayType} with the given properties.
+     * If there is a cached instance with the same properties, this instance will be returned instead
+     * @param elementType The type of the elements in the array
+     * @param elementFirmType The firm type of the elements in the array 
+     * @param numberOfElements The number of elements in the array
+     * @return The newly created {@link firm.ArrayType}
+     * or a cached {@link firm.ArrayType} that was created through this function earlier
+     */
     private firm.ArrayType getOrCreateFirmArrayType(Type elementType, firm.Type elementFirmType, int numberOfElements) {
         // Get the HashMap for the element type
         String identifier = getTypeIdentifier(elementType);
@@ -67,7 +88,12 @@ public class FirmTypeFactory {
         }
         return arrayTypes.get(identifier);
     }
-    
+
+    /**
+     * Returns an identifier that describes the given primitive or class type
+     * @param type The primitive type or class type to describe
+     * @return A string representing the given type (e.g. "int", "boolean", "void", "null" or the class name)
+     */
     private String getTypeIdentifier(Type type) {
         if (type instanceof ClassType t) {
             return t.getIdentifier();
@@ -88,7 +114,7 @@ public class FirmTypeFactory {
     
     /**
      * Returns the firm.Type for the given semantic type.
-     * The given type has to be a either a primitive type (IntegerType, BooleanType, VoidType or NullType)
+     * The given type has to be either a primitive type (IntegerType, BooleanType, VoidType or NullType)
      * or a ClassType.
      * If the firm.Type for the given semantic type does not yet exist, it is created.
      * @param type The semantic type to return the firm.Type for

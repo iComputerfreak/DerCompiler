@@ -3,6 +3,7 @@ package de.dercompiler.io;
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.message.MessageOrigin;
 import org.apache.commons.cli.*;
+
 import static de.dercompiler.io.CommandLineStrings.*;
 
 /**
@@ -44,8 +45,7 @@ public class CommandLineBuilder {
         // warnings
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_STACKTRACE, false, DESCRIPTION_PRINT_STACKTRACE)); // --print-stacktrace
         options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_WARNING_AS_ERRORS, false, DESCRIPTION_WARNINGS_AS_ERRORS)); // --warnings-as-errors
-
-        // TODO add options for specific parts of the compiler
+        
         // options
         options.addOption(new Option(OPTION_LEX_STRING_SHORT, OPTION_LEX_STRING, true, DESCRIPTION_LEX_STRING)); // --lex-string, -s
 
