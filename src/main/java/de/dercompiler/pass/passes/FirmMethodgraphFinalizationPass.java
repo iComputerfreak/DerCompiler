@@ -4,6 +4,7 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
+import de.dercompiler.ast.statement.IfStatement;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
@@ -14,6 +15,7 @@ import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
+import firm.nodes.Block;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -45,9 +47,26 @@ public class FirmMethodgraphFinalizationPass implements MethodPass, StatementPas
 
             state.construction.setVariable(nodeId, state.res);
             state.res = null;
+        } else if (statement instanceof IfStatement ifStatement){
+
+            Block trueBlock = state.construction.newBlock();
+            Block falseBlock = state.construction.newBlock();
+
+            Node jmp = state.construction.newJmp();
+            trueBlock.addPred(jmp);
+            falseBlock.addPred(jmp);
+
+            state.construction.setCurrentBlock(trueBlock);
+
+            state.trueB = trueBlock;
+            state.falseB = falseBlock;
+
+            //wie bringt man state.res ein?
         }
         return false;
     }
+
+
 
     @Override
     public boolean shouldRunOnExpression(Expression expression) {
