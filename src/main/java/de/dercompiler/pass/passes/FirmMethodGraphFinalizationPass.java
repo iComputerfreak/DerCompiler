@@ -54,6 +54,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
+        //in case block == method.block
         if (block.getSurroundingStatement() != block) {
             pullBlock();
         }
@@ -74,7 +75,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         int nodeId = lvds.getNodeId();
         if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
             state.construction.getCurrentBlock().mature();
-            state.construction.setCurrentBlock(state.blockStack.pop());
+            pullBlock();
             return;
         }
         if (state.res != null) {
@@ -102,10 +103,13 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
     @Override
     public boolean runOnExpression(Expression expression) {
         //if boolean blocks are set already
+        //this is for while, if, boolean localVariableDeclaration and boolean return-statements
         if (state.isCondition()) {
             expression.createNode(state);
-            state.trueBlock.mature();
-            state.falseBlock.mature();
+            if (expression.getSurroundingStatement() instanceof LocalVariableDeclarationStatement) {
+                state.trueBlock.mature();
+                state.falseBlock.mature();
+            }
             state.trueBlock = null;
             state.falseBlock = null;
         } else {
