@@ -106,9 +106,9 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
         if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
             int nodeId = lvds.getNodeId();
             Block current = state.construction.getCurrentBlock();
-            Block after = state.construction.newBlock();
             Block trueB = state.construction.newBlock();
             Block falseB = state.construction.newBlock();
+            Block after = state.construction.newBlock();
 
             state.construction.setCurrentBlock(trueB);
             state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));

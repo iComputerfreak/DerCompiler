@@ -2,18 +2,19 @@ class foo {
 
     public static void main(String[] args) {
         int i = 0;
+        /*
         if (5 == 6) {
             i = 3;
         }
         
-        /*
+        
         if (3 == 3) {
             while(true) {
                 i = i + 2;
             }
         }
+        
         */
-
         while(true) {
                 i = i + 2;
         }
@@ -30,7 +31,7 @@ class foo {
         int a = 4 + 3 - 2 * 8;
         return a;
     }
-*/
+
     public boolean bool() {
         boolean b = 5 == 4;
         return b;
@@ -39,13 +40,13 @@ class foo {
     public int simpleIf() {
         int x;
         if (7 > 4) {
-                x = 9;
+            x = 9;
         } else {
-                x = 3;
+            x = 3;
         }
         return x;
     }
-
+*/
     public boolean returnBool() {
         boolean t = true;
         return t;
