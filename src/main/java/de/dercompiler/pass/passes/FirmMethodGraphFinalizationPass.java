@@ -34,7 +34,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
             TransformationHelper.createReturn(state, null);
         }
         assert(state.blockStack.size() == 1);
-        //state.construction.finish();
+        state.construction.finish();
         //Graph als .vcg datei erzeugen
         Dump.dumpGraph(state.graph, method.getSurroundingClass().getIdentifier() +  "#" + method.getIdentifier());
         state.clear();
