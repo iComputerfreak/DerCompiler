@@ -37,10 +37,9 @@ public final class DivisionExpression extends BinaryExpression {
     public Node createNode(TransformationState state) {
         createChildNodes(state);
         Node mem = state.construction.getCurrentMem();
-        Node div = state.construction.newDiv(mem, state.lhs, state.res, binding_ircons.op_pin_state.op_pin_state_pinned);
+        Node div = state.construction.newDiv(mem, state.lhs, state.rhs, binding_ircons.op_pin_state.op_pin_state_pinned);
         clearChildNodes(state);
-        //TODO get mode;
-        Mode mode = null;
+        Mode mode = state.lhs.getMode();
         state.construction.setCurrentMem(state.construction.newProj(div, mode, Div.pnM));
         return state.construction.newProj(div, mode, Div.pnRes);
     }

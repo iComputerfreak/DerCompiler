@@ -33,7 +33,7 @@ public final class MultiplyExpression extends BinaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         createChildNodes(state);
-        Node res = state.construction.newMul(state.lhs, state.res);
+        Node res = state.construction.newMul(state.lhs, state.rhs);
         clearChildNodes(state);
         return res;
     }

@@ -55,13 +55,10 @@ public final class Variable extends PrimaryExpression {
         ASTDefinition def = getDefinition();
         if (def instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
-
-            //TODO how to get mode?
-            Mode mode = this.getType().getFirmType().getMode();; //-> from type?
+            Mode mode = this.getType().getFirmType().getMode();
             return state.construction.getVariable(nodeId, mode);
         } else if (def instanceof Parameter p) {
-            //TODO get mode;
-            Mode mode = null;
+            Mode mode = p.getFirmType().getMode();
             return state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId());
         } else if (def instanceof Field f) {
             //TODO get node of reference object?

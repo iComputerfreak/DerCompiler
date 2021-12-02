@@ -93,6 +93,8 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         //if boolean blocks are set already
         if (state.isCondition()) {
             expression.createNode(state);
+            state.trueBlock.mature();
+            state.falseBlock.mature();
             state.trueBlock = null;
             state.falseBlock = null;
         } else {

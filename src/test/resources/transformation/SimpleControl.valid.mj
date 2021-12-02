@@ -22,4 +22,14 @@ class foo {
         return a;
     }
 
+    public int calc() {
+        int a = 4 + 3 - 2 * 8;
+        return a;
+    }
+
+    public boolean bool() {
+        boolean b = 5 == 4;
+        return b;
+    }
+
 }

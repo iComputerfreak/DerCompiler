@@ -33,9 +33,8 @@ public final class SubtractExpression extends BinaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         createChildNodes(state);
-        Node res = state.construction.newSub(state.lhs, state.res);
-        state.lhs = null;
-        state.rhs = null;
+        Node res = state.construction.newSub(state.lhs, state.rhs);
+        clearChildNodes(state);
         return res;
     }
 }

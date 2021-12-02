@@ -27,6 +27,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
 
     @Override
     public boolean runOnMethod(Method method) {
+        assert(state.blockStack.size() == 0);
         MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
                 method.getIdentifier());
         //wie bekommt man den globalType??
@@ -100,14 +101,14 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
             Block after = state.construction.newBlock();
             Block trueB = state.construction.newBlock();
             Block falseB = state.construction.newBlock();
+            state.trueBlock = trueB;
+            state.falseBlock = falseB;
             state.construction.setCurrentBlock(trueB);
             state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));
             TransformationHelper.createDirectJump(state, after);
-            trueB.mature();
             state.construction.setCurrentBlock(falseB);
             state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, false));
             TransformationHelper.createDirectJump(state, after);
-            falseB.mature();
             state.construction.setCurrentBlock(after);
         }
         /* do nothing */
@@ -121,11 +122,9 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
             Block trueB = state.construction.newBlock();
             state.construction.setCurrentBlock(trueB);
             TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, true));
-            trueB.mature();
             Block falseB = state.construction.newBlock();
             state.construction.setCurrentBlock(falseB);
             TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
-            falseB.mature();
             state.construction.setCurrentBlock(current);
         }
     }
