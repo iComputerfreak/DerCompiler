@@ -126,6 +126,8 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
             state.construction.setCurrentBlock(falseB);
             TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
             state.construction.setCurrentBlock(current);
+            state.trueBlock = trueB;
+            state.falseBlock = falseB;
         }
     }
 
