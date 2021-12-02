@@ -30,57 +30,68 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
     @Override
     public boolean runOnMethod(Method method) {
-        state.construction.finish();
+        if (state.noReturnYet()) {
+            TransformationHelper.createReturn(state, null);
+        }
+        assert(state.blockStack.size() == 1);
+        //state.construction.finish();
         //Graph als .vcg datei erzeugen
         Dump.dumpGraph(state.graph, method.getSurroundingClass().getIdentifier() +  "#" + method.getIdentifier());
+        state.clear();
         return false;
     }
 
     private void pullBlock() {
+        assert(state.blockStack.size() >= 1);
         //skip block because we need to work on it
         if (state.blockStack.peek() != state.construction.getCurrentBlock()) {
             state.construction.getCurrentBlock().mature();
+            state.blockStack.pop();
+            state.construction.setCurrentBlock(state.blockStack.peek());
         }
-        state.construction.setCurrentBlock(state.blockStack.pop());
     }
 
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        pullBlock();
-        return false;
-    }
-
-    @Override
-    public boolean runOnStatement(Statement statement) {
-        statement.accept(this);
-        if (TransformationHelper.isControlStructure(statement.getSurroundingStatement()) && !(statement instanceof BasicBlock)) {
+        if (block.getSurroundingStatement() != block) {
             pullBlock();
         }
         return false;
     }
 
     @Override
+    public boolean runOnStatement(Statement statement) {
+        if (TransformationHelper.isControlStructure(statement.getSurroundingStatement()) && !(statement instanceof BasicBlock)) {
+            pullBlock();
+        }
+        statement.accept(this);
+        return false;
+    }
+
+    @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
-        System.out.println("visited: " + lvds.getIdentifier());
-        if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) return;
-        System.out.println(state.res);
         int nodeId = lvds.getNodeId();
+        if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
+            state.construction.getCurrentBlock().mature();
+            state.construction.setCurrentBlock(state.blockStack.pop());
+            return;
+        }
         if (state.res != null) {
             state.construction.setVariable(nodeId, state.res);
         }
-
         state.res = null;
     }
 
     @Override
-    public void visitExpressionStatement(ExpressionStatement expressionStatement) {/* do nothing */ }
+    public void visitExpressionStatement(ExpressionStatement es) { /* do nothing */ }
 
     @Override
     public void visitReturnStatement(ReturnStatement returnStatement) {
         if (returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) return;
         TransformationHelper.createReturn(state, state.res);
         state.construction.getCurrentBlock().mature();
+        state.res = null;
     }
 
     @Override

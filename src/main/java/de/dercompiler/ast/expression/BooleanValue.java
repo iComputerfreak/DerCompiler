@@ -6,6 +6,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import firm.Mode;
+import firm.Relation;
 import firm.nodes.Block;
 import firm.nodes.Node;
 
@@ -46,15 +47,16 @@ public final class BooleanValue extends PrimaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         if (state.isCondition()) {
-            Block following;
+            Relation relation;
             if (value) {
-                following = state.trueBlock;
+                relation = Relation.True;
             } else {
-                following = state.falseBlock;
+                relation = Relation.False;
             }
-            TransformationHelper.createDirectJump(state, following);
+            Node dummy = state.construction.newConst(0, Mode.getBu());
+            TransformationHelper.createConditionJumps(state, state.construction.newCmp(dummy, dummy, relation));
         }
-        return TransformationHelper.createBooleanNode(state, value);
+        return null;
     }
 
 

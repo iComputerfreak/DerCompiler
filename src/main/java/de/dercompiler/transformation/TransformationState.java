@@ -25,6 +25,8 @@ public class TransformationState {
 
     public Stack<Block> blockStack;
 
+    private boolean hasReturn = false;
+
     public TransformationState(GlobalScope scope) {
         this.globalScope = scope;
         graph = null;
@@ -48,6 +50,23 @@ public class TransformationState {
         Block tmp = trueBlock;
         trueBlock = falseBlock;
         falseBlock = tmp;
+    }
+
+    public void markReturn() {
+        hasReturn = true;
+    }
+
+    public boolean noReturnYet() {
+        return hasReturn;
+    }
+
+    public void clear() {
+        graph = null;
+        construction = null;
+        assert(trueBlock == null);
+        assert(falseBlock == null);
+        hasReturn = false;
+        blockStack.clear();
     }
 
 }

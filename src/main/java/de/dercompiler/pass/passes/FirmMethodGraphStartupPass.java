@@ -37,18 +37,23 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
         System.out.println(method.getIdentifier() + " " + method.getNumLocalVariables());
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
-        //push so we set current block not mature
+        //push this will lay always on the stack
         state.blockStack.push(state.construction.getCurrentBlock());
         return false;
     }
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        if (block.getSurroundingStatement() instanceof BasicBlock) {
-            Block b = state.construction.newBlock();
-            TransformationHelper.createDirectJump(state, b);
+        if (block.getSurroundingStatement() instanceof BasicBlock && block != block.getSurroundingStatement()) {
+            Block inside = state.construction.newBlock();
+            Block after = state.construction.newBlock();
+
+            TransformationHelper.createDirectJump(state, inside);
             state.construction.getCurrentBlock().mature();
-            state.construction.setCurrentBlock(b);
+            state.construction.setCurrentBlock(inside);
+            TransformationHelper.createDirectJump(state, after);
+
+            state.blockStack.push(after);
         }
         return false;
     }
@@ -78,16 +83,19 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
         Block after = state.construction.newBlock();
         Block then = state.construction.newBlock();
         Block current = state.construction.getCurrentBlock();
+
         state.construction.setCurrentBlock(then);
         TransformationHelper.createDirectJump(state, after);
         state.trueBlock = then;
         state.falseBlock = after;
+
         if (ifStatement.hasElse()) {
             Block elseB = state.construction.newBlock();
             state.construction.setCurrentBlock(elseB);
             TransformationHelper.createDirectJump(state, after);
             state.blockStack.push(elseB);
         }
+
         state.blockStack.push(then);
         state.construction.setCurrentBlock(current);
     }
@@ -97,35 +105,43 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
         if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
             int nodeId = lvds.getNodeId();
-            state.construction.getCurrentBlock().mature();
+            Block current = state.construction.getCurrentBlock();
             Block after = state.construction.newBlock();
             Block trueB = state.construction.newBlock();
             Block falseB = state.construction.newBlock();
-            state.trueBlock = trueB;
-            state.falseBlock = falseB;
+
             state.construction.setCurrentBlock(trueB);
             state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));
             TransformationHelper.createDirectJump(state, after);
+
             state.construction.setCurrentBlock(falseB);
             state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, false));
             TransformationHelper.createDirectJump(state, after);
-            state.construction.setCurrentBlock(after);
+
+            state.construction.setCurrentBlock(current);
+
+            state.trueBlock = trueB;
+            state.falseBlock = falseB;
+            state.blockStack.push(after);
         }
         /* do nothing */
     }
 
     @Override
     public void visitReturnStatement(ReturnStatement returnStatement) {
+        state.markReturn();
         //if boolean create to returns
         if (returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) {
             Block current = state.construction.getCurrentBlock();
             Block trueB = state.construction.newBlock();
+
             state.construction.setCurrentBlock(trueB);
             TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, true));
             Block falseB = state.construction.newBlock();
             state.construction.setCurrentBlock(falseB);
             TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
             state.construction.setCurrentBlock(current);
+
             state.trueBlock = trueB;
             state.falseBlock = falseB;
         }
@@ -143,6 +159,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
         TransformationHelper.createDirectJump(state, head);
         state.construction.setCurrentBlock(head);
         state.construction.getCurrentMem();
+
         state.trueBlock = loop;
         state.falseBlock = after;
         state.blockStack.push(after);

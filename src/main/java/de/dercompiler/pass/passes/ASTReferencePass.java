@@ -54,7 +54,9 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
     @Override
     public boolean runOnMethod(Method method) {
         method.setSurroundingClass(manager.getCurrentClass());
-        blockStack.push(method.getBlock());
+        BasicBlock block = method.getBlock();
+        block.setSurroundingStatement(block);
+        blockStack.push(block);
         return false;
     }
 
