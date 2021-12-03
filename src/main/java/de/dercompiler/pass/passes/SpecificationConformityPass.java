@@ -13,7 +13,6 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.InternalClass;
-import de.dercompiler.semantic.type.NullType;
 import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.pass.passes.ReferencesCollector.ReferenceType;
 
@@ -90,7 +89,7 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
 
     private boolean findReturnStatement(Statement stmt) {
         if (stmt instanceof ReturnStatement) return true;
-        else if (stmt instanceof WhileStatement loop && findReturnStatement(loop.getStatement())) return false;
+        else if (stmt instanceof WhileStatement loop && findReturnStatement(loop.getLoop())) return false;
         else if (stmt instanceof IfStatement ifElse && findReturnStatement(ifElse.getThenStatement())
                 && findReturnStatement(ifElse.getElseStatement())) return true;
         else if (stmt instanceof BasicBlock block

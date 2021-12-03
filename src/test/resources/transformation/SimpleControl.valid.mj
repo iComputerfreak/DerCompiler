@@ -1,5 +1,6 @@
 class foo {
 
+    /*
 
     public static void main(String[] args) {
         int i = 0;
@@ -15,7 +16,7 @@ class foo {
             }
         }
         
-        while(i == 0) {
+        while(i != 0) {
                 i = i + 2;
         }
         
@@ -26,6 +27,16 @@ class foo {
         return a;
     }
 
+    */
+    public int simpleWhile() {
+        int i = 10;
+        while(i > 0) {
+            i = i - (i + 2) / 2;
+        }
+        return i;
+    }
+    /*
+
     public int calc() {
         int a = 4 + 3 - 2 * 8;
         return a;
@@ -35,9 +46,10 @@ class foo {
         boolean b = 5 == 4;
         return b;
     }
+    */
 
     public int simpleIf() {
-        int x;
+        int x = 0;
         if (7 > 4) {
             x = 9;
         } else {
@@ -45,10 +57,5 @@ class foo {
         }
         return x;
     }
-
-    public boolean returnBool() {
-        boolean t = true;
-        return t;
-    }
-
+    
 }

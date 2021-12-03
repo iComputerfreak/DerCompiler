@@ -269,7 +269,7 @@ class PassPipeline {
         @Override
         public void visitWhileStatement(WhileStatement whileStatement) {
             if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(whileStatement.getCondition());
-            Statement body = whileStatement.getStatement();
+            Statement body = whileStatement.getLoop();
             body.accept(this);
         }
 

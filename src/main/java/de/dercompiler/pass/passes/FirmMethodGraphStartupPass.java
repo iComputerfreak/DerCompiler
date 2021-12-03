@@ -1,10 +1,9 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
-import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
 import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -15,19 +14,16 @@ import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import firm.*;
 import firm.nodes.Block;
-import firm.nodes.Node;
-import firm.nodes.Start;
 
-import java.util.List;
 import java.util.Objects;
 
-public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, BasicBlockPass, ASTStatementVisitor {
+public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implements MethodPass, StatementPass, BasicBlockPass {
     private TransformationState state;
     private FirmMethodGraphFinalizationPass finalization;
 
     @Override
     public boolean runOnMethod(Method method) {
-        assert(state.blockStack.size() == 0);
+        assert(state.stackSize() == 0);
         MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
                 method.getIdentifier());
         //wie bekommt man den globalType??
@@ -37,8 +33,6 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
         System.out.println(method.getIdentifier() + " " + method.getNumLocalVariables());
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
-        //push this will lay always on the stack
-        state.blockStack.push(state.construction.getCurrentBlock());
         return false;
     }
 
@@ -53,7 +47,8 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
             state.construction.setCurrentBlock(inside);
             TransformationHelper.createDirectJump(state, after);
 
-            state.blockStack.push(after);
+            state.pushBlock(after);
+            state.markStatementToPullBlock(block);
         }
         return false;
     }
@@ -65,105 +60,58 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, Ba
     }
 
     @Override
-    public void visitBasicBlock(BasicBlock basicBlock) { /* do nothing */ }
-
-    @Override
-    public void visitEmptyStatement(EmptyStatement emptyStatement) {/* do nothing */ }
-
-    @Override
-    public void visitErrorStatement(ErrorStatement errorStatement) {/* do nothing */ }
-
-    @Override
-    public void visitExpressionStatement(ExpressionStatement expressionStatement) {
-        state.res = null;
-    }
-
-    @Override
-    public void visitIfStatement(IfStatement ifStatement) {
-        Block after = state.construction.newBlock();
-        Block then = state.construction.newBlock();
-        Block current = state.construction.getCurrentBlock();
-
-        state.construction.setCurrentBlock(then);
-        TransformationHelper.createDirectJump(state, after);
-        state.trueBlock = then;
-        state.falseBlock = after;
-
-        if (ifStatement.hasElse()) {
-            Block elseB = state.construction.newBlock();
-            state.construction.setCurrentBlock(elseB);
-            TransformationHelper.createDirectJump(state, after);
-            state.blockStack.push(elseB);
-        }
-
-        state.blockStack.push(then);
-        state.construction.setCurrentBlock(current);
-    }
-
-
-    @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
-        if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
-            int nodeId = lvds.getNodeId();
-            Block current = state.construction.getCurrentBlock();
-            Block trueB = state.construction.newBlock();
-            Block falseB = state.construction.newBlock();
-            Block after = state.construction.newBlock();
 
-            state.construction.setCurrentBlock(trueB);
-            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));
-            TransformationHelper.createDirectJump(state, after);
+        //if boolean create true-false-Block
+        if (!lvds.getExpression().getType().isCompatibleTo(new BooleanType())) return;
 
-            state.construction.setCurrentBlock(falseB);
-            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, false));
-            TransformationHelper.createDirectJump(state, after);
-
-            state.construction.setCurrentBlock(current);
-
-            state.trueBlock = trueB;
-            state.falseBlock = falseB;
-            state.blockStack.push(after);
-        }
-        /* do nothing */
+        //boolean-expression
+        state.trueBlock = state.construction.newBlock();
+        state.falseBlock = state.construction.newBlock();
+        state.markStatementToPullBlock(lvds);
     }
 
     @Override
     public void visitReturnStatement(ReturnStatement returnStatement) {
         state.markReturn();
-        //if boolean create to returns
-        if (returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) {
-            Block current = state.construction.getCurrentBlock();
-            Block trueB = state.construction.newBlock();
 
-            state.construction.setCurrentBlock(trueB);
-            TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, true));
-            Block falseB = state.construction.newBlock();
-            state.construction.setCurrentBlock(falseB);
-            TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
-            state.construction.setCurrentBlock(current);
+        //if boolean create true-false-Block
+        if (!returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) return;
+        state.trueBlock = state.construction.newBlock();
+        state.falseBlock = state.construction.newBlock();
+    }
 
-            state.trueBlock = trueB;
-            state.falseBlock = falseB;
+    @Override
+    public void visitIfStatement(IfStatement ifStatement) {
+        state.trueBlock = state.construction.newBlock();
+        state.falseBlock = state.construction.newBlock();
+
+        if (ifStatement.hasElse()) {
+            state.pushBlock(state.falseBlock);
+            state.markStatementToPullBlock(ifStatement.getElseStatement());
         }
+
+        state.pushBlock(state.trueBlock);
+        state.markStatementToPullBlock(ifStatement.getThenStatement());
     }
 
     @Override
     public void visitWhileStatement(WhileStatement whileStatement) {
         Block head = state.construction.newBlock();
-        Block loop = state.construction.newBlock();
-        Block after = state.construction.newBlock();
+        state.trueBlock = state.construction.newBlock();
+        state.falseBlock = state.construction.newBlock();
 
-        TransformationHelper.createDirectJump(state, head);
-        state.construction.getCurrentBlock().mature();
-        state.construction.setCurrentBlock(loop);
+
         TransformationHelper.createDirectJump(state, head);
         state.construction.setCurrentBlock(head);
+        //create memory phi
         state.construction.getCurrentMem();
 
-        state.trueBlock = loop;
-        state.falseBlock = after;
-        state.blockStack.push(after);
-        state.blockStack.push(loop);
+        state.pushBlock(head);
+        //push loop block
+        state.pushBlock(state.trueBlock);
+        //pull from stack after loop-operation(s)
+        state.markStatementToPullBlock(whileStatement.getLoop());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package de.dercompiler.transformation;
 
+import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
@@ -23,7 +24,8 @@ public class TransformationState {
     public Block trueBlock;
     public Block falseBlock;
 
-    public Stack<Block> blockStack;
+    private Stack<Block> blockStack;
+    private Stack<Statement> statementStack;
 
     private boolean hasReturn = false;
 
@@ -35,6 +37,7 @@ public class TransformationState {
         falseBlock = null;
 
         blockStack = new Stack<>();
+        statementStack = new Stack<>();
     }
 
     public boolean isCondition() {
@@ -68,6 +71,36 @@ public class TransformationState {
         assert(falseBlock == null);
         hasReturn = false;
         blockStack.clear();
+    }
+
+    public void pullBlock() {
+        //skip block because we need to work on it
+        if (blockStack.size() != 0 && blockStack.peek() != construction.getCurrentBlock()) {
+            construction.getCurrentBlock().mature();
+            construction.setCurrentBlock(blockStack.pop());
+        }
+    }
+
+    public void pushBlock(Block block) {
+        blockStack.push(block);
+    }
+
+    public int stackSize() {
+        return blockStack.size();
+    }
+
+    public void markStatementToPullBlock(Statement statement) {
+        statementStack.push(statement);
+    }
+
+    public boolean removeStatementIfMarked(Statement statement) {
+        if (!(getNumMarkedStatements() > 0 && statement == statementStack.peek())) return false;
+        statementStack.pop();
+        return true;
+    }
+
+    public int getNumMarkedStatements() {
+        return statementStack.size();
     }
 
 }

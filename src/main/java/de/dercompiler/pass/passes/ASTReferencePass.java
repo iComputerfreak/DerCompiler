@@ -88,7 +88,7 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
 
     @Override
     public void visitWhileStatement(WhileStatement whileStatement) {
-        whileStatement.getStatement().setSurroundingStatement(whileStatement);
+        whileStatement.getLoop().setSurroundingStatement(whileStatement);
     }
 
     @Override

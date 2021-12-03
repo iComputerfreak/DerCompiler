@@ -76,7 +76,7 @@ public final class Variable extends PrimaryExpression {
         if (def.getRefType().isCompatibleTo(new BooleanType())) {
             Node cmp = state.construction.newCmp(res, TransformationHelper.createBooleanNode(state, true), Relation.Equal);
             TransformationHelper.createConditionJumps(state, cmp);
-            return null;
+            return res;
         }
         return res;
     }

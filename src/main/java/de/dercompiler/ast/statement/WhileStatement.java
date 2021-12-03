@@ -10,20 +10,20 @@ import java.util.Objects;
 public final class WhileStatement extends Statement {
 
     Expression condition;
-    Statement statement;
+    Statement loop;
 
     public WhileStatement(SourcePosition position, Expression condition, Statement statement) {
         super(position);
         this.condition = condition;
-        this.statement = statement;
+        this.loop = statement;
     }
 
     public Expression getCondition() {
         return condition;
     }
 
-    public Statement getStatement() {
-        return statement;
+    public Statement getLoop() {
+        return loop;
     }
 
     @Override
@@ -31,7 +31,7 @@ public final class WhileStatement extends Statement {
         if (Objects.isNull(other)) return false;
         if (other instanceof WhileStatement ws) {
             return condition.syntaxEquals(ws.condition)
-                    && statement.syntaxEquals(ws.statement);
+                    && loop.syntaxEquals(ws.loop);
         }
         return false;
     }

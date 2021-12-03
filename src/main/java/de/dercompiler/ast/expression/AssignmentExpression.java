@@ -1,5 +1,6 @@
 package de.dercompiler.ast.expression;
 
+import de.dercompiler.ast.ASTDefinition;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.Field;
 import de.dercompiler.ast.Parameter;
@@ -10,6 +11,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import firm.Mode;
 import firm.Type;
 import firm.nodes.Node;
 
@@ -40,7 +42,7 @@ public final class AssignmentExpression extends BinaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         createChildNodes(state);
-        Node res;
+        Node res = null;
         if (getLhs() instanceof Variable v) {
             if (v.getDefinition() instanceof LocalVariableDeclarationStatement lvds) {
                 state.construction.setVariable(lvds.getNodeId(), state.rhs);
@@ -49,21 +51,16 @@ public final class AssignmentExpression extends BinaryExpression {
                 state.construction.setVariable(p.getNodeId(), state.rhs);
                 res = state.rhs;
             } else if (v.getDefinition() instanceof Field f) {
-                Node thisPtr = state.graph.getArgs();
-
-                // TODO currentMem.load(call.getArgs[0])
-                res = null;
-            }
+                TransformationHelper.genStore(state, state.lhs, state.rhs, f.getFirmType());
+                res = state.rhs;
+            } //TODO handle returned array?
             else {
                 new OutputMessageHandler(MessageOrigin.PASSES).internalError("cannot assign Value to variable, because Definition is no local accessible function: " + v.getDefinition());
                 return null; //we never return
             }
         } else {
-            //assume we need to store
-            //TODO: how to get ResType?
-            Type type = null;
-            TransformationHelper.genStore(state, state.lhs, state.rhs, type);
-            res = state.rhs;
+            new OutputMessageHandler(MessageOrigin.PASSES).internalError("lvalue is no variable, we can't assign anything: " + getLhs());
+            return null; //we never return
         }
         clearChildNodes(state);
         return res;

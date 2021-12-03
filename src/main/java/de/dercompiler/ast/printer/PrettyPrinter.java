@@ -300,14 +300,14 @@ public class PrettyPrinter implements ASTNodeVisitor {
         loop.getCondition().accept(this);
         sb.append(") ");
         this.state.save();
-        if (loop.getStatement() instanceof BasicBlock block) {
+        if (loop.getLoop() instanceof BasicBlock block) {
             block.accept(this);
         } else {
             sb.append("\n");
             sb.append(INDENT.repeat(this.state.getIndent()));
             this.state.indent();
             this.state.setStatementFormat(true, false);
-            loop.getStatement().accept(this);
+            loop.getLoop().accept(this);
         }
         this.state.restore();
         afterStatement();

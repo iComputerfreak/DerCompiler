@@ -12,6 +12,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.type.BooleanType;
+import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 
@@ -33,66 +34,122 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         if (state.noReturnYet()) {
             TransformationHelper.createReturn(state, null);
         }
-        assert(state.blockStack.size() == 1);
+        assert(state.stackSize() == 0);
+        assert (state.getNumMarkedStatements() == 0);
         state.construction.finish();
         //Graph als .vcg datei erzeugen
-        Dump.dumpGraph(state.graph, method.getSurroundingClass().getIdentifier() +  "#" + method.getIdentifier());
+        GraphDumper.dumpGraphFinal(state);
         state.clear();
         return false;
     }
 
-    private void pullBlock() {
-        assert(state.blockStack.size() >= 1);
-        //skip block because we need to work on it
-        if (state.blockStack.peek() != state.construction.getCurrentBlock()) {
-            state.construction.getCurrentBlock().mature();
-            state.construction.setCurrentBlock(state.blockStack.pop());
-        }
-    }
-
-
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        //in case block == method.block
-        if (block.getSurroundingStatement() != block) {
-            pullBlock();
+        if (state.removeStatementIfMarked(block)) {
+            state.pullBlock();
         }
         return false;
     }
 
     @Override
     public boolean runOnStatement(Statement statement) {
-        if (TransformationHelper.isControlStructure(statement.getSurroundingStatement()) && !(statement instanceof BasicBlock)) {
-            pullBlock();
-        }
         statement.accept(this);
+        if (state.removeStatementIfMarked(statement)) {
+            state.pullBlock();
+        }
         return false;
     }
 
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
         int nodeId = lvds.getNodeId();
-        if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
 
-            state.construction.setVariable(nodeId, state.construction.getVariable(nodeId, Mode.getBu()));
-            pullBlock();
-            return;
-        }
         if (state.res != null) {
             state.construction.setVariable(nodeId, state.res);
         }
+
+        if (!lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
+            state.res = null;
+            return;
+        }
+
+        if (state.res != null) {
+            state.trueBlock.mature();
+            state.falseBlock.mature();
+            //throw away true and false block
+            state.res = null;
+        } else {
+            Block after = state.construction.newBlock();
+            state.construction.setCurrentBlock(state.trueBlock);
+            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));
+            TransformationHelper.createDirectJump(state, after);
+
+            state.construction.setCurrentBlock(state.falseBlock);
+            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, false));
+            TransformationHelper.createDirectJump(state, after);
+            after.mature();
+            state.construction.setCurrentBlock(after);
+        }
+    }
+
+    @Override
+    public void visitExpressionStatement(ExpressionStatement expressionStatement) {
         state.res = null;
     }
 
     @Override
-    public void visitExpressionStatement(ExpressionStatement es) { /* do nothing */ }
+    public void visitReturnStatement(ReturnStatement returnStatement) {
+        if (state.res != null) {
+            TransformationHelper.createReturn(state, state.res);
+        }
+        if (!returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) {
+            state.res = null;
+            return;
+        }
+        state.trueBlock.mature();
+        state.falseBlock.mature();
+        if (state.res != null) {
+            state.res = null;
+            return;
+        }
+        state.construction.setCurrentBlock(state.trueBlock);
+        TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, true));
+
+        state.construction.setCurrentBlock(state.falseBlock);
+        TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
+    }
 
     @Override
-    public void visitReturnStatement(ReturnStatement returnStatement) {
-        if (returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) return;
-        TransformationHelper.createReturn(state, state.res);
-        state.construction.getCurrentBlock().mature();
-        state.res = null;
+    public void visitIfStatement(IfStatement ifStatement) {
+        Block after;
+        if (ifStatement.hasElse()) {
+            after = state.construction.newBlock();
+        } else {
+            after = state.falseBlock;
+        }
+
+        state.trueBlock.mature();
+        state.construction.setCurrentBlock(state.trueBlock);
+        TransformationHelper.createDirectJump(state, after);
+
+        if (ifStatement.hasElse()) {
+            state.falseBlock.mature();
+            state.construction.setCurrentBlock(state.falseBlock);
+            TransformationHelper.createDirectJump(state, after);
+        }
+
+        after.mature();
+        state.construction.setCurrentBlock(after);
+    }
+
+    @Override
+    public void visitWhileStatement(WhileStatement whileStatement) {
+        //head must be current
+        Block head = state.construction.getCurrentBlock();
+        state.construction.setCurrentBlock(state.trueBlock);
+        TransformationHelper.createDirectJump(state, head);
+        head.mature();
+        state.construction.setCurrentBlock(state.falseBlock);
     }
 
     @Override
@@ -104,18 +161,21 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
     public boolean runOnExpression(Expression expression) {
         //if boolean blocks are set already
         //this is for while, if, boolean localVariableDeclaration and boolean return-statements
-        if (state.isCondition()) {
-            expression.createNode(state);
-            if (expression.getSurroundingStatement() instanceof LocalVariableDeclarationStatement) {
-                state.construction.getCurrentBlock().mature();
-                state.trueBlock.mature();
-                state.falseBlock.mature();
-            }
-            state.trueBlock = null;
-            state.falseBlock = null;
+        state.res = expression.createNode(state);
+        GraphDumper.dumpGraph(state);
+
+        if (!state.isCondition()) return false;
+
+        if (!(expression.getSurroundingStatement() instanceof WhileStatement)) {
+            state.construction.getCurrentBlock().mature();
         } else {
-            state.res = expression.createNode(state);
+            state.trueBlock.mature();
+            state.falseBlock.mature();
         }
+        if (TransformationHelper.isControlStructure(expression.getSurroundingStatement())) {
+            state.pullBlock();
+        }
+
         return false;
     }
 
