@@ -11,6 +11,10 @@ import static de.dercompiler.io.CommandLineStrings.*;
  */
 public class CommandLineBuilder {
 
+    private static void createOption(Options options, String short_, String long_, boolean parameter, String description) {
+        options.addOption(new Option(short_, long_, parameter, description));
+    }
+
     /**
      * Adds the commandline-options to the options variable
      *
@@ -18,36 +22,37 @@ public class CommandLineBuilder {
      */
     private static void buildOptions(Options options) {
         // general
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_ECHO, false, DESCRIPTION_ECHO)); // --echo
-        options.addOption(new Option(COMMAND_HELP_SHORT, COMMAND_HELP, false, DESCRIPTION_HELP)); // --help, -h
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_LEX_TEST, false, DESCRIPTION_LEX_TEST)); // --lextest
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PARSE_TEST, false, DESCRIPTION_PARSE_TEST)); // --parsetest
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_AST, false, DESCRIPTION_PRINT_AST)); // --parsetest
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_CHECK, false, DESCRIPTION_CHECK)); // --check
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_COMPILE_FIRM, false, DESCRIPTION_COMPILE_FIRM)); //--compile-firm
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_ECHO, false, DESCRIPTION_ECHO); // --echo
+        createOption(options, COMMAND_HELP_SHORT, COMMAND_HELP, false, DESCRIPTION_HELP); // --help, -h
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_LEX_TEST, false, DESCRIPTION_LEX_TEST); // --lextest
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PARSE_TEST, false, DESCRIPTION_PARSE_TEST); // --parsetest
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_AST, false, DESCRIPTION_PRINT_AST); // --parsetest
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_CHECK, false, DESCRIPTION_CHECK); // --check
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_COMPILE_FIRM, false, DESCRIPTION_COMPILE_FIRM); //--compile-firm
 
         // options
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_WORKING_DIR, true, DESCRIPTION_WORKING_DIR)); // --working-directory
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_POSITION, false, DESCRIPTION_PRINT_POSITION));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_METHOD, false, DESCRIPTION_PARSE_METHOD));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_STATEMENT, false, DESCRIPTION_PARSE_STATEMENT));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PARSE_EXPRESSION, false, DESCRIPTION_PARSE_EXPRESSION));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRETTY_PRINT, false, DESCRIPTION_PRETTY_PRINT));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_PRINT_PIPELINE, false, DESCRIPTION_PRINT_PIPELINE));
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_TIME_EXECUTION, false, DESCRIPTION_TIME_EXECUTION));
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_WORKING_DIR, true, DESCRIPTION_WORKING_DIR); // --working-directory
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_PRINT_POSITION, false, DESCRIPTION_PRINT_POSITION);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_PARSE_METHOD, false, DESCRIPTION_PARSE_METHOD);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_PARSE_STATEMENT, false, DESCRIPTION_PARSE_STATEMENT);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_PARSE_EXPRESSION, false, DESCRIPTION_PARSE_EXPRESSION);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_PRETTY_PRINT, false, DESCRIPTION_PRETTY_PRINT);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_PRINT_PIPELINE, false, DESCRIPTION_PRINT_PIPELINE);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_TIME_EXECUTION, false, DESCRIPTION_TIME_EXECUTION);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_NO_MAIN, false, DESCRIPTION_NO_MAIN);
 
         // colors
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_NO_COLOR, false, DESCRIPTION_PRINT_NO_COLOR)); // --no-color
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_ANSI_COLOR, false, DESCRIPTION_PRINT_ANSI_COLOR)); // --ansi-color
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_8BIT_COLOR, false, DESCRIPTION_PRINT_8BIT_COLOR)); // --8bit-color
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_TRUE_COLOR, false, DESCRIPTION_PRINT_TRUE_COLOR)); // --true-color
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_NO_COLOR, false, DESCRIPTION_PRINT_NO_COLOR); // --no-color
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_ANSI_COLOR, false, DESCRIPTION_PRINT_ANSI_COLOR); // --ansi-color
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_8BIT_COLOR, false, DESCRIPTION_PRINT_8BIT_COLOR); // --8bit-color
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_TRUE_COLOR, false, DESCRIPTION_PRINT_TRUE_COLOR); // --true-color
 
         // warnings
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_STACKTRACE, false, DESCRIPTION_PRINT_STACKTRACE)); // --print-stacktrace
-        options.addOption(new Option(COMMAND_NO_SHORT_OPTION, COMMAND_WARNING_AS_ERRORS, false, DESCRIPTION_WARNINGS_AS_ERRORS)); // --warnings-as-errors
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_STACKTRACE, false, DESCRIPTION_PRINT_STACKTRACE); // --print-stacktrace
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_WARNING_AS_ERRORS, false, DESCRIPTION_WARNINGS_AS_ERRORS); // --warnings-as-errors
         
         // options
-        options.addOption(new Option(OPTION_LEX_STRING_SHORT, OPTION_LEX_STRING, true, DESCRIPTION_LEX_STRING)); // --lex-string, -s
+        createOption(options, OPTION_LEX_STRING_SHORT, OPTION_LEX_STRING, true, DESCRIPTION_LEX_STRING); // --lex-string, -s
 
     }
 

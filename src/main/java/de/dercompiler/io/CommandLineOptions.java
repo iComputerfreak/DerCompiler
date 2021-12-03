@@ -85,6 +85,11 @@ public class CommandLineOptions {
     public boolean check() { return cmd.hasOption(COMMAND_CHECK); }
 
     /**
+     * return true, if no-main is passed as option
+     */
+    public boolean noMain() { return cmd.hasOption(OPTION_NO_MAIN); }
+
+    /**
      *
      */
     public boolean compileFirm() { return cmd.hasOption(COMMAND_COMPILE_FIRM); }

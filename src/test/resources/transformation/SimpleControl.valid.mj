@@ -1,5 +1,6 @@
 class foo {
 
+
     public static void main(String[] args) {
         int i = 0;
         
@@ -8,23 +9,18 @@ class foo {
             i = 3;
         }
         
-        
-
-        /*
         if (3 == 3) {
             while(true) {
                 i = i + 2;
             }
         }
         
-        */
         while(i == 0) {
                 i = i + 2;
         }
         
     }
 
-/*
     public int bar() {
         int a = 2;
         return a;
@@ -49,7 +45,7 @@ class foo {
         }
         return x;
     }
-*/
+
     public boolean returnBool() {
         boolean t = true;
         return t;

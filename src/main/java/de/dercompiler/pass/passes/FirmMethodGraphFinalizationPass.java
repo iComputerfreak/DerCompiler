@@ -46,8 +46,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         //skip block because we need to work on it
         if (state.blockStack.peek() != state.construction.getCurrentBlock()) {
             state.construction.getCurrentBlock().mature();
-            state.blockStack.pop();
-            state.construction.setCurrentBlock(state.blockStack.peek());
+            state.construction.setCurrentBlock(state.blockStack.pop());
         }
     }
 
@@ -74,7 +73,8 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
         int nodeId = lvds.getNodeId();
         if (lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
-            state.construction.getCurrentBlock().mature();
+
+            state.construction.setVariable(nodeId, state.construction.getVariable(nodeId, Mode.getBu()));
             pullBlock();
             return;
         }
@@ -107,6 +107,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         if (state.isCondition()) {
             expression.createNode(state);
             if (expression.getSurroundingStatement() instanceof LocalVariableDeclarationStatement) {
+                state.construction.getCurrentBlock().mature();
                 state.trueBlock.mature();
                 state.falseBlock.mature();
             }

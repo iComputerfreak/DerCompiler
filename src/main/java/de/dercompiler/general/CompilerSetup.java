@@ -7,6 +7,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.PassManager;
+import de.dercompiler.pass.passes.SpecificationConformityPass;
 import de.dercompiler.util.ErrorStatus;
 
 import java.io.File;
@@ -32,6 +33,8 @@ public class CompilerSetup {
 
         PassManager.setPrintPipeline(options.printPipeline());
         if (options.time()) ErrorStatus.setPrintTIme();
+
+        SpecificationConformityPass.setCheckMain(options.noMain());
 
         //sets Value in OutputMessageHandler
         options.resolveColorOutput();

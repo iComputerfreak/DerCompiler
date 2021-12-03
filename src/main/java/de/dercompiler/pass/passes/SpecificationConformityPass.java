@@ -30,6 +30,12 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
     private GlobalScope globalScope;
     private OutputMessageHandler logger;
 
+    private static boolean checkMain = true;
+
+    public static void setCheckMain(boolean check) {
+        checkMain = !check;
+    }
+
     @Override
     public void doInitialization(Program program) {
         globalScope = program.getGlobalScope();
@@ -132,7 +138,7 @@ public class SpecificationConformityPass implements ClassPass, MethodPass, State
 
     @Override
     public void doFinalization(Program program) {
-        if (main == null) {
+        if (checkMain && main == null) {
             failSpecs(program, "No main method found.", false);
         }
     }
