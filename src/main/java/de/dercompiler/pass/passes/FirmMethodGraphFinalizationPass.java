@@ -162,7 +162,6 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         //if boolean blocks are set already
         //this is for while, if, boolean localVariableDeclaration and boolean return-statements
         state.res = expression.createNode(state);
-        GraphDumper.dumpGraph(state);
 
         if (!state.isCondition()) return false;
 

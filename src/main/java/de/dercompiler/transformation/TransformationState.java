@@ -76,7 +76,6 @@ public class TransformationState {
     public void pullBlock() {
         //skip block because we need to work on it
         if (blockStack.size() != 0 && blockStack.peek() != construction.getCurrentBlock()) {
-            construction.getCurrentBlock().mature();
             construction.setCurrentBlock(blockStack.pop());
         }
     }
