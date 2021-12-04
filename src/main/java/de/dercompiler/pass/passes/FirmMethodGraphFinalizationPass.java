@@ -124,6 +124,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
     @Override
     public void visitIfStatement(IfStatement ifStatement) {
+        Block origin = state.popOrigin();
         Block after;
         if (ifStatement.hasElse()) {
             after = state.construction.newBlock();
@@ -141,22 +142,40 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
             TransformationHelper.createDirectJump(state, after);
         }
 
+        origin.mature();
         state.popBranches();
-
-        after.mature();
         state.construction.setCurrentBlock(after);
+
+        boolean falseBlock = origin == state.falseBlock();
+
+        if (falseBlock) { //after
+            state.exchangeFalseBlock(after);
+        } else { //true
+            state.exchangeTrueBlock(after);
+        }
     }
 
     @Override
     public void visitWhileStatement(WhileStatement whileStatement) {
+        Block origin = state.popOrigin();
         //head must be current
-        Block head = state.construction.getCurrentBlock();
+        Block head = state.popHead();
         state.construction.setCurrentBlock(state.trueBlock());
         TransformationHelper.createDirectJump(state, head);
-        head.mature();
+        origin.mature();
         state.construction.setCurrentBlock(state.falseBlock());
 
+        Block after = state.falseBlock();
+
         state.popBranches();
+
+        boolean falseBlock = origin == state.trueBlock();
+
+        if (falseBlock) { //false
+            state.exchangeFalseBlock(after);
+        } else { //while and then
+            state.exchangeTrueBlock(after);
+        }
     }
 
     @Override
@@ -169,12 +188,9 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         //if boolean blocks are set already
         //this is for while, if, boolean localVariableDeclaration and boolean return-statements
         state.res = expression.createNode(state);
-
         if (!state.isCondition()) return false;
 
-        if (!(expression.getSurroundingStatement() instanceof WhileStatement)) {
-            state.construction.getCurrentBlock().mature();
-        } else {
+        if (expression.getSurroundingStatement() instanceof WhileStatement) {
             state.trueBlock().mature();
             state.falseBlock().mature();
         }

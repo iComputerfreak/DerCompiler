@@ -33,13 +33,14 @@ class foo {
         while(i != 0) {
             i = i + 2;
         }
-
+        
         while(i >= 0) {
             if (i > 20) {
                 i = -10;
             }
             i = i + 1;
         }
+        
     }
 
     public int bar() {

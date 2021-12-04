@@ -27,6 +27,8 @@ public class TransformationState {
 
     private Stack<Block> blockStack;
     private Stack<Statement> statementStack;
+    private Stack<Block> origin;
+    private Stack<Block> head;
 
     private boolean hasReturn = false;
 
@@ -39,6 +41,9 @@ public class TransformationState {
 
         blockStack = new Stack<>();
         statementStack = new Stack<>();
+
+        origin = new Stack<>();
+        head = new Stack<>();
     }
 
     public boolean isCondition() {
@@ -117,12 +122,14 @@ public class TransformationState {
     }
 
     public Block exchangeTrueBlock(Block block) {
+        if (trueBlockStack.size() == 0) return block;
         Block top = trueBlockStack.pop();
         trueBlockStack.push(block);
         return top;
     }
 
     public Block exchangeFalseBlock(Block block) {
+        if (falseBlockStack.size() == 0) return block;
         Block top = falseBlockStack.pop();
         falseBlockStack.push(block);
         return top;
@@ -136,6 +143,22 @@ public class TransformationState {
     public Block falseBlock() {
         if (falseBlockStack.empty()) return null;
         return falseBlockStack.peek();
+    }
+
+    public void pushOrigin(Block block) {
+        origin.push(block);
+    }
+
+    public Block popOrigin() {
+        return origin.pop();
+    }
+
+    public void pushHead(Block h) {
+        head.push(h);
+    }
+
+    public Block popHead() {
+        return head.pop();
     }
 
 }

@@ -81,6 +81,8 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
 
     @Override
     public void visitIfStatement(IfStatement ifStatement) {
+        state.pushOrigin(state.construction.getCurrentBlock());
+
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
 
         if (ifStatement.hasElse()) {
@@ -94,9 +96,10 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
 
     @Override
     public void visitWhileStatement(WhileStatement whileStatement) {
+        state.pushOrigin(state.construction.getCurrentBlock());
         Block head = state.construction.newBlock();
+        state.pushHead(head);
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
-
 
         TransformationHelper.createDirectJump(state, head);
         state.construction.setCurrentBlock(head);
