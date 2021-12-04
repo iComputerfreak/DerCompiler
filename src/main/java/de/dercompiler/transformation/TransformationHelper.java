@@ -54,8 +54,8 @@ public class TransformationHelper {
         Node cond = state.construction.newCond(cmp);
         Node jmpTrue = state.construction.newProj(cond, Mode.getX(), Cond.pnTrue);
         Node jmpFalse = state.construction.newProj(cond, Mode.getX(), Cond.pnFalse);
-        TransformationHelper.createJump(state, state.trueBlock, jmpTrue);
-        TransformationHelper.createJump(state, state.falseBlock, jmpFalse);
+        TransformationHelper.createJump(state, state.trueBlock(), jmpTrue);
+        TransformationHelper.createJump(state, state.falseBlock(), jmpFalse);
     }
 
     public static boolean isControlStructure(Statement statement) {

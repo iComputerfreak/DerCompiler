@@ -21,8 +21,9 @@ public class TransformationState {
     public Node rhs;
     public Node res;
 
-    public Block trueBlock;
-    public Block falseBlock;
+    private Stack<Block> trueBlockStack;
+    private Stack<Block> falseBlockStack;
+
 
     private Stack<Block> blockStack;
     private Stack<Statement> statementStack;
@@ -33,26 +34,26 @@ public class TransformationState {
         this.globalScope = scope;
         graph = null;
         construction = null;
-        trueBlock = null;
-        falseBlock = null;
+        trueBlockStack = new Stack<>();
+        falseBlockStack = new Stack<>();
 
         blockStack = new Stack<>();
         statementStack = new Stack<>();
     }
 
     public boolean isCondition() {
-        boolean wellFormed = Objects.isNull(trueBlock) == Objects.isNull(falseBlock);
+        boolean wellFormed = Objects.isNull(trueBlock()) == Objects.isNull(falseBlock());
         if (!wellFormed) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("We have a miss-formed TransformationState!");
         }
 
-        return !Objects.isNull(trueBlock);
+        return !Objects.isNull(trueBlock());
     }
 
     public void swapTrueFalseBlock() {
-        Block tmp = trueBlock;
-        trueBlock = falseBlock;
-        falseBlock = tmp;
+        Stack<Block> tmp = trueBlockStack;
+        trueBlockStack = falseBlockStack;
+        falseBlockStack = tmp;
     }
 
     public void markReturn() {
@@ -65,12 +66,13 @@ public class TransformationState {
     }
 
     public void clear() {
+        assert(trueBlock() == null);
+        assert(falseBlock() == null);
+        assert(statementStack.size() == 0);
+        assert(blockStack.size() == 0);
         graph = null;
         construction = null;
-        assert(trueBlock == null);
-        assert(falseBlock == null);
         hasReturn = false;
-        blockStack.clear();
     }
 
     public void pullBlock() {
@@ -100,6 +102,40 @@ public class TransformationState {
 
     public int getNumMarkedStatements() {
         return statementStack.size();
+    }
+
+    public void pushBranches(Block trueBlock, Block falseBlock) {
+        trueBlockStack.push(trueBlock);
+        falseBlockStack.push(falseBlock);
+    }
+
+    public void popBranches() {
+        assert(trueBlockStack.size() == falseBlockStack.size());
+        trueBlockStack.pop();
+        falseBlockStack.pop();
+
+    }
+
+    public Block exchangeTrueBlock(Block block) {
+        Block top = trueBlockStack.pop();
+        trueBlockStack.push(block);
+        return top;
+    }
+
+    public Block exchangeFalseBlock(Block block) {
+        Block top = falseBlockStack.pop();
+        falseBlockStack.push(block);
+        return top;
+    }
+
+    public Block trueBlock() {
+        if (trueBlockStack.empty()) return null;
+        return trueBlockStack.peek();
+    }
+
+    public Block falseBlock() {
+        if (falseBlockStack.empty()) return null;
+        return falseBlockStack.peek();
     }
 
 }

@@ -74,22 +74,23 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         }
 
         if (state.res != null) {
-            state.trueBlock.mature();
-            state.falseBlock.mature();
+            state.trueBlock().mature();
+            state.falseBlock().mature();
             //throw away true and false block
             state.res = null;
         } else {
             Block after = state.construction.newBlock();
-            state.construction.setCurrentBlock(state.trueBlock);
+            state.construction.setCurrentBlock(state.trueBlock());
             state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));
             TransformationHelper.createDirectJump(state, after);
 
-            state.construction.setCurrentBlock(state.falseBlock);
+            state.construction.setCurrentBlock(state.falseBlock());
             state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, false));
             TransformationHelper.createDirectJump(state, after);
             after.mature();
             state.construction.setCurrentBlock(after);
         }
+        state.popBranches();
     }
 
     @Override
@@ -106,17 +107,19 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
             state.res = null;
             return;
         }
-        state.trueBlock.mature();
-        state.falseBlock.mature();
+        state.trueBlock().mature();
+        state.falseBlock().mature();
         if (state.res != null) {
             state.res = null;
             return;
         }
-        state.construction.setCurrentBlock(state.trueBlock);
+        state.construction.setCurrentBlock(state.trueBlock());
         TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, true));
 
-        state.construction.setCurrentBlock(state.falseBlock);
+        state.construction.setCurrentBlock(state.falseBlock());
         TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
+
+        state.popBranches();
     }
 
     @Override
@@ -125,18 +128,20 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         if (ifStatement.hasElse()) {
             after = state.construction.newBlock();
         } else {
-            after = state.falseBlock;
+            after = state.falseBlock();
         }
 
-        state.trueBlock.mature();
-        state.construction.setCurrentBlock(state.trueBlock);
+        state.trueBlock().mature();
+        state.construction.setCurrentBlock(state.trueBlock());
         TransformationHelper.createDirectJump(state, after);
 
         if (ifStatement.hasElse()) {
-            state.falseBlock.mature();
-            state.construction.setCurrentBlock(state.falseBlock);
+            state.falseBlock().mature();
+            state.construction.setCurrentBlock(state.falseBlock());
             TransformationHelper.createDirectJump(state, after);
         }
+
+        state.popBranches();
 
         after.mature();
         state.construction.setCurrentBlock(after);
@@ -146,10 +151,12 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
     public void visitWhileStatement(WhileStatement whileStatement) {
         //head must be current
         Block head = state.construction.getCurrentBlock();
-        state.construction.setCurrentBlock(state.trueBlock);
+        state.construction.setCurrentBlock(state.trueBlock());
         TransformationHelper.createDirectJump(state, head);
         head.mature();
-        state.construction.setCurrentBlock(state.falseBlock);
+        state.construction.setCurrentBlock(state.falseBlock());
+
+        state.popBranches();
     }
 
     @Override
@@ -168,8 +175,8 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         if (!(expression.getSurroundingStatement() instanceof WhileStatement)) {
             state.construction.getCurrentBlock().mature();
         } else {
-            state.trueBlock.mature();
-            state.falseBlock.mature();
+            state.trueBlock().mature();
+            state.falseBlock().mature();
         }
         if (TransformationHelper.isControlStructure(expression.getSurroundingStatement())) {
             state.pullBlock();
