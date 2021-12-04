@@ -1,11 +1,13 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.semantic.type.VoidType;
@@ -22,7 +24,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
     private final Arguments arguments;
     private final String functionName;
     private boolean implicitThis;
-    private MethodType methodType;
+    private MethodDefinition methodDefinition;
 
     public MethodInvocationOnObject(SourcePosition position, Expression encapsulated, String functionName, Arguments arguments) {
         super(position, encapsulated);
@@ -58,6 +60,14 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         astExpressionVisitor.visitMethodInvocation(this);
     }
 
+    private Method getMethod(){
+        return methodDefinition.getMethod();
+    }
+
+    public ClassDeclaration getClassDeclaration(){
+        return methodDefinition.getReferenceType().getDecl();
+    }
+
     @Override
     public Node createNode(TransformationState state) {
         //TODO get classname, check if internal
@@ -91,15 +101,17 @@ public final class MethodInvocationOnObject extends UnaryExpression {
     }
 
     public MethodType getMethodType() {
-        return methodType;
+        return methodDefinition.getType();
     }
 
-    public void setMethodType(MethodType methodType) {
-        if (!this.getType().isCompatibleTo(methodType.getReturnType())) {
-            new OutputMessageHandler(MessageOrigin.PASSES).internalError("Type of methodInvocationExpression (%s) should be equal to the return type of the method (%s), but is not! Weird!".formatted(getType(), methodType.getReturnType()));
+    public void setDefinition(MethodDefinition methodDefinition){
+        if (!this.getType().isCompatibleTo(methodDefinition.getType().getReturnType())){
+            new OutputMessageHandler(MessageOrigin.PASSES).internalError("Type of methodInvocationExpression (%s) should be equal to the return type of the method (%s), but is not! Weird!".formatted(getType(), methodDefinition.getType().getReturnType()));
         }
-        this.methodType = methodType;
+        this.methodDefinition = methodDefinition;
     }
+
+
 
     @Override
     public void setInternal(boolean internal) {

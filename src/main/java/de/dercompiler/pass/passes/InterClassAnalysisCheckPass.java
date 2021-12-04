@@ -36,6 +36,8 @@ public class InterClassAnalysisCheckPass implements ClassPass {
                     failAnalysis(PassErrorIds.DUPLICATE_METHOD, method, "Method %s is already defined in class %s".formatted(method.getIdentifier(), newClass.getIdentifier()));
                 }
                 MethodDefinition methodDefinition = new MethodDefinition(method.getIdentifier(), newClass);
+                methodDefinition.setMethod(method);
+
                 newClass.addMethod(methodDefinition);
             } else if (classMember instanceof Field field) {
                 if (field.getType().getBasicType() instanceof VoidType) {

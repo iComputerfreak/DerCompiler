@@ -1,5 +1,6 @@
 package de.dercompiler.semantic;
 
+import de.dercompiler.ast.Method;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.MethodType;
 
@@ -9,6 +10,16 @@ public class MethodDefinition implements Definition {
     private final String identifier;
     private firm.MethodType firmType;
     private MethodType type;
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public void setMethod(Method method) {
+        this.method = method;
+    }
+
+    private Method method;
 
     public MethodDefinition(String identifier, MethodType type, ClassType referenceType) {
         this.identifier = identifier;

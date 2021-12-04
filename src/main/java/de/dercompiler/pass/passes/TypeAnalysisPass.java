@@ -278,12 +278,11 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
         if (type == null) return;
 
         MethodDefinition method = globalScope.getMethod(type.getIdentifier(), methodInvocation.getFunctionName());
-        MethodType methodType = method.getType();
 
-        methodInvocation.setMethodType(methodType);
+        methodInvocation.setDefinition(method);
 
         Arguments arguments = methodInvocation.getArguments();
-        arguments.setExpectedTypes(methodType.getParameterTypes());
+        arguments.setExpectedTypes(method.getType().getParameterTypes());
         this.visitArguments(arguments);
     }
 
