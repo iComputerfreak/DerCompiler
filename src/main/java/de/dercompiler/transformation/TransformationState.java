@@ -1,5 +1,6 @@
 package de.dercompiler.transformation;
 
+import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -29,6 +30,7 @@ public class TransformationState {
     private Stack<Statement> statementStack;
     private Stack<Block> origin;
     private Stack<Block> head;
+    private Stack<BasicBlock> markedBasicBlocks;
 
     private boolean hasReturn = false;
 
@@ -44,6 +46,7 @@ public class TransformationState {
 
         origin = new Stack<>();
         head = new Stack<>();
+        markedBasicBlocks = new Stack<>();
     }
 
     public boolean isCondition() {
@@ -89,6 +92,11 @@ public class TransformationState {
 
     public void pushBlock(Block block) {
         blockStack.push(block);
+    }
+
+
+    public Block peakBlock() {
+        return blockStack.peek();
     }
 
     public int stackSize() {
@@ -153,12 +161,26 @@ public class TransformationState {
         return origin.pop();
     }
 
+    public Block peakOrigin() {
+        return origin.peek();
+    }
+
     public void pushHead(Block h) {
         head.push(h);
     }
 
     public Block popHead() {
         return head.pop();
+    }
+
+    public void markBasicBlock(BasicBlock block) {
+        markedBasicBlocks.push(block);
+    }
+
+    public boolean removeBasicBlockIfMarked(BasicBlock block) {
+        if (!(markedBasicBlocks.size() > 0 && block == markedBasicBlocks.peek())) return false;
+        markedBasicBlocks.pop();
+        return true;
     }
 
 }

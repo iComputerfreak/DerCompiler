@@ -17,7 +17,7 @@ import firm.nodes.Block;
 
 import java.util.Objects;
 
-public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implements MethodPass, StatementPass, BasicBlockPass {
+public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implements MethodPass, StatementPass {
     private TransformationState state;
     private FirmMethodGraphFinalizationPass finalization;
 
@@ -33,23 +33,6 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
         System.out.println(method.getIdentifier() + " " + method.getNumLocalVariables());
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
-        return false;
-    }
-
-    @Override
-    public boolean runOnBasicBlock(BasicBlock block) {
-        if (block.getSurroundingStatement() instanceof BasicBlock && block != block.getSurroundingStatement()) {
-            Block inside = state.construction.newBlock();
-            Block after = state.construction.newBlock();
-
-            TransformationHelper.createDirectJump(state, inside);
-            state.construction.getCurrentBlock().mature();
-            state.construction.setCurrentBlock(inside);
-            TransformationHelper.createDirectJump(state, after);
-
-            state.pushBlock(after);
-            state.markStatementToPullBlock(block);
-        }
         return false;
     }
 

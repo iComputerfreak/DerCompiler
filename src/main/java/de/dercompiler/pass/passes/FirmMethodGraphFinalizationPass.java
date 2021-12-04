@@ -169,7 +169,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
         state.popBranches();
 
-        boolean falseBlock = origin == state.trueBlock();
+        boolean falseBlock = origin == state.falseBlock();
 
         if (falseBlock) { //false
             state.exchangeFalseBlock(after);
@@ -189,7 +189,6 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         //this is for while, if, boolean localVariableDeclaration and boolean return-statements
         state.res = expression.createNode(state);
         if (!state.isCondition()) return false;
-
         if (expression.getSurroundingStatement() instanceof WhileStatement) {
             state.trueBlock().mature();
             state.falseBlock().mature();
