@@ -10,8 +10,10 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.type.BooleanType;
+import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import firm.Entity;
 import firm.Mode;
 import firm.Relation;
 import firm.nodes.Node;
@@ -67,8 +69,9 @@ public final class Variable extends PrimaryExpression {
             Mode mode = p.getFirmType().getMode();
             res = state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId());
         } else if (def instanceof Field f) {
-            //TODO get node of reference object?
-            res = null;
+            Node this_ = state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0);
+            Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getIdentifier());
+            res = state.construction.newMember(this_, field);
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Field, Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
             return null; //we never return

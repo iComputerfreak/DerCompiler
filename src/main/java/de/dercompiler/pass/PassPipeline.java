@@ -391,6 +391,7 @@ class PassPipeline {
         ASTReferencePass pass = new ASTReferencePass();
         ASTReferencePullPass pull = new ASTReferencePullPass();
         pull.setRefPass(pass);
+        steps.getFirst().td_classPasses.addFirst(pass);
         steps.getFirst().td_methodPasses.addFirst(pass);
         steps.getFirst().td_basicBlockPasses.addFirst(pass);
         steps.getFirst().td_statementPasses.addFirst(pass);

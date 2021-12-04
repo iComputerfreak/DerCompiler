@@ -2,6 +2,7 @@ package de.dercompiler.ast.expression;
 
 
 import de.dercompiler.ast.ASTDefinition;
+import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.Type;
 import de.dercompiler.lexer.SourcePosition;
@@ -26,6 +27,11 @@ public final class GlobalConstant implements ASTDefinition {
     @Override
     public firm.Type getFirmType() {
         return Program.getGlobalType();
+    }
+
+    @Override
+    public ClassDeclaration getClassDeclaration() {
+        return null;
     }
 
     @Override

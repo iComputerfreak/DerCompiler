@@ -1,7 +1,6 @@
 package de.dercompiler.pass.passes;
 
-import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.visitor.ASTStatementVisitor;
@@ -13,7 +12,7 @@ import java.util.Stack;
 /**
  *  (Pass 1) Sets references from many syntactic elements to their surrounding parent of the next higher syntactic category.
  */
-public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPass, ExpressionPass, ASTStatementVisitor {
+public class ASTReferencePass implements ClassPass, MethodPass, StatementPass, BasicBlockPass, ExpressionPass, ASTStatementVisitor {
 
     private boolean shouldRun = false;
     private Stack<BasicBlock> blockStack;
@@ -53,6 +52,9 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
 
     @Override
     public boolean runOnMethod(Method method) {
+        for (Parameter param : method.getParameters()) {
+            param.setClassDeclaration(manager.getCurrentClass());
+        }
         method.setSurroundingClass(manager.getCurrentClass());
         BasicBlock block = method.getBlock();
         block.setSurroundingStatement(block);
@@ -158,5 +160,16 @@ public class ASTReferencePass implements MethodPass, StatementPass, BasicBlockPa
     @Override
     public AnalysisDirection getAnalysisDirection() {
         return AnalysisDirection.TOP_DOWN;
+    }
+
+    @Override
+    public boolean runOnClass(ClassDeclaration classDeclaration) {
+
+        for (ClassMember member : classDeclaration.getMembers()) {
+            if (member instanceof Field f) {
+                f.setClassDeclaration(classDeclaration);
+            }
+        }
+        return false;
     }
 }

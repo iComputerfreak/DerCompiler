@@ -20,6 +20,7 @@ public final class Field extends ClassMember implements ASTDefinition {
     private final Type type;
     private final String identifier;
     private firm.Type firmType;
+    ClassDeclaration classDeclaration = null;
 
     /**
      * Creates a new Field
@@ -44,6 +45,17 @@ public final class Field extends ClassMember implements ASTDefinition {
     @Override
     public firm.Type getFirmType() {
         return firmType;
+    }
+
+    public void setClassDeclaration(ClassDeclaration declaration) {
+        if (declaration != null) {
+            classDeclaration = declaration;
+        }
+    }
+
+    @Override
+    public ClassDeclaration getClassDeclaration() {
+        return classDeclaration;
     }
 
     /**

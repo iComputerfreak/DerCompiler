@@ -24,6 +24,7 @@ public final class Parameter extends ASTNode implements ASTDefinition {
     private final String identifier;
     private int nodeId;
     private firm.Type firmType;
+    private ClassDeclaration classDeclaration;
 
     /**
      * Creates a new Parameter
@@ -55,6 +56,17 @@ public final class Parameter extends ASTNode implements ASTDefinition {
     @Override
     public firm.Type getFirmType() {
         return firmType;
+    }
+
+    public void setClassDeclaration(ClassDeclaration declaration) {
+        if (declaration != null) {
+            classDeclaration = declaration;
+        }
+    }
+
+    @Override
+    public ClassDeclaration getClassDeclaration() {
+        return classDeclaration;
     }
 
     /**

@@ -45,17 +45,19 @@ public final class AssignmentExpression extends BinaryExpression {
         Node res = null;
         if (getLhs() instanceof Variable v) {
             if (v.getDefinition() instanceof LocalVariableDeclarationStatement lvds) {
-                state.construction.setVariable(lvds.getNodeId(), state.rhs);
+                if (state.lhs.getMode() == Mode.getP()) {
+                    TransformationHelper.genStore(state, state.lhs, state.rhs, lvds.getFirmType());
+                } else {
+                    state.construction.setVariable(lvds.getNodeId(), state.rhs);
+                }
                 res = state.rhs;
-            } else if (v.getDefinition() instanceof Parameter p) {
-                state.construction.setVariable(p.getNodeId(), state.rhs);
-                res = state.rhs;
+            // error
+            //} else if (v.getDefinition() instanceof Parameter p) {
             } else if (v.getDefinition() instanceof Field f) {
                 TransformationHelper.genStore(state, state.lhs, state.rhs, f.getFirmType());
                 res = state.rhs;
-            } //TODO handle returned array?
-            else {
-                new OutputMessageHandler(MessageOrigin.PASSES).internalError("cannot assign Value to variable, because Definition is no local accessible function: " + v.getDefinition());
+            } else {
+                new OutputMessageHandler(MessageOrigin.PASSES).internalError("cannot assign Value to variable, because Definition is not local accessible: " + v.getDefinition());
                 return null; //we never return
             }
         } else {

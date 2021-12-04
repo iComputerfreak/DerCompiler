@@ -14,4 +14,6 @@ public interface ASTDefinition {
     SourcePosition getSourcePosition();
 
     firm.Type getFirmType();
+
+    ClassDeclaration getClassDeclaration();
 }

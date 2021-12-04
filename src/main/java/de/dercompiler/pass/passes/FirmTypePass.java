@@ -24,7 +24,14 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
     }
     
     @Override
-    public void doFinalization(Program program) {}
+    public void doFinalization(Program program) {
+        //finish layout of fields
+        for (ClassType class_ : globalScope.getClasses())
+        {
+            class_.getFirmType().layoutFields();
+            class_.getFirmType().finishLayout();
+        }
+    }
 
     /**
      * For each class, this pass creates the firm type representing the class and sets it on the class.
@@ -68,13 +75,18 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
      */
     @Override
     public boolean runOnMethod(Method method) {
+        ClassDeclaration parentClass = method.getSurroundingClass();
+        ClassType parentType = globalScope.getClass(parentClass.getIdentifier());
+
         // Get the definition and set the firm type
         MethodDefinition def = globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
                 method.getIdentifier());
         // We need to collect the firm types of the parameters and the return type
         firm.Type returnType = factory.getOrCreateFirmVariableType(def.getType().getReturnType());
-        firm.Type[] parameterTypes = new firm.Type[method.getParameters().size()];
-        for (int i = 0; i < parameterTypes.length; i++) {
+        //0 this pointer
+        firm.Type[] parameterTypes = new firm.Type[method.getParameters().size() + 1];
+        parameterTypes[0] = parentType.getFirmType();
+        for (int i = 1; i <= parameterTypes.length; i++) {
             Parameter p = method.getParameters().get(i);
             // If the parameter does not have a firm type set already, create one
             if (p.getFirmType() == null) {
@@ -92,8 +104,6 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
         }
 
         // Add the method entity to the parent class
-        ClassDeclaration parentClass = method.getSurroundingClass();
-        ClassType parentType = globalScope.getClass(parentClass.getIdentifier());
         Entity entity = new Entity(parentType.getFirmType(), method.getMangledIdentifier(), def.getFirmType());
         parentType.getMethodEntities().add(entity);
 

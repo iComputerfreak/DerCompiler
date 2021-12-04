@@ -26,11 +26,11 @@ public class TransformationState {
     private Stack<Block> falseBlockStack;
 
 
-    private Stack<Block> blockStack;
-    private Stack<Statement> statementStack;
-    private Stack<Block> origin;
-    private Stack<Block> head;
-    private Stack<BasicBlock> markedBasicBlocks;
+    private final Stack<Block> blockStack;
+    private final Stack<Statement> statementStack;
+    private final Stack<Block> origin;
+    private final Stack<Block> head;
+    private final Stack<BasicBlock> markedBasicBlocks;
 
     private boolean hasReturn = false;
 
@@ -161,26 +161,12 @@ public class TransformationState {
         return origin.pop();
     }
 
-    public Block peakOrigin() {
-        return origin.peek();
-    }
-
     public void pushHead(Block h) {
         head.push(h);
     }
 
     public Block popHead() {
         return head.pop();
-    }
-
-    public void markBasicBlock(BasicBlock block) {
-        markedBasicBlocks.push(block);
-    }
-
-    public boolean removeBasicBlockIfMarked(BasicBlock block) {
-        if (!(markedBasicBlocks.size() > 0 && block == markedBasicBlocks.peek())) return false;
-        markedBasicBlocks.pop();
-        return true;
     }
 
 }

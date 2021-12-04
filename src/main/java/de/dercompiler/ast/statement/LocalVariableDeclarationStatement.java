@@ -2,6 +2,7 @@ package de.dercompiler.ast.statement;
 
 import de.dercompiler.ast.ASTDefinition;
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.Variable;
 import de.dercompiler.ast.visitor.ASTNodeVisitor;
@@ -45,6 +46,11 @@ public final class LocalVariableDeclarationStatement extends Statement implement
     @Override
     public firm.Type getFirmType() {
         return firmType;
+    }
+
+    @Override
+    public ClassDeclaration getClassDeclaration() {
+        return getSurroundingMethod().getSurroundingClass();
     }
 
     public void setRefType(de.dercompiler.semantic.type.Type refType) {
