@@ -95,9 +95,10 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             // If the parameter does not have a firm type set already, create one
             if (p.getFirmType() == null) {
                 // If a parameter is of a class type that we have not run on yet, we do that now to finalize it
-                ClassType parameterClassType = globalScope.getClass(p.getIdentifier());
-                if (parameterClassType.getFirmType() == null) {
-                    runOnClass(parameterClassType.getDecl());
+                if (p.getRefType() instanceof ClassType parameterClassType) {
+                    if (parameterClassType.getFirmType() == null) {
+                        runOnClass(parameterClassType.getDecl());
+                    }
                 }
                 
                 p.setFirmType(factory.getOrCreateFirmVariableType(p.getRefType()));
