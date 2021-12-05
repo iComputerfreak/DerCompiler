@@ -15,6 +15,7 @@ import de.dercompiler.transformation.TransformationState;
 import firm.Entity;
 import firm.Firm;
 import firm.Mode;
+import firm.nodes.Call;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -70,10 +71,11 @@ public final class MethodInvocationOnObject extends UnaryExpression {
 
     @Override
     public Node createNode(TransformationState state) {
+        ClassDeclaration class_ = getClassDeclaration();
         //TODO get classname, check if internal
-        String classname = null;
+        String classname = class_.getIdentifier();
         MethodDefinition methodDef = state.globalScope.getMethod(classname, functionName);
-        Entity method = state.globalScope.getMemberEntity(classname ,functionName);
+        Entity methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
 
         Node object = encapsulated.createNode(state);
         int numArgs = arguments.getLength() + 1;
@@ -84,12 +86,15 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         }
 
         Node mem = state.construction.getCurrentMem();
-        Node res = state.construction.newCall(mem, null, args, null);
+        Node call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), args, methodEntity.getType());
+        state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
+        Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
 
         if (methodDef.getType().getReturnType().isCompatibleTo(new VoidType())) {
             return state.construction.newBad(Mode.getANY());
         }
-        return res;
+        //we don't have to return 2 so always 0
+        return state.construction.newProj(tuple, methodDef.getType().getReturnType().getFirmType().getMode(), 0);
     }
 
     public void setImplicitThis(boolean implicitThis) {

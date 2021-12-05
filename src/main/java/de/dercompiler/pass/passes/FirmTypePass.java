@@ -84,9 +84,17 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
         // We need to collect the firm types of the parameters and the return type
         firm.Type returnType = factory.getOrCreateFirmVariableType(def.getType().getReturnType());
         //0 this pointer
-        firm.Type[] parameterTypes = new firm.Type[method.getParameters().size() + 1];
-        parameterTypes[0] = parentType.getFirmType();
-        for (int i = 1; i <= parameterTypes.length; i++) {
+        int base = 0;
+        int num_values = method.getParameters().size();
+        if (!method.isStatic()) {
+            base++;
+            num_values++;
+        }
+        firm.Type[] parameterTypes = new firm.Type[num_values];
+        if (!method.isStatic()) {
+            parameterTypes[0] = parentType.getFirmType();
+        }
+        for (int i = base; i < num_values; i++) {
             Parameter p = method.getParameters().get(i);
             // If the parameter does not have a firm type set already, create one
             if (p.getFirmType() == null) {
