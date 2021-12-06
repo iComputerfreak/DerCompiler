@@ -82,4 +82,16 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_PIPELINE = "Prints the pipeline whenever one is used.";
     public static final String DESCRIPTION_TIME_EXECUTION = "Prints the execution-time at the end of execution";
 
+    //compilers
+    public static final String OPTION_CLANG         = "clang";
+    public static final String OPTION_LLD           = "clang-lld";
+    public static final String DESCRIPTION_CLANG    = "set clang as compiler use --lld to set linker";
+    public static final String DESCRIPTION_LLD      = "set lld as linker use --clang to set compiler";
+
+    public static final String OPTION_GCC           = "gcc";
+    public static final String OPTION_LD            = "gcc-ld";
+    public static final String DESCRIPTION_GCC      = "set gcc as compiler use --ld to set linker";
+    public static final String DESCRIPTION_LD       = "set ld as linker use --gcc to set compiler";
+
+
 }

@@ -6,6 +6,7 @@ import de.dercompiler.io.CommandLineStrings;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.linker.Runner;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.passes.SpecificationConformityPass;
 import de.dercompiler.util.ErrorStatus;
@@ -35,6 +36,8 @@ public class CompilerSetup {
         if (options.time()) ErrorStatus.setPrintTIme();
 
         SpecificationConformityPass.setCheckMain(options.noMain());
+
+        Runner.setCwd(options.getCwd());
 
         //sets Value in OutputMessageHandler
         options.resolveColorOutput();

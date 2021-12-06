@@ -6,4 +6,9 @@ public final class Clang implements Compiler {
     public boolean checkCompiler() {
         return false;
     }
+
+    @Override
+    public void compile(CompilerCall call) {
+
+    }
 }

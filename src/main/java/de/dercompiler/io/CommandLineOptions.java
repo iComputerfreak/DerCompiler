@@ -270,4 +270,8 @@ public class CommandLineOptions {
     public String getActiveParseTestOption() {
         return getActiveOption(OPTION_PARSE_METHOD, OPTION_PARSE_STATEMENT, OPTION_PARSE_EXPRESSION);
     }
+
+    public File getCwd() {
+        return resolver.getCwd();
+    }
 }

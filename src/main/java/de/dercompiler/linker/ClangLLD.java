@@ -6,4 +6,9 @@ public final class ClangLLD implements Linker {
     public boolean checkLinker() {
         return false;
     }
+
+    @Override
+    public void link(LinkerCall call) {
+
+    }
 }

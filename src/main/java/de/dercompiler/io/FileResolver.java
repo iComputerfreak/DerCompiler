@@ -51,4 +51,8 @@ public class FileResolver {
         return baseLocation.toPath().resolve(file).toFile();
     }
 
+    public File getCwd() {
+        return cwd;
+    }
+
 }

@@ -9,6 +9,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.semantic.type.InternalClass;
 import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.transformation.TransformationState;
@@ -44,6 +45,10 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         return false;
     }
 
+    public boolean isLibraryCall() {
+        return encapsulated.getType() instanceof InternalClass;
+    }
+
     public Arguments getArguments() {
         return arguments;
     }
@@ -75,18 +80,34 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         //TODO get classname, check if internal
         String classname = class_.getIdentifier();
         MethodDefinition methodDef = state.globalScope.getMethod(classname, functionName);
-        Entity methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
+        Entity methodEntity;
 
-        Node object = encapsulated.createNode(state);
-        int numArgs = arguments.getLength() + 1;
-        Node[] args = new Node[numArgs];
-        args[0] = object;
-        for (int i = 1; i < numArgs; i++) {
-            args[i] = arguments.get(i).createNode(state);
+        int args = arguments.getLength();
+        int base = 0;
+        if (!isLibraryCall()) {
+            args++;
+            base++;
+            methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
+        } else {
+            //TODO get access
+            methodEntity = null;
+        }
+        Node[] nodeArgs = new Node[args];
+        if (!isLibraryCall()) {
+            nodeArgs[0] = encapsulated.createNode(state);
+        }
+        for (int i = 0; i < args; i++) {
+            nodeArgs[base + i] = arguments.get(i).createNode(state);
         }
 
         Node mem = state.construction.getCurrentMem();
-        Node call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), args, methodEntity.getType());
+        Node call;
+        if (isLibraryCall()) {
+            call = state.construction.newCall(mem, state.construction.newAddress(), nodeArgs, )
+        } else {
+            call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), nodeArgs, methodEntity.getType());
+        }
+
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
 
