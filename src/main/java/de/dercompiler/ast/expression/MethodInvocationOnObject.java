@@ -101,12 +101,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         }
 
         Node mem = state.construction.getCurrentMem();
-        Node call;
-        if (isLibraryCall()) {
-            call = state.construction.newCall(mem, state.construction.newAddress(), nodeArgs, )
-        } else {
-            call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), nodeArgs, methodEntity.getType());
-        }
+        Node call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), nodeArgs, methodEntity.getType());
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
