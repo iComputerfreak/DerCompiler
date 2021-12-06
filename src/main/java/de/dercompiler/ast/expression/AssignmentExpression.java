@@ -42,6 +42,7 @@ public final class AssignmentExpression extends BinaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         createChildNodes(state);
+        //TODO if boolean handle assignement properly, similar to LocalVariableDeclaration
         Node res = null;
         if (getLhs() instanceof Variable v) {
             if (v.getDefinition() instanceof LocalVariableDeclarationStatement lvds) {
