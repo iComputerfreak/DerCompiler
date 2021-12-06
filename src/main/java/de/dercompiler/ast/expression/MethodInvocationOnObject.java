@@ -12,6 +12,7 @@ import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.InternalClass;
 import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.semantic.type.VoidType;
+import de.dercompiler.transformation.LibraryMethods;
 import de.dercompiler.transformation.TransformationState;
 import firm.Entity;
 import firm.Firm;
@@ -82,26 +83,26 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         MethodDefinition methodDef = state.globalScope.getMethod(classname, functionName);
         Entity methodEntity;
 
-        int args = arguments.getLength();
-        int base = 0;
+        int argsCount = arguments.getLength();
+        int baseIdx = 0;
         if (!isLibraryCall()) {
-            args++;
-            base++;
+            argsCount++;
+            baseIdx++;
             methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
         } else {
             //TODO get access
-            methodEntity = null;
+            methodEntity = LibraryMethods.forName(methodDef.getIdentifier());
         }
-        Node[] nodeArgs = new Node[args];
+        Node[] argNodes = new Node[argsCount];
         if (!isLibraryCall()) {
-            nodeArgs[0] = encapsulated.createNode(state);
+            argNodes[0] = encapsulated.createNode(state);
         }
-        for (int i = 0; i < args; i++) {
-            nodeArgs[base + i] = arguments.get(i).createNode(state);
+        for (int i = 0; i < argsCount; i++) {
+            argNodes[baseIdx + i] = arguments.get(i).createNode(state);
         }
 
         Node mem = state.construction.getCurrentMem();
-        Node call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), nodeArgs, methodEntity.getType());
+        Node call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), argNodes, methodEntity.getType());
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
