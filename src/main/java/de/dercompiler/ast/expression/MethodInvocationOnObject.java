@@ -9,6 +9,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.InternalClass;
 import de.dercompiler.semantic.type.MethodType;
 import de.dercompiler.semantic.type.VoidType;
@@ -71,15 +72,15 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         return methodDefinition.getMethod();
     }
 
-    public ClassDeclaration getClassDeclaration(){
-        return methodDefinition.getReferenceType().getDecl();
+    public ClassType getClassType(){
+        return methodDefinition.getReferenceType();
     }
 
     @Override
     public Node createNode(TransformationState state) {
-        ClassDeclaration class_ = getClassDeclaration();
+        ClassType classType = getClassType();
         //TODO get classname, check if internal
-        String classname = class_.getIdentifier();
+        String classname = classType.getIdentifier();
         MethodDefinition methodDef = state.globalScope.getMethod(classname, functionName);
         Entity methodEntity;
 
@@ -87,7 +88,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         int baseIdx = 0;
         if (!isLibraryCall()) {
             argsCount++;
-            baseIdx++;
+            baseIdx = 1;    // 'this' object is 0th argument
             methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
         } else {
             //TODO get access
