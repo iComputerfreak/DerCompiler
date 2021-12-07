@@ -26,7 +26,6 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
         assert(state.stackSize() == 0);
         MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
                 method.getIdentifier());
-        //wie bekommt man den globalType??
         CompoundType globalType = firm.Program.getGlobalType();
         Entity methodEntity = new Entity(globalType, method.getMangledIdentifier(), def.getFirmType());
         int n_vars = method.getNumLocalVariables();

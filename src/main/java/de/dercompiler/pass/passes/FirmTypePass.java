@@ -9,6 +9,7 @@ import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.transformation.FirmTypeFactory;
 import firm.Entity;
+import firm.Type;
 
 /**
  * Sets the firm type(s) of every class, field, method and local variable statement
@@ -80,18 +81,22 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
         // We need to collect the firm types of the parameters and the return type
         firm.Type returnType = factory.getOrCreateFirmVariableType(def.getType().getReturnType());
         //0 this pointer
-        int base = 0;
-        int num_values = method.getParameters().size();
-        if (!method.isStatic()) {
-            base++;
-            num_values++;
-        }
-        firm.Type[] parameterTypes = new firm.Type[num_values];
-        if (!method.isStatic()) {
+        int baseIdx = 0;
+        int argCount = method.getParameters().size();
+        firm.Type[] parameterTypes;
+        if (method.isStatic()) {
+            // main shall have no parameters
+            argCount = 0;
+            parameterTypes = new Type[0];
+        } else {
+            baseIdx++;
+            argCount++;
+            parameterTypes = new Type[argCount];
             parameterTypes[0] = parentType.getFirmType();
         }
-        for (int i = base; i < num_values; i++) {
-            Parameter p = method.getParameters().get(i);
+
+        for (int i = baseIdx; i < argCount; i++) {
+            Parameter p = method.getParameters().get(i - baseIdx);
             // If the parameter does not have a firm type set already, create one
             if (p.getFirmType() == null) {
                 // If a parameter is of a class type that we have not run on yet, we do that now to finalize it
