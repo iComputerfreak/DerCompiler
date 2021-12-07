@@ -33,6 +33,8 @@ public abstract class Source {
 
     @Override
     public abstract String toString();
+
+    public abstract String filename();
 }
 
 class FileSource extends Source {
@@ -71,6 +73,11 @@ class FileSource extends Source {
     public String toString() {
         return file.getName();
     }
+
+    @Override
+    public String filename() {
+        return file.getName();
+    }
 }
 
 class StringSource extends Source {
@@ -103,5 +110,10 @@ class StringSource extends Source {
     @Override
     public String toString() {
         return "<cliStringArgument>";
+    }
+
+    @Override
+    public String filename() {
+        return "CommandLine.java";
     }
 }
