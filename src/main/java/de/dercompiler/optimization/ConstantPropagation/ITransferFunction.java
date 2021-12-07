@@ -33,8 +33,6 @@ public interface ITransferFunction {
 
     TargetValue getTargetValue(Or node);
 
-    TargetValue getTargetValue(Proj node);
-
     TargetValue getTargetValue(Shl node);
 
     TargetValue getTargetValue(Shr node);
