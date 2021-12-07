@@ -1,18 +1,15 @@
 package de.dercompiler.transformation;
 
-import com.sun.jna.Pointer;
-import de.dercompiler.semantic.GlobalScope;
 import firm.*;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class LibraryMethods {
 
     private static final CompoundType OWNER;
     public static final Entity print_int;
     public static final Entity print_byte;
-    public static final Entity read_byte;
+    public static final Entity read_int;
     public static final Entity flush_out;
     public static final Entity allocate;
 
@@ -23,7 +20,7 @@ public class LibraryMethods {
 
         print_int = new Entity(OWNER, "print_int", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
         print_byte = new Entity(OWNER, "print_byte", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
-        read_byte = new Entity(OWNER, "read_byte", new MethodType(new Type[]{}, new Type[]{FirmTypes.intFirmType}));
+        read_int = new Entity(OWNER, "read_int", new MethodType(new Type[]{}, new Type[]{FirmTypes.intFirmType}));
         flush_out = new Entity(OWNER, "flush_out", new MethodType(new Type[]{}, new Type[]{}));
 
         allocate = new Entity(OWNER, "allocate", new MethodType(new Type[]{new PointerType(FirmTypes.voidFirmType)}, new Type[]{FirmTypes.intFirmType}));
@@ -31,7 +28,7 @@ public class LibraryMethods {
         map = new HashMap<>(5);
         map.put("println", print_int);
         map.put("write",  print_byte);
-        map.put("read", read_byte);
+        map.put("read", read_int);
         map.put("flush", flush_out);
         map.put("allocate", allocate);
     }
