@@ -11,8 +11,8 @@ import java.util.Objects;
 
 public class TransferFunction implements ITransferFunction {
     
-    private static final TargetValue UNKNOWN = TargetValue.getUnknown();
-    private static final TargetValue BAD = TargetValue.getBad();
+    private static final TargetValue UNKNOWN = TargetValue.getUnknown(); // Bottom
+    private static final TargetValue BAD = TargetValue.getBad();         // Top
 
     private final HashMap<Node, TargetValue> targetValues;
 

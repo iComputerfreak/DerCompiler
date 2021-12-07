@@ -1,2 +1,4 @@
-package de.dercompiler.transformation;public class Job {
+package de.dercompiler.transformation;
+
+public class Job {
 }

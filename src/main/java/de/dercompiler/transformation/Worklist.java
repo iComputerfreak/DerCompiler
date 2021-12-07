@@ -1,2 +1,4 @@
-package de.dercompiler.transformation;public class Worklist {
+package de.dercompiler.transformation;
+
+public class Worklist {
 }

@@ -5,7 +5,7 @@ import firm.nodes.*;
 import java.util.HashMap;
 import java.util.Queue;
 
-public abstract class Transferfunction<L extends Verband> implements NodeVisitor {
+public abstract class TransferFunction<L extends Lattice> implements NodeVisitor {
     public abstract L getTargetValue(Add node);
     public abstract L getTargetValue(Address node);
     public abstract L getTargetValue(Align node);
@@ -64,7 +64,7 @@ public abstract class Transferfunction<L extends Verband> implements NodeVisitor
     public HashMap<Node, L> targetValues;
     public Queue<Node> nodeQueue;
 
-    public Transferfunction(HashMap<Node,L> targetValues, Queue<Node> nodeQueue){
+    public TransferFunction(HashMap<Node,L> targetValues, Queue<Node> nodeQueue){
         this.targetValues = targetValues;
         this.nodeQueue = nodeQueue;
     }

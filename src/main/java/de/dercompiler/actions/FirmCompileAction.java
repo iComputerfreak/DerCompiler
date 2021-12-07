@@ -1,18 +1,20 @@
 package de.dercompiler.actions;
 
 import de.dercompiler.ast.Program;
-import de.dercompiler.general.GeneralWarningIds;
 import de.dercompiler.generation.CodeGenerationErrorIds;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.optimization.ArithmeticOptimization;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.util.ErrorStatus;
 import firm.Backend;
+import firm.Dump;
+import firm.Graph;
 import firm.Util;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ public class FirmCompileAction extends Action {
 
     /**
      * Creates a new CompileAction with the given source code file
+     *
      * @param source The Source containing the MiniJava source code
      */
     public FirmCompileAction(Source source) {
@@ -44,6 +47,12 @@ public class FirmCompileAction extends Action {
         PassManagerBuilder.buildTransformationPipeline(manager);
         manager.run(program);
         ErrorStatus.exitProgramIfError();
+
+        ArithmeticOptimization opt = new ArithmeticOptimization();
+        for (Graph g : firm.Program.getGraphs()) {
+            opt.runOnGraph(g);
+
+        }
 
         //lower members
         Util.lowerSels();
