@@ -41,16 +41,14 @@ public final class Clang implements Compiler {
         runner.append(output);
         runner.append(call.outputFile());
 
-        boolean success = runner.run();
-        if (!success) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "clang for runtime failed: ");
-            try {
-                runner.getStdErr().transferTo(System.err);
-            } catch (IOException e) {
-                //nothing we can do
-                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
-                ErrorStatus.exitProgramIfError();
-            }
+        if (runner.run()) return;
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "clang for runtime failed: ");
+        try {
+            runner.getStdErr().transferTo(System.err);
+        } catch (IOException e) {
+            //nothing we can do
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
         }
+        ErrorStatus.exitProgramIfError();
     }
 }

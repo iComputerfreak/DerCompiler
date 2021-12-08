@@ -40,17 +40,15 @@ public final class Gcc implements Compiler, Assembler {
         runner.append(output);                                                                  // -o
         runner.append(call.outputFile());                                                       // exe
 
-        boolean success = runner.run();
-        if (!success) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for runtime failed.");
-            try {
-                runner.getStdErr().transferTo(System.err);
-            } catch (IOException e) {
-                //nothing we can do
-                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
-            }
-            ErrorStatus.exitProgramIfError();
+        if (runner.run()) return;
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for runtime failed:");
+        try {
+            runner.getStdErr().transferTo(System.err);
+        } catch (IOException e) {
+            //nothing we can do
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
         }
+        ErrorStatus.exitProgramIfError();
     }
 
     @Override
@@ -82,16 +80,14 @@ public final class Gcc implements Compiler, Assembler {
         runner.append(output);                                                              // -o
         runner.append(call.target());                                                       // target
 
-        boolean success = runner.run();
-        if (!success) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for assembler failed.");
-            try {
-                runner.getStdErr().transferTo(System.err);
-            } catch (IOException e) {
-                //nothing we can do
-                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
-            }
-            ErrorStatus.exitProgramIfError();
+        if (runner.run()) return;
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.ASSEMBLER_ERROR, "gcc for assembler failed:");
+        try {
+            runner.getStdErr().transferTo(System.err);
+        } catch (IOException e) {
+            //nothing we can do
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
         }
+        ErrorStatus.exitProgramIfError();
     }
 }

@@ -9,6 +9,9 @@ public enum CodeGenerationErrorIds implements IErrorIds {
     LINKER_NOT_FOUND(200),
     LINKER_ERROR(210),
 
+    ASSEMBLER_NOT_FOUND(300),
+    ASSEMBLER_ERROR(310),
+
     CANT_OUTPUT_FILE(500),
 
     UNKNOWN_TARGET_TRIPLE(1000),
