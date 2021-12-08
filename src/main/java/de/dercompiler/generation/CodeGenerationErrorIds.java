@@ -13,6 +13,8 @@ public enum CodeGenerationErrorIds implements IErrorIds {
 
     UNKNOWN_TARGET_TRIPLE(1000),
     UNKNOWN_ASM_STYLE(1010),
+    UNSUPPORTED_ASM_STYLE(1020),
+
     ;
 
     private int id;

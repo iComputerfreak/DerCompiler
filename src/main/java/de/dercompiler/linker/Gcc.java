@@ -7,22 +7,27 @@ import de.dercompiler.util.ErrorStatus;
 
 import java.io.IOException;
 
-public final class Gcc implements Compiler, Assambler {
+public final class Gcc implements Compiler, Assembler {
 
     private String gcc_path;
 
-    private String[] output = new String[]{"-o"};
+    private String output = "-o";
 
-    private String[] assemble = new String[]{"-c"};
+    private String assemble = "-c";
 
     @Override
     public boolean checkCompiler() {
-        String testfilename = ToolchainUtil.prepareTestCompile();
-        String[] exe = ToolchainUtil.generateFileWithExtension(testfilename, ToolchainUtil.getExecutableExtension());
-        Runner testCompile = new Runner(ToolchainUtil.buildCommand(gcc_path, assemble, new String[]{ testfilename }, output , exe));
+        String testFile = ToolchainUtil.prepareTestCompile();
+        String exe = ToolchainUtil.generateFileWithExtension(testFile, ToolchainUtil.getExecutableExtension());
+        Runner testCompile = new Runner(gcc_path);                                              //gcc
+        testCompile.append(assemble);                                                           // -c
+        testCompile.append(ToolchainUtil.appendAssembleFileExtension(testFile));                // testFile.S
+        testCompile.append(output);                                                             // -o
+        testCompile.append(ToolchainUtil.appendExecutableExtension(exe));                       // exe
+
         if (!testCompile.run()) return false;
 
-        Runner exeProcess = new Runner(ToolchainUtil.buildCommand(exe[0]));
+        Runner exeProcess = new Runner(exe);
         if (!exeProcess.run()) return false;
 
         return ToolchainUtil.checkTestCompile(exeProcess.getStdOut());
@@ -30,28 +35,63 @@ public final class Gcc implements Compiler, Assambler {
 
     @Override
     public void compile(CompilerCall call) {
-        Runner runner = new Runner(ToolchainUtil.buildCommand(gcc_path, call.files(), output, new String[]{ call.outputFile() }));
+        Runner runner = new Runner(gcc_path);                                                   //gcc
+        runner.append(call.files());                                                            // sources...
+        runner.append(output);                                                                  // -o
+        runner.append(call.outputFile());                                                       // exe
+
         boolean success = runner.run();
         if (!success) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for runtime failed:");
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for runtime failed.");
             try {
                 runner.getStdErr().transferTo(System.err);
             } catch (IOException e) {
                 //nothing we can do
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
-                ErrorStatus.exitProgramIfError();
             }
+            ErrorStatus.exitProgramIfError();
         }
     }
 
     @Override
     public boolean checkAssembler() {
+        String testFile = ToolchainUtil.prepareTestAssembler();
+        Runner runner = new Runner(gcc_path);                                               //gcc
+        runner.append(assemble);                                                            // -c
+        runner.append(ToolchainUtil.appendAssemblerExtension(testFile));                    // test_file
+        runner.append(output);                                                              // -o
+        String object = ToolchainUtil.appendObjectFileExtension(testFile);                  // out
+        runner.append(object);
 
-        return false;
+        if (!runner.run()) return false;
+
+        String exe = ToolchainUtil.appendExecutableExtension(testFile);
+        CompilerCall call = new CompilerCall(new String[]{ object }, exe);
+        if (!ExternalToolchain.unsafeCompile(call)) return false;
+        Runner testCompile = new Runner(exe);
+        if (!testCompile.run()) return false;
+
+        return ToolchainUtil.checkTestCompile(testCompile.getStdOut());
     }
 
     @Override
-    public void assemble(AssamblerCall call) {
+    public void assemble(AssemblerCall call) {
+        Runner runner = new Runner(gcc_path);                                               //gcc
+        runner.append(assemble);                                                            // -c
+        runner.append(call.filenames());                                                    // file
+        runner.append(output);                                                              // -o
+        runner.append(call.target());                                                       // target
 
+        boolean success = runner.run();
+        if (!success) {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for assembler failed.");
+            try {
+                runner.getStdErr().transferTo(System.err);
+            } catch (IOException e) {
+                //nothing we can do
+                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
+            }
+            ErrorStatus.exitProgramIfError();
+        }
     }
 }

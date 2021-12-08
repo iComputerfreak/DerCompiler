@@ -19,12 +19,28 @@ public final class Clang implements Compiler {
 
     @Override
     public boolean checkCompiler() {
-        return true;
+        String testFile = ToolchainUtil.prepareTestCompile();
+        String exe = ToolchainUtil.generateFileWithExtension(testFile, ToolchainUtil.getExecutableExtension());
+        Runner testCompile = new Runner(clang_path);
+        testCompile.append(testFile);
+        testCompile.append(output);
+        testCompile.append(exe);
+
+        if (!testCompile.run()) return false;
+
+        Runner exeProcess = new Runner(exe);
+        if (!exeProcess.run()) return false;
+
+        return ToolchainUtil.checkTestCompile(exeProcess.getStdOut());
     }
 
     @Override
     public void compile(CompilerCall call) {
-        Runner runner = new Runner(ToolchainUtil.buildCommand(clang_path, call.files(), output, new String[]{ call.outputFile() }));
+        Runner runner = new Runner(clang_path);
+        runner.append(call.files());
+        runner.append(output);
+        runner.append(call.outputFile());
+
         boolean success = runner.run();
         if (!success) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "clang for runtime failed: ");

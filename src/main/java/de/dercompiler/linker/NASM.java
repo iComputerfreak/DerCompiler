@@ -1,6 +1,6 @@
 package de.dercompiler.linker;
 
-public final class NASM implements Assambler {
+public final class NASM implements Assembler {
 
     private String nasm_path;
 
@@ -14,7 +14,7 @@ public final class NASM implements Assambler {
     }
 
     @Override
-    public void assemble(AssamblerCall call) {
+    public void assemble(AssemblerCall call) {
 
     }
 }
