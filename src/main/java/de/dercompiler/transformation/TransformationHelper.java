@@ -5,6 +5,7 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import firm.Graph;
 import firm.Mode;
 import firm.Relation;
 import firm.Type;
@@ -63,7 +64,7 @@ public class TransformationHelper {
     }
 
     public static Node createBooleanNode(TransformationState state, boolean value) {
-        return state.construction.newConst(value ? 1 : 0, Mode.getBu());
+        return state.construction.newConst(value ? 1 : 0, Mode.getBs());
     }
 
     public static void createReturn(TransformationState state, Node node) {

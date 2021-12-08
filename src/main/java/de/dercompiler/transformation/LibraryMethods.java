@@ -1,33 +1,36 @@
 package de.dercompiler.transformation;
 
-import firm.Entity;
-import firm.MethodType;
-import firm.PointerType;
-import firm.Type;
+import firm.*;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class LibraryMethods {
 
+    private static final CompoundType OWNER;
     public static final Entity print_int;
     public static final Entity print_byte;
-    public static final Entity read_byte;
+    public static final Entity read_int;
     public static final Entity flush_out;
     public static final Entity allocate;
 
     private static final HashMap<String, Entity> map;
 
     static {
-        print_int = new Entity(null, "print_int", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[0]));
-        print_byte = new Entity(null, "print_byte", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
-        read_byte = new Entity(null, "read_byte", new MethodType(new Type[]{}, new Type[]{FirmTypes.intFirmType}));
-        flush_out = new Entity(null, "flush_out", new MethodType(new Type[]{}, new Type[]{}, false));
+        OWNER = new firm.ClassType("Internals");
 
-        allocate = new Entity(null, "allocate", new MethodType(new Type[]{new PointerType(FirmTypes.voidFirmType)}, new Type[]{FirmTypes.intFirmType}));
+        print_int = new Entity(OWNER, "print_int", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
+        print_byte = new Entity(OWNER, "print_byte", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
+        read_int = new Entity(OWNER, "read_int", new MethodType(new Type[]{}, new Type[]{FirmTypes.intFirmType}));
+        flush_out = new Entity(OWNER, "flush_out", new MethodType(new Type[]{}, new Type[]{}));
+
+        allocate = new Entity(OWNER, "allocate", new MethodType(new Type[]{FirmTypes.pointerFirmType}, new Type[]{FirmTypes.intFirmType}));
 
         map = new HashMap<>(5);
-        List.of(print_int, print_byte, read_byte, flush_out, allocate).stream().forEach(entity -> map.put(entity.getName(), entity));
+        map.put("println", print_int);
+        map.put("write",  print_byte);
+        map.put("read", read_int);
+        map.put("flush", flush_out);
+        map.put("allocate", allocate);
     }
 
     public static final Entity forName(String name) {

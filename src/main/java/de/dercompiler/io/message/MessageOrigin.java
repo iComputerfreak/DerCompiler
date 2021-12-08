@@ -28,10 +28,13 @@ public enum MessageOrigin {
 
 
     /** Errors in tests that are not related to the tested component */
-    TEST("TST", null, new Color(0x9C,0x5F,0x0C), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B))
+    TEST("TST", null, new Color(0x9C,0x5F,0x0C), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B)),
+    
+    // TODO: Exchange with new colors
+    OPTIMIZATION("OPT", null, new Color(0x9C,0x5F,0x0C), new Color(0xF6,0xD5,0x5C), new Color(0xED,0x55,0x3B))
     //add more origins
     ;
-
+    
     private final String identifier;
 
     private final Color text;

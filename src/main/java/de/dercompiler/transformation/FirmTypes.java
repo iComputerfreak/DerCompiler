@@ -3,15 +3,25 @@ package de.dercompiler.transformation;
 import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.semantic.type.IntegerType;
 import de.dercompiler.semantic.type.VoidType;
+import firm.Mode;
+import firm.PrimitiveType;
 
 public class FirmTypes {
 
     // Static global firm types
-    public static final firm.Type intFirmType = FirmTypeFactory.getInstance()
-            .createFirmPrimitiveType(new IntegerType());
-    public static final firm.Type booleanFirmType = FirmTypeFactory.getInstance()
-            .createFirmPrimitiveType(new BooleanType());
-    public static final firm.Type voidFirmType = FirmTypeFactory.getInstance()
-            .createFirmPrimitiveType(new VoidType());
+    public static final firm.Type intFirmType;
+    public static final firm.Type booleanFirmType;
+    public static final firm.Type voidFirmType;
+    public static final firm.Type pointerFirmType;
+
+    static {
+        intFirmType = FirmTypeFactory.getInstance()
+                .createFirmPrimitiveType(new IntegerType());
+        booleanFirmType = FirmTypeFactory.getInstance()
+                .createFirmPrimitiveType(new BooleanType());
+        voidFirmType = FirmTypeFactory.getInstance()
+                .createFirmPrimitiveType(new VoidType());
+        pointerFirmType = new PrimitiveType(Mode.getP());
+    }
 
 }

@@ -53,7 +53,7 @@ public final class BooleanValue extends PrimaryExpression {
             } else {
                 relation = Relation.False;
             }
-            Node dummy = state.construction.newConst(0, Mode.getBu());
+            Node dummy = state.construction.newConst(0, Mode.getBs());
             TransformationHelper.createConditionJumps(state, state.construction.newCmp(dummy, dummy, relation));
         }
         return null;

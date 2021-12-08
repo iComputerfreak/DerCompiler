@@ -39,9 +39,9 @@ public final class LogicalAndExpression extends BinaryExpression {
         }
         Block and = state.construction.newBlock();
         Block current = state.construction.getCurrentBlock();
-        Block trueB = state.exchangeTrueBlock(and);
+        Block trueBlock = state.exchangeTrueBlock(and);
         getLhs().createNode(state);
-        state.exchangeTrueBlock(trueB);
+        state.exchangeTrueBlock(trueBlock);
         state.construction.setCurrentBlock(and);
         getRhs().createNode(state);
         and.mature();
