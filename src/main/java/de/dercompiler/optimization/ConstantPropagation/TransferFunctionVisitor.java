@@ -21,9 +21,26 @@ public class TransferFunctionVisitor implements NodeVisitor {
         this.targetValueMap = targetValueMap;
     }
 
+    /**
+     * Compares two {@link TargetValue}s
+     * @param t1 The first TargetValue
+     * @param t2 The second TargetValue
+     * @return Whether both values are equal
+     */
+    private boolean areEqual(TargetValue t1, TargetValue t2) {
+        if (t1.equals(TargetValue.getUnknown())) {
+            return t2.equals(TargetValue.getUnknown());
+        }
+        if (t1.equals(TargetValue.getBad())) {
+            return t2.equals(TargetValue.getBad());
+        }
+        return t1.asInt() == t2.asInt();
+    }
+
     private void doAlways(Node node, TargetValue newValue){
         TargetValue oldValue = targetValueMap.get(node);
-        if (!oldValue.equals(newValue)){
+        
+        if (!areEqual(oldValue, newValue)){
             targetValueMap.put(node, newValue);
             
             nodeQueue.addAll(successorsMap.get(node));
