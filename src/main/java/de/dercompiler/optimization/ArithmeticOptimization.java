@@ -13,9 +13,11 @@ import java.util.function.BiFunction;
 public class ArithmeticOptimization extends GraphOptimization {
 
     private final HashMap<Integer, ReplaceDivNode> divNodesData;
+    private OutputMessageHandler logger;
 
     public ArithmeticOptimization() {
         this.divNodesData = new HashMap<>();
+        this.logger = new OutputMessageHandler(MessageOrigin.TRANSFORM);
     }
 
     @Override
@@ -26,9 +28,11 @@ public class ArithmeticOptimization extends GraphOptimization {
             // 0 + x -> x
             if (a instanceof Const constA && constA.getTarval().asInt() == 0) {
                 replaceNode(node, b);
+                logger.printInfo("Apply arith/AddId to %s and %s".formatted(a.toString(), b.toString()));
                 return true;
             } else if (a instanceof Minus negativeNode) {
                 replaceNode(node, getConstruction().newSub(b, negativeNode.getPred(0)));
+                logger.printInfo("Apply arith/AddToSub to %s and %s".formatted(a.toString(), b.toString()));
                 return true;
             }
             return false;
@@ -40,6 +44,7 @@ public class ArithmeticOptimization extends GraphOptimization {
             // x + x -> x << 1
             Construction construction = getConstruction();
             replaceNode(node, construction.newShl(summand1, construction.newConst(1, Mode.getIu())));
+            logger.printInfo("Apply arith/AddSameArg to %s and %s".formatted(summand1.toString(), summand2.toString()));
             return;
         }
     }
@@ -53,18 +58,23 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (minuend instanceof Const mndConst && mndConst.getTarval().asInt() == 0) {
             // 0 - x -> -x
             replaceNode(node, constr.newMinus(subtrahend));
+            logger.printInfo("Apply arith/SubToNeg to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
         } else if (subtrahend instanceof Const sbtConst && sbtConst.getTarval().asInt() == 0) {
             // x - 0 -> x
             replaceNode(node, minuend);
+            logger.printInfo("Apply arith/SubId to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
         } else if (minuend == subtrahend) {
             // x - x -> 0
             replaceNode(node, constr.newConst(0, Mode.getIs()));
+            logger.printInfo("Apply arith/SubSameArg to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
         } else if (subtrahend instanceof Minus negativeNode) {
             // x - -y -> x + y
             replaceNode(node, constr.newAdd(minuend, negativeNode.getPred(0)));
+            logger.printInfo("Apply arith/SubToAdd to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
         } else if (minuend instanceof Minus negativeNode) {
             // -x - y -> -(x + y)
             Node add = constr.newAdd(negativeNode.getPred(0), subtrahend);
+            logger.printInfo("Apply arith/SubFirstNeg to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
             add.accept(this);
             replaceNode(node, constr.newMinus(add));
         }
@@ -80,12 +90,14 @@ public class ArithmeticOptimization extends GraphOptimization {
                     // 0 * x -> 0
                     case 0 -> {
                         replaceNode(node, a);
+                        logger.printInfo("Apply arith/MulWithZero to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 1 * x -> x
                     case 1 -> {
                         replaceNode(node, b);
+                        logger.printInfo("Apply arith/MulId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
                     default -> {
@@ -95,6 +107,7 @@ public class ArithmeticOptimization extends GraphOptimization {
                         // (2 ** exp) * x -> x << exp
                         if (exponent > 0) {
                             replaceNode(node, getConstruction().newShl(b, getConstruction().newConst(exponent, Mode.getIu())));
+                            logger.printInfo("Apply arith/MulToLsh to %s and %s".formatted(a.toString(), b.toString()));
                             yield true;
                         }
                         yield false;
@@ -115,10 +128,16 @@ public class ArithmeticOptimization extends GraphOptimization {
             switch (dsrValue) {
 
                 // x / -1 -> -x
-                case -1 -> replaceDiv(node, getConstruction().newMinus(dividend));
+                case -1 -> {
+                    replaceDiv(node, getConstruction().newMinus(dividend));
+                    logger.printInfo("Apply arith/DivByMinusOne to %s and %s".formatted(dividend.toString(), divisor.toString()));
+                }
 
                 // x / 1 -> x
-                case 1 -> replaceDiv(node, dividend);
+                case 1 -> {
+                    replaceDiv(node, dividend);
+                    logger.printInfo("Apply arith/DivId to %s and %s".formatted(dividend.toString(), divisor.toString()));
+                }
 
                 default -> {
                     // if non-negative, dsrValue is exactly a power of two
@@ -127,6 +146,7 @@ public class ArithmeticOptimization extends GraphOptimization {
                     // x / (2 ** exp) -> x >> exp
                     if (exponent > 0) {
                         replaceDiv(node, getConstruction().newShrs(dividend, getConstruction().newConst(exponent, Mode.getIu())));
+                    logger.printInfo("Apply arith/DivToRshs to %s and %s".formatted(dividend.toString(), divisor.toString()));
                     }
                 }
             }
@@ -157,12 +177,14 @@ public class ArithmeticOptimization extends GraphOptimization {
                     // -1 || x -> -1
                     case -1 -> {
                         replaceNode(node, a);
+                        logger.printInfo("Apply arith/OrMinusOne to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 0 || x -> x
                     case 0 -> {
                         replaceNode(node, b);
+                        logger.printInfo("Apply arith/OrId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
                     default -> false;
@@ -179,12 +201,14 @@ public class ArithmeticOptimization extends GraphOptimization {
                     // -1 && x -> x
                     case -1 -> {
                         replaceNode(node, b);
+                        logger.printInfo("Apply arith/AndId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 0 && x -> 0
                     case 0 -> {
                         replaceNode(node, a);
+                        logger.printInfo("Apply arith/AndZero to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
                     default -> false;
@@ -201,12 +225,14 @@ public class ArithmeticOptimization extends GraphOptimization {
                     // -1 ^ x -> ~x
                     case -1 -> {
                         replaceNode(node, getConstruction().newNot(b));
+                        logger.printInfo("Apply arith/XorMinusOne to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 0 ^ x -> x
                     case 0 -> {
                         replaceNode(node, b);
+                        logger.printInfo("Apply arith/XorId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
                     default -> false;
@@ -223,6 +249,7 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (shift instanceof Const shConst && shConst.getTarval().asInt() == 0) {
             // x << 0 -> x
             replaceNode(node, base);
+            logger.printInfo("Apply arith/LshId to %s and %s".formatted(base.toString(), shift.toString()));
         }
     }
 
@@ -234,14 +261,29 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (shift instanceof Const shConst && shConst.getTarval().asInt() == 0) {
             // x >> 0 -> x
             replaceNode(node, base);
+            logger.printInfo("Apply arith/RshId to %s and %s".formatted(base.toString(), shift.toString()));
+        }
+    }
+
+    @Override
+    public void visit(Shrs node) {
+        Node base = node.getLeft();
+        Node shift = node.getRight();
+
+        if (shift instanceof Const shConst && shConst.getTarval().asInt() == 0) {
+            // x >> 0 -> x
+            replaceNode(node, base);
+            logger.printInfo("Apply arith/RshsId to %s and %s".formatted(base.toString(), shift.toString()));
         }
     }
 
     @Override
     public void visit(Minus node) {
-        if (node.getPred(0) instanceof Minus innerNegNode) {
+        Node pred = node.getPred(0);
+        if (pred instanceof Minus innerNegNode) {
             // -(-x) -> x
             replaceNode(node, innerNegNode.getPred(0));
+            logger.printInfo("Apply arith/MinusMinus to %s and %s".formatted(node.toString(), pred.toString()));
         }
     }
 
@@ -252,7 +294,7 @@ public class ArithmeticOptimization extends GraphOptimization {
             switch (node.getMode().getName()) {
                 case "M" -> replaceNode(node, data.memory);
                 case "Is" -> replaceNode(node, data.replaceValue);
-                default -> new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("A Proj node with a Mode different from M or Is seems to have pointed to an Integer Div node. How is that supposed to happen?");
+                default -> logger.internalError("A Proj node with a Mode different from M or Is seems to have pointed to an Integer Div node. How is that supposed to happen?");
             }
         }
     }
@@ -285,8 +327,9 @@ public class ArithmeticOptimization extends GraphOptimization {
 
     record ReplaceDivNode(Node replaceValue, Node memory) {
 
-    };
+    }
 
+    ;
 
 
 }

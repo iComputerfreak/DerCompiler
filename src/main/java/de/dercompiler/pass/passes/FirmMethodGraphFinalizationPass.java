@@ -2,7 +2,6 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
-import de.dercompiler.ast.expression.Arguments;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
@@ -12,18 +11,18 @@ import de.dercompiler.ast.statement.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.optimization.ArithmeticOptimization;
+import de.dercompiler.optimization.GraphOptimization;
+import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 
-import firm.*;
 import firm.nodes.Block;
-import firm.nodes.Node;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass {
 
@@ -31,7 +30,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
     private FirmMethodGraphStartupPass startUp;
     private TransformationState state;
-    private ArithmeticOptimization opt;
+    private List<GraphOptimization> opts;
 
 
     @Override
@@ -41,9 +40,9 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         }
         assert(state.stackSize() == 0);
         assert (state.getNumMarkedStatements() == 0);
-        GraphDumper.dumpGraph(state);
-        opt.runOnGraph(state.graph);
         state.construction.finish();
+        GraphDumper.dumpGraph(state);
+        opts.forEach(opt -> opt.runOnGraph(state.graph));
         //Graph als .vcg datei erzeugen
         GraphDumper.dumpGraphFinal(state);
         state.clear();
@@ -70,7 +69,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
         int nodeId = lvds.getNodeId();
-
+        // Set value if initialized
         if (state.res != null) {
             state.construction.setVariable(nodeId, state.res);
         }
@@ -201,6 +200,8 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
             state.falseBlock().mature();
         }
         if (TransformationHelper.isControlStructure(expression.getSurroundingStatement())) {
+            // while -> set current block to loop block
+            // if -> set current block to then block
             state.pullBlock();
         }
 
@@ -212,7 +213,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         if (Objects.isNull(startUp)) new OutputMessageHandler(MessageOrigin.PASSES).internalError("FirmMethodgraphFinalizationPass needs FirmMethodgraphStartupPass, gut it is not in the PassManager");
         state = startUp.getState();
         if (Objects.isNull(state)) state = new TransformationState(program.getGlobalScope());
-        this.opt = new ArithmeticOptimization();
+        this.opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
     }
 
     @Override

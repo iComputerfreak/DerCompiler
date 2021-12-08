@@ -68,11 +68,8 @@ public class TransformationHelper {
     }
 
     public static void createReturn(TransformationState state, Node node) {
-        Node[] res = new Node[0];
-        if (node != null ) {
-            res = new Node[]{ node };
-        }
-        state.graph.getEndBlock().addPred(state.construction.newReturn(state.construction.getCurrentMem(), res));
+        Node[] preds = (node == null) ? new Node[0] : new Node[]{ node };
+        state.graph.getEndBlock().addPred(state.construction.newReturn(state.construction.getCurrentMem(), preds));
     }
 
     public static void createConditionError() {

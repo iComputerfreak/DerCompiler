@@ -25,8 +25,14 @@ public class TransformationState {
     private Stack<Block> trueBlockStack;
     private Stack<Block> falseBlockStack;
 
-
+    /**
+     *  Contains condition and loop blocks of while statements as well as the then and else blocks of if statements.
+     */
     private final Stack<Block> blockStack;
+
+    /**
+       Contains all inner blocks of if statements and while statements as well as boolean typed variable declarations.
+     */
     private final Stack<Statement> statementStack;
     private final Stack<Block> origin;
     private final Stack<Block> head;
@@ -94,7 +100,7 @@ public class TransformationState {
     }
 
 
-    public Block peakBlock() {
+    public Block peekBlock() {
         return blockStack.peek();
     }
 
@@ -106,6 +112,11 @@ public class TransformationState {
         statementStack.push(statement);
     }
 
+    /**
+     * If the given statement is a conditional block (i.e. then, else, or loop block), then
+     * @param statement
+     * @return
+     */
     public boolean removeStatementIfMarked(Statement statement) {
         if (!(getNumMarkedStatements() > 0 && statement == statementStack.peek())) return false;
         statementStack.pop();
