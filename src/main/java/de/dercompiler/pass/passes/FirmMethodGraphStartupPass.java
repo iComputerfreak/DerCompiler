@@ -58,6 +58,7 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
 
         //if boolean create true-false-Block
         if (!returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) return;
+
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
     }
 

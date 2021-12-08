@@ -15,6 +15,11 @@ import java.util.Stack;
 public class ASTReferencePass implements ClassPass, MethodPass, StatementPass, BasicBlockPass, ExpressionPass, ASTStatementVisitor {
 
     private boolean shouldRun = false;
+
+    /**
+     * Contains the stack of blocks in which the currently visited element is located.
+     * The top element is the current block, including method blocks.
+     */
     private Stack<BasicBlock> blockStack;
 
     public ASTReferencePass() {}

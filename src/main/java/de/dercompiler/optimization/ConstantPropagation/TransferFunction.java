@@ -1,7 +1,6 @@
 package de.dercompiler.optimization.ConstantPropagation;
 
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
+import firm.Mode;
 import firm.Relation;
 import firm.TargetValue;
 import firm.nodes.*;
@@ -71,10 +70,34 @@ public class TransferFunction implements ITransferFunction {
             return badOrUnknown;
         }
         // Check what the relation is and calculate its result
-        Relation r = left.compare(right);
-        // TODO: Implement
-        new OutputMessageHandler(MessageOrigin.OPTIMIZATION).internalError("Not implemented yet.");
-        throw new RuntimeException();
+        Relation relation = left.compare(right);
+        boolean result = relationResult(left.asInt(), right.asInt(), relation);
+        return new TargetValue(result ? 1 : 0, Mode.getBs());
+    }
+    
+    private boolean relationResult(int left, int right, Relation relation) {
+        return switch (relation) {
+            case True -> true;
+            case False -> false;
+            case Equal -> left == right;
+            case Less -> left < right;
+            case Greater -> left > right;
+            // Should never happen for integers (only when comparing floating point NaNs)
+            case Unordered -> true;
+            case LessEqual -> left <= right;
+            case GreaterEqual -> left >= right;
+            // != for integers
+            case LessGreater -> left != right;
+            // True for integers
+            case LessEqualGreater -> true;
+            // The unordered case in these never happens
+            case UnorderedEqual -> relationResult(left, right, Relation.Equal);
+            case UnorderedLess -> relationResult(left, right, Relation.Less);
+            case UnorderedLessEqual -> relationResult(left, right, Relation.LessEqual);
+            case UnorderedGreater -> relationResult(left, right, Relation.Greater);
+            case UnorderedGreaterEqual -> relationResult(left, right, Relation.GreaterEqual);
+            case UnorderedLessGreater -> relationResult(left, right, Relation.LessGreater);
+        };
     }
 
     @Override
@@ -126,9 +149,16 @@ public class TransferFunction implements ITransferFunction {
 
     @Override
     public TargetValue getTargetValue(Mulh node) {
-        // TODO: Implement
-        new OutputMessageHandler(MessageOrigin.OPTIMIZATION).internalError("Not implemented yet.");
-        throw new RuntimeException();
+        TargetValue left = getInternal(node.getLeft());
+        TargetValue right = getInternal(node.getRight());
+        long leftL = (long) left.asInt();
+        long rightL = (long) right.asInt();
+        long result = leftL * rightL;
+        // Only use the upper 32 bits, cut the lower 32 bits off
+        result >>= 32;
+        // Convert back to int
+        return Objects.requireNonNullElse(checkBinOp(left, right),
+                new TargetValue((int) result, Mode.getIs()));
     }
 
     @Override

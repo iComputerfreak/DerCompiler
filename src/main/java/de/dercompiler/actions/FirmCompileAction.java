@@ -48,12 +48,6 @@ public class FirmCompileAction extends Action {
         manager.run(program);
         ErrorStatus.exitProgramIfError();
 
-        ArithmeticOptimization opt = new ArithmeticOptimization();
-        for (Graph g : firm.Program.getGraphs()) {
-            opt.runOnGraph(g);
-
-        }
-
         //lower members
         Util.lowerSels();
         //maybe add later
