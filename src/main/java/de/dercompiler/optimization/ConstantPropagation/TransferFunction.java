@@ -1,7 +1,5 @@
 package de.dercompiler.optimization.ConstantPropagation;
 
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.Mode;
 import firm.Relation;
 import firm.TargetValue;
@@ -151,9 +149,16 @@ public class TransferFunction implements ITransferFunction {
 
     @Override
     public TargetValue getTargetValue(Mulh node) {
-        // TODO: Implement
-        new OutputMessageHandler(MessageOrigin.OPTIMIZATION).internalError("Not implemented yet.");
-        throw new RuntimeException();
+        TargetValue left = getInternal(node.getLeft());
+        TargetValue right = getInternal(node.getRight());
+        long leftL = (long) left.asInt();
+        long rightL = (long) right.asInt();
+        long result = leftL * rightL;
+        // Only use the upper 32 bits, cut the lower 32 bits off
+        result >>= 32;
+        // Convert back to int
+        return Objects.requireNonNullElse(checkBinOp(left, right),
+                new TargetValue((int) result, Mode.getIs()));
     }
 
     @Override
