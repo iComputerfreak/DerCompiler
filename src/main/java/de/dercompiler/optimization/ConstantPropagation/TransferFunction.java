@@ -100,12 +100,12 @@ public class TransferFunction implements ITransferFunction {
 
     @Override
     public TargetValue getTargetValue(Id node) {
-        return getInternal(node);
+        return getInternal(node.getPred());
     }
 
     @Override
     public TargetValue getTargetValue(Minus node) {
-        return getInternal(node).neg();
+        return getInternal(node.getPred(0)).neg();
     }
 
     @Override
@@ -153,7 +153,7 @@ public class TransferFunction implements ITransferFunction {
 
     @Override
     public TargetValue getTargetValue(Not node) {
-        return getInternal(node).not();
+        return getInternal(node.getPred(1)).not();
     }
 
     @Override
