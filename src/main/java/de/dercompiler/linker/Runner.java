@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class Runner {
 
-    private String[] command;
+    private final String[] command;
 
     public static File cwd;
 
@@ -21,12 +21,8 @@ public class Runner {
     }
 
 
-    public Runner(String command, String[] options) {
-        this.command = new String[options.length + 1];
-        this.command[0] = command;
-        for (int i = 0; i < options.length; i++) {
-            this.command[i + 1] = options[i];
-        }
+    public Runner(String[] command) {
+        this.command = command;
         out = null;
         err = null;
     }

@@ -6,6 +6,7 @@ public class ExternalToolchain {
 
     private static Compiler compiler = null;
     private static Linker linker = null;
+    private static AssemblerStyle asmStyle = AssemblerStyle.ATAndT;
 
     public static Compiler getCompiler() {
         return compiler;
@@ -34,17 +35,25 @@ public class ExternalToolchain {
     }
 
     public static void generateOutFile(File file) {
-        CompilerLinkerFinder.findCompilerAndLinker();
+        CompilerLinkerFinder.findCompilerAssemblerAndLinker();
 
     }
 
     public static void compileRuntime(RuntimeFile file) {
-        CompilerLinkerFinder.findCompilerAndLinker();
+        CompilerLinkerFinder.findCompilerAssemblerAndLinker();
 
     }
 
     public static void linkRuntime() {
-        CompilerLinkerFinder.findCompilerAndLinker();
+        CompilerLinkerFinder.findCompilerAssemblerAndLinker();
 
+    }
+
+    public static void setAssemblerStyle(AssemblerStyle style) {
+        asmStyle = style;
+    }
+
+    public static AssemblerStyle getAssemblerStyle() {
+        return asmStyle;
     }
 }

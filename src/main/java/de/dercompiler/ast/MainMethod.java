@@ -20,15 +20,7 @@ public final class MainMethod extends Method {
      * Returns the mangled identifier to use in firm
      */
     public String getMangledIdentifier() {
-        if (TargetTriple.isLinux()) {
-            return "main";
-        } else if (TargetTriple.isMacOS() || TargetTriple.isWindows()) {
-            return "_main";
-        } else {
-            (new OutputMessageHandler(MessageOrigin.TRANSFORM))
-                    .internalError("Target system is not supported. Cannot generate the mangled name for the main method");
-            throw new RuntimeException();
-        }
+        return "main_func";
     }
 
     @Override

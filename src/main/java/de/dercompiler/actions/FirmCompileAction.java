@@ -50,7 +50,7 @@ public class FirmCompileAction extends Action {
         //maybe add later
         //Backend.lowerForTarget();
         try {
-            Backend.createAssembler("a.out", source.filename());
+            Backend.createAssembler("a.s", source.filename());
         } catch (IOException e) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can,t write output-file", e);
         }

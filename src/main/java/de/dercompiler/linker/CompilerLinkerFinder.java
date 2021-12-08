@@ -21,7 +21,7 @@ public class CompilerLinkerFinder {
         ErrorStatus.exitProgramIfError();
     }
 
-    public static void findCompilerAndLinker() {
+    public static void findCompilerAssemblerAndLinker() {
         if (Objects.isNull(ExternalToolchain.getCompiler())) {
             findCompiler();
         }
@@ -51,6 +51,16 @@ public class CompilerLinkerFinder {
         }
     }
 
+    private static void findAssembler() {
+        if (TargetTriple.isWindows()) {
+            findAssemblerOnWindows();
+        } else if (TargetTriple.isMacOS()) {
+            findAssemblerOnMacOS();;
+        } else if (TargetTriple.isLinux()) {
+            findAssemblerOnLinux();
+        }
+    }
+
     private static void findCompilerOnWindows() {
 
     }
@@ -60,6 +70,18 @@ public class CompilerLinkerFinder {
     }
 
     private static void findCompilerOnLinux() {
+
+    }
+
+    private static void findAssemblerOnWindows() {
+
+    }
+
+    private static void findAssemblerOnMacOS() {
+
+    }
+
+    private static void findAssemblerOnLinux() {
 
     }
 

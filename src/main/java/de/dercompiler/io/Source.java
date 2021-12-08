@@ -34,7 +34,7 @@ public abstract class Source {
     @Override
     public abstract String toString();
 
-    public String filename();
+    public abstract String filename();
 }
 
 class FileSource extends Source {
