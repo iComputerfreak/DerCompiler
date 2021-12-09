@@ -19,23 +19,23 @@ public class ExternalToolchain {
         return linker;
     }
 
-    public static void setAssembler(File file) {
+    public static void setAssembler(String tool) {
         //don't check if null, in case of null we search if we can find a linker
-        assembler = CompilerLinkerFactory.checkIfAssemblerIsValid(file);
+        assembler = CompilerLinkerFactory.checkIfAssemblerIsValid(tool);
     }
 
-    public static void setLinker(File file) {
+    public static void setLinker(String tool) {
         //don't check if null, in case of null we search if we can find a linker
-        linker = CompilerLinkerFactory.checkIfLinkerIsValid(file);
+        linker = CompilerLinkerFactory.checkIfLinkerIsValid(tool);
     }
 
     public static void setLinker(Linker link) {
         linker = link;
     }
 
-    public static void setCompiler(File file) {
+    public static void setCompiler(String tool) {
         //don't check if null, in case of null we search if we can find a compiler
-        compiler = CompilerLinkerFactory.checkIfCompilerIsValid(file);
+        compiler = CompilerLinkerFactory.checkIfCompilerIsValid(tool);
     }
 
     public static void setCompiler(Compiler comp) {

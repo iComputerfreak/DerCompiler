@@ -15,6 +15,10 @@ public final class Gcc implements Compiler, Assembler {
 
     private String assemble = "-c";
 
+    public Gcc(String tool) {
+        gcc_path = tool;
+    }
+
     @Override
     public boolean checkCompiler() {
         String testFile = ToolchainUtil.prepareTestCompile();

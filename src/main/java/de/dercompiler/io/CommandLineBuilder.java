@@ -57,18 +57,15 @@ public class CommandLineBuilder {
 
 
         //compiler linker and assemblers
-        OptionGroup toolchain = new OptionGroup();
-        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_CL, true, DESCRIPTION_CL));
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_CL, true, DESCRIPTION_CL);
 
-        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_CLANG, true, DESCRIPTION_CLANG));
-        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_LLD, true, DESCRIPTION_LLD));
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_CLANG, true, DESCRIPTION_CLANG);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_LLD, true, DESCRIPTION_LLD);
 
-        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_GCC, true, DESCRIPTION_GCC));
-        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_LD, true, DESCRIPTION_LD));
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_GCC, true, DESCRIPTION_GCC);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_LD, true, DESCRIPTION_LD);
 
-        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_NASM, true, DESCRIPTION_NASM));
-
-        options.addOptionGroup(toolchain);
+        createOption(options,COMMAND_NO_SHORT_OPTION, OPTION_NASM, true, DESCRIPTION_NASM);
     }
 
     /**

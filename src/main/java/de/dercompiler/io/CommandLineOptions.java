@@ -134,6 +134,24 @@ public class CommandLineOptions {
      */
     public boolean printPipeline() { return cmd.hasOption(OPTION_PRINT_PIPELINE); }
 
+    public String getCompiler() {
+        String option = getActiveOption(OPTION_CLANG, OPTION_GCC, OPTION_CL);
+        if (option == null) return null;
+        return cmd.getOptionValue(option);
+    }
+
+    public String getAssembler() {
+        String option = getActiveOption(OPTION_NASM, OPTION_GCC);
+        if (option == null) return null;
+        return cmd.getOptionValue(option);
+    }
+
+    public String getLinker() {
+        String option = getActiveOption(OPTION_LD, OPTION_LLD, OPTION_CL);
+        if (option == null) return null;
+        return cmd.getOptionValue(option);
+    }
+
     /**
      * Sets the global state for the color output
      */
@@ -252,7 +270,6 @@ public class CommandLineOptions {
 
             new OutputMessageHandler(MessageOrigin.GENERAL)
                     .printWarning(GeneralWarningIds.INVALID_COMMAND_LINE_ARGUMENTS, sb.toString());
-
 
         }
         return active.size() == 0 ? null : active.get(0);

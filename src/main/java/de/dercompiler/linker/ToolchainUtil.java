@@ -24,10 +24,12 @@ public class ToolchainUtil {
 
     public static String prepareTestCompile() {
         String runtime = "runtime";
+        String runtime_c = ToolchainUtil.appendCFileExtension(runtime);
         try {
-            moveFileFromResourcesToCwd(runtime);
+            moveFileFromResourcesToCwd(runtime_c);
         } catch (Exception e) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + runtime);
+            e.printStackTrace();
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + runtime_c);
         }
 
         return runtime;
@@ -137,7 +139,7 @@ public class ToolchainUtil {
         OutputStream resStreamOut = null;
         String jarFolder = Runner.getCwd().getAbsolutePath();
         try {
-            stream = ToolchainUtil.class.getResourceAsStream(file);//note that each / is a directory down in the "jar tree" been the jar the root of the tree
+            stream = ToolchainUtil.class.getResourceAsStream("/" + file);//note that each / is a directory down in the "jar tree" been the jar the root of the tree
             if(stream == null) {
                 throw new Exception("Cannot get resource \"" + file + "\" from Jar file.");
             }
@@ -149,6 +151,7 @@ public class ToolchainUtil {
                 resStreamOut.write(buffer, 0, readBytes);
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw ex;
         } finally {
             stream.close();
@@ -156,5 +159,9 @@ public class ToolchainUtil {
         }
 
         return jarFolder + file;
+    }
+
+    public static String getBaseName(String path) {
+        return new File(path).getName();
     }
 }

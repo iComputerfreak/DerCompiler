@@ -6,6 +6,7 @@ import de.dercompiler.io.CommandLineStrings;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.linker.ExternalToolchain;
 import de.dercompiler.linker.Runner;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.passes.SpecificationConformityPass;
@@ -38,6 +39,13 @@ public class CompilerSetup {
         SpecificationConformityPass.setCheckMain(options.noMain());
 
         Runner.setCwd(options.getCwd());
+
+        String tool = options.getCompiler();
+        if (!Objects.isNull(tool)) ExternalToolchain.setCompiler(tool);
+        tool = options.getLinker();
+        if (!Objects.isNull(tool)) ExternalToolchain.setLinker(tool);
+        tool = options.getAssembler();
+        if (!Objects.isNull(tool)) ExternalToolchain.setAssembler(tool);
 
         //sets Value in OutputMessageHandler
         options.resolveColorOutput();

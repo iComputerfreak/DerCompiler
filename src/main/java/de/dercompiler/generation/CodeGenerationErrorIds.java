@@ -12,6 +12,8 @@ public enum CodeGenerationErrorIds implements IErrorIds {
     ASSEMBLER_NOT_FOUND(300),
     ASSEMBLER_ERROR(310),
 
+    UNKNOWN_TOOL(400),
+
     CANT_OUTPUT_FILE(500),
 
     UNKNOWN_TARGET_TRIPLE(1000),

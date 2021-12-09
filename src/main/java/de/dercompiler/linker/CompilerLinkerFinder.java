@@ -18,6 +18,9 @@ public class CompilerLinkerFinder {
         if (Objects.isNull(ExternalToolchain.getLinker())) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_NOT_FOUND, "Linker not found, may hand it over by Commandline-Argument.");
         }
+        if (Objects.isNull(ExternalToolchain.getAssembler())) {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.ASSEMBLER_NOT_FOUND, "Assembler not found, may hand it over by Commandline-Argument");
+        }
         ErrorStatus.exitProgramIfError();
     }
 
@@ -27,6 +30,9 @@ public class CompilerLinkerFinder {
         }
         if (Objects.isNull(ExternalToolchain.getLinker())) {
             findLinker();
+        }
+        if (Objects.isNull(ExternalToolchain.getAssembler())) {
+            findAssembler();
         }
         verifySetup();
     }
@@ -73,6 +79,7 @@ public class CompilerLinkerFinder {
 
     }
 
+
     private static void findAssemblerOnWindows() {
 
     }
@@ -84,6 +91,7 @@ public class CompilerLinkerFinder {
     private static void findAssemblerOnLinux() {
 
     }
+
 
     private static void findLinkerOnWindows() {
 
