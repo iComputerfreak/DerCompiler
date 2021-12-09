@@ -20,6 +20,7 @@ public class ExternalToolchain {
     }
 
     public static void setAssembler(File file) {
+        //don't check if null, in case of null we search if we can find a linker
         assembler = CompilerLinkerFactory.checkIfAssemblerIsValid(file);
     }
 
