@@ -48,7 +48,7 @@ public class CommandLineStrings {
     public static final String OPTION_PRINT_PIPELINE = "print-pipeline";
     public static final String OPTION_TIME_EXECUTION = "time";
 
-
+    public static final String OPTION_TARGET = "target";
 
     // Descriptions
     public static final String DESCRIPTION_ECHO = "Prints the content of the file";
@@ -82,7 +82,9 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_PIPELINE = "Prints the pipeline whenever one is used.";
     public static final String DESCRIPTION_TIME_EXECUTION = "Prints the execution-time at the end of execution";
 
-    //compilers
+    public static final String DESCRIPTION_TARGET = "the name of the target to compile";
+
+    //compiler assembler and linker
     public static final String OPTION_CLANG         = "clang";
     public static final String OPTION_LLD           = "clang-lld";
     public static final String DESCRIPTION_CLANG    = "set clang as compiler use --lld to set linker";
@@ -93,5 +95,10 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_GCC      = "set gcc as compiler use --ld to set linker";
     public static final String DESCRIPTION_LD       = "set ld as linker use --gcc to set compiler";
 
+    public static final String OPTION_CL           = "cl";
+    public static final String DESCRIPTION_CL      = "sets the microsoft cl as compiler and linker, only Windows support";
+
+    public static final String OPTION_NASM         = "nasm";
+    public static final String DESCRIPTION_NASM    = "sets nasm as assembler";
 
 }

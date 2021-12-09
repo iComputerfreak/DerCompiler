@@ -40,6 +40,7 @@ public class CommandLineBuilder {
         createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_PRINT_PIPELINE, false, DESCRIPTION_PRINT_PIPELINE);
         createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_TIME_EXECUTION, false, DESCRIPTION_TIME_EXECUTION);
         createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_NO_MAIN, false, DESCRIPTION_NO_MAIN);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_TARGET, true, DESCRIPTION_TARGET);
 
         // colors
         createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_NO_COLOR, false, DESCRIPTION_PRINT_NO_COLOR); // --no-color
@@ -54,6 +55,20 @@ public class CommandLineBuilder {
         // options
         createOption(options, OPTION_LEX_STRING_SHORT, OPTION_LEX_STRING, true, DESCRIPTION_LEX_STRING); // --lex-string, -s
 
+
+        //compiler linker and assemblers
+        OptionGroup toolchain = new OptionGroup();
+        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_CL, true, DESCRIPTION_CL));
+
+        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_CLANG, true, DESCRIPTION_CLANG));
+        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_LLD, true, DESCRIPTION_LLD));
+
+        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_GCC, true, DESCRIPTION_GCC));
+        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_LD, true, DESCRIPTION_LD));
+
+        toolchain.addOption(new Option(COMMAND_NO_SHORT_OPTION, OPTION_NASM, true, DESCRIPTION_NASM));
+
+        options.addOptionGroup(toolchain);
     }
 
     /**
