@@ -87,6 +87,4 @@ class foo {
         }
         return x;
     }
-
-    public int 
 }

@@ -51,7 +51,7 @@ public class FirmCompileAction extends Action {
         //lower members
         Util.lowerSels();
         //maybe add later
-        //Backend.lowerForTarget();
+        Backend.lowerForTarget();
         try {
             Backend.createAssembler("a.s", source.filename());
         } catch (IOException e) {

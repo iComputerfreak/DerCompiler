@@ -41,10 +41,10 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         assert(state.stackSize() == 0);
         assert (state.getNumMarkedStatements() == 0);
         state.construction.finish();
-        GraphDumper.dumpGraph(state);
-        opts.forEach(opt -> opt.runOnGraph(state.graph));
+        //GraphDumper.dumpGraph(state);
+        //opts.forEach(opt -> opt.runOnGraph(state.graph));
         //Graph als .vcg datei erzeugen
-        GraphDumper.dumpGraphFinal(state);
+        //GraphDumper.dumpGraphFinal(state);
         state.clear();
         return false;
     }
