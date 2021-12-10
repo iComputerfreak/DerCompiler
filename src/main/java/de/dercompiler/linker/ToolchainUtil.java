@@ -139,7 +139,7 @@ public class ToolchainUtil {
         OutputStream resStreamOut = null;
         String jarFolder = Runner.getCwd().getAbsolutePath();
         try {
-            stream = ToolchainUtil.class.getResourceAsStream(file);//note that each / is a directory down in the "jar tree" been the jar the root of the tree
+            stream = ToolchainUtil.class.getResourceAsStream( "/" + file);//note that each / is a directory down in the "jar tree" been the jar the root of the tree
             if(stream == null) {
                 throw new Exception("Cannot get resource \"" + file + "\" from Jar file.");
             }
