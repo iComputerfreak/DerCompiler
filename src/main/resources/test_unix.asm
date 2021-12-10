@@ -2,12 +2,12 @@
 ; Befehl zum Assemblen: nasm -felf hello.s
 ;                  && ld -o hello hello.o
     section data
-hello db  "Hallo Welt!",0xa
+hello db  "success",0x0
 len   equ $-hello
 
     section text
-    global  _start
-_start:
+    global  main
+main:
     mov eax, 4 ; write(stdout, hello, len)
     mov ebx, 1
     mov ecx, hello

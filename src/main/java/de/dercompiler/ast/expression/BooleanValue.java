@@ -47,11 +47,9 @@ public final class BooleanValue extends PrimaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         if (state.isCondition()) {
-            Relation relation;
-            if (value) {
-                relation = Relation.True;
-            } else {
-                relation = Relation.False;
+            Relation relation = Relation.Equal;
+            if (!value) {
+                relation = relation.negated();
             }
             Node dummy = state.construction.newConst(0, Mode.getBs());
             TransformationHelper.createConditionJumps(state, state.construction.newCmp(dummy, dummy, relation));

@@ -3,11 +3,11 @@
 # "as -o hallo.o hallo.s; ld -o hallo hallo.o"
 
     .section .data
-s: .string "Hallo Welt!\n"
+s: .string "success"
 
     .section .text
-    .globl _start
-_start:
+    .globl main
+main:
     movl $4,%eax      # Syscall-ID 4 (= sys_write)
     movl $1,%ebx      # Ausgabe-Dateideskriptor stdout (= 1)
     movl $s,%ecx      # Adresse des ersten Zeichens der Zeichenkette
