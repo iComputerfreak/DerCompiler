@@ -73,7 +73,7 @@ public class FirmCompileAction extends Action {
     }
 
     private void compilerError() {
-
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.COMPILER_ERROR, "Error while try to run gcc");
     }
 
     public void help() {

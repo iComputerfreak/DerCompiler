@@ -24,16 +24,17 @@ public final class Gcc implements Compiler, Assembler {
         String testFile = ToolchainUtil.prepareTestCompile();
         String exe = ToolchainUtil.generateFileWithExtension(testFile, ToolchainUtil.getExecutableExtension());
         Runner testCompile = new Runner(gcc_path);                                              //gcc
-        testCompile.append(assemble);                                                           // -c
-        testCompile.append(ToolchainUtil.appendAssembleFileExtension(testFile));                // testFile.S
+        testCompile.append(ToolchainUtil.appendCFileExtension(testFile));                       // testFile.c
         testCompile.append(output);                                                             // -o
-        testCompile.append(ToolchainUtil.appendExecutableExtension(exe));                       // exe
+        testCompile.append(exe);                                                                // exe
 
-        if (!testCompile.run()) return false;
+        if (!testCompile.run()) return failCompile(testCompile);
 
         Runner exeProcess = new LocalProgramRunner(exe);
-        if (!exeProcess.run()) return false;
-
+        if (!exeProcess.run()) {
+            System.out.println("failed to run ./test");
+            return false;
+        }
         return ToolchainUtil.checkTestCompile(exeProcess.getStdOut());
     }
 
@@ -96,6 +97,16 @@ public final class Gcc implements Compiler, Assembler {
         if (!testCompile.run()) return false;
 
         return ToolchainUtil.checkTestCompile(testCompile.getStdOut());
+    }
+
+    private boolean failCompile(Runner runner) {
+        try {
+            runner.getStdErr().transferTo(System.err);
+        } catch (IOException e) {
+            //nothing we can do
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
+        }
+        return false;
     }
 
     @Override
