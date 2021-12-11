@@ -4,8 +4,12 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.transformation.LibraryMethods;
 import de.dercompiler.transformation.TransformationState;
+import firm.Entity;
 import firm.Mode;
+import firm.nodes.Call;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -40,11 +44,16 @@ public final class NewObjectExpression extends PrimaryExpression {
     public Node createNode(TransformationState state) {
         Node mem = state.construction.getCurrentMem();
 
-        //TODO getTypeSize();
-        Node type_size = state.construction.newConst(1, Mode.getIu());
+        ClassType type = state.globalScope.getClass(getObjectType().getIdentifier());
+        int size = type.getFirmType().getSize();
 
-        //TODO getAlignment in bit or byte? 8byte because of 64bit?
-        int align = 0;
-        return state.construction.newAlloc(mem, type_size, align);
+        Node type_size = state.construction.newConst(size, Mode.getIu());
+        Entity methodEntity = LibraryMethods.allocate;
+        Node call = state.construction.newCall(mem,
+                state.construction.newAddress(methodEntity),new Node[]{ type_size }, methodEntity.getType());
+
+        state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
+        Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
+        return state.construction.newProj(tuple, Mode.getP(), 0);
     }
 }

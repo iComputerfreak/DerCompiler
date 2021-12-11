@@ -1,12 +1,22 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.type.BooleanType;
+import de.dercompiler.ast.type.CustomType;
+import de.dercompiler.ast.type.IntType;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.ast.type.BasicType;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.type.IntegerType;
+import de.dercompiler.transformation.LibraryMethods;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import firm.Entity;
 import firm.Mode;
+import firm.Type;
+import firm.nodes.Call;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -55,11 +65,27 @@ public final class NewArrayExpression extends PrimaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         Node mem = state.construction.getCurrentMem();
+        Type type;
+        if (getBasicType() instanceof IntType) {
+            type = Mode.getIs().getType();
+        } else if (getBasicType() instanceof BooleanType) {
+            type = Mode.getBs().getType();
+        } else if (getBasicType() instanceof CustomType) {
+            type = Mode.getP().getType();
+        } else {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("can't assign type to Array");
+            return null; //we nerver return
+        }
 
-        //TODO getTypeSize();
-        Node type_size = state.construction.newConst(1, Mode.getIu());
+        Node type_size = state.construction.newConst(type.getSize(), Mode.getIu());
         //TODO getAlignment in bit or byte? 8byte because of 64bit?
-        int align = 0;
-        return state.construction.newAlloc(mem, TransformationHelper.calculateSize(state, type_size, getSize().createNode(state)), align);
+        Node size = TransformationHelper.calculateSize(state, type_size, getSize().createNode(state));
+        Entity methodEntity = LibraryMethods.allocate;
+        Node call = state.construction.newCall(mem,
+                state.construction.newAddress(methodEntity),new Node[]{ size }, methodEntity.getType());
+
+        state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
+        Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
+        return state.construction.newProj(tuple, Mode.getP(), 0);
     }
 }

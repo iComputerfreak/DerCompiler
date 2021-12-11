@@ -8,6 +8,7 @@ import de.dercompiler.transformation.TargetTriple;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 public class ToolchainUtil {
 
@@ -162,6 +163,8 @@ public class ToolchainUtil {
     }
 
     public static String getBaseName(String path) {
-        return new File(path).getName();
+        String s = new File(path).getName();
+        System.out.println("i:" + path + " - o:" + s);
+        return s;
     }
 }

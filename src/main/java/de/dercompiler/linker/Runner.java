@@ -36,7 +36,7 @@ public class Runner {
 
     public boolean run() {
         try {
-            Process proc = Runtime.getRuntime().exec(command.toArray(new String[0]), new String[0] ,cwd);
+            Process proc = Runtime.getRuntime().exec(command.toArray(new String[0]), null ,cwd);
             out = new BufferedInputStream(proc.getInputStream());
             err = new BufferedInputStream(proc.getErrorStream());
             proc.waitFor();
