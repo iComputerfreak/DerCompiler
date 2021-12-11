@@ -10,7 +10,9 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TargetTriple;
 
 public final class MainMethod extends Method {
-    
+
+    private static boolean useRuntime = true;
+
     // INFO: methodRest may be null
     public MainMethod(SourcePosition position, SourcePosition voidPos, String identifier, Parameter arg, MethodRest methodRest, BasicBlock block) {
         super(position, new Type(voidPos, new VoidType(voidPos), 0), identifier, arg.asList(), methodRest, block);
@@ -20,6 +22,7 @@ public final class MainMethod extends Method {
      * Returns the mangled identifier to use in firm
      */
     public String getMangledIdentifier() {
+
         return "main_func";
     }
 
@@ -40,5 +43,9 @@ public final class MainMethod extends Method {
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
         astNodeVisitor.visitMainMethod(this);
+    }
+
+    public static void useRuntime(boolean runtime) {
+        useRuntime = runtime;
     }
 }

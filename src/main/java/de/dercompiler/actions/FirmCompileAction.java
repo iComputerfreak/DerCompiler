@@ -1,5 +1,6 @@
 package de.dercompiler.actions;
 
+import de.dercompiler.Compiler;
 import de.dercompiler.ast.Program;
 import de.dercompiler.generation.CodeGenerationErrorIds;
 import de.dercompiler.io.CommandLineBuilder;
@@ -7,6 +8,9 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.linker.Gcc;
+import de.dercompiler.linker.Runner;
+import de.dercompiler.linker.ToolchainUtil;
 import de.dercompiler.optimization.ArithmeticOptimization;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
@@ -52,11 +56,24 @@ public class FirmCompileAction extends Action {
         Util.lowerSels();
         //maybe add later
         Backend.lowerForTarget();
+        String base = ToolchainUtil.getBaseName(source.filename());
+
         try {
-            Backend.createAssembler("a.out", source.filename());
+            Backend.createAssembler(base + ".out", source.filename());
         } catch (IOException e) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can,t write output-file", e);
         }
+
+        Gcc gcc = new Gcc("gcc");
+        if (!gcc.checkCompiler()) {
+            compilerError();
+            return; //we never return
+        }
+        gcc.compileFirm(base);
+    }
+
+    private void compilerError() {
+
     }
 
     public void help() {

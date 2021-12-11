@@ -55,6 +55,7 @@ public final class NewArrayExpression extends PrimaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         Node mem = state.construction.getCurrentMem();
+
         //TODO getTypeSize();
         Node type_size = state.construction.newConst(1, Mode.getIu());
         //TODO getAlignment in bit or byte? 8byte because of 64bit?

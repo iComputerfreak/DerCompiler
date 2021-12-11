@@ -37,6 +37,28 @@ public final class Gcc implements Compiler, Assembler {
         return ToolchainUtil.checkTestCompile(exeProcess.getStdOut());
     }
 
+    public void compileFirm(String base) {
+        String runtime = ToolchainUtil.prepareRuntimeCompile();
+        String inputFile = ToolchainUtil.generateFileWithExtension(base, "out");
+        String outputFile = "a.out";
+        Runner runner = new Runner(gcc_path);
+        runner.append(inputFile);
+        runner.append("-g");
+        runner.append(ToolchainUtil.appendCFileExtension(runtime));
+        runner.append(output);
+        runner.append(outputFile);
+
+        if (runner.run()) return;
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for runtime failed:");
+        try {
+            runner.getStdErr().transferTo(System.err);
+        } catch (IOException e) {
+            //nothing we can do
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
+        }
+        ErrorStatus.exitProgramIfError();
+    }
+
     @Override
     public void compile(CompilerCall call) {
         Runner runner = new Runner(gcc_path);                                                   //gcc

@@ -1,5 +1,6 @@
 package de.dercompiler.actions;
 
+import de.dercompiler.ast.MainMethod;
 import de.dercompiler.ast.Program;
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.general.GeneralWarningIds;
@@ -32,6 +33,7 @@ public class CompileAction extends Action {
      */
     public CompileAction(Source source) {
         this.source = source;
+        MainMethod.useRuntime(false);
     }
 
     public void run() {
