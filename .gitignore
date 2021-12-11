@@ -181,3 +181,12 @@ gradle-app.setting
 
 *.vcg
 .gdbinit
+
+#buildfiles
+*.s
+*.S
+*.asm
+*.o
+*.obj
+*.c
+*.exe
