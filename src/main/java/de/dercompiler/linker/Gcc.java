@@ -40,7 +40,8 @@ public final class Gcc implements Compiler, Assembler {
 
     public void compileFirm(String base) {
         String runtime = ToolchainUtil.prepareRuntimeCompile();
-        String inputFile = ToolchainUtil.generateFileWithExtension(base, "out");
+        String inputFile = ToolchainUtil.appendAssembleFileExtension(base);
+        System.out.println(inputFile);
         String outputFile = "a.out";
         Runner runner = new Runner(gcc_path);
         runner.append(inputFile);

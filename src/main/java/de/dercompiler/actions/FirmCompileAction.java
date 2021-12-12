@@ -59,7 +59,7 @@ public class FirmCompileAction extends Action {
         String base = ToolchainUtil.getBaseName(source.filename());
 
         try {
-            Backend.createAssembler(base + ".out", source.filename());
+            Backend.createAssembler(base + ".S", source.filename());
         } catch (IOException e) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can,t write output-file", e);
         }
@@ -81,6 +81,6 @@ public class FirmCompileAction extends Action {
     }
 
     public String actionId() {
-        return "compile";
+        return "compileFirm";
     }
 }
