@@ -32,6 +32,7 @@ public class CompilerSetup {
     public static void setupGlobalValues(CommandLineOptions options) {
         OutputMessageHandler.setErrorAsWarning(options.warningsAsError());
         OutputMessageHandler.setPrintStackTrace(options.printStacktrace());
+        OutputMessageHandler.setNoInfo(options.noInfo());
 
         PassManager.setPrintPipeline(options.printPipeline());
         if (options.time()) ErrorStatus.setPrintTIme();
