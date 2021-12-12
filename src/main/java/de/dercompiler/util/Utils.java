@@ -32,15 +32,15 @@ public class Utils {
     }
 
     public static String transformMethodIdentifier(String identifier) {
-        return "0m_" + identifier;
+        return "m_" + identifier;
     }
 
     public static String transformVariableIdentifier(String identifier) {
-        return "0v_" + identifier;
+        return "v_" + identifier;
     }
 
     public static String transformClassIdentifier(String identifier) {
-        return "0c_" + identifier;
+        return "c_" + identifier;
     }
 
 }
