@@ -91,7 +91,8 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         } else {
             methodEntity = LibraryMethods.forName(methodDef.getIdentifier());
         }
-        Node[] argNodes = new Node[argsCount];
+        //baseIdx == 0, if and only if this method is a library call
+        Node[] argNodes = new Node[baseIdx + argsCount];
         if (!(isLibraryCall() || methodDef.getMethod().isStatic())) {
             argNodes[0] = encapsulated.createNode(state);
         }
