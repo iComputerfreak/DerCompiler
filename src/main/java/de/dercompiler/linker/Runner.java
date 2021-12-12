@@ -35,13 +35,15 @@ public class Runner {
     }
 
     public boolean run() {
+        //ProcessBuilder proc = new ProcessBuilder(command.toArray(new String[0]));
         try {
             Process proc = Runtime.getRuntime().exec(command.toArray(new String[0]), null ,cwd);
+            proc.waitFor();
             out = new BufferedInputStream(proc.getInputStream());
             err = new BufferedInputStream(proc.getErrorStream());
-            proc.waitFor();
             return proc.exitValue() == 0;
         } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
             return false;
         }
     }

@@ -23,26 +23,26 @@ public class ToolchainUtil {
         }
     }
 
-    public static String prepareTestCompile() {
+    public static String prepareRuntimeCompile() {
         String runtime = "runtime";
         String runtime_c = ToolchainUtil.appendCFileExtension(runtime);
         try {
             moveFileFromResourcesToCwd(runtime_c);
         } catch (Exception e) {
-            e.printStackTrace();
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + runtime_c);
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + runtime_c, e);
         }
 
         return runtime;
     }
 
-    public static String prepareRuntimeCompile() {
+    public static String prepareTestCompile() {
         String testFile = "test";
-        String testFileWithExtension = generateFileWithExtension(testFile, getCLanguageExtension());
+        String testFileWithExtension = appendCFileExtension(testFile);
         try {
-            moveFileFromResourcesToCwd(testFileWithExtension);
+            String moved = moveFileFromResourcesToCwd(testFileWithExtension);
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Moved test.c to: " + moved);
         } catch (Exception e) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + testFile);
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + testFile, e);
         }
 
         return testFile;
@@ -62,7 +62,7 @@ public class ToolchainUtil {
         try {
             moveFileFromResourcesToCwd(testFileWithExtension);
         } catch (Exception e) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + testFile);
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + testFile, e);
         }
 
         return testFile;
@@ -138,7 +138,7 @@ public class ToolchainUtil {
     private static String moveFileFromResourcesToCwd(String file) throws Exception {
         InputStream stream = null;
         OutputStream resStreamOut = null;
-        String jarFolder = Runner.getCwd().getAbsolutePath();
+        String jarFolder = Runner.getCwd().getAbsolutePath() + "/";
         try {
             stream = ToolchainUtil.class.getResourceAsStream( "/" + file);//note that each / is a directory down in the "jar tree" been the jar the root of the tree
             if(stream == null) {
@@ -164,7 +164,9 @@ public class ToolchainUtil {
 
     public static String getBaseName(String path) {
         String s = new File(path).getName();
-        System.out.println("i:" + path + " - o:" + s);
+        if (s.contains(".")) {
+            s = s.substring(0, s.lastIndexOf("."));
+        }
         return s;
     }
 }
