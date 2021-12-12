@@ -14,7 +14,7 @@ popd  > /dev/null
 
 # Run the compiler with the given arguments
 if [[ -z "${DC_COLOR}" ]]; then
-    java -jar "${SCRIPT_PATH}/out/libs/DerCompiler.jar" --working-directory "`pwd`" "$@"
+    java -jar "${SCRIPT_PATH}/out/libs/DerCompiler.jar" --working-directory "`pwd`" "$@" --no-info
 else
 	java -jar "${SCRIPT_PATH}/out/libs/DerCompiler.jar" --working-directory "`pwd`" "$@" --true-color
 fi

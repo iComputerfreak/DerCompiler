@@ -53,6 +53,7 @@ public final class OutputMessageHandler {
 
     private static boolean debug_mode = false;
     private static boolean debug_print = true;
+    private static boolean print_info = true;
     private static final List<DebugEvent> debugEvents = new LinkedList<>();
 
     /**
@@ -136,7 +137,9 @@ public final class OutputMessageHandler {
      * @param infoMessage The info message to print
      */
     public void printInfo(String infoMessage) {
-        formatMessage(System.out, ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
+        if (print_info) {
+            formatMessage(System.out, ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
+        }
     }
 
     /**
@@ -348,4 +351,6 @@ public final class OutputMessageHandler {
     }
 
     public static void setTestOutput(boolean active) { if (debug_mode) debug_print = active; }
+
+    public static void setNoInfo(boolean no_info) { print_info = !no_info; }
 }
