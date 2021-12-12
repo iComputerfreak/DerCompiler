@@ -3,6 +3,7 @@ package de.dercompiler.actions;
 import de.dercompiler.ast.Program;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
@@ -35,7 +36,7 @@ public class CheckAction extends Action {
         if (this.printTypeAnnotation) {
             TypeAnnotationPrinter typeAnnotationPrinter = new TypeAnnotationPrinter(true);
             typeAnnotationPrinter.visitProgram(program);
-            System.out.println(typeAnnotationPrinter.flush());
+            new OutputMessageHandler(MessageOrigin.GENERAL).printInfo("\n" + typeAnnotationPrinter.flush());
         }
     }
 

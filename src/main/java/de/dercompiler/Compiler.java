@@ -22,7 +22,7 @@ public class Compiler {
 
     public static void main(String[] args){
         if (debug && TargetTriple.isWindows()) {
-            System.out.println(ManagementFactory.getRuntimeMXBean().getName());
+            new OutputMessageHandler(MessageOrigin.GENERAL).printInfo(ManagementFactory.getRuntimeMXBean().getName());
             try {
                 System.in.read();
             } catch (IOException e) {

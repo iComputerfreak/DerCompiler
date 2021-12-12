@@ -6,7 +6,6 @@ import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 
 import java.io.*;
-import java.util.Objects;
 
 /**
  * Represents the action that prints the contents of the given file
@@ -37,7 +36,7 @@ public class EchoAction extends Action {
     }
 
     public void help() {
-        System.out.println(HELP_TEXT);
+        new OutputMessageHandler(MessageOrigin.GENERAL).printPlane(HELP_TEXT);
     }
 
     public String actionId() {

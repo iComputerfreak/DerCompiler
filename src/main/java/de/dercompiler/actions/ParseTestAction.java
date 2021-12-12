@@ -2,7 +2,9 @@ package de.dercompiler.actions;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.printer.PrettyPrinter;
+import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.AnchorSet;
 import de.dercompiler.parser.Parser;
@@ -53,7 +55,7 @@ public class ParseTestAction extends Action {
         if (this.prettyPrint) {
             PrettyPrinter printer = new PrettyPrinter(false);
             printer.visitNode(node);
-            System.out.println(printer.flush());
+            new OutputMessageHandler(MessageOrigin.GENERAL).printPlane(printer.flush());
         }
     }
 

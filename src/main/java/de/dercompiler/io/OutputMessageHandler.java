@@ -246,6 +246,16 @@ public final class OutputMessageHandler {
         ErrorStatus.exit(-1);
     }
 
+    public void printPlane(String string) {
+        System.out.println(string);
+    }
+
+    public void debugPrint(String string) {
+        if (print_info) {
+            System.out.println("debug: " + string);
+        }
+    }
+
     /**
      * Prints an internal error, with classname, methode, and line
      */
