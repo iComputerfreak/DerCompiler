@@ -86,14 +86,13 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         int argsCount = arguments.getLength();
         int baseIdx = 0;
         if (!isLibraryCall()) {
-            argsCount++;
             baseIdx = 1;    // 'this' object is 0th argument
             methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
         } else {
             methodEntity = LibraryMethods.forName(methodDef.getIdentifier());
         }
         Node[] argNodes = new Node[argsCount];
-        if (!isLibraryCall()) {
+        if (!(isLibraryCall() || methodDef.getMethod().isStatic())) {
             argNodes[0] = encapsulated.createNode(state);
         }
         for (int i = 0; i < argsCount; i++) {
