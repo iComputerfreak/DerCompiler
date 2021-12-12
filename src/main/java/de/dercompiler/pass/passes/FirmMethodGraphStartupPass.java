@@ -28,8 +28,8 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
                 method.getIdentifier());
         CompoundType globalType = firm.Program.getGlobalType();
         Entity methodEntity = new Entity(globalType, method.getMangledIdentifier(), def.getFirmType());
+
         int n_vars = method.getNumLocalVariables();
-        System.out.println(method.getIdentifier() + " " + method.getNumLocalVariables());
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
         return false;

@@ -79,7 +79,6 @@ public final class MethodInvocationOnObject extends UnaryExpression {
     @Override
     public Node createNode(TransformationState state) {
         ClassType classType = getClassType();
-        //TODO get classname, check if internal
         String classname = classType.getIdentifier();
         MethodDefinition methodDef = state.globalScope.getMethod(classname, functionName);
         Entity methodEntity;
@@ -91,7 +90,6 @@ public final class MethodInvocationOnObject extends UnaryExpression {
             baseIdx = 1;    // 'this' object is 0th argument
             methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
         } else {
-            //TODO get access
             methodEntity = LibraryMethods.forName(methodDef.getIdentifier());
         }
         Node[] argNodes = new Node[argsCount];
