@@ -15,7 +15,7 @@ extern "C" {
 
 extern void main_func();
 
-int main(char** argv, int argc) { 
+int main(int argc, char** argv) { 
     main_func(); 
     return 0; 
 }
