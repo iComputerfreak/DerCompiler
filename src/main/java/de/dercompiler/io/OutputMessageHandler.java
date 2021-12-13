@@ -250,6 +250,29 @@ public final class OutputMessageHandler {
         System.out.println(string);
     }
 
+    public void printPlane() {
+        String plane = """
+                                                                  .____   __ _
+     __o__   _______ _ _  _                                     /     /
+     \\    ~\\                                                  /      /
+       \\     '\\                                         ..../      .'
+        . ' ' . ~\\                                      ' /       /
+       .  _    .  ~ \\  .+~\\~ ~ ' ' " " ' ' ~ - - - - - -''_      /
+      .  <#  .  - - -/' . ' \\  __                          '~ - \\
+       .. -           ~-.._ / |__|  ( )  ( )  ( )  0  o    _ _    ~ .
+     .-'                                               .- ~    '-.    -.
+    <                      . ~ ' ' .             . - ~             ~ -.__~_. _ _
+      ~- .       N121PP  .          . . . . ,- ~
+            ' ~ - - - - =.   <#>    .         \\.._
+                        .     ~      ____ _ .. ..  .- .
+                         .         '        ~ -.        ~ -.
+                           ' . . '               ~ - .       ~-.
+                                                       ~ - .      ~ .
+                                                              ~ -...0..~. ____
+""";
+        System.out.println(plane);
+    }
+
     public void debugPrint(String string) {
         if (print_info) {
             System.out.println("debug: " + string);
