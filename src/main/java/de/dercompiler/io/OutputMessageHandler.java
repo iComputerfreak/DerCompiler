@@ -246,7 +246,7 @@ public final class OutputMessageHandler {
         ErrorStatus.exit(-1);
     }
 
-    public void printPlane(String string) {
+    public void printPlain(String string) {
         System.out.println(string);
     }
 
