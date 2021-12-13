@@ -70,7 +70,7 @@ public final class Variable extends PrimaryExpression {
             res = state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId());
         } else if (def instanceof Field f) {
             Node this_ = state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0);
-            Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getIdentifier());
+            Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getMangledIdentifier());
             res = state.construction.newMember(this_, field);
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Field, Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());

@@ -87,7 +87,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         int baseIdx = 0;
         if (!isLibraryCall()) {
             baseIdx = 1;    // 'this' object is 0th argument
-            methodEntity = state.globalScope.getMemberEntity(classname ,functionName);
+            methodEntity = state.globalScope.getMemberEntity(classname , methodDef.getMethod().getMangledIdentifier());
         } else {
             methodEntity = LibraryMethods.forName(methodDef.getIdentifier());
         }

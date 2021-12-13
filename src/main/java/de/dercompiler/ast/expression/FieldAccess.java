@@ -8,6 +8,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.util.Utils;
 import firm.Entity;
 import firm.nodes.Node;
 
@@ -44,7 +45,7 @@ public final class FieldAccess extends PostfixExpression {
         Node obj = encapsulated.createNode(state);
         if (!(encapsulated.getType() instanceof ClassType ct)) return errorNoValidFieldAccess();
         FieldDefinition def = ct.getField(fieldName);
-        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), fieldName);
+        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
         return state.construction.newMember(obj, field);
     }
 
