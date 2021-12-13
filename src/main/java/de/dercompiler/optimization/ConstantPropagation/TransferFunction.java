@@ -151,8 +151,8 @@ public class TransferFunction implements ITransferFunction {
     public TargetValue getTargetValue(Mulh node) {
         TargetValue left = getInternal(node.getLeft());
         TargetValue right = getInternal(node.getRight());
-        long leftL = (long) left.asInt();
-        long rightL = (long) right.asInt();
+        long leftL = left.asInt();
+        long rightL = right.asInt();
         long result = leftL * rightL;
         // Only use the upper 32 bits, cut the lower 32 bits off
         result >>= 32;
