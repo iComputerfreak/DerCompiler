@@ -313,6 +313,16 @@ public final class OutputMessageHandler {
         internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE], exc);
     }
 
+    public void internalNestedError(String errorMessage, int depth) {
+        Exception e = new Exception();
+        internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE + depth]);
+    }
+
+    public void internalNestedError(String errorMessage, Exception exc, int depth) {
+        Exception e = new Exception();
+        internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE + depth], exc);
+    }
+
     /**
      * Sets no color output for the current object
      */

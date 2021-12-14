@@ -10,6 +10,7 @@ import de.dercompiler.linker.ExternalToolchain;
 import de.dercompiler.linker.Runner;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.passes.SpecificationConformityPass;
+import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
 
 import java.io.File;
@@ -47,6 +48,8 @@ public class CompilerSetup {
         if (!Objects.isNull(tool)) ExternalToolchain.setLinker(tool);
         tool = options.getAssembler();
         if (!Objects.isNull(tool)) ExternalToolchain.setAssembler(tool);
+
+        GraphDumper.dump(options.dumpGraph());
 
         //sets Value in OutputMessageHandler
         options.resolveColorOutput();

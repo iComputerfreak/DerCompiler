@@ -20,13 +20,13 @@ public class ObjectNode extends ReferenceNode{
 
     @Override
     public Node genLoad(TransformationState state) {
-        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("no load on classes allowed, we only work on references");
+        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalNestedError("no load on classes allowed, we only work on references", 1);
         return ref;
     }
 
     @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
-        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("no store on classes allowed, we only work on references");
+        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalNestedError("no store on classes allowed, we only work on references", 1);
         return value;
     }
 
