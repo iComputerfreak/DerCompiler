@@ -53,6 +53,7 @@ public final class OutputMessageHandler {
 
     private static boolean debug_mode = false;
     private static boolean debug_print = true;
+    private static boolean print_info = true;
     private static final List<DebugEvent> debugEvents = new LinkedList<>();
 
     /**
@@ -136,7 +137,9 @@ public final class OutputMessageHandler {
      * @param infoMessage The info message to print
      */
     public void printInfo(String infoMessage) {
-        formatMessage(System.out, ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
+        if (print_info) {
+            formatMessage(System.out, ident + INFO, infoColor, INFO_MESSAGE + infoMessage, textColor);
+        }
     }
 
     /**
@@ -241,6 +244,39 @@ public final class OutputMessageHandler {
         formatMessage(System.err, INTERNAL, errorColor, "Internal error at " + element.getClassName() + "."
                 + element.getMethodName() + "() in line " + element.getLineNumber() + (Objects.isNull(message) ? "." : ":\n" + message), errorColor, e);
         ErrorStatus.exit(-1);
+    }
+
+    public void printPlain(String string) {
+        System.out.println(string);
+    }
+
+    public void printPlane() {
+        String plane = """
+                                                                  .____   __ _
+     __o__   _______ _ _  _                                     /     /
+     \\    ~\\                                                  /      /
+       \\     '\\                                         ..../      .'
+        . ' ' . ~\\                                      ' /       /
+       .  _    .  ~ \\  .+~\\~ ~ ' ' " " ' ' ~ - - - - - -''_      /
+      .  <#  .  - - -/' . ' \\  __                          '~ - \\
+       .. -           ~-.._ / |__|  ( )  ( )  ( )  0  o    _ _    ~ .
+     .-'                                               .- ~    '-.    -.
+    <                      . ~ ' ' .             . - ~             ~ -.__~_. _ _
+      ~- .       N121PP  .          . . . . ,- ~
+            ' ~ - - - - =.   <#>    .         \\.._
+                        .     ~      ____ _ .. ..  .- .
+                         .         '        ~ -.        ~ -.
+                           ' . . '               ~ - .       ~-.
+                                                       ~ - .      ~ .
+                                                              ~ -...0..~. ____
+""";
+        System.out.println(plane);
+    }
+
+    public void debugPrint(String string) {
+        if (print_info) {
+            System.out.println("debug: " + string);
+        }
     }
 
     /**
@@ -348,4 +384,6 @@ public final class OutputMessageHandler {
     }
 
     public static void setTestOutput(boolean active) { if (debug_mode) debug_print = active; }
+
+    public static void setNoInfo(boolean no_info) { print_info = !no_info; }
 }

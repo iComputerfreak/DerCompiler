@@ -2,7 +2,9 @@ package de.dercompiler.actions;
 
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.printer.PrettyPrinter;
+import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 
@@ -22,7 +24,7 @@ public class PrintAstAction extends Action {
         Program program = new Parser(lexer).parseProgram();
         PrettyPrinter prettyPrinter = new PrettyPrinter(true);
         prettyPrinter.visitNode(program);
-        System.out.println(prettyPrinter.flush());
+        new OutputMessageHandler(MessageOrigin.GENERAL).printPlain(prettyPrinter.flush());
     }
 
     @Override

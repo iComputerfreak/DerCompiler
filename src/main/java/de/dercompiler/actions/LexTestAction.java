@@ -1,5 +1,7 @@
 package de.dercompiler.actions;
+import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.lexer.TokenOccurrence;
 import de.dercompiler.lexer.token.Token;
@@ -28,7 +30,7 @@ public class LexTestAction extends Action {
             token = lexer.nextToken();
             String output = this.printPosition ? "%6s %s".formatted(token.position(), token.type())
                     : token.type().toString();
-            System.out.println(output);
+            new OutputMessageHandler(MessageOrigin.GENERAL).printPlain(output);
         } while (token.type() != Token.EOF);
     }
 
@@ -38,7 +40,7 @@ public class LexTestAction extends Action {
 
     @Override
     public void help() {
-        System.out.println(HELP_TEXT);
+        new OutputMessageHandler(MessageOrigin.GENERAL).printPlain(HELP_TEXT);
     }
 
     @Override

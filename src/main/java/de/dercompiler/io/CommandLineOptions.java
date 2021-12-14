@@ -115,6 +115,8 @@ public class CommandLineOptions {
 
     public boolean time() { return cmd.hasOption(OPTION_TIME_EXECUTION); }
 
+    public boolean noInfo() { return cmd.hasOption(OPTION_NO_INFO); }
+
     public String getOptionArgument(String optionName) {
         return cmd.getOptionValue(optionName);
     }

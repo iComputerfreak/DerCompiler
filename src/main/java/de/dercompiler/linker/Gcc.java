@@ -32,7 +32,7 @@ public final class Gcc implements Compiler, Assembler {
 
         Runner exeProcess = new LocalProgramRunner(exe);
         if (!exeProcess.run()) {
-            System.out.println("failed to run ./test");
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("failed to run ./test");
             return false;
         }
         return ToolchainUtil.checkTestCompile(exeProcess.getStdOut());
@@ -41,7 +41,6 @@ public final class Gcc implements Compiler, Assembler {
     public void compileFirm(String base) {
         String runtime = ToolchainUtil.prepareRuntimeCompile();
         String inputFile = ToolchainUtil.appendAssembleFileExtension(base);
-        System.out.println(inputFile);
         String outputFile = "a.out";
         Runner runner = new Runner(gcc_path);
         runner.append(inputFile);

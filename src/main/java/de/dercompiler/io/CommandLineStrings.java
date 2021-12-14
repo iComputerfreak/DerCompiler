@@ -47,6 +47,7 @@ public class CommandLineStrings {
     public static final String OPTION_PRETTY_PRINT = "pretty-print";
     public static final String OPTION_PRINT_PIPELINE = "print-pipeline";
     public static final String OPTION_TIME_EXECUTION = "time";
+    public static final String OPTION_NO_INFO = "no-info";
 
     public static final String OPTION_TARGET = "target";
 
@@ -82,7 +83,8 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_PIPELINE = "Prints the pipeline whenever one is used.";
     public static final String DESCRIPTION_TIME_EXECUTION = "Prints the execution-time at the end of execution";
 
-    public static final String DESCRIPTION_TARGET = "the name of the target to compile";
+    public static final String DESCRIPTION_TARGET = "The name of the target to compile";
+    public static final String DESCRIPTION_NO_INFO = "Deactivates info print";
 
     //compiler assembler and linker
     public static final String OPTION_CLANG         = "clang";
