@@ -71,7 +71,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         int nodeId = lvds.getNodeId();
         // Set value if initialized
         if (state.res != null) {
-            state.construction.setVariable(nodeId, state.res);
+            state.construction.setVariable(nodeId, state.res.genLoad(state));
         }
 
         if (!lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
@@ -107,7 +107,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
     @Override
     public void visitReturnStatement(ReturnStatement returnStatement) {
         if (state.res != null) {
-            TransformationHelper.createReturn(state, state.res);
+            TransformationHelper.createReturn(state, state.res.genLoad(state));
         }
         if (!returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) {
             state.res = null;

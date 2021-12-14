@@ -5,6 +5,7 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Construction;
 import firm.Graph;
 import firm.nodes.Block;
@@ -18,9 +19,9 @@ public class TransformationState {
     public Construction construction;
     public Graph graph;
     public final GlobalScope globalScope;
-    public Node lhs;
-    public Node rhs;
-    public Node res;
+    public ReferenceNode lhs;
+    public ReferenceNode rhs;
+    public ReferenceNode res;
 
     private Stack<Block> trueBlockStack;
     private Stack<Block> falseBlockStack;

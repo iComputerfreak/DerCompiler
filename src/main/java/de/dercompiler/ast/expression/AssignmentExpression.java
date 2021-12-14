@@ -11,6 +11,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Mode;
 import firm.Type;
 import firm.nodes.Node;
@@ -40,31 +41,10 @@ public final class AssignmentExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         createChildNodes(state);
-        //TODO if boolean handle assignement properly, similar to LocalVariableDeclaration
-        Node res = null;
-        if (getLhs() instanceof Variable v) {
-            if (v.getDefinition() instanceof LocalVariableDeclarationStatement lvds) {
-                if (state.lhs.getMode() == Mode.getP()) {
-                    TransformationHelper.genStore(state, state.lhs, state.rhs, lvds.getFirmType());
-                } else {
-                    state.construction.setVariable(lvds.getNodeId(), state.rhs);
-                }
-                res = state.rhs;
-            // error
-            //} else if (v.getDefinition() instanceof Parameter p) {
-            } else if (v.getDefinition() instanceof Field f) {
-                TransformationHelper.genStore(state, state.lhs, state.rhs, f.getFirmType());
-                res = state.rhs;
-            } else {
-                new OutputMessageHandler(MessageOrigin.PASSES).internalError("cannot assign Value to variable, because Definition is not local accessible: " + v.getDefinition());
-                return null; //we never return
-            }
-        } else {
-            new OutputMessageHandler(MessageOrigin.PASSES).internalError("lvalue is no variable, we can't assign anything: " + getLhs());
-            return null; //we never return
-        }
+        state.lhs.genStore(state, state.rhs);
+        ReferenceNode res = state.rhs;
         clearChildNodes(state);
         return res;
     }

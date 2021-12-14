@@ -5,6 +5,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Relation;
 import firm.nodes.Node;
 
@@ -32,7 +33,7 @@ public final class GreaterExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         createChildNodes(state);
         Node cmp = TransformationHelper.createComp(state, Relation.Greater);
         if (state.isCondition()) {

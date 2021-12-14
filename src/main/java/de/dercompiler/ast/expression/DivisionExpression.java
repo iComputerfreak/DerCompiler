@@ -3,7 +3,10 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Mode;
 import firm.bindings.binding_ircons;
 import firm.nodes.Div;
@@ -34,14 +37,13 @@ public final class DivisionExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         createChildNodes(state);
         Node mem = state.construction.getCurrentMem();
-        Node div = state.construction.newDiv(mem, state.lhs, state.rhs, binding_ircons.op_pin_state.op_pin_state_pinned);
-        //TODO generate a better mode, since we have only int and bool unnecessary?
-        Mode mode = state.lhs.getMode();
+        Node div = state.construction.newDiv(mem, state.lhs.genLoad(state), state.rhs.genLoad(state), binding_ircons.op_pin_state.op_pin_state_pinned);
+        Mode resMode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
         state.construction.setCurrentMem(state.construction.newProj(div, Mode.getM(), Div.pnM));
         clearChildNodes(state);
-        return state.construction.newProj(div, mode, Div.pnRes);
+        return new RValueNode(state.construction.newProj(div, resMode, Div.pnRes), resMode);
     }
 }

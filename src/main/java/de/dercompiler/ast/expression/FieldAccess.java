@@ -8,7 +8,12 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.FieldNode;
+import de.dercompiler.transformation.node.ObjectNode;
+import de.dercompiler.transformation.node.ReferenceNode;
+import de.dercompiler.util.Utils;
 import firm.Entity;
+import firm.Type;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -40,15 +45,17 @@ public final class FieldAccess extends PostfixExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
-        Node obj = encapsulated.createNode(state);
-        if (!(encapsulated.getType() instanceof ClassType ct)) return errorNoValidFieldAccess();
+    public ReferenceNode createNode(TransformationState state) {
+        ReferenceNode objRef = encapsulated.createNode(state);
+        if (!(encapsulated.getType() instanceof ClassType ct && objRef instanceof ObjectNode on)) return errorNoValidFieldAccess();
         FieldDefinition def = ct.getField(fieldName);
-        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), fieldName);
-        return state.construction.newMember(obj, field);
+        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
+        Node member = state.construction.newMember(on.getBase(), field);
+        Type resType = def.getReferenceType().getFirmType();
+        return new FieldNode(member, resType);
     }
 
-    public Node errorNoValidFieldAccess() {
+    public ReferenceNode errorNoValidFieldAccess() {
         new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Error while generating FieldAccess");
         return null;
     }

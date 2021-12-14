@@ -4,6 +4,7 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -26,7 +27,7 @@ public final class UninitializedValue extends Expression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         return null;
     }
 

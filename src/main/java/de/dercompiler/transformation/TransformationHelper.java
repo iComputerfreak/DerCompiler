@@ -48,7 +48,7 @@ public class TransformationHelper {
     }
 
     public static Node createComp(TransformationState state, Relation relation) {
-        return state.construction.newCmp(state.lhs, state.rhs, relation);
+        return state.construction.newCmp(state.lhs.genLoad(state), state.rhs.genLoad(state), relation);
     }
 
     public static void createConditionJumps(TransformationState state, Node cmp) {
@@ -64,7 +64,7 @@ public class TransformationHelper {
     }
 
     public static Node createBooleanNode(TransformationState state, boolean value) {
-        return state.construction.newConst(value ? 1 : 0, Mode.getBs());
+        return state.construction.newConst(value ? 1 : 0, Mode.getBu());
     }
 
     public static void createReturn(TransformationState state, Node node) {
@@ -75,5 +75,27 @@ public class TransformationHelper {
     public static void createConditionError() {
         new OutputMessageHandler(MessageOrigin.TRANSFORM)
                 .internalError("We are in the Mode of constructing a condition, but no true and False Block set!");
+    }
+
+    public static Mode unifyMode(Mode lhs, Mode rhs) {
+        boolean signedUnsigned = lhs.isSigned() ^ rhs.isSigned();
+        boolean isInt = lhs.isInt() ^ rhs.isInt();
+        //reference == pointer in libFIrm
+        boolean ptr = lhs.isReference() || rhs.isReference();
+
+        if (!lhs.isNum() || !rhs.isNum()) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("cannot unify Modes lhs: " + lhs.getName() + " rhs: " + rhs.getName());
+
+        //when pointer we return a pointer
+        if (ptr) return Mode.getP();
+
+        if (!isInt) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("only integer Modes should be unified");
+        if (signedUnsigned) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).debugPrint("Check Modes of operations, maybe wrong transformation; lhs: " + lhs.getName() + " rhs: " + rhs.getName());
+        }
+        if (lhs.isSmallerThan(rhs)) {
+            return rhs;
+        } else {
+            return lhs;
+        }
     }
 }

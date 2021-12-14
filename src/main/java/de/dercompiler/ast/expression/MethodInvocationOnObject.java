@@ -9,15 +9,14 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
-import de.dercompiler.semantic.type.ClassType;
-import de.dercompiler.semantic.type.InternalClass;
-import de.dercompiler.semantic.type.MethodType;
-import de.dercompiler.semantic.type.VoidType;
+import de.dercompiler.semantic.type.*;
 import de.dercompiler.transformation.LibraryMethods;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.*;
 import firm.Entity;
 import firm.Firm;
 import firm.Mode;
+import firm.Type;
 import firm.nodes.Call;
 import firm.nodes.Node;
 
@@ -77,7 +76,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         ClassType classType = getClassType();
         String classname = classType.getIdentifier();
         MethodDefinition methodDef = state.globalScope.getMethod(classname, functionName);
@@ -92,12 +91,18 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         } else {
             methodEntity = LibraryMethods.forName(methodDef.getIdentifier());
         }
-        Node[] argNodes = new Node[argsCount];
+        //baseIdx == 0, if and only if this method is a library call
+        Node[] argNodes = new Node[baseIdx + argsCount];
         if (!isLibraryCall()) {
-            argNodes[0] = encapsulated.createNode(state);
+            ReferenceNode objRef = encapsulated.createNode(state);
+            if (!(objRef instanceof ObjectNode on)) {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("object only allowed as ObjectNode");
+                return null; //we nerver return
+            }
+            argNodes[0] = on.getBase();
         }
         for (int i = 0; i < argsCount; i++) {
-            argNodes[baseIdx + i] = arguments.get(i).createNode(state);
+            argNodes[baseIdx + i] = arguments.get(i).createNode(state).genLoad(state);
         }
 
         Node mem = state.construction.getCurrentMem();
@@ -107,10 +112,21 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
 
         if (methodDef.getType().getReturnType().isCompatibleTo(new VoidType())) {
-            return state.construction.newBad(Mode.getANY());
+            return new RValueNode(state.construction.newBad(Mode.getANY()), Mode.getANY());
         }
         //we don't have to return 2 so always 0
-        return state.construction.newProj(tuple, methodDef.getType().getReturnType().getFirmType().getMode(), 0);
+        Type resType = methodDef.getType().getReturnType().getFirmType();
+        Node res = state.construction.newProj(tuple, resType.getMode(), 0);
+
+        de.dercompiler.semantic.type.Type ret = methodDef.getType().getReturnType();
+        if (ret instanceof ArrayType at) {
+            return new ArrayNode(res, at.getElementType().getFirmType(), at.getDimension());
+        } else if (ret instanceof ClassType) {
+            return new ObjectNode(res, resType);
+        } else {
+            //assume everything else is a basic-type
+            return new RValueNode(res, resType.getMode());
+        }
     }
 
     public void setImplicitThis(boolean implicitThis) {

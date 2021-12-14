@@ -7,6 +7,8 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ArrayNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.ArrayType;
 import firm.Mode;
 import firm.nodes.Node;
@@ -41,18 +43,19 @@ public final class ArrayAccess extends PostfixExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
-        Node base_ptr = getEncapsulated().createNode(state);
-        if (!(encapsulated.getType() instanceof ArrayType aa)) {
+    public ReferenceNode createNode(TransformationState state) {
+        ReferenceNode base_ptr = getEncapsulated().createNode(state);
+        if (!(base_ptr instanceof ArrayNode an)) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("we make a ArrayAccess on: " + encapsulated + " this should have been found by semantic!");
             return null;
         }
-         int type_size_const = aa.getElementType().getSize();
+
+        int type_size_const = an.getElementType().getSize();
         Node type_size = state.construction.newConst(type_size_const, Mode.getIu());
-        Node elements = index.createNode(state);
-        Node offset = TransformationHelper.calculateOffset(state, type_size, elements);
-        Node elem_ptr = TransformationHelper.addOffsetToPointer(state, base_ptr, offset);
-        Mode mode = aa.getElementType().getMode();
-        return TransformationHelper.genLoad(state, elem_ptr, mode);
+        ReferenceNode elements = index.createNode(state);
+        //convert size?
+        Node offset = TransformationHelper.calculateOffset(state, type_size, elements.genLoad(state));
+        Node elem_ptr = TransformationHelper.addOffsetToPointer(state, an.getPointer(), offset);
+        return new ArrayNode(elem_ptr, an.getElementType(), an.getDimension() - 1);
     }
 }

@@ -13,6 +13,10 @@ import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.FieldNode;
+import de.dercompiler.transformation.node.LocalVariableNode;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Entity;
 import firm.Mode;
 import firm.Relation;
@@ -58,28 +62,23 @@ public final class Variable extends PrimaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         ASTDefinition def = getDefinition();
-        Node res = null;
+        ReferenceNode res;
         if (def instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
             Mode mode = this.getType().getFirmType().getMode();
-            res = state.construction.getVariable(nodeId, mode);
+            res = new LocalVariableNode(mode, nodeId);
         } else if (def instanceof Parameter p) {
             Mode mode = p.getFirmType().getMode();
-            res = state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId());
+            res = new RValueNode(state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId()), mode);
         } else if (def instanceof Field f) {
             Node this_ = state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0);
-            Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getIdentifier());
-            res = state.construction.newMember(this_, field);
+            Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getMangledIdentifier());
+            res = new FieldNode(state.construction.newMember(this_, field), field.getType());
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Field, Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
             return null; //we never return
-        }
-        if (def.getRefType().isCompatibleTo(new BooleanType())) {
-            Node cmp = state.construction.newCmp(res, TransformationHelper.createBooleanNode(state, true), Relation.Equal);
-            TransformationHelper.createConditionJumps(state, cmp);
-            return res;
         }
         return res;
     }

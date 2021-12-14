@@ -4,6 +4,8 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Mode;
 import firm.nodes.Node;
 
@@ -61,7 +63,7 @@ public final class IntegerValue extends PrimaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         int value;
 
         if (this.unsignedValue == Integer.MIN_VALUE && this.negative) {
@@ -69,6 +71,8 @@ public final class IntegerValue extends PrimaryExpression {
         } else {
             value = (negative ? -1 : 1) * unsignedValue;
         }
-        return state.construction.newConst(value, Mode.getIs());
+        Mode int_mode = Mode.getIs();
+
+        return new RValueNode(state.construction.newConst(value, int_mode), int_mode);
     }
 }
