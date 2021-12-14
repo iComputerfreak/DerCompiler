@@ -56,24 +56,18 @@ public class TypeFactory {
     }
 
     public ArrayType createArrayType(BasicType basicType, int dimension) {
-
-        if (dimension > 1) {
-            return new ArrayType(createArrayType(basicType, dimension - 1));
-        } else {
-            Type elementType = create(basicType);
-            if (elementType instanceof InternalClass) {
-                System.err.println(pass.getPassManager().getLexer().printSourceText(basicType.getSourcePosition()));
-                pass.getLogger().printErrorAndExit(PassErrorIds.ILLEGAL_ARRAY_TYPE, "Illegal reference to internal construct '%s'".formatted(elementType));
-                pass.getPassManager().quitOnError();
-            }
-            if (elementType instanceof VoidType) {
-                System.err.println(pass.getPassManager().getLexer().printSourceText(basicType.getSourcePosition()));
-                pass.getLogger().printErrorAndExit(PassErrorIds.ILLEGAL_ARRAY_TYPE, "Illegal array base type void".formatted(elementType));
-                pass.getPassManager().quitOnError();
-            }
-
-            return new ArrayType(elementType);
+        Type elementType = create(basicType);
+        if (elementType instanceof InternalClass) {
+            System.err.println(pass.getPassManager().getLexer().printSourceText(basicType.getSourcePosition()));
+            pass.getLogger().printErrorAndExit(PassErrorIds.ILLEGAL_ARRAY_TYPE, "Illegal reference to internal construct '%s'".formatted(elementType));
+            pass.getPassManager().quitOnError();
         }
+        if (elementType instanceof VoidType) {
+            System.err.println(pass.getPassManager().getLexer().printSourceText(basicType.getSourcePosition()));
+            pass.getLogger().printErrorAndExit(PassErrorIds.ILLEGAL_ARRAY_TYPE, "Illegal array base type void".formatted(elementType));
+            pass.getPassManager().quitOnError();
+        }
+        return new ArrayType(elementType, dimension);
     }
 
     public ClassType create(CustomType customType) {
