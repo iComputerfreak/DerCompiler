@@ -88,7 +88,7 @@ public class TransformationHelper {
         //when pointer we return a pointer
         if (ptr) return Mode.getP();
 
-        if (!isInt) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("only integer Modes should be unified - lhs: " + lhs + " rhs: " + rhs);
+        if (isInt) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("only integer Modes should be unified - lhs: " + lhs + " rhs: " + rhs);
         if (signedUnsigned) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).debugPrint("Check Modes of operations, maybe wrong transformation; lhs: " + lhs.getName() + " rhs: " + rhs.getName());
         }

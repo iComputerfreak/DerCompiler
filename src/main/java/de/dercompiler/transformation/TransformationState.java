@@ -8,6 +8,7 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Construction;
 import firm.Graph;
+import firm.Type;
 import firm.nodes.Block;
 import firm.nodes.Node;
 
@@ -22,6 +23,7 @@ public class TransformationState {
     public ReferenceNode lhs;
     public ReferenceNode rhs;
     public ReferenceNode res;
+    public Type currentClass;
 
     private Stack<Block> trueBlockStack;
     private Stack<Block> falseBlockStack;

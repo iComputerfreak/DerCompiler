@@ -33,6 +33,7 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
         
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
+        state.currentClass = state.globalScope.getClass(method.getSurroundingClass().getIdentifier()).getFirmType();
         return false;
     }
 

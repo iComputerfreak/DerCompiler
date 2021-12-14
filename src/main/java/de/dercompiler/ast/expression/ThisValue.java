@@ -31,8 +31,7 @@ public final class ThisValue extends PrimaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        return new ObjectNode(state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0),
-                state.globalScope.getClass(getSurroundingStatement().getSurroundingMethod().getSurroundingClass().getIdentifier()).getFirmType());
+        return new ObjectNode(state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0), state.currentClass);
     }
 
     @Override
