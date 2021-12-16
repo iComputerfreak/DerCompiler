@@ -1,7 +1,20 @@
 package de.dercompiler.intermediate.operation;
 
 public enum BinaryOperationType implements OperationType {
-    ADD("", "", "");
+    ADD("", "", ""),
+    AND("", "", ""),
+    CMP("", "", ""),
+    MOV("", "", ""),
+    MUL("", "", ""),
+    OR("", "", ""),
+    ROL("", "", ""),
+    ROR("", "", ""),
+    SHL("", "", ""),
+    SAR("", "", ""),
+    SHR("", "", ""),
+    SUB("", "", ""),
+    XCHG("", "", ""),
+    XOR("", "", "");
 
     private final String intelSyntax;
     private final String atntSyntax;

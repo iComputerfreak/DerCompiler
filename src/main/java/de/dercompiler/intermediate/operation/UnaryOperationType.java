@@ -1,6 +1,25 @@
 package de.dercompiler.intermediate.operation;
 
 public enum UnaryOperationType implements OperationType {
+    CALL("", "", ""),
+    DEC("", "", ""),
+    DIV("", "", ""),
+    MUL("", "", ""),
+    JA("", "", ""),
+    JAE("", "", ""),
+    JB("", "", ""),
+    JBE("", "", ""),
+    JE("", "", ""),
+    JG("", "", ""),
+    JGE("", "", ""),
+    JL("", "", ""),
+    JLE("", "", ""),
+    JMP("", "", ""),
+    JNE("", "", ""),
+    NEG("", "", ""),
+    NOT("", "", ""),
+    POP("", "", ""),
+    PUSH("", "", ""),
     INCREMENT("", "", "");
     
     private final String intelSyntax;

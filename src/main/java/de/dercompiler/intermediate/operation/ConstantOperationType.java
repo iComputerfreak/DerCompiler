@@ -1,7 +1,8 @@
 package de.dercompiler.intermediate.operation;
 
 public enum ConstantOperationType implements OperationType {
-    NO_OPERATION("", "", "");
+    NOP("", "", ""),
+    RET("", "", "");
 
     private final String intelSyntax;
     private final String atntSyntax;
