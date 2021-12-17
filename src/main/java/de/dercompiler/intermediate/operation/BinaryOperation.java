@@ -12,7 +12,7 @@ public final class BinaryOperation implements Operation {
 
     @Override
     public Operand[] getArgs() {
-        return new Operand[0];
+        return new Operand[2];
     }
     
     public OperationType getOperationType() {

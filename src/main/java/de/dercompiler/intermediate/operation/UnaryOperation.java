@@ -12,7 +12,7 @@ public final class UnaryOperation implements Operation {
 
     @Override
     public Operand[] getArgs() {
-        return new Operand[0];
+        return new Operand[1];
     }
 
     public OperationType getOperationType() {
