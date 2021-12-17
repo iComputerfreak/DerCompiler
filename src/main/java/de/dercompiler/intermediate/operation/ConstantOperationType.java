@@ -1,32 +1,18 @@
 package de.dercompiler.intermediate.operation;
 
 public enum ConstantOperationType implements OperationType {
-    NOP("", "", ""),
-    RET("", "", "");
+    NOP(""),
+    RET("");
 
-    private final String intelSyntax;
-    private final String atntSyntax;
-    private final String molkiSyntax;
+    private final String syntax;
 
-    ConstantOperationType(String intelSyntax, String atntSyntax, String molkiSyntax) {
-        this.intelSyntax = intelSyntax;
-        this.atntSyntax = atntSyntax;
-        this.molkiSyntax = molkiSyntax;
+    ConstantOperationType(String syntax) {
+        this.syntax = syntax;
     }
 
     @Override
-    public String getATnT() {
-        return atntSyntax;
-    }
-
-    @Override
-    public String getIntel() {
-        return intelSyntax;
-    }
-
-    @Override
-    public String getMolki() {
-        return molkiSyntax;
+    public String getSyntax() {
+        return syntax;
     }
 
 }
