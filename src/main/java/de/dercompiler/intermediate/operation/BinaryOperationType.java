@@ -15,7 +15,9 @@ public enum BinaryOperationType implements OperationType {
     SHR(""),
     SUB(""),
     XCHG(""),
-    XOR("");
+    XOR(""),
+    LOAD(""),
+    STORE("");
 
     private final String syntax;
 
