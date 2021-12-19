@@ -54,7 +54,7 @@ public class FirmTypeFactory {
             return new PrimitiveType(Mode.getIs());
         } else if (type instanceof BooleanType) {
             // For booleans, we use the byte type (signed or unsigned should not matter)
-            return new PrimitiveType(Mode.getBs());
+            return new PrimitiveType(Mode.getBu());
         } else if (type instanceof VoidType) {
             return null;
         } else if (type instanceof NullType t) {
