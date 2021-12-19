@@ -71,7 +71,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
 
     @Override
     public void visitExpressionStatement(ExpressionStatement expressionStatement) {
-        state.expectValue();
+        state.pushExpectValue();
     }
 
     @Override

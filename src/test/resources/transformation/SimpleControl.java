@@ -88,6 +88,7 @@ class foo {
         return x;
     }
 
+    /*
     public void booleanCounter() {
         boolean b0 = false;
         boolean b1 = false;
@@ -102,4 +103,5 @@ class foo {
             }
         }
     }
+    */
 }
