@@ -5,7 +5,9 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
+import firm.Mode;
 import firm.nodes.Block;
 import firm.nodes.Node;
 
@@ -35,8 +37,9 @@ public final class LogicalOrExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        if (!state.isCondition()) {
-            TransformationHelper.createConditionError();
+        ReferenceNode res = null;
+        if (state.expectValue()) {
+            state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
         }
         Block or = state.construction.newBlock();
         Block current = state.construction.getCurrentBlock();
@@ -47,6 +50,17 @@ public final class LogicalOrExpression extends BinaryExpression {
         getRhs().createNode(state);
         or.mature();
         state.construction.setCurrentBlock(current);
-        return null;
+        if (state.expectValue()) {
+            Block after = state.construction.newBlock();
+            state.construction.setCurrentBlock(state.trueBlock());
+            TransformationHelper.createDirectJump(state, after);
+            state.construction.setCurrentBlock(state.falseBlock());
+            TransformationHelper.createDirectJump(state, after);
+            after.mature();
+            state.construction.setCurrentBlock(after);
+            res = new RValueNode(state.construction.newPhi(new Node[]{TransformationHelper.createBooleanNode(state, true), TransformationHelper.createBooleanNode(state, false)}, Mode.getBu()), Mode.getBu());
+            state.popBranches();
+        }
+        return res;
     }
 }

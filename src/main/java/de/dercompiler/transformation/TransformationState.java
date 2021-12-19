@@ -39,7 +39,7 @@ public class TransformationState {
     private final Stack<Statement> statementStack;
     private final Stack<Block> origin;
     private final Stack<Block> head;
-    private final Stack<BasicBlock> markedBasicBlocks;
+    private final Stack<Boolean> expectValue;
 
     private boolean hasReturn = false;
 
@@ -55,7 +55,7 @@ public class TransformationState {
 
         origin = new Stack<>();
         head = new Stack<>();
-        markedBasicBlocks = new Stack<>();
+        expectValue = new Stack<>();
     }
 
     public boolean isCondition() {
@@ -182,4 +182,19 @@ public class TransformationState {
         return head.pop();
     }
 
+    public void pushExpectValue() {
+        expectValue.push(true);
+    }
+
+    public void pushExpectBranch() {
+        expectValue.push(false);
+    }
+
+    public void popExpect() {
+        expectValue.pop();
+    }
+
+    public boolean expectValue() {
+        return expectValue.peek();
+    }
 }

@@ -32,12 +32,15 @@ public final class LogicalNotExpression extends UnaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        if (!state.isCondition()) {
-            TransformationHelper.createConditionError();
+        //in this operation we don't push
+        ReferenceNode res = null;
+        if (state.expectValue()) {
+            res = TransformationHelper.createBooleanNot(state, encapsulated.createNode(state));
+        } else {
+            state.swapTrueFalseBlock();
+            encapsulated.createNode(state);
+            state.swapTrueFalseBlock();
         }
-        state.swapTrueFalseBlock();
-        encapsulated.createNode(state);
-        state.swapTrueFalseBlock();
-        return null;
+        return res;
     }
 }

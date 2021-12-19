@@ -38,12 +38,11 @@ public final class EqualExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
+        state.pushExpectValue();
         createChildNodes(state);
-        Node cmp = TransformationHelper.createComp(state, Relation.Equal);
-        if (state.isCondition()) {
-            TransformationHelper.createConditionJumps(state, cmp);
-        }
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal);
         clearChildNodes(state);
-        return null;
+        state.popExpect();
+        return res;
     }
 }
