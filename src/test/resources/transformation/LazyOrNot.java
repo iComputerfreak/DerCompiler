@@ -1,6 +1,6 @@
 class Foo{
 
-	int i;
+	public int i;
 
 	public static void main(String[] args){
 		

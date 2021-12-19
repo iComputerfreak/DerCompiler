@@ -79,7 +79,7 @@ public class TransformationHelper {
 
     public static Mode unifyMode(Mode lhs, Mode rhs) {
         boolean signedUnsigned = lhs.isSigned() ^ rhs.isSigned();
-        boolean isInt = lhs.isInt() ^ rhs.isInt();
+        boolean oneInt = lhs.isInt() ^ rhs.isInt();
         //reference == pointer in libFIrm
         boolean ptr = lhs.isReference() || rhs.isReference();
 
@@ -88,7 +88,7 @@ public class TransformationHelper {
         //when pointer we return a pointer
         if (ptr) return Mode.getP();
 
-        if (isInt) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("only integer Modes should be unified - lhs: " + lhs + " rhs: " + rhs);
+        if (oneInt) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("only integer Modes should be unified - lhs: " + lhs + " rhs: " + rhs);
         if (signedUnsigned) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).debugPrint("Check Modes of operations, maybe wrong transformation; lhs: " + lhs.getName() + " rhs: " + rhs.getName());
         }
