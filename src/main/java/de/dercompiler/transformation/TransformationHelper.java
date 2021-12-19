@@ -5,6 +5,8 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Graph;
 import firm.Mode;
 import firm.Relation;
@@ -97,5 +99,36 @@ public class TransformationHelper {
         } else {
             return lhs;
         }
+    }
+
+    public static ReferenceNode createComparator(TransformationState state, Relation relation) {
+        //we assume here state.lhs and state.rhs are set
+        ReferenceNode res = null;
+        if (state.expectValue()) {
+            Block after = state.construction.newBlock();
+            state.pushBranches(after, after);
+            createConditionJumps(state, createComp(state, relation));
+            state.popBranches();
+            res = new RValueNode(state.construction.newPhi( new Node[]{createBooleanNode(state, true), createBooleanNode(state, true)} , Mode.getBu()), Mode.getBu());
+        } else {
+            createConditionJumps(state, createComp(state, relation));
+        }
+
+        return res;
+    }
+
+    public static ReferenceNode createBooleanNot(TransformationState state, ReferenceNode node) {
+        if (!node.getMode().equals(Mode.getBu())) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("We only can negate Booleans, but got Mode: " + node.getMode());
+        }
+        return new RValueNode(state.construction.newEor(node.genLoad(state), createBooleanNode(state, true)), Mode.getBu());
+    }
+
+    public static void booleanValueToConditionalJmp(TransformationState state, Node node) {
+        if (!node.getMode().equals(Mode.getBu())) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("can't convert non-boolean value to bool");
+        }
+        Node cmp = state.construction.newCmp(node, createBooleanNode(state, true), Relation.Equal);
+        createConditionJumps(state, cmp);
     }
 }

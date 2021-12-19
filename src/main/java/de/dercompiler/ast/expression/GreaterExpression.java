@@ -34,12 +34,11 @@ public final class GreaterExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
+        state.pushExpectValue();
         createChildNodes(state);
-        Node cmp = TransformationHelper.createComp(state, Relation.Greater);
-        if (state.isCondition()) {
-            TransformationHelper.createConditionJumps(state, cmp);
-        }
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Greater);
         clearChildNodes(state);
-        return null;
+        state.popExpect();
+        return res;
     }
 }

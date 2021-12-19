@@ -80,6 +80,10 @@ public final class Variable extends PrimaryExpression {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Field, Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
             return null; //we never return
         }
+        if (def.getRefType().isCompatibleTo(new BooleanType()) && !state.expectValue()) {
+            TransformationHelper.booleanValueToConditionalJmp(state, res.genLoad(state));
+            return null;
+        }
         return res;
     }
 

@@ -48,15 +48,17 @@ public final class BooleanValue extends PrimaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        if (state.isCondition()) {
-            Relation relation = Relation.Equal;
-            if (!value) {
-                relation = relation.negated();
-            }
-            Node dummy = state.construction.newConst(0, Mode.getBu());
-            TransformationHelper.createConditionJumps(state, state.construction.newCmp(dummy, dummy, relation));
+        if (state.expectValue()) { //value
+            return new RValueNode(TransformationHelper.createBooleanNode(state, value), Mode.getBu());
         }
-        return new RValueNode(TransformationHelper.createBooleanNode(state, value), Mode.getBu());
+        //branches
+        Relation relation = Relation.Equal;
+        if (!value) {
+            relation = relation.negated();
+        }
+        Node dummy = state.construction.newConst(0, Mode.getBu());
+        TransformationHelper.createConditionJumps(state, state.construction.newCmp(dummy, dummy, relation));
+        return null;
     }
 
 
