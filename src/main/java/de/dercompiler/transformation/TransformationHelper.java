@@ -108,8 +108,9 @@ public class TransformationHelper {
             Block after = state.construction.newBlock();
             state.pushBranches(after, after);
             createConditionJumps(state, createComp(state, relation));
+            state.construction.setCurrentBlock(after);
             state.popBranches();
-            res = new RValueNode(state.construction.newPhi( new Node[]{createBooleanNode(state, true), createBooleanNode(state, true)} , Mode.getBu()), Mode.getBu());
+            res = new RValueNode(state.construction.newPhi( new Node[]{createBooleanNode(state, true), createBooleanNode(state, false)} , Mode.getBu()), Mode.getBu());
         } else {
             createConditionJumps(state, createComp(state, relation));
         }
