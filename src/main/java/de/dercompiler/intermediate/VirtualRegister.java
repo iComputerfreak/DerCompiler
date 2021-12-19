@@ -9,6 +9,10 @@ public class VirtualRegister implements Operand {
     public VirtualRegister() {
         this.id = nextID++;
     }
+    
+    public void resetNextID() {
+        nextID = 0;
+    }
 
     @Override
     public String getIdentifier() {
