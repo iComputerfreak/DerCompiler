@@ -5,7 +5,6 @@ import firm.Graph;
 import firm.nodes.Cmp;
 import firm.nodes.Node;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,9 +35,7 @@ public abstract class SubstitutionRule {
      * Returns the cost of this rule
      */
     // Overwritten in subclass
-    public int getCost() {
-        return 0;
-    }
+    public abstract int getCost();
 
     /**
      * Substitutes the given input node using this rule
@@ -46,10 +43,8 @@ public abstract class SubstitutionRule {
      * @return The Operation that resulted in substituting the node and its predecessors according to this rule
      */
     // Overwritten in subclass
-    public Operation substitute(Node node) {
-        // e.g. new BinaryOperation(ADD, graph.XXX.getLeft(), graph.XXX.getRight())
-        return null;
-    }
+    // e.g. new BinaryOperation(ADD, graph.XXX.getLeft(), graph.XXX.getRight())
+    public abstract List<Operation> substitute(Node node);
 
     /**
      * Returns all nodes other than the rootNode that are part of this rule, i.e. the root node's predecessors that this
@@ -59,9 +54,7 @@ public abstract class SubstitutionRule {
      * applied
      */
     // Overwritten in subclass
-    public List<Node> getRequiredNodes(Graph realGraph) {
-        return new ArrayList<>();
-    }
+    public abstract List<Node> getRequiredNodes(Graph realGraph);
 
     /**
      * Returns whether the given rule matches the given input node

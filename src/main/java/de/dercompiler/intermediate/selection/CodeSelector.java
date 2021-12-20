@@ -1,6 +1,8 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.*;
 
@@ -11,6 +13,8 @@ import java.util.Map;
 
 public class CodeSelector implements NodeVisitor {
     
+    private static final OutputMessageHandler logger = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
+    
     // The current mode of the CodeSelector
     private enum Mode {
         ANNOTATION,
@@ -19,17 +23,18 @@ public class CodeSelector implements NodeVisitor {
     }
     
     private final Graph graph;
-    private final List<SubstitutionRule> rules;
+    private final Map<Class<? extends Node>, List<SubstitutionRule>> rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
     private final Map<Integer, NodeAnnotation> annotations;
     private Mode mode;
+    // TODO: Code Graph
 
     /**
      * Creates a new CodeSelector with the given Graph and SubstitutionRules
      * @param graph The graph to create intermediate code for
-     * @param rules The set of rules to apply
+     * @param rules The map of rules to apply, keyed by the class of the root node
      */
-    public CodeSelector(Graph graph, List<SubstitutionRule> rules) {
+    public CodeSelector(Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
         this.graph = graph;
         this.rules = rules;
         this.annotations = new HashMap<>();
@@ -60,12 +65,12 @@ public class CodeSelector implements NodeVisitor {
     public List<Operation> generateCode() {
         /*
          * ANNOTATE THE GRAPH
-         * - Walk the DAG from the leaves (e.g. constants) to the roots (e.g. add) (Graph::walkTopological)
+         * - Walk the DAG from the leaves (e.g. constants) to the roots (e.g. add) (Graph::walkPostorder)
          * - Annotate each node with the minimal cost of deriving the graph rooted at the current node
          *   - The minimal cost of the sub-nodes (predecessors) is already known
          * 
          * REDUCE THE GRAPH
-         * - Walk the DAG from the roots to the leaves (Graph::walkPostorder)
+         * - Walk the DAG from the roots to the leaves (Graph::walkTopological)
          * - Substitute the nodes for their intermediate language code according to the annotated rule
          * - Go to the next node as determined by the applied rule
          * 
@@ -75,11 +80,11 @@ public class CodeSelector implements NodeVisitor {
         
         // Annotate the graph
         this.mode = Mode.ANNOTATION; // Set, in case generateCode() is called twice
-        graph.walkTopological(this);
+        graph.walkPostorder(this);
 
         // Reduce the graph
         this.mode = Mode.REDUCTION;
-        graph.walkPostorder(this);
+        graph.walkTopological(this);
         
         // This mode switch is not really necessary, since we won't use graph.walk... to walk the graph and we don't
         // need to switch the mode for the NodeVisitor to work properly
@@ -100,15 +105,24 @@ public class CodeSelector implements NodeVisitor {
     }
     
     private void annotateNode(Node node) {
-        for (SubstitutionRule rule : rules) {
+        // We only look at rules that have a root node that matches our current node
+        for (SubstitutionRule rule : rules.get(node.getClass())) {
             // Check if rule matches the node and its predecessors
             if (SubstitutionRule.matches(rule.getRootNode(), node)) {
+                int cost = rule.getCost();
+                // We have to add the cost of all predecessors that are not affected by this rule
+                for (Node p : node.getPreds()) {
+                    // If the predecessor is not affected by this rule, add its minimal cost to the total
+                    if (!rule.getRequiredNodes(graph).contains(p)) {
+                        NodeAnnotation predAnnotation = annotations.get(p.getNr());
+                        assert predAnnotation != null;
+                        cost += predAnnotation.cost();
+                    }
+                }
                 // If we found a cheaper rule for that node (including all predecessors)
-                // TODO: Check the required nodes and add the cost of all predecessors not required
-                if (!annotations.containsKey(node.getNr()) ||
-                        annotations.get(node.getNr()).getCost() > rule.getCost()) {
+                if (!annotations.containsKey(node.getNr()) || annotations.get(node.getNr()).cost() > cost) {
                     // Annotate the node
-                    NodeAnnotation a = new NodeAnnotation(rule.getCost(), node, rule);
+                    NodeAnnotation a = new NodeAnnotation(rule.getCost(), node, rule, false);
                     annotations.put(node.getNr(), a);
                 }
             }
@@ -120,11 +134,19 @@ public class CodeSelector implements NodeVisitor {
         NodeAnnotation a = annotations.remove(node.getNr());
         assert a != null;
         // Remove the annotations of all required nodes, since they will be covered by this rule
-        for (Node n : a.getRule().getRequiredNodes(graph)) {
+        // TODO: What if requirements are used by multiple parent nodes (visited flag)
+        for (Node n : a.rule().getRequiredNodes(graph)) {
+            assert annotations.containsKey(n.getNr());
             annotations.remove(n.getNr());
         }
+        // Generate code for the nodes
+        List<Operation> rootCode = a.rule().substitute(a.rootNode());
+        for (Node n : a.rule().getRequiredNodes(graph)) {
+            List<Operation> code = a.rule().substitute(n);
+            // TODO: Set predecessor correctly?
+        }
         
-        // TODO: Implement
+        // TODO: Append the generated code lists to the global code graph
     }
 
     @Override
