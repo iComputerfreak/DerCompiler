@@ -116,11 +116,11 @@ public class CodeSelector implements NodeVisitor {
                     if (!rule.getRequiredNodes(graph).contains(p)) {
                         NodeAnnotation predAnnotation = annotations.get(p.getNr());
                         assert predAnnotation != null;
-                        cost += predAnnotation.cost();
+                        cost += predAnnotation.getCost();
                     }
                 }
                 // If we found a cheaper rule for that node (including all predecessors)
-                if (!annotations.containsKey(node.getNr()) || annotations.get(node.getNr()).cost() > cost) {
+                if (!annotations.containsKey(node.getNr()) || annotations.get(node.getNr()).getCost() > cost) {
                     // Annotate the node
                     NodeAnnotation a = new NodeAnnotation(rule.getCost(), node, rule, false);
                     annotations.put(node.getNr(), a);
@@ -135,14 +135,14 @@ public class CodeSelector implements NodeVisitor {
         assert a != null;
         // Remove the annotations of all required nodes, since they will be covered by this rule
         // TODO: What if requirements are used by multiple parent nodes (visited flag)
-        for (Node n : a.rule().getRequiredNodes(graph)) {
+        for (Node n : a.getRule().getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
-            annotations.remove(n.getNr());
+            annotations.get(n.getNr()).setVisited(true);
         }
         // Generate code for the nodes
-        List<Operation> rootCode = a.rule().substitute(a.rootNode());
-        for (Node n : a.rule().getRequiredNodes(graph)) {
-            List<Operation> code = a.rule().substitute(n);
+        List<Operation> rootCode = a.getRule().substitute(a.getRootNode());
+        for (Node n : a.getRule().getRequiredNodes(graph)) {
+            List<Operation> code = a.getRule().substitute(n);
             // TODO: Set predecessor correctly?
         }
         
