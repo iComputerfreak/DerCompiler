@@ -19,6 +19,8 @@ dependencies {
     implementation 'com.github.Firmwehr:jFirm:master-SNAPSHOT'
     implementation 'net.java.dev.jna:jna:4.5.2!!'
 
+    implementation 'org.jgrapht:jgrapht-ext:1.5.1'
+
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

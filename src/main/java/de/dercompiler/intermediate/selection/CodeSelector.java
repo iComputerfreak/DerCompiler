@@ -3,13 +3,13 @@ package de.dercompiler.intermediate.selection;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import firm.Graph;
 import firm.nodes.*;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.traverse.BreadthFirstIterator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CodeSelector implements NodeVisitor {
     
@@ -19,26 +19,29 @@ public class CodeSelector implements NodeVisitor {
     private enum Mode {
         ANNOTATION,
         REDUCTION,
-        TRANSFORMATION
+        LINEARIZATION
     }
     
-    private final Graph graph;
+    private final firm.Graph graph;
     private final Map<Class<? extends Node>, List<SubstitutionRule>> rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
     private final Map<Integer, NodeAnnotation> annotations;
     private Mode mode;
-    // TODO: Code Graph
+    private final Graph<NodeAnnotation, DefaultEdge> codeGraph;
+    private final List<Operation> operations;
 
     /**
      * Creates a new CodeSelector with the given Graph and SubstitutionRules
      * @param graph The graph to create intermediate code for
      * @param rules The map of rules to apply, keyed by the class of the root node
      */
-    public CodeSelector(Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
+    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
         this.graph = graph;
         this.rules = rules;
         this.annotations = new HashMap<>();
         this.mode = Mode.ANNOTATION;
+        this.codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        this.operations = new ArrayList<>();
     }
 
     /**
@@ -74,7 +77,7 @@ public class CodeSelector implements NodeVisitor {
          * - Substitute the nodes for their intermediate language code according to the annotated rule
          * - Go to the next node as determined by the applied rule
          * 
-         * Source: M. Anton Ertl. Optimal code selection in DAGs. In Proceedings of the 26th ACM SIGPLAN-SIGACT
+         * See: M. Anton Ertl. Optimal code selection in DAGs. In Proceedings of the 26th ACM SIGPLAN-SIGACT
          * symposium on Principles of programming languages. ACM Press, 1999, S. 242–249.
          */
         
@@ -82,26 +85,20 @@ public class CodeSelector implements NodeVisitor {
         this.mode = Mode.ANNOTATION; // Set, in case generateCode() is called twice
         graph.walkPostorder(this);
 
-        // Reduce the graph
+        // Transform the graph into a code graph
         this.mode = Mode.REDUCTION;
         graph.walkTopological(this);
         
         // This mode switch is not really necessary, since we won't use graph.walk... to walk the graph and we don't
         // need to switch the mode for the NodeVisitor to work properly
-        // TODO: Remove
-        this.mode = Mode.TRANSFORMATION;
-        List<Operation> operations = new ArrayList<>();
-        // TODO: Walk the intermediate graph and generate a linear list of Operations
+        this.mode = Mode.LINEARIZATION;
+        // TODO: What walk mode?
+        Iterator<NodeAnnotation> it = new BreadthFirstIterator<>(codeGraph);
+        while (it.hasNext()) {
+            linearizeNode(it.next());
+        }
         
         return operations;
-    }
-    
-    private void visitAny(Node node) {
-        // Do for any node
-        switch (mode) {
-            case ANNOTATION -> annotateNode(node);
-            case REDUCTION -> reduceNode(node);
-        }
     }
     
     private void annotateNode(Node node) {
@@ -130,23 +127,54 @@ public class CodeSelector implements NodeVisitor {
     }
     
     private void reduceNode(Node node) {
-        // Remove the annotation from the list, since we no longer need it
-        NodeAnnotation a = annotations.remove(node.getNr());
+        NodeAnnotation a = annotations.get(node.getNr());
         assert a != null;
-        // Remove the annotations of all required nodes, since they will be covered by this rule
-        // TODO: What if requirements are used by multiple parent nodes (visited flag)
+        // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
+        if (a.getVisited()) return;
+        // Mark the annotations of all required nodes visited, since they will be covered by this rule
         for (Node n : a.getRule().getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
             annotations.get(n.getNr()).setVisited(true);
         }
-        // Generate code for the nodes
-        List<Operation> rootCode = a.getRule().substitute(a.getRootNode());
+        
+        // Build a graph of NodeAnnotations
+        
+        // The vertex could already exist due to a dependency
+        if (!codeGraph.containsVertex(a)) {
+            codeGraph.addVertex(a);
+        }
+        // Maintain the dependencies
+        for (Node n : a.getRule().getRequiredNodes(graph)) {
+            // If one of our predecessors has a predecessor that has not been visited yet,
+            // add it as an edge in the code graph
+            NodeAnnotation predAnnotation = annotations.get(n.getNr());
+            if (!predAnnotation.getVisited()) {
+                codeGraph.addVertex(predAnnotation);
+                codeGraph.addEdge(a, predAnnotation);
+            }
+        }
+    }
+    
+    // TODO: This has to be called on the code graph, not the firm graph
+    // TODO: Use NodeAnnotation::substitute instead and just call it in the linearize phase?
+    private void linearizeNode(NodeAnnotation a) {
+        // TODO: Transform all NodeAnnotations into code and add it to the operations list
         for (Node n : a.getRule().getRequiredNodes(graph)) {
             List<Operation> code = a.getRule().substitute(n);
-            // TODO: Set predecessor correctly?
         }
+        List<Operation> rootCode = a.getRule().substitute(a.getRootNode());
         
-        // TODO: Append the generated code lists to the global code graph
+        // TODO: Add operations to the global operations list
+        // operations.add(op);
+    }
+
+    private void visitAny(Node node) {
+        // Do for any node
+        switch (mode) {
+            case ANNOTATION -> annotateNode(node);
+            case REDUCTION -> reduceNode(node);
+            default -> logger.internalError("Walking the graph using an unknown mode '" + mode.name() + "'");
+        }
     }
 
     @Override
