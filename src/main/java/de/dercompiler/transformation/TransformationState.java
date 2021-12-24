@@ -43,6 +43,8 @@ public class TransformationState {
 
     private boolean hasReturn = false;
 
+    public boolean isAsignement = false;
+
     public TransformationState(GlobalScope scope) {
         this.globalScope = scope;
         graph = null;

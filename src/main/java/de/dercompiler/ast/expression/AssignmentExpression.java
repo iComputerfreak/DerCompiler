@@ -63,7 +63,11 @@ public final class AssignmentExpression extends BinaryExpression {
 
     private void createBooleanBranchNode(TransformationState state) {
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
+        //state.pushExpectValue();
+        state.isAsignement = true;
         createChildNodes(state);
+        state.isAsignement = false;
+        //state.popExpect();
         afterCreatedBranches(state);
         clearChildNodes(state);
     }
