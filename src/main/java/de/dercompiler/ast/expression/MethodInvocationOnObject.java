@@ -107,13 +107,13 @@ public final class MethodInvocationOnObject extends UnaryExpression {
             argNodes[baseIdx + i] = arguments.get(i).createNode(state).genLoad(state);
         }
 
+        state.popExpect();
+
         Node mem = state.construction.getCurrentMem();
         Node call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), argNodes, methodEntity.getType());
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
-
-        state.popExpect();
 
         if (methodDef.getType().getReturnType().isCompatibleTo(new VoidType())) {
             return new RValueNode(state.construction.newBad(Mode.getANY()), Mode.getANY());
