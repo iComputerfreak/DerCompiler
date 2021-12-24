@@ -98,7 +98,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         if (!isLibraryCall()) {
             ReferenceNode objRef = encapsulated.createNode(state);
             if (!(objRef instanceof ObjectNode on)) {
-                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("object only allowed as ObjectNode");
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("object only allowed as ObjectNode, got: " + objRef.getClass().getName());
                 return null; //we nerver return
             }
             argNodes[0] = on.getBase();
