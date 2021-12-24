@@ -47,8 +47,9 @@ public final class AssignmentExpression extends BinaryExpression {
     private ReferenceNode createBooleanValueNode(TransformationState state) {
         state.pushExpectValue();
         createChildNodes(state);
-        state.lhs.genStore(state, state.rhs);
         state.popExpect();
+
+        state.lhs.genStore(state, state.rhs);
         ReferenceNode node = null;
         if (state.expectValue()) {
             node = state.rhs;
