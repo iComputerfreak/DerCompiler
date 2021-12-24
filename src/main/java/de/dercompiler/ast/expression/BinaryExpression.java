@@ -34,7 +34,13 @@ public abstract sealed class BinaryExpression extends Expression permits Assignm
     public abstract OperatorToken getOperator();
 
     public void createChildNodes(TransformationState state) {
+        if (state.isAsignement) {
+            state.pushExpectValue();
+        }
         ReferenceNode nodeLhs = lhs.createNode(state);
+        if (state.isAsignement) {
+            state.popExpect();
+        }
         state.rhs = rhs.createNode(state);
         state.lhs = nodeLhs;
     }
