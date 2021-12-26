@@ -20,7 +20,7 @@ public enum UnaryOperationType implements OperationType {
     NOT(""),
     POP(""),
     PUSH(""),
-    INCREMENT("");
+    INC("");
 
 
     private final String syntax;
