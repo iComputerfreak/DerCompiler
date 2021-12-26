@@ -4,6 +4,7 @@ import de.dercompiler.intermediate.Operand;
 
 public final class ConstantOperation implements Operation {
 
+
     private final OperationType operationType;
 
     public ConstantOperation(OperationType operationType) {
@@ -17,5 +18,10 @@ public final class ConstantOperation implements Operation {
 
     public OperationType getOperationType() {
         return operationType;
+    }
+
+    @Override
+    public String getIntelSyntax() {
+        return operationType.getSyntax();
     }
 }

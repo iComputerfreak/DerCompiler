@@ -4,6 +4,7 @@ import de.dercompiler.intermediate.Operand;
 
 public final class UnaryOperation implements Operation {
 
+    private Operand operand;
     private final OperationType operationType;
 
     public UnaryOperation(OperationType operationType) {
@@ -12,10 +13,15 @@ public final class UnaryOperation implements Operation {
 
     @Override
     public Operand[] getArgs() {
-        return new Operand[1];
+        return new Operand[]{operand};
     }
 
     public OperationType getOperationType() {
         return operationType;
+    }
+
+    @Override
+    public String getIntelSyntax() {
+        return operationType.getSyntax() + " " + operand.getIdentifier();
     }
 }
