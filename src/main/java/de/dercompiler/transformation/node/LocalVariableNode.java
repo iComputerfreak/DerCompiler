@@ -45,7 +45,7 @@ public class LocalVariableNode extends ReferenceNode {
         FieldDefinition def = ct.getField(fieldName);
         Type fieldType = def.getReferenceType();
         Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
-        Node member = state.construction.newMember(ref , field);
+        Node member = state.construction.newMember(genLoad(state) , field);
         return new FieldNode(member, fieldType);
     }
 

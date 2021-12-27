@@ -45,12 +45,8 @@ public final class ArrayAccess extends PostfixExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         ReferenceNode base_ptr = getEncapsulated().createNode(state);
-        if (!(base_ptr instanceof ArrayNode an)) {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("we make a ArrayAccess on: " + encapsulated + " this should have been found by semantic!");
-            return null;
-        }
 
-        int type_size_const = an.getElementType().getFirmType().getSize();
+        int type_size_const = base_ptr.getType().getFirmType().getSize();
         Node type_size = state.construction.newConst(type_size_const, Mode.getIu());
         ReferenceNode elements = index.createNode(state);
         //convert size?

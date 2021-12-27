@@ -47,7 +47,7 @@ public abstract class ReferenceNode {
     public abstract boolean isReference();
 
     public Mode getMode() {
-        return type.getFirmType().getMode();
+        return mode;
     }
 
     public Type getType() {
