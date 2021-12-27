@@ -113,10 +113,10 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
         }
         
         // The method firm type should never be set earlier, but just to be sure
-        if (def.getFirmType() == null) {
+        if (def.getType().getFirmType() == null) {
             // For method definitions, we always have to create a new firm type
             firm.MethodType firmType = factory.createFirmMethodType(parameterTypes, returnType);
-            def.setFirmType(firmType);
+            def.getType().setFirmType(firmType);
         }
 
         // Add the method entity to the parent class
