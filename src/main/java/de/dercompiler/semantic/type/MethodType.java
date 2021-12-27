@@ -8,6 +8,7 @@ public class MethodType implements Type {
 
     private final boolean staticMethod;
     private final List<Type> parameterTypes;
+    private firm.MethodType firmType;
     private final Type returnType;
 
     public MethodType(Type type, List<Type> parameters, boolean isStatic) {
@@ -26,10 +27,14 @@ public class MethodType implements Type {
     }
 
     @Override
-    public firm.Type getFirmType() {
-        return null;
+    public firm.MethodType getFirmType() {
+        return firmType;
     }
-
+    
+    public void setFirmType(firm.MethodType firmType) {
+        this.firmType = firmType;
+    }
+    
     public List<Type> getParameterTypes() {
         return parameterTypes;
     }

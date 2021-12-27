@@ -270,6 +270,7 @@ public final class OutputMessageHandler {
                                                        ~ - .      ~ .
                                                               ~ -...0..~. ____
 """;
+        // by Dick Williams, rjw1@tyrell.net
         System.out.println(plane);
     }
 
