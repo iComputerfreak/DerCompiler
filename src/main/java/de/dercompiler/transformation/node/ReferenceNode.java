@@ -2,6 +2,7 @@ package de.dercompiler.transformation.node;
 
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.type.ArrayType;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.Type;
@@ -33,8 +34,10 @@ public abstract class ReferenceNode {
         return new ArrayNode(elem_ptr, at.getElementType(), at.getDimension() - 1);
     }
 
-    public ReferenceNode accessField(TransformationState state, String fieldName, Type fieldType) {
+    public ReferenceNode accessField(TransformationState state, String fieldName) {
         ClassType ct = getTypeAsClass();
+        FieldDefinition def = ct.getField(fieldName);
+        Type fieldType = def.getReferenceType();
         Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
         Node member = state.construction.newMember(ref , field);
         return new FieldNode(member, fieldType);

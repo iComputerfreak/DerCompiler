@@ -47,12 +47,7 @@ public final class FieldAccess extends PostfixExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         ReferenceNode objRef = encapsulated.createNode(state);
-        if (!(encapsulated.getType() instanceof ClassType ct && objRef instanceof ObjectNode on)) return errorNoValidFieldAccess(encapsulated.getType(), objRef);
-        FieldDefinition def = ct.getField(fieldName);
-        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
-        Node member = state.construction.newMember(on.getBase(), field);
-        Type resType = def.getReferenceType().getFirmType();
-        return new FieldNode(member, def.getReferenceType());
+        return objRef.accessField(state, fieldName);
     }
 
     public ReferenceNode errorNoValidFieldAccess(de.dercompiler.semantic.type.Type type, ReferenceNode objRef) {

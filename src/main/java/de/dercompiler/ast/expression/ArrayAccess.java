@@ -55,7 +55,6 @@ public final class ArrayAccess extends PostfixExpression {
         ReferenceNode elements = index.createNode(state);
         //convert size?
         Node offset = TransformationHelper.calculateOffset(state, type_size, elements.genLoad(state));
-        Node elem_ptr = TransformationHelper.addOffsetToPointer(state, an.getPointer(), offset);
-        return new ArrayNode(elem_ptr, an.getElementType(), an.getDimension() - 1);
+        return base_ptr.accessArray(state, offset);
     }
 }
