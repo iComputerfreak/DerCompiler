@@ -17,7 +17,6 @@ import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Entity;
 import firm.Mode;
-import firm.Relation;
 import firm.nodes.Call;
 import firm.nodes.Node;
 
@@ -97,11 +96,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         Node[] argNodes = new Node[baseIdx + argsCount];
         if (!isLibraryCall()) {
             ReferenceNode objRef = encapsulated.createNode(state);
-            if (!(objRef instanceof ObjectNode on)) {
-                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("object only allowed as ObjectNode, got: " + objRef.getClass().getName());
-                return null; //we nerver return
-            }
-            argNodes[0] = on.getBase();
+            argNodes[0] = objRef.getObjectCallBase(state).getBase();
         }
         for (int i = 0; i < argsCount; i++) {
             argNodes[baseIdx + i] = arguments.get(i).createNode(state).genLoad(state);

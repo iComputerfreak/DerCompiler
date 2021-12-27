@@ -2,9 +2,9 @@ package de.dercompiler.transformation.node;
 
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.Type;
 import de.dercompiler.transformation.TransformationState;
-import firm.Mode;
 import firm.nodes.Node;
 
 public class RValueNode extends ReferenceNode {
@@ -25,18 +25,9 @@ public class RValueNode extends ReferenceNode {
     }
 
     @Override
-    public ReferenceNode accessArray(TransformationState state, Node offset) {
-        return null;
-    }
-
-    @Override
-    public ReferenceNode accessField(TransformationState state) {
-        return null;
-    }
-
-    @Override
-    public ReferenceNode callMethod(TransformationState state) {
-        return null;
+    public ObjectNode getObjectCallBase(TransformationState state) {
+        ClassType ct = getTypeAsClass();
+        return new ObjectNode(ref, ct);
     }
 
     @Override

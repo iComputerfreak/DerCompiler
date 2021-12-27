@@ -1,11 +1,12 @@
 package de.dercompiler.transformation.node;
 
-import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.Type;
-import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.util.Utils;
+import firm.Entity;
 import firm.nodes.Node;
 
 public class ObjectNode extends ReferenceNode{
@@ -27,18 +28,15 @@ public class ObjectNode extends ReferenceNode{
 
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
-        return null;
+        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("tried to call ArrayAccess on Object");
+        return null; //we never return
     }
 
     @Override
-    public ReferenceNode accessField(TransformationState state) {
-        return null;
+    public ObjectNode getObjectCallBase(TransformationState state) {
+        return this;
     }
 
-    @Override
-    public ReferenceNode callMethod(TransformationState state) {
-        return null;
-    }
 
     public Node getBase() {
         return ref;

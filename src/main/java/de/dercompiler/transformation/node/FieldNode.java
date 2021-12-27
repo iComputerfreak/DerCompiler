@@ -1,11 +1,14 @@
 package de.dercompiler.transformation.node;
 
-import de.dercompiler.ast.type.CustomType;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.semantic.type.ArrayType;
+import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.Type;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
-import firm.CompoundType;
-import firm.Mode;
+import de.dercompiler.util.Utils;
+import firm.Entity;
 import firm.nodes.Node;
 
 public class FieldNode extends ReferenceNode {
@@ -28,18 +31,8 @@ public class FieldNode extends ReferenceNode {
     }
 
     @Override
-    public ReferenceNode accessArray(TransformationState state, Node offset) {
-        return null;
-    }
-
-    @Override
-    public ReferenceNode accessField(TransformationState state) {
-        return null;
-    }
-
-    @Override
-    public ReferenceNode callMethod(TransformationState state) {
-        return null;
+    public ObjectNode getObjectCallBase(TransformationState state) {
+        return new ObjectNode(ref, getTypeAsClass()); //checks for  class-type
     }
 
     @Override

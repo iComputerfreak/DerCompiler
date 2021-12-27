@@ -1,7 +1,14 @@
 package de.dercompiler.transformation.node;
 
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.semantic.type.ArrayType;
+import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.Type;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.util.Utils;
+import firm.Entity;
 import firm.Mode;
 import firm.nodes.Node;
 
@@ -20,9 +27,19 @@ public abstract class ReferenceNode {
     public abstract Node genLoad(TransformationState state);
     public abstract ReferenceNode genStore(TransformationState state, ReferenceNode value);
 
-    public abstract ReferenceNode accessArray(TransformationState state, Node offset);
-    public abstract ReferenceNode accessField(TransformationState state);
-    public abstract ReferenceNode callMethod(TransformationState state);
+    public ReferenceNode accessArray(TransformationState state, Node offset) {
+        ArrayType at = getTypeAsArray();
+        Node elem_ptr = TransformationHelper.addOffsetToPointer(state, ref, offset);
+        return new ArrayNode(elem_ptr, at.getElementType(), at.getDimension() - 1);
+    }
+
+    public ReferenceNode accessField(TransformationState state, String fieldName, Type fieldType) {
+        ClassType ct = getTypeAsClass();
+        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
+        Node member = state.construction.newMember(ref , field);
+        return new FieldNode(member, fieldType);
+    }
+    public abstract ObjectNode getObjectCallBase(TransformationState state);
 
     public abstract boolean isReference();
 
@@ -32,5 +49,21 @@ public abstract class ReferenceNode {
 
     public Type getType() {
         return type;
+    }
+
+    protected ClassType getTypeAsClass() {
+        if (!(type instanceof ClassType ct)) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Can't cast type: " + type.getClass().getName() + " to " + ClassType.class.getName());
+            return null; //we never return
+        }
+        return ct;
+    }
+
+    protected ArrayType getTypeAsArray() {
+        if (!(type instanceof ArrayType at)) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Can't cast type: " + type.getClass().getName() + " to " + ArrayType.class.getName());
+            return null; //we never return
+        }
+        return at;
     }
 }
