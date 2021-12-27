@@ -82,12 +82,12 @@ public final class AssignmentExpression extends BinaryExpression {
 
         state.construction.setCurrentBlock(assignTrue);                         //assign true in case of true
         Node nodeT = TransformationHelper.createBooleanNode(state, true);
-        state.lhs.genStore(state, new RValueNode(nodeT, Mode.getBu()));         // create jump to original true-block
+        state.lhs.genStore(state, new RValueNode(nodeT, getType()));         // create jump to original true-block
         TransformationHelper.createDirectJump(state, state.trueBlock());
 
         state.construction.setCurrentBlock(assignFalse);                        //assign false in case of false
         Node nodeF = TransformationHelper.createBooleanNode(state, false);
-        state.lhs.genStore(state, new RValueNode(nodeF, Mode.getBu()));         // create jump to original false-block
+        state.lhs.genStore(state, new RValueNode(nodeF, getType()));         // create jump to original false-block
         TransformationHelper.createDirectJump(state, state.falseBlock());
 
         state.construction.setCurrentBlock(cur);

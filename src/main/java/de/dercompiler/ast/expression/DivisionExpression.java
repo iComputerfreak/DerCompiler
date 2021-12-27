@@ -44,6 +44,6 @@ public final class DivisionExpression extends BinaryExpression {
         Mode resMode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
         state.construction.setCurrentMem(state.construction.newProj(div, Mode.getM(), Div.pnM));
         clearChildNodes(state);
-        return new RValueNode(state.construction.newProj(div, resMode, Div.pnRes), resMode);
+        return new RValueNode(state.construction.newProj(div, resMode, Div.pnRes), getType());
     }
 }

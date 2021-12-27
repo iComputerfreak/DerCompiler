@@ -40,6 +40,6 @@ public final class SubtractExpression extends BinaryExpression {
         Node res = state.construction.newSub(state.lhs.genLoad(state), state.rhs.genLoad(state));
         Mode resMode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
         clearChildNodes(state);
-        return new RValueNode(res, resMode);
+        return new RValueNode(res, getType());
     }
 }

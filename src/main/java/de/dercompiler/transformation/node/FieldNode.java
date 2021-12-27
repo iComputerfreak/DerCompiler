@@ -1,19 +1,18 @@
 package de.dercompiler.transformation.node;
 
 import de.dercompiler.ast.type.CustomType;
+import de.dercompiler.semantic.type.Type;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import firm.CompoundType;
 import firm.Mode;
-import firm.Type;
 import firm.nodes.Node;
 
 public class FieldNode extends ReferenceNode {
 
-    private Type type;
 
     public FieldNode(Node ref, Type type) {
-        super(ref, type.getMode());
+        super(ref, type);
         this.type = type;
     }
 
@@ -24,8 +23,23 @@ public class FieldNode extends ReferenceNode {
 
     @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
-        TransformationHelper.genStore(state, ref, value.genLoad(state), type);
+        TransformationHelper.genStore(state, ref, value.genLoad(state), type.getFirmType());
         return value;
+    }
+
+    @Override
+    public ReferenceNode accessArray(TransformationState state, Node offset) {
+        return null;
+    }
+
+    @Override
+    public ReferenceNode accessField(TransformationState state) {
+        return null;
+    }
+
+    @Override
+    public ReferenceNode callMethod(TransformationState state) {
+        return null;
     }
 
     @Override

@@ -50,7 +50,7 @@ public final class ArrayAccess extends PostfixExpression {
             return null;
         }
 
-        int type_size_const = an.getElementType().getSize();
+        int type_size_const = an.getElementType().getFirmType().getSize();
         Node type_size = state.construction.newConst(type_size_const, Mode.getIu());
         ReferenceNode elements = index.createNode(state);
         //convert size?

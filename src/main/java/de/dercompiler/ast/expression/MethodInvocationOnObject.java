@@ -116,7 +116,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
 
         if (methodDef.getType().getReturnType().isCompatibleTo(new VoidType())) {
-            return new RValueNode(state.construction.newBad(Mode.getANY()), Mode.getANY());
+            return new RValueNode(state.construction.newBad(Mode.getANY()), getType());
         }
         //we don't have to return 2 so always 0
         firm.Type resType = methodDef.getType().getReturnType().getFirmType();
@@ -124,9 +124,9 @@ public final class MethodInvocationOnObject extends UnaryExpression {
 
         de.dercompiler.semantic.type.Type ret = methodDef.getType().getReturnType();
         if (ret instanceof ArrayType at) {
-            return new ArrayNode(res, at.getElementType().getFirmType(), at.getDimension());
-        } else if (ret instanceof ClassType) {
-            return new ObjectNode(res, resType);
+            return new ArrayNode(res, at.getElementType(), at.getDimension());
+        } else if (ret instanceof ClassType ct) {
+            return new ObjectNode(res, ct);
         } else if (ret instanceof BooleanType) {
             if (!state.expectValue()) {
                 TransformationHelper.booleanValueToConditionalJmp(state, res);
@@ -134,7 +134,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
             }
         }
         //assume everything else is a basic-type
-        return new RValueNode(res, resType.getMode());
+        return new RValueNode(res, getType());
     }
 
     public void setImplicitThis(boolean implicitThis) {

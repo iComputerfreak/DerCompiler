@@ -41,6 +41,6 @@ public final class AddExpression extends BinaryExpression {
         Node res = state.construction.newAdd(state.lhs.genLoad(state), state.rhs.genLoad(state));
         Mode resMode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
         clearChildNodes(state);
-        return new RValueNode(res, resMode);
+        return new RValueNode(res, getType());
     }
 }

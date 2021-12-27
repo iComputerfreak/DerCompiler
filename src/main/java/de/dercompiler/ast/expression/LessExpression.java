@@ -39,7 +39,7 @@ public final class LessExpression extends BinaryExpression {
         createChildNodes(state);
         state.popExpect();
 
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Less);
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Less, getType());
         clearChildNodes(state);
         return res;
     }

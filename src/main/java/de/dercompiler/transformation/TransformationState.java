@@ -5,10 +5,10 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.type.Type;
 import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Construction;
 import firm.Graph;
-import firm.Type;
 import firm.nodes.Block;
 import firm.nodes.Node;
 

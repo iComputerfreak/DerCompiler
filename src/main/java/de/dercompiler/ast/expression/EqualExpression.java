@@ -42,7 +42,7 @@ public final class EqualExpression extends BinaryExpression {
         createChildNodes(state);
         state.popExpect();
 
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal);
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal, getType());
         clearChildNodes(state);
         return res;
     }

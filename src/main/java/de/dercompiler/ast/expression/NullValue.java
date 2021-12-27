@@ -31,7 +31,7 @@ public final class NullValue extends PrimaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        return new RValueNode(state.construction.newConst(0, Mode.getP()), Mode.getP());
+        return new RValueNode(state.construction.newConst(0, Mode.getP()), getType());
     }
 
     @Override

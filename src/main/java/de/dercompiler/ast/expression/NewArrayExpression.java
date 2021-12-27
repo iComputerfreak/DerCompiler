@@ -67,20 +67,9 @@ public final class NewArrayExpression extends PrimaryExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         Node mem = state.construction.getCurrentMem();
-        Type type;
-        if (getBasicType() instanceof IntType) {
-            type = Mode.getIs().getType();
-        } else if (getBasicType() instanceof BooleanType) {
-            type = Mode.getBu().getType();
-        } else if (getBasicType() instanceof CustomType ct) {
-            type = state.globalScope.getClass(ct.getIdentifier()).getFirmType();
-        } else {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("can't assign type to Array");
-            return null; //we nerver return
-        }
+        Type type = getType().getFirmType();
 
         Node type_size = state.construction.newConst(type.getSize(), Mode.getIu());
-        //TODO getAlignment in bit or byte? 8byte because of 64bit?
         Node size = TransformationHelper.calculateSize(state, type_size, getSize().createNode(state).genLoad(state));
         Entity methodEntity = LibraryMethods.allocate;
         Node call = state.construction.newCall(mem,
@@ -88,6 +77,6 @@ public final class NewArrayExpression extends PrimaryExpression {
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
-        return new ArrayNode(state.construction.newProj(tuple, Mode.getP(), 0), type, dimension);
+        return new ArrayNode(state.construction.newProj(tuple, Mode.getP(), 0), getType(), dimension);
     }
 }

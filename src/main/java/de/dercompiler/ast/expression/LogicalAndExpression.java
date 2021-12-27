@@ -58,7 +58,7 @@ public final class LogicalAndExpression extends BinaryExpression {
             TransformationHelper.createDirectJump(state, after);
             after.mature();
             state.construction.setCurrentBlock(after);
-            res = new RValueNode(state.construction.newPhi(new Node[]{TransformationHelper.createBooleanNode(state, true), TransformationHelper.createBooleanNode(state, false)}, Mode.getBu()), Mode.getBu());
+            res = new RValueNode(state.construction.newPhi(new Node[]{TransformationHelper.createBooleanNode(state, true), TransformationHelper.createBooleanNode(state, false)}, Mode.getBu()), getType());
             state.popBranches();
         }
         return res;

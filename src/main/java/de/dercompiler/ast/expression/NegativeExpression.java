@@ -42,7 +42,7 @@ public final class NegativeExpression extends UnaryExpression {
             // minuses on constant values must be eliminated (MIN_VALUE problem)
             return inner;
         }
-        return new RValueNode(state.construction.newMinus(inner.genLoad(state)), inner.getMode());
+        return new RValueNode(state.construction.newMinus(inner.genLoad(state)), getType());
     }
 
     public void setNegative(boolean b) {

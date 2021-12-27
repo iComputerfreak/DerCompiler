@@ -49,7 +49,7 @@ public final class BooleanValue extends PrimaryExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         if (state.expectValue()) { //value
-            return new RValueNode(TransformationHelper.createBooleanNode(state, value), Mode.getBu());
+            return new RValueNode(TransformationHelper.createBooleanNode(state, value), getType());
         }
         //branches
         Relation relation = Relation.Equal;

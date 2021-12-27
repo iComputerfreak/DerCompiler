@@ -44,6 +44,6 @@ public final class ModuloExpression extends BinaryExpression {
         Mode mode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
         state.construction.setCurrentMem(state.construction.newProj(div, Mode.getM(), Div.pnM));
         clearChildNodes(state);
-        return new RValueNode(state.construction.newProj(div, mode, Div.pnRes), mode);
+        return new RValueNode(state.construction.newProj(div, mode, Div.pnRes), getType());
     }
 }

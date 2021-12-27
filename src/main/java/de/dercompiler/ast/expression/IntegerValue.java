@@ -73,6 +73,6 @@ public final class IntegerValue extends PrimaryExpression {
         }
         Mode int_mode = Mode.getIs();
 
-        return new RValueNode(state.construction.newConst(value, int_mode), int_mode);
+        return new RValueNode(state.construction.newConst(value, int_mode), getType());
     }
 }

@@ -68,14 +68,14 @@ public final class Variable extends PrimaryExpression {
         if (def instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
             Mode mode = this.getType().getFirmType().getMode();
-            res = new LocalVariableNode(mode, nodeId);
+            res = new LocalVariableNode(lvds.getRefType(), nodeId);
         } else if (def instanceof Parameter p) {
             Mode mode = p.getFirmType().getMode();
-            res = new RValueNode(state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId()), mode);
+            res = new RValueNode(state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId()), getType());
         } else if (def instanceof Field f) {
             Node this_ = state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0);
             Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getMangledIdentifier());
-            res = new FieldNode(state.construction.newMember(this_, field), field.getType());
+            res = new FieldNode(state.construction.newMember(this_, field), f.getRefType());
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Field, Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
             return null; //we never return

@@ -33,7 +33,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
         
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
-        state.currentClass = state.globalScope.getClass(method.getSurroundingClass().getIdentifier()).getFirmType();
+        state.currentClass = state.globalScope.getClass(method.getSurroundingClass().getIdentifier());
         return false;
     }
 

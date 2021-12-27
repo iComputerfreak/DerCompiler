@@ -52,7 +52,7 @@ public final class FieldAccess extends PostfixExpression {
         Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
         Node member = state.construction.newMember(on.getBase(), field);
         Type resType = def.getReferenceType().getFirmType();
-        return new FieldNode(member, resType);
+        return new FieldNode(member, def.getReferenceType());
     }
 
     public ReferenceNode errorNoValidFieldAccess(de.dercompiler.semantic.type.Type type, ReferenceNode objRef) {

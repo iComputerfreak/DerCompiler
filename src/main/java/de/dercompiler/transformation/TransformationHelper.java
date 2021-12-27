@@ -101,7 +101,7 @@ public class TransformationHelper {
         }
     }
 
-    public static ReferenceNode createComparator(TransformationState state, Relation relation) {
+    public static ReferenceNode createComparator(TransformationState state, Relation relation, de.dercompiler.semantic.type.Type resType) {
         //we assume here state.lhs and state.rhs are set
         ReferenceNode res = null;
         if (state.expectValue()) {
@@ -110,7 +110,7 @@ public class TransformationHelper {
             createConditionJumps(state, createComp(state, relation));
             state.construction.setCurrentBlock(after);
             state.popBranches();
-            res = new RValueNode(state.construction.newPhi( new Node[]{createBooleanNode(state, true), createBooleanNode(state, false)} , Mode.getBu()), Mode.getBu());
+            res = new RValueNode(state.construction.newPhi( new Node[]{createBooleanNode(state, true), createBooleanNode(state, false)} , Mode.getBu()), resType);
         } else {
             createConditionJumps(state, createComp(state, relation));
         }
@@ -122,7 +122,7 @@ public class TransformationHelper {
         if (!node.getMode().equals(Mode.getBu())) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("We only can negate Booleans, but got Mode: " + node.getMode());
         }
-        return new RValueNode(state.construction.newEor(node.genLoad(state), createBooleanNode(state, true)), Mode.getBu());
+        return new RValueNode(state.construction.newEor(node.genLoad(state), createBooleanNode(state, true)), node.getType());
     }
 
     public static void booleanValueToConditionalJmp(TransformationState state, Node node) {

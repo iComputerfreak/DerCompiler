@@ -38,7 +38,7 @@ public final class GreaterExpression extends BinaryExpression {
         createChildNodes(state);
         state.popExpect();
 
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Greater);
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Greater, getType());
         clearChildNodes(state);
         return res;
     }

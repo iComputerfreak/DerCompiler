@@ -56,6 +56,6 @@ public final class NewObjectExpression extends PrimaryExpression {
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
-        return new ObjectNode(state.construction.newProj(tuple, Mode.getP(), 0), type.getFirmType());
+        return new ObjectNode(state.construction.newProj(tuple, Mode.getP(), 0), type);
     }
 }
