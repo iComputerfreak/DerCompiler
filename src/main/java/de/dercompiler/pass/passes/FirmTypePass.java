@@ -7,6 +7,7 @@ import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.transformation.FirmTypeFactory;
 import firm.Entity;
 import firm.Type;
@@ -79,7 +80,9 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
         MethodDefinition def = globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
                 method.getIdentifier());
         // We need to collect the firm types of the parameters and the return type
-        firm.Type returnType = factory.getOrCreateFirmVariableType(def.getType().getReturnType());
+        firm.Type returnType = (def.getType().getReturnType() instanceof VoidType)
+                //type has to be null for method definition, otherwise return type has also to contain a return parameter
+                ? null : factory.getOrCreateFirmVariableType(def.getType().getReturnType());
         //0 this pointer
         int baseIdx = 0;
         int argCount = method.getParameters().size();

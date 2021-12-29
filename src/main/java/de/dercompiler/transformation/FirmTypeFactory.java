@@ -52,6 +52,8 @@ public class FirmTypeFactory {
     public firm.Type createFirmPrimitiveType(Type type) {
         if (type instanceof IntegerType) {
             return new PrimitiveType(Mode.getIs());
+        } else if (type instanceof OffsetType) {
+            return new PrimitiveType(Mode.getIu());
         } else if (type instanceof BooleanType) {
             // For booleans, we use the byte type (signed or unsigned should not matter)
             return new PrimitiveType(Mode.getBu());
