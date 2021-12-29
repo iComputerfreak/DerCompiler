@@ -19,6 +19,11 @@ public class NullType implements Type {
         return getExpectedType().getFirmType();
     }
 
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return getFirmType();
+    }
+
     public void setExpectedType(Type expType) {
         this.expectedType = expType;
     }

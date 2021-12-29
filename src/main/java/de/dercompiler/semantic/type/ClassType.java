@@ -3,6 +3,7 @@ package de.dercompiler.semantic.type;
 import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.util.Utils;
 import firm.Entity;
 
@@ -53,6 +54,11 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
     
     public firm.ClassType getFirmType() {
         return firmType;
+    }
+
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return FirmTypes.pointerFirmType;
     }
     
     public void setFirmType(firm.ClassType firmType) {

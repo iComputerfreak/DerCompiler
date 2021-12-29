@@ -114,7 +114,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
             return new RValueNode(state.construction.newBad(Mode.getANY()), getType());
         }
         //we don't have to return 2 so always 0
-        firm.Type resType = methodDef.getType().getReturnType().getFirmType();
+        firm.Type resType = methodDef.getType().getReturnType().getFirmTransformationType();
         Node res = state.construction.newProj(tuple, resType.getMode(),  0);
 
         de.dercompiler.semantic.type.Type ret = methodDef.getType().getReturnType();

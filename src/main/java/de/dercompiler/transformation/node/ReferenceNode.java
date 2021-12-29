@@ -24,10 +24,11 @@ public abstract class ReferenceNode {
     public ReferenceNode(Node ref, Type type) {
         this.ref = ref;
         this.type = type;
-        this.mode = type.getFirmType().getMode();
-        if ((Objects.isNull(this.mode) && type instanceof ClassType) || type instanceof ArrayType at && at.getDimension() != 0) {
-            this.mode = Mode.getP();
-        }
+        this.mode = type.getFirmTransformationType().getMode();
+        //should be unnecessary because of getFirmTransformationType()
+        //if ((Objects.isNull(this.mode) && type instanceof ClassType) || type instanceof ArrayType at && at.getDimension() != 0) {
+        //    this.mode = Mode.getP();
+        //}
     }
 
     public abstract Node genLoad(TransformationState state);

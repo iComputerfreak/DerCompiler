@@ -13,4 +13,9 @@ public class OffsetType implements Type {
     public firm.Type getFirmType() {
         return FirmTypes.offsetType;
     }
+
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return getFirmType();
+    }
 }

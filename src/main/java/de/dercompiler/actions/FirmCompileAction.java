@@ -53,7 +53,7 @@ public class FirmCompileAction extends Action {
         ErrorStatus.exitProgramIfError();
 
         //lower members
-        Util.lowerSels();
+        //Util.lowerSels();
         //maybe add later
         Backend.lowerForTarget();
         String base = ToolchainUtil.getBaseName(source.filename());

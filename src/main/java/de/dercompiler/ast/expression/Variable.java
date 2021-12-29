@@ -67,10 +67,10 @@ public final class Variable extends PrimaryExpression {
         ReferenceNode res;
         if (def instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
-            Mode mode = this.getType().getFirmType().getMode();
+            Mode mode = this.getType().getFirmTransformationType().getMode();
             res = new LocalVariableNode(lvds.getRefType(), nodeId);
         } else if (def instanceof Parameter p) {
-            Mode mode = p.getFirmType().getMode();
+            Mode mode = p.getRefType().getFirmTransformationType().getMode();
             res = new RValueNode(state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId()), getType());
         } else if (def instanceof Field f) {
             Node this_ = state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0);

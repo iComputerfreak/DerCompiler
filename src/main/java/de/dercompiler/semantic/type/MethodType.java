@@ -30,6 +30,11 @@ public class MethodType implements Type {
     public firm.MethodType getFirmType() {
         return firmType;
     }
+
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return getFirmType();
+    }
     
     public void setFirmType(firm.MethodType firmType) {
         this.firmType = firmType;

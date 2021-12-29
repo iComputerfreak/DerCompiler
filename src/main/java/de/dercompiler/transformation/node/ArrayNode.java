@@ -75,7 +75,7 @@ public class ArrayNode extends ReferenceNode {
     }
 
     private firm.Type type() {
-        return this.type.getFirmType();
+        return this.type.getFirmTransformationType();
     }
 
     public Node getPointer() {

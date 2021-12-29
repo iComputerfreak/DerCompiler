@@ -26,7 +26,7 @@ public class FieldNode extends ReferenceNode {
 
     @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
-        TransformationHelper.genStore(state, ref, value.genLoad(state), type.getFirmType());
+        TransformationHelper.genStore(state, ref, value.genLoad(state), type.getFirmTransformationType());
         return value;
     }
 

@@ -51,7 +51,7 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
                         f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
                     }
                     // Add the field entity to the parent class
-                    firm.Entity entity = new Entity(def.getFirmType(), f.getMangledIdentifier(), f.getFirmType());
+                    firm.Entity entity = new Entity(def.getFirmType(), f.getMangledIdentifier(), f.getRefType().getFirmTransformationType());
                     def.getFieldEntities().add(entity);
                 }
             }
@@ -95,7 +95,7 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             baseIdx++;
             argCount++;
             parameterTypes = new Type[argCount];
-            parameterTypes[0] = parentType.getFirmType();
+            parameterTypes[0] = parentType.getFirmTransformationType();
         }
 
         for (int i = baseIdx; i < argCount; i++) {
@@ -112,7 +112,7 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
                 p.setFirmType(factory.getOrCreateFirmVariableType(p.getRefType()));
             }
             // Save the firm type to the array
-            parameterTypes[i] = p.getFirmType();
+            parameterTypes[i] = p.getRefType().getFirmTransformationType();
         }
         
         // The method firm type should never be set earlier, but just to be sure

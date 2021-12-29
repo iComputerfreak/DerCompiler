@@ -67,7 +67,7 @@ public final class NewArrayExpression extends PrimaryExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         Node mem = state.construction.getCurrentMem();
-        Type type = getType().getFirmType();
+        Type type = getType().getFirmTransformationType();
 
         Node type_size = state.construction.newConst(type.getSize(), Mode.getIu());
         Node size = TransformationHelper.calculateSize(state, type_size, getSize().createNode(state).genLoad(state));

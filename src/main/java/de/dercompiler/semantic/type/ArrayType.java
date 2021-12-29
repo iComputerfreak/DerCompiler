@@ -1,5 +1,7 @@
 package de.dercompiler.semantic.type;
 
+import de.dercompiler.transformation.FirmTypes;
+
 public final class ArrayType implements ReferenceType {
     
     private final Type baseType;
@@ -39,6 +41,11 @@ public final class ArrayType implements ReferenceType {
     @Override
     public firm.Type getFirmType() {
         return baseType.getFirmType();
+    }
+
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return FirmTypes.pointerFirmType;
     }
 
     public int getDimension() {
