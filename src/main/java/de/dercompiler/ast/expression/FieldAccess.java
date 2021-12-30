@@ -7,6 +7,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.transformation.node.FieldNode;
 import de.dercompiler.transformation.node.ObjectNode;
@@ -47,7 +48,12 @@ public final class FieldAccess extends PostfixExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         ReferenceNode objRef = encapsulated.createNode(state);
-        return objRef.accessField(state, fieldName);
+        if (state.expectValue()) {
+            return objRef.accessField(state, fieldName);
+        } else {
+            TransformationHelper.booleanValueToConditionalJmp(state, objRef.accessField(state, fieldName).genLoad(state));
+        }
+        return null;
     }
 
     public ReferenceNode errorNoValidFieldAccess(de.dercompiler.semantic.type.Type type, ReferenceNode objRef) {
