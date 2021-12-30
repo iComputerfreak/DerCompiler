@@ -43,22 +43,22 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             // For class declarations, we always have to create a new firm type
             firm.ClassType firmType = factory.createFirmClassType(def);
             def.setFirmType(firmType);
-            
-            // Set the firm types for all fields and create entities for them
-            for (ClassMember member : classDeclaration.getMembers()) {
-                if (member instanceof Field f) {
-                    if (f.getFirmType() == null) {
-                        f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
-                    }
-                    // Add the field entity to the parent class
-                    firm.Entity entity = new Entity(def.getFirmType(), f.getMangledIdentifier(), f.getRefType().getFirmTransformationType());
-                    def.getFieldEntities().add(entity);
-                }
-            }
-
-            def.getFirmType().layoutFields();
-            def.getFirmType().finishLayout();
         }
+        
+        // Set the firm types for all fields and create entities for them
+        for (ClassMember member : classDeclaration.getMembers()) {
+            if (member instanceof Field f) {
+                if (f.getFirmType() == null) {
+                    f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
+                }
+                // Add the field entity to the parent class
+                firm.Entity entity = new Entity(def.getFirmType(), f.getMangledIdentifier(), f.getRefType().getFirmTransformationType());
+                def.getFieldEntities().add(entity);
+            }
+        }
+    
+        def.getFirmType().layoutFields();
+        def.getFirmType().finishLayout();
         
         return false;
     }
