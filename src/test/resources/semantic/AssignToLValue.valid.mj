@@ -1,0 +1,34 @@
+class Foo {
+  
+    public boolean field;
+
+    public void foo(int a) {
+        a = 10;
+        field = true;
+
+        int[] b;
+        b[10] = 100;
+
+        Foo[][][] nest;
+        Foo[][] nestOneLess;
+        Foo[] nestTwoLess;
+        Foo nestThreeLess;
+
+        nest[2][2][2] = null;
+        nest[2][2][2] = nestThreeLess;
+
+        nest[2][2] = null;
+        nest[2][2] = nestTwoLess;
+
+        nest[2] = null;
+        nest[2] = nestOneLess;
+
+        nest = null;
+        nest = nest;
+    }
+
+    public static void main(String[] args) {
+        int a;
+        a = 20;
+    }
+}
