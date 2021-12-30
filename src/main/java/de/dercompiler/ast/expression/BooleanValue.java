@@ -3,6 +3,7 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.transformation.node.RValueNode;
@@ -56,7 +57,7 @@ public final class BooleanValue extends PrimaryExpression {
         if (!value) {
             relation = relation.negated();
         }
-        Node dummy = state.construction.newConst(0, Mode.getBu());
+        Node dummy = state.construction.newConst(0, FirmTypes.booleanFirmType.getMode());
         TransformationHelper.createConditionJumps(state, state.construction.newCmp(dummy, dummy, relation));
         return null;
     }

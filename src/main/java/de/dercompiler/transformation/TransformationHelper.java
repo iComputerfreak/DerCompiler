@@ -20,7 +20,7 @@ public class TransformationHelper {
     }
 
     public static Node calculateOffset(TransformationState state, Node type_size, Node num_values) {
-        return state.construction.newMul(type_size, num_values);
+        return state.construction.newMul(state.construction.newConv(type_size, FirmTypes.offsetType.getMode()), state.construction.newConv(num_values, FirmTypes.offsetType.getMode()));
     }
 
     public static Node addOffsetToPointer(TransformationState state, Node pointer, Node offset) {
@@ -66,7 +66,7 @@ public class TransformationHelper {
     }
 
     public static Node createBooleanNode(TransformationState state, boolean value) {
-        return state.construction.newConst(value ? 1 : 0, Mode.getBu());
+        return state.construction.newConst(value ? 1 : 0, FirmTypes.booleanFirmType.getMode());
     }
 
     public static void createReturn(TransformationState state, Node node) {

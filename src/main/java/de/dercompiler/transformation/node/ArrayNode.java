@@ -23,33 +23,23 @@ public class ArrayNode extends ReferenceNode {
 
     @Override
     public Node genLoad(TransformationState state) {
-        return genRefLoad(state).genLoad(state);
+        return ref;
     }
 
-    public ReferenceNode genRefLoad(TransformationState state) {
-        Node res = TransformationHelper.genLoad(state, ref, isElement() ? mode : Mode.getP());
-        if (isElement()) {
-            if (type instanceof ClassType ct) {
-                return new ObjectNode(res, ct);
-            }
-            return new RValueNode(res, type);
-        }
-        return new ArrayNode(res, type, dim - 1);
-    }
 
     @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
-        TransformationHelper.genStore(state, ref, value.genLoad(state), isElement() ? type() : Mode.getP().getType());
-        return value;
+        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("ArrayNode is a r-Value");
+        return null; //we never return
     }
 
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
-        if (!isElement()) {
+        if (isElement()) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("invalid ArrayAccess on Array of Dimension 0");
         }
         Node elem_ptr = TransformationHelper.addOffsetToPointer(state, ref, offset);
-        return new ArrayNode(elem_ptr, getElementType(), getDimension() - 1);
+        return new ArrayElementNode(elem_ptr, getElementType());
     }
 
     @Override

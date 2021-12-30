@@ -13,7 +13,6 @@ import firm.nodes.Node;
 
 public class FieldNode extends ReferenceNode {
 
-
     public FieldNode(Node ref, Type type) {
         super(ref, type);
         this.type = type;

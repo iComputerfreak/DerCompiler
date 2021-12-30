@@ -29,7 +29,7 @@ int32_t read_int() { return getchar(); }
 
 void flush_out() { fflush(stdout); }
 
-void* allocate(int32_t size) {
+void* allocate(int64_t size) {
     //we create always some space on the stack
     //because new int[0] != new int[0] and could
     //otherwise return the same address or NULL

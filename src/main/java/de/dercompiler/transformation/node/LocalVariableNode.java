@@ -35,8 +35,7 @@ public class LocalVariableNode extends ReferenceNode {
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         ArrayType at = getTypeAsArray();
-        Node elem_ptr = TransformationHelper.addOffsetToPointer(state, genLoad(state), offset);
-        return new ArrayNode(elem_ptr, at.getElementType(), at.getDimension() - 1);
+        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).accessArray(state, offset);
     }
 
     @Override

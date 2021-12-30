@@ -5,6 +5,7 @@ import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.transformation.LibraryMethods;
 import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.transformation.node.ObjectNode;
@@ -49,7 +50,7 @@ public final class NewObjectExpression extends PrimaryExpression {
         ClassType type = state.globalScope.getClass(getObjectType().getIdentifier());
         int size = type.getFirmType().getSize();
 
-        Node type_size = state.construction.newConst(size, Mode.getIu());
+        Node type_size = state.construction.newConst(size, FirmTypes.offsetType.getMode());
         Entity methodEntity = LibraryMethods.allocate;
         Node call = state.construction.newCall(mem,
                 state.construction.newAddress(methodEntity),new Node[]{ type_size }, methodEntity.getType());

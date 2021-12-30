@@ -10,6 +10,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.type.IntegerType;
+import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.transformation.LibraryMethods;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
@@ -69,7 +70,7 @@ public final class NewArrayExpression extends PrimaryExpression {
         Node mem = state.construction.getCurrentMem();
         Type type = getType().getFirmTransformationType();
 
-        Node type_size = state.construction.newConst(type.getSize(), Mode.getIu());
+        Node type_size = state.construction.newConst(type.getSize(), FirmTypes.offsetType.getMode());
         Node size = TransformationHelper.calculateSize(state, type_size, getSize().createNode(state).genLoad(state));
         Entity methodEntity = LibraryMethods.allocate;
         Node call = state.construction.newCall(mem,

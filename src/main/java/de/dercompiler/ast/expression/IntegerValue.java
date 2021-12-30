@@ -3,6 +3,7 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
@@ -71,8 +72,7 @@ public final class IntegerValue extends PrimaryExpression {
         } else {
             value = (negative ? -1 : 1) * unsignedValue;
         }
-        Mode int_mode = Mode.getIs();
 
-        return new RValueNode(state.construction.newConst(value, int_mode), getType());
+        return new RValueNode(state.construction.newConst(value, FirmTypes.intFirmType.getMode()), getType());
     }
 }

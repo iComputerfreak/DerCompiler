@@ -25,10 +25,6 @@ public abstract class ReferenceNode {
         this.ref = ref;
         this.type = type;
         this.mode = type.getFirmTransformationType().getMode();
-        //should be unnecessary because of getFirmTransformationType()
-        //if ((Objects.isNull(this.mode) && type instanceof ClassType) || type instanceof ArrayType at && at.getDimension() != 0) {
-        //    this.mode = Mode.getP();
-        //}
     }
 
     public abstract Node genLoad(TransformationState state);
@@ -36,8 +32,7 @@ public abstract class ReferenceNode {
 
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         ArrayType at = getTypeAsArray();
-        Node elem_ptr = TransformationHelper.addOffsetToPointer(state, ref, offset);
-        return new ArrayNode(elem_ptr, at.getElementType(), at.getDimension() - 1);
+        return new ArrayNode(ref, at.getElementType(), at.getDimension()).accessArray(state, offset);
     }
 
     public ReferenceNode accessField(TransformationState state, String fieldName) {
