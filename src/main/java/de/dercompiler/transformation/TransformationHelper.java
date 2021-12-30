@@ -85,10 +85,10 @@ public class TransformationHelper {
         //reference == pointer in libFIrm
         boolean ptr = lhs.isReference() || rhs.isReference();
 
-        if (!lhs.isNum() || !rhs.isNum()) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("cannot unify Modes lhs: " + lhs.getName() + " rhs: " + rhs.getName());
-
         //when pointer we return a pointer
         if (ptr) return Mode.getP();
+
+        if (!lhs.isNum() || !rhs.isNum()) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("cannot unify Modes lhs: " + lhs.getName() + " rhs: " + rhs.getName());
 
         if (oneInt) new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("only integer Modes should be unified - lhs: " + lhs + " rhs: " + rhs);
         if (signedUnsigned) {
