@@ -71,7 +71,9 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
         int nodeId = lvds.getNodeId();
-        state.construction.setVariable(nodeId, state.res.genLoad(state));
+        if (state.res != null) {
+            state.construction.setVariable(nodeId, state.res.genLoad(state));
+        }
         state.popExpect();
         state.res = null;
     }
@@ -154,7 +156,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
                     //do nothing
                 }
             } else {
-                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("this shouldn't be possible");
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
             }
         }
     }
@@ -185,7 +187,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         } else if (whileStatement.getSurroundingStatement() == whileStatement.getSurroundingMethod().getBlock()) {
             //do nothing
         } else {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("this shouldn't be possible");
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
         }
     }
 
