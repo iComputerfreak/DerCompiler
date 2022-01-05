@@ -144,11 +144,15 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
             state.exchangeFalseBlock(after);
         } else if (trueBlock) { //true
             state.exchangeTrueBlock(after);
+        } else if (ifStatement.getSurroundingStatement() == ifStatement.getSurroundingMethod().getBlock()) {
+            //do nothing
         } else {
-            if (ifStatement.hasElse() && ifStatement.getSurroundingStatement() instanceof IfStatement sur && ifStatement == sur.getElseStatement()) {
-                state.exchangeFalseBlock(after);
-            } else if (ifStatement.hasElse() && ifStatement.getElseStatement() instanceof IfStatement) {
-                //do nothing
+            if (ifStatement.hasElse()) {
+                if (ifStatement.getSurroundingStatement() instanceof IfStatement sur && ifStatement == sur.getElseStatement()) {
+                    state.exchangeFalseBlock(after);
+                } else if (ifStatement.getElseStatement() instanceof IfStatement) {
+                    //do nothing
+                }
             } else {
                 new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("this shouldn't be possible");
             }
@@ -172,11 +176,16 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         state.popBranches();
 
         boolean falseBlock = origin.equals(state.falseBlock());
+        boolean trueBlock = origin.equals(state.trueBlock());
 
         if (falseBlock) { //false
             state.exchangeFalseBlock(after);
-        } else { //while and then
+        } else if (trueBlock) { //while and then
             state.exchangeTrueBlock(after);
+        } else if (whileStatement.getSurroundingStatement() == whileStatement.getSurroundingMethod().getBlock()) {
+            //do nothing
+        } else {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("this shouldn't be possible");
         }
     }
 
