@@ -50,7 +50,6 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
 
     @Override
     public void visitReturnStatement(ReturnStatement returnStatement) {
-        state.markReturn();
         state.pushExpectValue();
     }
 

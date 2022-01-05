@@ -15,7 +15,9 @@ import de.dercompiler.optimization.ArithmeticOptimization;
 import de.dercompiler.optimization.GraphOptimization;
 import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.BooleanType;
+import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
@@ -36,7 +38,8 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnMethod(Method method) {
-        if (state.noReturnYet() && !method.getBlock().lastIsReturn()) {
+        MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(), method.getIdentifier());
+        if (def.getType().getReturnType().isCompatibleTo(new VoidType()) && !method.getBlock().lastIsReturn()) {
             TransformationHelper.createReturn(state, null);
         }
         assert(state.stackSize() == 0);
@@ -103,6 +106,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         }
         state.res = null;
         state.popExpect();
+        state.markReturn();
     }
 
     @Override

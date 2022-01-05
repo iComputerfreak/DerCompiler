@@ -85,10 +85,6 @@ public class TransformationState {
         returnBlocks.add(construction.getCurrentBlock());
     }
 
-    public boolean noReturnYet() {
-        return returnBlocks.isEmpty();
-    }
-
     public void clear() {
         assert(trueBlock() == null);
         assert(falseBlock() == null);
