@@ -80,6 +80,9 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
 
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
 
+        state.markExpressionToPullAfter(ifStatement.getCondition());
+        state.pushBlock(state.trueBlock());
+
         if (ifStatement.hasElse()) {
             state.pushBlock(state.falseBlock());
             state.markStatementToPullBlock(ifStatement.getElseStatement());
@@ -96,6 +99,9 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
         Block head = state.construction.newBlock();
         state.pushHead(head);
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
+
+        state.markExpressionToPullAfter(whileStatement.getCondition());
+        state.pushBlock(state.trueBlock());
 
         TransformationHelper.createDirectJump(state, head);
         state.construction.setCurrentBlock(head);

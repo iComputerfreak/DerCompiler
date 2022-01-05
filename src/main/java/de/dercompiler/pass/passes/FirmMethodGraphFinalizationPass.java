@@ -176,7 +176,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
             state.trueBlock().mature();
             state.falseBlock().mature();
         }
-        if (TransformationHelper.isControlStructure(expression.getSurroundingStatement())) {
+        if (state.removeExpressionIfMarked(expression)) {
             // while -> set current block to loop block
             // if -> set current block to then block
             state.pullBlock();
