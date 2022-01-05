@@ -106,7 +106,7 @@ public class FirmTypeFactory {
             return "null";
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM)
-                    .internalError("Type identifier for type \" + type + \" could not be computed.");
+                    .internalError("Type identifier for type " + type + " could not be computed.");
             throw new RuntimeException();
         }
     }
