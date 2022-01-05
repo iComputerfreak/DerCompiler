@@ -36,7 +36,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnMethod(Method method) {
-        if (state.noReturnYet() || !method.getBlock().lastIsReturn()) {
+        if (state.noReturnYet() && !method.getBlock().lastIsReturn()) {
             TransformationHelper.createReturn(state, null);
         }
         assert(state.stackSize() == 0);
