@@ -42,6 +42,7 @@ public final class LogicalAndExpression extends BinaryExpression {
         if (state.expectValue()) {
             state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
         }
+        state.pushExpectBranch();
         Block and = state.construction.newBlock();
         Block trueBlock = state.exchangeTrueBlock(and);
         getLhs().createNode(state);
@@ -49,6 +50,7 @@ public final class LogicalAndExpression extends BinaryExpression {
         state.construction.setCurrentBlock(and);
         getRhs().createNode(state);
         and.mature();
+        state.popExpect();
         state.construction.setCurrentBlock(current);
         if (state.expectValue()) {
             Block after = state.construction.newBlock();

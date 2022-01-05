@@ -41,6 +41,7 @@ public final class LogicalOrExpression extends BinaryExpression {
         if (state.expectValue()) {
             state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
         }
+        state.pushExpectBranch();
         Block or = state.construction.newBlock();
         Block current = state.construction.getCurrentBlock();
         Block falseB = state.exchangeFalseBlock(or);
@@ -50,6 +51,7 @@ public final class LogicalOrExpression extends BinaryExpression {
         getRhs().createNode(state);
         or.mature();
         state.construction.setCurrentBlock(current);
+        state.popExpect();
         if (state.expectValue()) {
             Block after = state.construction.newBlock();
             state.construction.setCurrentBlock(state.trueBlock());
