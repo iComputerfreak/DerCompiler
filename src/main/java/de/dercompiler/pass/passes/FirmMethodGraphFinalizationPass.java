@@ -36,7 +36,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnMethod(Method method) {
-        if (state.noReturnYet()) {
+        if (state.noReturnYet() || !method.getBlock().lastIsReturn()) {
             TransformationHelper.createReturn(state, null);
         }
         assert(state.stackSize() == 0);
@@ -116,25 +116,38 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         }
 
         state.trueBlock().mature();
-        state.construction.setCurrentBlock(state.trueBlock());
-        TransformationHelper.createDirectJump(state, after);
+        if (!state.hasReturned(state.trueBlock())) {
+            state.construction.setCurrentBlock(state.trueBlock());
+            TransformationHelper.createDirectJump(state, after);
+        }
 
         if (ifStatement.hasElse()) {
             state.falseBlock().mature();
-            state.construction.setCurrentBlock(state.falseBlock());
-            TransformationHelper.createDirectJump(state, after);
+            if (!state.hasReturned(state.falseBlock())) {
+                state.construction.setCurrentBlock(state.falseBlock());
+                TransformationHelper.createDirectJump(state, after);
+            }
         }
 
         origin.mature();
         state.popBranches();
         state.construction.setCurrentBlock(after);
 
-        boolean falseBlock = origin == state.falseBlock();
+        boolean falseBlock = origin.equals(state.falseBlock());
+        boolean trueBlock = origin.equals(state.trueBlock());
 
         if (falseBlock) { //after
             state.exchangeFalseBlock(after);
-        } else { //true
+        } else if (trueBlock) { //true
             state.exchangeTrueBlock(after);
+        } else {
+            if (ifStatement.hasElse() && ifStatement.getSurroundingStatement() instanceof IfStatement sur && ifStatement == sur.getElseStatement()) {
+                state.exchangeFalseBlock(after);
+            } else if (ifStatement.hasElse() && ifStatement.getElseStatement() instanceof IfStatement) {
+                //do nothing
+            } else {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("this shouldn't be possible");
+            }
         }
     }
 
@@ -143,8 +156,10 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         Block origin = state.popOrigin();
         //head must be current
         Block head = state.popHead();
-        state.construction.setCurrentBlock(state.trueBlock());
-        TransformationHelper.createDirectJump(state, head);
+        if (!state.hasReturned(state.trueBlock())) {
+            state.construction.setCurrentBlock(state.trueBlock());
+            TransformationHelper.createDirectJump(state, head);
+        }
         origin.mature();
         state.construction.setCurrentBlock(state.falseBlock());
 
@@ -152,7 +167,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
         state.popBranches();
 
-        boolean falseBlock = origin == state.falseBlock();
+        boolean falseBlock = origin.equals(state.falseBlock());
 
         if (falseBlock) { //false
             state.exchangeFalseBlock(after);

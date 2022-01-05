@@ -11,7 +11,9 @@ import firm.Construction;
 import firm.Graph;
 import firm.nodes.Block;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Stack;
 
 public class TransformationState {
@@ -41,6 +43,8 @@ public class TransformationState {
     private final Stack<Boolean> expectValue;
     private final Stack<Expression> expressionStack;
 
+    private final Set<Block> returnBlocks;
+
     private boolean hasReturn = false;
 
     public boolean isAsignement = false;
@@ -59,6 +63,7 @@ public class TransformationState {
         origin = new Stack<>();
         head = new Stack<>();
         expectValue = new Stack<>();
+        returnBlocks = new HashSet<>();
     }
 
     public boolean isCondition() {
@@ -77,11 +82,11 @@ public class TransformationState {
     }
 
     public void markReturn() {
-        hasReturn = true;
+        returnBlocks.add(construction.getCurrentBlock());
     }
 
     public boolean noReturnYet() {
-        return !hasReturn;
+        return returnBlocks.isEmpty();
     }
 
     public void clear() {
@@ -92,6 +97,7 @@ public class TransformationState {
         graph = null;
         construction = null;
         hasReturn = false;
+        returnBlocks.clear();
     }
 
     public void pullBlock() {
@@ -211,5 +217,13 @@ public class TransformationState {
 
     public boolean expectValue() {
         return expectValue.peek();
+    }
+
+    public void markReturned(Block block) {
+        returnBlocks.add(block);
+    }
+
+    public boolean hasReturned(Block block) {
+        return returnBlocks.contains(block);
     }
 }

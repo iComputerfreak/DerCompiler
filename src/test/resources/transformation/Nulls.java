@@ -43,8 +43,7 @@ class Main {
 			System.out.println(14);
 		}
 
-		i = new int[12][];
-
+		i = new int
 		if (i == null) {
 			System.out.println(15);
 		}
