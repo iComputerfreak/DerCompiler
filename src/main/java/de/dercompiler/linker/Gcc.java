@@ -55,6 +55,7 @@ public final class Gcc implements Compiler, Assembler {
             runner.append(ToolchainUtil.appendCFileExtension(runtime));
         } else {
             runner.append(ToolchainUtil.appendCppFileExtension(runtime));
+            runner.append("-lstdc++");
         }
         runner.append(output);
         runner.append(outputFile);
