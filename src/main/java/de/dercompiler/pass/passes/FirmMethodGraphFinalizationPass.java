@@ -237,7 +237,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
 
     private static long id = 0;

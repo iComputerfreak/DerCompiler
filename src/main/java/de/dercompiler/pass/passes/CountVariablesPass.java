@@ -12,7 +12,7 @@ import de.dercompiler.pass.*;
 
 public class CountVariablesPass implements MethodPass, StatementPass {
 
-    int localVars = 0;
+    int localVars;
     Method method;
     int parameterCount;
 
@@ -38,6 +38,7 @@ public class CountVariablesPass implements MethodPass, StatementPass {
         method = getPassManager().getCurrentMethod();
         assert(localVars == 0);
         parameterCount = method.getParameters().size();
+        localVars = parameterCount; //set localVars start-index to parameterCount, so we can use the lover localVars for parameters
     }
 
     @Override

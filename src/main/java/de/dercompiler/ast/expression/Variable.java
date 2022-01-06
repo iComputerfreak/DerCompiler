@@ -70,8 +70,7 @@ public final class Variable extends PrimaryExpression {
             Mode mode = this.getType().getFirmTransformationType().getMode();
             res = new LocalVariableNode(lvds.getRefType(), nodeId);
         } else if (def instanceof Parameter p) {
-            Mode mode = p.getRefType().getFirmTransformationType().getMode();
-            res = new RValueNode(state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId()), getType());
+            res = new LocalVariableNode(getType(), p.getNodeId());
         } else if (def instanceof Field f) {
             Node this_ = state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0);
             Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getMangledIdentifier());

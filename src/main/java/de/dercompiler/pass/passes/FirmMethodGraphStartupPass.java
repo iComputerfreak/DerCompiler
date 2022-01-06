@@ -1,6 +1,7 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
+import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
@@ -32,6 +33,11 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
         int n_vars = method.getNumLocalVariables();
         
         state.graph = new Graph(methodEntity, n_vars);
+        //store all parameters in local vars
+        for (Parameter p : method.getParameters()) {
+            state.construction.setVariable(p.getNodeId(),
+                    state.construction.newProj(state.graph.getArgs(), p.getRefType().getFirmTransformationType().getMode(), p.getNodeId()));
+        }
         state.construction = new Construction(state.graph);
         state.currentClass = state.globalScope.getClass(method.getSurroundingClass().getIdentifier());
         return false;
