@@ -34,7 +34,7 @@ public final class BasicBlock extends Statement {
     }
 
     public boolean lastIsReturn() {
-        return statements.getLast() instanceof ReturnStatement;
+        return !statements.isEmpty() && statements.getLast() instanceof ReturnStatement;
     }
 
     @Override
