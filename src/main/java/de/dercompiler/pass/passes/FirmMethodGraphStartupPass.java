@@ -38,6 +38,10 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
 
         //store all parameters in local vars
         if (!method.isStatic()) {
+            state.construction.setVariable(0,
+                    state.construction.newProj(state.graph.getArgs(),
+                            state.globalScope.getClass(method.getSurroundingClass().getIdentifier()).getFirmTransformationType().getMode(),
+                            0));
             for (Parameter p : method.getParameters()) {
                 state.construction.setVariable(p.getNodeId(),
                         state.construction.newProj(state.graph.getArgs(), p.getRefType().getFirmTransformationType().getMode(), p.getNodeId()));

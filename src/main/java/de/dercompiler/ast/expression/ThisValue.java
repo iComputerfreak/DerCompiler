@@ -4,6 +4,7 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.LocalVariableNode;
 import de.dercompiler.transformation.node.ObjectNode;
 import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
@@ -31,7 +32,7 @@ public final class ThisValue extends PrimaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        return new ObjectNode(state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0), state.currentClass);
+        return new LocalVariableNode(state.currentClass, 0);
     }
 
     @Override
