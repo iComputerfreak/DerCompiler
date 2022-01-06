@@ -38,7 +38,7 @@ public class CountVariablesPass implements MethodPass, StatementPass {
         method = getPassManager().getCurrentMethod();
         assert(localVars == 0);
         parameterCount = method.getParameters().size();
-        localVars = parameterCount; //set localVars start-index to parameterCount, so we can use the lover localVars for parameters
+        localVars = parameterCount + (method.isStatic() ? 0 : 1); //set localVars start-index to parameterCount, so we can use the lover localVars for parameters
     }
 
     @Override
