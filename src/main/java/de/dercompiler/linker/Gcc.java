@@ -1,6 +1,7 @@
 package de.dercompiler.linker;
 
 import de.dercompiler.generation.CodeGenerationErrorIds;
+import de.dercompiler.io.FileResolver;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.util.ErrorStatus;
@@ -66,6 +67,11 @@ public final class Gcc implements Compiler, Assembler {
             System.err.println("Gcc returned:");
             runner.getStdErr().transferTo(System.err);
             System.err.println();
+
+            FileResolver resolver = new FileResolver();
+            if (!resolver.resolve(outputFile).exists()) {
+                resolver.printWorkingDir();
+            }
         } catch (IOException e) {
             //nothing we can do
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
