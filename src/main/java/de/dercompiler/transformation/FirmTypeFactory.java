@@ -4,6 +4,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.type.*;
 import firm.Mode;
+import firm.PointerType;
 import firm.PrimitiveType;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ public class FirmTypeFactory {
     private static final FirmTypeFactory instance = new FirmTypeFactory();
     
     private final HashMap<String, firm.ArrayType> arrayTypes = new HashMap<>();
+    private final HashMap<firm.Type, firm.Type> pointerType = new HashMap<>();
     
     private FirmTypeFactory() {}
     
@@ -41,6 +43,15 @@ public class FirmTypeFactory {
      */
     public firm.ClassType createFirmClassType(ClassType classType) {
         return new firm.ClassType(classType.getMangledIdentifier());
+    }
+
+    public firm.Type createOrGetFirmPointerType(firm.Type type) {
+        if (pointerType.containsKey(type)) {
+            return pointerType.get(type);
+        }
+        firm.Type pointer = new PointerType(type);
+        pointerType.put(type, pointer);
+        return pointer;
     }
     
     /**
@@ -137,9 +148,7 @@ public class FirmTypeFactory {
             return t.getFirmType();
         } else if (type instanceof ArrayType t) {
             firm.Type elementFirmType = getOrCreateFirmVariableType(t.getElementType());
-            // TODO: Where to get?
-            int numberOfElements = 0;
-            return getOrCreateFirmArrayType(t.getElementType(), elementFirmType, numberOfElements);
+            return createOrGetFirmPointerType(elementFirmType);
         }
         return null;
     }
