@@ -39,13 +39,23 @@ public final class Gcc implements Compiler, Assembler {
     }
 
     public void compileFirm(String base) {
-        String runtime = ToolchainUtil.prepareRuntimeCompile();
+        boolean c = false;
+        String runtime;
+        if (c) {
+            runtime = ToolchainUtil.prepareRuntimeCompile();
+        } else {
+            runtime = ToolchainUtil.prepareRuntimeCppCompile();
+        }
         String inputFile = ToolchainUtil.appendAssembleFileExtension(base);
         String outputFile = "a.out";
         Runner runner = new Runner(gcc_path);
         runner.append(inputFile);
         runner.append("-g");
-        runner.append(ToolchainUtil.appendCFileExtension(runtime));
+        if (c) {
+            runner.append(ToolchainUtil.appendCFileExtension(runtime));
+        } else {
+            runner.append(ToolchainUtil.appendCppFileExtension(runtime));
+        }
         runner.append(output);
         runner.append(outputFile);
 
