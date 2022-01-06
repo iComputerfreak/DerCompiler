@@ -6,13 +6,13 @@
  * same function-definitions in the modified runtime.
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void main_func();
 
