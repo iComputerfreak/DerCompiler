@@ -63,7 +63,9 @@ public final class Gcc implements Compiler, Assembler {
         if (runner.run()) return;
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for runtime failed:");
         try {
+            System.err.println("Gcc returned:");
             runner.getStdErr().transferTo(System.err);
+            System.err.println();
         } catch (IOException e) {
             //nothing we can do
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");
