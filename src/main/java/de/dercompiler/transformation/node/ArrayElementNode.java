@@ -40,14 +40,7 @@ public class ArrayElementNode extends ReferenceNode {
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         ArrayType at = getTypeAsArray();
-        ReferenceNode res = new ArrayNode(genLoad(state), at, at.getDimension()).accessArray(state, offset);
-
-        if (state.expectValue()) {
-            TransformationHelper.booleanValueToConditionalJmp(state, res.genLoad(state));
-            return null;
-        } else {
-            return res;
-        }
+        return new ArrayNode(genLoad(state), at, at.getDimension()).accessArray(state, offset);
     }
 
     @Override
