@@ -52,7 +52,7 @@ public final class ArrayAccess extends PostfixExpression {
         //convert size?
         Node offset = TransformationHelper.calculateOffset(state, type_size, elements.genLoad(state));
         ReferenceNode res = base_ptr.accessArray(state, offset);
-        if (state.expectValue()) {
+        if (!state.expectValue()) {
             TransformationHelper.booleanValueToConditionalJmp(state, res.genLoad(state));
             return null;
         }
