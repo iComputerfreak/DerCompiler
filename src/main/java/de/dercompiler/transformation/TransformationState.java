@@ -1,16 +1,19 @@
 package de.dercompiler.transformation;
 
-import de.dercompiler.ast.statement.BasicBlock;
+import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.type.Type;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Construction;
 import firm.Graph;
 import firm.nodes.Block;
-import firm.nodes.Node;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Stack;
 
 public class TransformationState {
@@ -18,9 +21,10 @@ public class TransformationState {
     public Construction construction;
     public Graph graph;
     public final GlobalScope globalScope;
-    public Node lhs;
-    public Node rhs;
-    public Node res;
+    public ReferenceNode lhs;
+    public ReferenceNode rhs;
+    public ReferenceNode res;
+    public Type currentClass;
 
     private Stack<Block> trueBlockStack;
     private Stack<Block> falseBlockStack;
@@ -36,9 +40,14 @@ public class TransformationState {
     private final Stack<Statement> statementStack;
     private final Stack<Block> origin;
     private final Stack<Block> head;
-    private final Stack<BasicBlock> markedBasicBlocks;
+    private final Stack<Boolean> expectValue;
+    private final Stack<Expression> expressionStack;
+
+    private final Set<Block> returnBlocks;
 
     private boolean hasReturn = false;
+
+    public boolean isAsignement = false;
 
     public TransformationState(GlobalScope scope) {
         this.globalScope = scope;
@@ -49,10 +58,12 @@ public class TransformationState {
 
         blockStack = new Stack<>();
         statementStack = new Stack<>();
+        expressionStack = new Stack<>();
 
         origin = new Stack<>();
         head = new Stack<>();
-        markedBasicBlocks = new Stack<>();
+        expectValue = new Stack<>();
+        returnBlocks = new HashSet<>();
     }
 
     public boolean isCondition() {
@@ -71,11 +82,7 @@ public class TransformationState {
     }
 
     public void markReturn() {
-        hasReturn = true;
-    }
-
-    public boolean noReturnYet() {
-        return !hasReturn;
+        returnBlocks.add(construction.getCurrentBlock());
     }
 
     public void clear() {
@@ -86,12 +93,15 @@ public class TransformationState {
         graph = null;
         construction = null;
         hasReturn = false;
+        returnBlocks.clear();
     }
 
     public void pullBlock() {
         //skip block because we need to work on it
         if (blockStack.size() != 0 && blockStack.peek() != construction.getCurrentBlock()) {
             construction.setCurrentBlock(blockStack.pop());
+        } else {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).printWarning(TransjormationWarrningIds.STACK_EMPTY, "Empty blockStack!");
         }
     }
 
@@ -112,6 +122,8 @@ public class TransformationState {
         statementStack.push(statement);
     }
 
+    public void markExpressionToPullAfter(Expression expression) { expressionStack.push(expression); }
+
     /**
      * If the given statement is a conditional block (i.e. then, else, or loop block), then
      * @param statement
@@ -126,6 +138,14 @@ public class TransformationState {
     public int getNumMarkedStatements() {
         return statementStack.size();
     }
+
+    public boolean removeExpressionIfMarked(Expression expression) {
+        if (!(getNumMarkedExpressions() > 0 && expression == expressionStack.peek())) return false;
+        expressionStack.pop();
+        return true;
+    }
+
+    public int getNumMarkedExpressions() { return expressionStack.size(); }
 
     public void pushBranches(Block trueBlock, Block falseBlock) {
         trueBlockStack.push(trueBlock);
@@ -179,4 +199,27 @@ public class TransformationState {
         return head.pop();
     }
 
+    public void pushExpectValue() {
+        expectValue.push(true);
+    }
+
+    public void pushExpectBranch() {
+        expectValue.push(false);
+    }
+
+    public void popExpect() {
+        expectValue.pop();
+    }
+
+    public boolean expectValue() {
+        return expectValue.peek();
+    }
+
+    public void markReturned(Block block) {
+        returnBlocks.add(block);
+    }
+
+    public boolean hasReturned(Block block) {
+        return returnBlocks.contains(block);
+    }
 }

@@ -30,7 +30,7 @@ public class LexTestAction extends Action {
             token = lexer.nextToken();
             String output = this.printPosition ? "%6s %s".formatted(token.position(), token.type())
                     : token.type().toString();
-            new OutputMessageHandler(MessageOrigin.GENERAL).printPlane(output);
+            new OutputMessageHandler(MessageOrigin.GENERAL).printPlain(output);
         } while (token.type() != Token.EOF);
     }
 
@@ -40,7 +40,7 @@ public class LexTestAction extends Action {
 
     @Override
     public void help() {
-        new OutputMessageHandler(MessageOrigin.GENERAL).printPlane(HELP_TEXT);
+        new OutputMessageHandler(MessageOrigin.GENERAL).printPlain(HELP_TEXT);
     }
 
     @Override

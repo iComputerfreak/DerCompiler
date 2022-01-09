@@ -33,6 +33,10 @@ public final class BasicBlock extends Statement {
         return statements;
     }
 
+    public boolean lastIsReturn() {
+        return !statements.isEmpty() && statements.getLast() instanceof ReturnStatement;
+    }
+
     @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;

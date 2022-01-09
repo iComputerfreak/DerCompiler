@@ -248,11 +248,19 @@ class PassPipeline {
         public void visitIfStatement(IfStatement ifStatement) {
             if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(ifStatement.getCondition());
             Statement then = ifStatement.getThenStatement();
+            if (then instanceof BasicBlock bb) {
+                traverseBasicBlock(bb);
+            } else {
+                traverseStatement(then);
+            }
 
-            then.accept(this);
             if (ifStatement.hasElse()) {
                 Statement else_ = ifStatement.getElseStatement();
-                else_.accept(this);
+                if (else_ instanceof BasicBlock bb) {
+                    traverseBasicBlock(bb);
+                } else {
+                    traverseStatement(else_);
+                }
             }
         }
 
@@ -270,7 +278,11 @@ class PassPipeline {
         public void visitWhileStatement(WhileStatement whileStatement) {
             if (underMaxBound(DEPTH.EXPRESSION)) traverseExpression(whileStatement.getCondition());
             Statement body = whileStatement.getLoop();
-            body.accept(this);
+            if (body instanceof BasicBlock bb) {
+                traverseBasicBlock(bb);
+            } else {
+                traverseStatement(body);
+            }
         }
 
         private void traverseBasicBlock(BasicBlock block) {

@@ -19,6 +19,11 @@ public class IntegerType implements Type{
     }
 
     @Override
+    public firm.Type getFirmTransformationType() {
+        return getFirmType();
+    }
+
+    @Override
     public String toString() {
         return "int";
     }

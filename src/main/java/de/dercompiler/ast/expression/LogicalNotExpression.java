@@ -5,6 +5,7 @@ import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -30,13 +31,16 @@ public final class LogicalNotExpression extends UnaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
-        if (!state.isCondition()) {
-            TransformationHelper.createConditionError();
+    public ReferenceNode createNode(TransformationState state) {
+        //in this operation we don't push
+        ReferenceNode res = null;
+        if (state.expectValue()) {
+            res = TransformationHelper.createBooleanNot(state, encapsulated.createNode(state));
+        } else {
+            state.swapTrueFalseBlock();
+            encapsulated.createNode(state);
+            state.swapTrueFalseBlock();
         }
-        state.swapTrueFalseBlock();
-        encapsulated.createNode(state);
-        state.swapTrueFalseBlock();
-        return null;
+        return res;
     }
 }

@@ -1,6 +1,7 @@
 package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
+import de.dercompiler.ast.Parameter;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
@@ -17,7 +18,7 @@ import firm.nodes.Block;
 
 import java.util.Objects;
 
-public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implements MethodPass, StatementPass {
+public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, ASTStatementVisitor {
     private TransformationState state;
     private FirmMethodGraphFinalizationPass finalization;
 
@@ -33,6 +34,19 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
         
         state.graph = new Graph(methodEntity, n_vars);
         state.construction = new Construction(state.graph);
+        state.currentClass = state.globalScope.getClass(method.getSurroundingClass().getIdentifier());
+
+        //store all parameters in local vars
+        if (!method.isStatic()) {
+            state.construction.setVariable(0,
+                    state.construction.newProj(state.graph.getArgs(),
+                            state.globalScope.getClass(method.getSurroundingClass().getIdentifier()).getFirmTransformationType().getMode(),
+                            0));
+            for (Parameter p : method.getParameters()) {
+                state.construction.setVariable(p.getNodeId(),
+                        state.construction.newProj(state.graph.getArgs(), p.getRefType().getFirmTransformationType().getMode(), p.getNodeId()));
+            }
+        }
         return false;
     }
 
@@ -44,23 +58,32 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
 
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
-
-        //if boolean create true-false-Block
-        if (!lvds.getExpression().getType().isCompatibleTo(new BooleanType())) return;
-
-        //boolean-expression
-        state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
-        state.markStatementToPullBlock(lvds);
+        state.pushExpectValue();
     }
 
     @Override
     public void visitReturnStatement(ReturnStatement returnStatement) {
-        state.markReturn();
+        state.pushExpectValue();
+    }
 
-        //if boolean create true-false-Block
-        if (!returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) return;
+    @Override
+    public void visitBasicBlock(BasicBlock basicBlock) {
+        //do nothing
+    }
 
-        state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
+    @Override
+    public void visitEmptyStatement(EmptyStatement emptyStatement) {
+        //do nothing
+    }
+
+    @Override
+    public void visitErrorStatement(ErrorStatement errorStatement) {
+        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("We can't create Code, we found a ErrorStatement, we shouldn't get even to this point of execution");
+    }
+
+    @Override
+    public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        state.pushExpectValue();
     }
 
     @Override
@@ -69,6 +92,9 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
 
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
 
+        state.markExpressionToPullAfter(ifStatement.getCondition());
+        state.pushBlock(state.trueBlock());
+
         if (ifStatement.hasElse()) {
             state.pushBlock(state.falseBlock());
             state.markStatementToPullBlock(ifStatement.getElseStatement());
@@ -76,6 +102,7 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
 
         state.pushBlock(state.trueBlock());
         state.markStatementToPullBlock(ifStatement.getThenStatement());
+        state.pushExpectBranch();
     }
 
     @Override
@@ -84,6 +111,9 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
         Block head = state.construction.newBlock();
         state.pushHead(head);
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
+
+        state.markExpressionToPullAfter(whileStatement.getCondition());
+        state.pushBlock(state.trueBlock());
 
         TransformationHelper.createDirectJump(state, head);
         state.construction.setCurrentBlock(head);
@@ -95,6 +125,7 @@ public class FirmMethodGraphStartupPass extends ASTLazyStatementVisitor implemen
         state.pushBlock(state.trueBlock());
         //pull from stack after loop-operation(s)
         state.markStatementToPullBlock(whileStatement.getLoop());
+        state.pushExpectBranch();
     }
 
     @Override

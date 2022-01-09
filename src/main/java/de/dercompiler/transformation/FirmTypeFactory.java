@@ -4,6 +4,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.type.*;
 import firm.Mode;
+import firm.PointerType;
 import firm.PrimitiveType;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ public class FirmTypeFactory {
     private static final FirmTypeFactory instance = new FirmTypeFactory();
     
     private final HashMap<String, firm.ArrayType> arrayTypes = new HashMap<>();
+    private final HashMap<firm.Type, firm.Type> pointerType = new HashMap<>();
     
     private FirmTypeFactory() {}
     
@@ -42,6 +44,15 @@ public class FirmTypeFactory {
     public firm.ClassType createFirmClassType(ClassType classType) {
         return new firm.ClassType(classType.getMangledIdentifier());
     }
+
+    public firm.Type createOrGetFirmPointerType(firm.Type type) {
+        if (pointerType.containsKey(type)) {
+            return pointerType.get(type);
+        }
+        firm.Type pointer = new PointerType(type);
+        pointerType.put(type, pointer);
+        return pointer;
+    }
     
     /**
      * Creates a new {@link firm.PrimitiveType} instance from the given primitive type
@@ -52,11 +63,13 @@ public class FirmTypeFactory {
     public firm.Type createFirmPrimitiveType(Type type) {
         if (type instanceof IntegerType) {
             return new PrimitiveType(Mode.getIs());
+        } else if (type instanceof OffsetType) {
+            return new PrimitiveType(Mode.getLs());
         } else if (type instanceof BooleanType) {
             // For booleans, we use the byte type (signed or unsigned should not matter)
-            return new PrimitiveType(Mode.getBs());
+            return new PrimitiveType(Mode.getBu());
         } else if (type instanceof VoidType) {
-            return null;
+            return new PrimitiveType(Mode.getANY());
         } else if (type instanceof NullType t) {
             return getOrCreateFirmVariableType(t.getExpectedType());
         } else {
@@ -104,7 +117,7 @@ public class FirmTypeFactory {
             return "null";
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM)
-                    .internalError("Type identifier for type \" + type + \" could not be computed.");
+                    .internalError("Type identifier for type " + type + " could not be computed.");
             throw new RuntimeException();
         }
     }
@@ -135,9 +148,7 @@ public class FirmTypeFactory {
             return t.getFirmType();
         } else if (type instanceof ArrayType t) {
             firm.Type elementFirmType = getOrCreateFirmVariableType(t.getElementType());
-            // TODO: Where to get?
-            int numberOfElements = 0;
-            return getOrCreateFirmArrayType(t.getElementType(), elementFirmType, numberOfElements);
+            return createOrGetFirmPointerType(elementFirmType);
         }
         return null;
     }

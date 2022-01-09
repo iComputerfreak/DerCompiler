@@ -5,6 +5,9 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
+import firm.Mode;
 import firm.nodes.Block;
 import firm.nodes.Node;
 
@@ -33,19 +36,33 @@ public final class LogicalAndExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
-        if (!state.isCondition()) {
-            TransformationHelper.createConditionError();
-        }
-        Block and = state.construction.newBlock();
+    public ReferenceNode createNode(TransformationState state) {
+        ReferenceNode res = null;
         Block current = state.construction.getCurrentBlock();
+        if (state.expectValue()) {
+            state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
+        }
+        state.pushExpectBranch();
+        Block and = state.construction.newBlock();
         Block trueBlock = state.exchangeTrueBlock(and);
         getLhs().createNode(state);
         state.exchangeTrueBlock(trueBlock);
         state.construction.setCurrentBlock(and);
         getRhs().createNode(state);
         and.mature();
+        state.popExpect();
         state.construction.setCurrentBlock(current);
-        return null;
+        if (state.expectValue()) {
+            Block after = state.construction.newBlock();
+            state.construction.setCurrentBlock(state.trueBlock());
+            TransformationHelper.createDirectJump(state, after);
+            state.construction.setCurrentBlock(state.falseBlock());
+            TransformationHelper.createDirectJump(state, after);
+            after.mature();
+            state.construction.setCurrentBlock(after);
+            res = new RValueNode(state.construction.newPhi(new Node[]{TransformationHelper.createBooleanNode(state, true), TransformationHelper.createBooleanNode(state, false)}, Mode.getBu()), getType());
+            state.popBranches();
+        }
+        return res;
     }
 }

@@ -7,6 +7,8 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ArrayNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.ArrayType;
 import firm.Mode;
 import firm.nodes.Node;
@@ -41,18 +43,19 @@ public final class ArrayAccess extends PostfixExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
-        Node base_ptr = getEncapsulated().createNode(state);
-        if (!(encapsulated.getType() instanceof ArrayType aa)) {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("we make a ArrayAccess on: " + encapsulated + " this should have been found by semantic!");
+    public ReferenceNode createNode(TransformationState state) {
+        ReferenceNode base_ptr = getEncapsulated().createNode(state);
+
+        int type_size_const = base_ptr.getType().getFirmType().getSize();
+        Node type_size = state.construction.newConst(type_size_const, Mode.getIu());
+        ReferenceNode elements = index.createNode(state);
+        //convert size?
+        Node offset = TransformationHelper.calculateOffset(state, type_size, elements.genLoad(state));
+        ReferenceNode res = base_ptr.accessArray(state, offset);
+        if (!state.expectValue()) {
+            TransformationHelper.booleanValueToConditionalJmp(state, res.genLoad(state));
             return null;
         }
-         int type_size_const = aa.getElementType().getSize();
-        Node type_size = state.construction.newConst(type_size_const, Mode.getIu());
-        Node elements = index.createNode(state);
-        Node offset = TransformationHelper.calculateOffset(state, type_size, elements);
-        Node elem_ptr = TransformationHelper.addOffsetToPointer(state, base_ptr, offset);
-        Mode mode = aa.getElementType().getMode();
-        return TransformationHelper.genLoad(state, elem_ptr, mode);
+        return res;
     }
 }

@@ -87,4 +87,19 @@ class foo {
         }
         return x;
     }
+
+    public void booleanCounter() {
+        boolean b0 = false;
+        boolean b1 = false;
+        boolean b2 = false;
+        boolean b3 = false;
+
+        boolean run = true;
+
+        while(run && (b3 = b2 && !(b2 = b1 && !(b1 = !(b0 && !(b0 = !b0))))) || (b2 = !(b1 && !(b1 = !(b0 && !(b0 = !b0))))) || (b1 = !(b0 && !(b0 = !b0)) || (b3 = !(b0 = !b0)) || run)) {
+            if (b3) {
+                run = false;
+            }
+        }
+    }
 }

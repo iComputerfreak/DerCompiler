@@ -7,6 +7,7 @@ import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.transformation.FirmTypeFactory;
 import firm.Entity;
 import firm.Type;
@@ -42,22 +43,22 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             // For class declarations, we always have to create a new firm type
             firm.ClassType firmType = factory.createFirmClassType(def);
             def.setFirmType(firmType);
-            
-            // Set the firm types for all fields and create entities for them
-            for (ClassMember member : classDeclaration.getMembers()) {
-                if (member instanceof Field f) {
-                    if (f.getFirmType() == null) {
-                        f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
-                    }
-                    // Add the field entity to the parent class
-                    firm.Entity entity = new Entity(def.getFirmType(), f.getMangledIdentifier(), f.getFirmType());
-                    def.getFieldEntities().add(entity);
-                }
-            }
-
-            def.getFirmType().layoutFields();
-            def.getFirmType().finishLayout();
         }
+        
+        // Set the firm types for all fields and create entities for them
+        for (ClassMember member : classDeclaration.getMembers()) {
+            if (member instanceof Field f) {
+                if (f.getFirmType() == null) {
+                    f.setFirmType(factory.getOrCreateFirmVariableType(f.getRefType()));
+                }
+                // Add the field entity to the parent class
+                firm.Entity entity = new Entity(def.getFirmType(), f.getMangledIdentifier(), f.getRefType().getFirmTransformationType());
+                def.getFieldEntities().add(entity);
+            }
+        }
+    
+        def.getFirmType().layoutFields();
+        def.getFirmType().finishLayout();
         
         return false;
     }
@@ -79,7 +80,9 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
         MethodDefinition def = globalScope.getMethod(method.getSurroundingClass().getIdentifier(),
                 method.getIdentifier());
         // We need to collect the firm types of the parameters and the return type
-        firm.Type returnType = factory.getOrCreateFirmVariableType(def.getType().getReturnType());
+        firm.Type returnType = (def.getType().getReturnType() instanceof VoidType)
+                //type has to be null for method definition, otherwise return type has also to contain a return parameter
+                ? null : factory.getOrCreateFirmVariableType(def.getType().getReturnType());
         //0 this pointer
         int baseIdx = 0;
         int argCount = method.getParameters().size();
@@ -92,7 +95,7 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
             baseIdx++;
             argCount++;
             parameterTypes = new Type[argCount];
-            parameterTypes[0] = parentType.getFirmType();
+            parameterTypes[0] = parentType.getFirmTransformationType();
         }
 
         for (int i = baseIdx; i < argCount; i++) {
@@ -109,14 +112,14 @@ public class FirmTypePass implements ClassPass, MethodPass, StatementPass {
                 p.setFirmType(factory.getOrCreateFirmVariableType(p.getRefType()));
             }
             // Save the firm type to the array
-            parameterTypes[i] = p.getFirmType();
+            parameterTypes[i] = p.getRefType().getFirmTransformationType();
         }
         
         // The method firm type should never be set earlier, but just to be sure
-        if (def.getFirmType() == null) {
+        if (def.getType().getFirmType() == null) {
             // For method definitions, we always have to create a new firm type
             firm.MethodType firmType = factory.createFirmMethodType(parameterTypes, returnType);
-            def.setFirmType(firmType);
+            def.getType().setFirmType(firmType);
         }
 
         // Add the method entity to the parent class

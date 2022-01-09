@@ -24,7 +24,7 @@ public class PrintAstAction extends Action {
         Program program = new Parser(lexer).parseProgram();
         PrettyPrinter prettyPrinter = new PrettyPrinter(true);
         prettyPrinter.visitNode(program);
-        new OutputMessageHandler(MessageOrigin.GENERAL).printPlane(prettyPrinter.flush());
+        new OutputMessageHandler(MessageOrigin.GENERAL).printPlain(prettyPrinter.flush());
     }
 
     @Override

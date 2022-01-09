@@ -72,7 +72,7 @@ public class TransferFunction implements ITransferFunction {
         // Check what the relation is and calculate its result
         Relation relation = left.compare(right);
         boolean result = relationResult(left.asInt(), right.asInt(), relation);
-        return new TargetValue(result ? 1 : 0, Mode.getBs());
+        return new TargetValue(result ? 1 : 0, Mode.getBu());
     }
     
     private boolean relationResult(int left, int right, Relation relation) {

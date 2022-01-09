@@ -117,6 +117,8 @@ public class CommandLineOptions {
 
     public boolean noInfo() { return cmd.hasOption(OPTION_NO_INFO); }
 
+    public boolean dumpGraph() { return cmd.hasOption(OPTION_DUMP_GRAPH); }
+
     public String getOptionArgument(String optionName) {
         return cmd.getOptionValue(optionName);
     }

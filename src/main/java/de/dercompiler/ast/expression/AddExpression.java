@@ -3,7 +3,11 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
+import firm.Mode;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -32,10 +36,11 @@ public final class AddExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         createChildNodes(state);
-        Node res = state.construction.newAdd(state.lhs, state.rhs);
+        Node res = state.construction.newAdd(state.lhs.genLoad(state), state.rhs.genLoad(state));
+        Mode resMode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
         clearChildNodes(state);
-        return res;
+        return new RValueNode(res, getType());
     }
 }

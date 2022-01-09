@@ -69,7 +69,7 @@ public final class Field extends ClassMember implements ASTDefinition {
      * Returns the mangled identifier to use in firm
      */
     public String getMangledIdentifier() {
-        return Utils.transformVariableIdentifier(identifier);
+        return getClassDeclaration().getMangledIdentifier() + Utils.MANGLED_NAME_SEPARATOR + Utils.transformVariableIdentifier(identifier);
     }
 
     @Override

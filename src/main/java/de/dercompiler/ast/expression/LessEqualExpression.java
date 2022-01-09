@@ -5,6 +5,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Relation;
 import firm.nodes.Node;
 
@@ -33,13 +34,13 @@ public final class LessEqualExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
+        state.pushExpectValue();
         createChildNodes(state);
-        Node cmp = TransformationHelper.createComp(state, Relation.LessEqual);
-        if (state.isCondition()) {
-            TransformationHelper.createConditionJumps(state, cmp);
-        }
+        state.popExpect();
+
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.LessEqual, getType());
         clearChildNodes(state);
-        return null;
+        return res;
     }
 }

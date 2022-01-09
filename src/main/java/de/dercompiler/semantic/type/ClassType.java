@@ -3,6 +3,8 @@ package de.dercompiler.semantic.type;
 import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.MethodDefinition;
+import de.dercompiler.transformation.FirmTypeFactory;
+import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.util.Utils;
 import firm.Entity;
 
@@ -19,6 +21,7 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
 
     private ClassDeclaration decl;
     private firm.ClassType firmType;
+    private firm.Type classPointer;
     private final List<firm.Entity> methodEntities;
     private final List<firm.Entity> fieldEntities;
 
@@ -54,9 +57,15 @@ public sealed class ClassType implements ReferenceType permits InternalClass, Du
     public firm.ClassType getFirmType() {
         return firmType;
     }
+
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return classPointer;
+    }
     
     public void setFirmType(firm.ClassType firmType) {
         this.firmType = firmType;
+        this.classPointer = FirmTypeFactory.getInstance().createOrGetFirmPointerType(firmType);
     }
 
     public List<Entity> getMethodEntities() {

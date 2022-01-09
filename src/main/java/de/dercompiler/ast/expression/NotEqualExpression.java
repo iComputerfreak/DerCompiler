@@ -5,6 +5,7 @@ import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Relation;
 import firm.nodes.Node;
 
@@ -32,15 +33,17 @@ public final class NotEqualExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         state.swapTrueFalseBlock();
+
+        state.pushExpectValue();
         createChildNodes(state);
-        Node cmp = TransformationHelper.createComp(state, Relation.Equal);
-        if (state.isCondition()) {
-            TransformationHelper.createConditionJumps(state, cmp);
-        }
+        state.popExpect();
+
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal, getType());
         clearChildNodes(state);
+
         state.swapTrueFalseBlock();
-        return null;
+        return res;
     }
 }

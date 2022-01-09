@@ -57,7 +57,7 @@ public sealed class Method extends ClassMember permits MainMethod {
      * Returns the mangled identifier to use in firm
      */
     public String getMangledIdentifier() {
-        return Utils.transformMethodIdentifier(identifier);
+        return getSurroundingClass().getMangledIdentifier() + Utils.MANGLED_NAME_SEPARATOR + Utils.transformMethodIdentifier(identifier);
     }
     
     /**

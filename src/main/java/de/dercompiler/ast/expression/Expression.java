@@ -7,6 +7,7 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.semantic.type.Type;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.nodes.Node;
 
 public abstract sealed class Expression extends ASTNode permits BinaryExpression, ErrorExpression, PrimaryExpression, UnaryExpression, UninitializedValue {
@@ -45,7 +46,7 @@ public abstract sealed class Expression extends ASTNode permits BinaryExpression
 
     public abstract void accept(ASTExpressionVisitor astExpressionVisitor);
 
-    public abstract Node createNode(TransformationState state);
+    public abstract ReferenceNode createNode(TransformationState state);
 
     @Override
     public void accept(ASTNodeVisitor astNodeVisitor) {
