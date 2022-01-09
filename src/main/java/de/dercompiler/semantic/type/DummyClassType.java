@@ -46,7 +46,7 @@ public final class DummyClassType extends ClassType {
     public boolean hasRealClass() {
         return realType != null;
     }
-    
+
     public firm.ClassType getFirmType() {
         return realType.getFirmType();
     }
