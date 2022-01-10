@@ -13,9 +13,11 @@ import java.util.Objects;
 public final class BasicBlock extends Statement {
 
     private final LinkedList<Statement> statements;
+    private boolean hasReturn;
 
     public BasicBlock(SourcePosition position) {
         super(position);statements = new LinkedList<>();
+        hasReturn = false;
     }
 
     public BasicBlock(SourcePosition position, List<Statement> statements) {
@@ -31,10 +33,6 @@ public final class BasicBlock extends Statement {
 
     public List<Statement> getStatements() {
         return statements;
-    }
-
-    public boolean lastIsReturn() {
-        return !statements.isEmpty() && statements.getLast() instanceof ReturnStatement;
     }
 
     @Override

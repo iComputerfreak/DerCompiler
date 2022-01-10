@@ -12,12 +12,14 @@ public abstract sealed class Statement extends ASTNode permits BasicBlock, Empty
     public Statement surround;
 
     private boolean dead;
+    private boolean hasReturn;
 
     public Statement(SourcePosition position) {
         super(position);
         surround = null;
         surrounding = null;
         dead = false;
+        hasReturn = false;
     }
 
     public void setSurroundingMethod(Method method) {
@@ -42,6 +44,14 @@ public abstract sealed class Statement extends ASTNode permits BasicBlock, Empty
 
     public boolean isDead() {
         return dead;
+    }
+
+    public void returns() {
+        hasReturn = true;
+    }
+
+    public boolean hasReturn() {
+        return hasReturn;
     }
 
     public abstract void accept(ASTStatementVisitor astStatementVisitor);

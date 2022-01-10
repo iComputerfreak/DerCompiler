@@ -3,95 +3,33 @@ package de.dercompiler.pass.passes;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.statement.*;
-import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
 import de.dercompiler.ast.visitor.ASTStatementVisitor;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 
 import java.util.Stack;
 
-public class DeadCodeEliminationPass implements StatementPass, BasicBlockPass, ASTStatementVisitor {
 
-    private Stack<Statement> resetStack;
+public class DeadCodeEliminationPass implements BasicBlockPass, ASTStatementVisitor {
+
     private boolean dead;
     private Method method;
+    private Stack<Boolean> state;
+    private Class<? extends Pass> pass;
+    private DependencyType dep;
 
-    public Statement following(Statement statement) {
-        final Statement[] sur = {statement.getSurroundingStatement()};
-        final Statement[] res = new Statement[1];
-        ASTStatementVisitor getNext = new ASTStatementVisitor() {
-            @Override
-            public void visitBasicBlock(BasicBlock basicBlock) {
-                boolean found = false;
-                res[0] = null;
-                for (Statement s : basicBlock.getStatements()) {
-                    if (found) {
-                        res[0] = s;
-                        break;
-                    }
-                    if (s == sur[0]) {
-                        found = true;
-                    }
-                }
-                if (basicBlock.getSurroundingStatement() != basicBlock) {
-                    sur[0] = basicBlock;
-                    basicBlock.getSurroundingStatement().accept(this);
-                }
-            }
-
-            @Override
-            public void visitEmptyStatement(EmptyStatement emptyStatement) {
-                res[0] = null;
-                //should never happen
-            }
-
-            @Override
-            public void visitErrorStatement(ErrorStatement errorStatement) {
-                res[0] = null;
-                //should never happen
-            }
-
-            @Override
-            public void visitExpressionStatement(ExpressionStatement expressionStatement) {
-                res[0] = null;
-                //should never happen
-            }
-
-            @Override
-            public void visitIfStatement(IfStatement ifStatement) {
-                if (ifStatement.hasElse() && ifStatement.getThenStatement() == sur[0]) {
-                    res[0] = ifStatement.getElseStatement();
-                } else {
-                    sur[0] = ifStatement;
-                    ifStatement.accept(this);
-                }
-            }
-
-            @Override
-            public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement localVariableDeclarationStatement) {
-                res[0] = null;
-                //should never happen
-            }
-
-            @Override
-            public void visitReturnStatement(ReturnStatement returnStatement) {
-                res[0] = null;
-                //should never happen
-            }
-
-            @Override
-            public void visitWhileStatement(WhileStatement whileStatement) {
-                sur[0] = whileStatement;
-                whileStatement.accept(this);
-            }
-        };
-
-        return res[0];
+    public Pass init(Class<? extends Pass> pass, DependencyType dep) {
+        this.pass = pass;
+        this.dep = dep;
+        return this;
     }
 
     @Override
     public void doInitialization(Program program) {
-        resetStack = new Stack<>();
         dead = false;
+        state = new Stack<>();
+        state.push(false);
     }
 
     @Override
@@ -99,39 +37,82 @@ public class DeadCodeEliminationPass implements StatementPass, BasicBlockPass, A
 
     }
 
-    private void updateMethod(BasicBlock block) {
-        if (method != block.getSurroundingMethod()) {
-            method = block.getSurroundingMethod();
-            dead = false;
-        }
-    }
-
-    private void otherFlow(Statement statement) {
-        if (resetStack.peek() == statement) {
-            resetStack.pop();
-        }
-        dead = false;
+    private void foundDead() {
+        dead = true;
     }
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
-        updateMethod(block);
-        otherFlow(block);
-        block.accept(this);
+        state.push(dead);
+        dead = false;
+        for (Statement s : block.getStatements()) {
+            if (dead) {
+                s.markDead();
+            } else {
+                s.accept(this);
+            }
+        }
+        if (dead) {
+            block.returns();
+        }
+        dead = state.pop();
         return false;
     }
 
+
     @Override
-    public boolean runOnStatement(Statement statement) {
-        otherFlow(statement);
-        statement.accept(this);
-        return false;
+    public void visitBasicBlock(BasicBlock basicBlock) {
+        if (basicBlock.hasReturn()) {
+            foundDead();
+        }
+    }
+
+    @Override
+    public void visitEmptyStatement(EmptyStatement emptyStatement) {
+        //do nothing
+    }
+
+    @Override
+    public void visitErrorStatement(ErrorStatement errorStatement) {
+        //do nothing
+    }
+
+    @Override
+    public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        //do nothing
+    }
+
+    @Override
+    public void visitIfStatement(IfStatement ifStatement) {
+        if (!ifStatement.hasElse()) return;
+        boolean bothReturn = ifStatement.getThenStatement().hasReturn() && ifStatement.getElseStatement().hasReturn();
+        if (bothReturn) {
+            foundDead();
+            ifStatement.returns();
+        }
+    }
+
+    @Override
+    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement localVariableDeclarationStatement) {
+        //do nothing
+    }
+
+    @Override
+    public void visitWhileStatement(WhileStatement whileStatement) {
+        if (whileStatement.getLoop().hasReturn()); //while is if
+    }
+
+    @Override
+    public void visitReturnStatement(ReturnStatement returnStatement) {
+        foundDead();
     }
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        usage.requireAnalysis(ASTReferencePass.class);
-        usage.setDependency(DependencyType.RUN_IN_NEXT_STEP);
+        if (pass != null && dep != null) {
+            usage.requireAnalysis(pass);
+            usage.setDependency(dep);
+        }
         return usage;
     }
 
@@ -168,70 +149,5 @@ public class DeadCodeEliminationPass implements StatementPass, BasicBlockPass, A
     @Override
     public AnalysisDirection getAnalysisDirection() {
         return AnalysisDirection.BOTTOM_UP;
-    }
-
-    @Override
-    public void visitBasicBlock(BasicBlock basicBlock) {
-        if (dead) {
-            basicBlock.markDead();
-        }
-    }
-
-    @Override
-    public void visitEmptyStatement(EmptyStatement emptyStatement) {
-        if (dead) {
-            emptyStatement.markDead();
-        }
-    }
-
-    @Override
-    public void visitErrorStatement(ErrorStatement errorStatement) {
-        if (dead) {
-            errorStatement.markDead();
-        }
-    }
-
-    @Override
-    public void visitExpressionStatement(ExpressionStatement expressionStatement) {
-        if (dead) {
-            expressionStatement.markDead();
-        }
-    }
-
-    @Override
-    public void visitIfStatement(IfStatement ifStatement) {
-        if (dead) {
-            ifStatement.markDead();
-        } else {
-            if (ifStatement.hasElse()) {
-                resetStack.push(ifStatement.getElseStatement());
-            }
-            resetStack.push(following(ifStatement));
-        }
-    }
-
-    @Override
-    public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement localVariableDeclarationStatement) {
-        if (dead) {
-            localVariableDeclarationStatement.markDead();
-        }
-    }
-
-    @Override
-    public void visitWhileStatement(WhileStatement whileStatement) {
-
-        if (dead) {
-            whileStatement.markDead();
-        } else {
-            resetStack.push(following(whileStatement));
-        }
-    }
-
-    @Override
-    public void visitReturnStatement(ReturnStatement returnStatement) {
-        if (dead) {
-            returnStatement.markDead();
-        }
-        dead = true;
     }
 }

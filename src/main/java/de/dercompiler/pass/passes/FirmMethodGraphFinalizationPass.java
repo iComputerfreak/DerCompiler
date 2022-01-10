@@ -39,7 +39,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
     @Override
     public boolean runOnMethod(Method method) {
         MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(), method.getIdentifier());
-        if (def.getType().getReturnType().isCompatibleTo(new VoidType()) && !method.getBlock().lastIsReturn()) {
+        if (def.getType().getReturnType().isCompatibleTo(new VoidType()) && !method.getBlock().hasReturn()) {
             TransformationHelper.createReturn(state, null);
         }
         assert(state.stackSize() == 0);
@@ -53,6 +53,8 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
+        if (block.isDead()) return false;
+
         if (state.removeStatementIfMarked(block)) {
             state.pullBlock();
         }
@@ -61,6 +63,8 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnStatement(Statement statement) {
+        if (statement.isDead()) return false;
+
         statement.accept(this);
         if (state.removeStatementIfMarked(statement)) {
             state.pullBlock();

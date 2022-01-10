@@ -52,6 +52,8 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
 
     @Override
     public boolean runOnStatement(Statement statement) {
+        if (statement.isDead()) return false;
+
         statement.accept(this);
         return false;
     }
@@ -143,6 +145,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
         usage.requireAnalysis(FirmTypePass.class);
+        usage.requireAnalysis(DeadCodeEliminationPass.class);
         usage.setDependency(DependencyType.RUN_IN_NEXT_STEP);
         return usage;
     }
