@@ -145,7 +145,7 @@ public class FirmTypeFactory {
             if (t.getFirmType() == null) {
                 t.setFirmType(createFirmClassType(t));
             }
-            return t.getFirmType();
+            return t.getFirmTransformationType();
         } else if (type instanceof ArrayType t) {
             firm.Type elementFirmType = getOrCreateFirmVariableType(t.getElementType());
             return createOrGetFirmPointerType(elementFirmType);
