@@ -17,6 +17,7 @@ public class CodeSelector implements NodeVisitor {
     
     private static final OutputMessageHandler logger = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
     
+    // TODO: Rename modes and functions
     // The current mode of the CodeSelector
     private enum Mode {
         ANNOTATION,
@@ -30,7 +31,9 @@ public class CodeSelector implements NodeVisitor {
     private final Map<Integer, NodeAnnotation> annotations;
     private Mode mode;
     private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph;
+    private final Graph<CodeNode, DefaultEdge> codeGraph;
     private final List<Operation> operations;
+    private final Map<Integer, CodeNode> codeGraphLookup;
 
     /**
      * Creates a new CodeSelector with the given Graph and SubstitutionRules
@@ -43,7 +46,9 @@ public class CodeSelector implements NodeVisitor {
         this.annotations = new HashMap<>();
         this.mode = Mode.ANNOTATION;
         this.nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        this.codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
         this.operations = new ArrayList<>();
+        this.codeGraphLookup = new HashMap<>();
     }
 
     /**
@@ -90,17 +95,18 @@ public class CodeSelector implements NodeVisitor {
         // Transform the graph into a node annotation graph
         this.mode = Mode.REDUCTION;
         graph.walkTopological(this);
-        
-        dumpGraph();
+
+        GraphDumper.dumpNodeAnnotationGraph(nodeAnnotationGraph, graph.toString().substring(6));
         
         // This mode switch is not really necessary, since we won't use graph.walk... to walk the graph and we don't
         // need to switch the mode for the NodeVisitor to work properly
         this.mode = Mode.LINEARIZATION;
-        // TODO: Which walk mode?
         Iterator<NodeAnnotation> it = new BreadthFirstIterator<>(nodeAnnotationGraph);
         while (it.hasNext()) {
-            linearizeNode(it.next());
+            applySubstitutionRule(it.next());
         }
+        
+        GraphDumper.dumpCodeGraph(codeGraph, graph.toString().substring(6));
         
         return operations;
     }
@@ -131,7 +137,7 @@ public class CodeSelector implements NodeVisitor {
                 // If we found a cheaper rule for that node (including all predecessors)
                 if (!annotations.containsKey(node.getNr()) || annotations.get(node.getNr()).getCost() > cost) {
                     // Annotate the node
-                    NodeAnnotation a = new NodeAnnotation(rule.getCost(), node, rule, false);
+                    NodeAnnotation a = new NodeAnnotation(rule.getCost(), node, rule);
                     annotations.put(node.getNr(), a);
                 }
             }
@@ -177,12 +183,40 @@ public class CodeSelector implements NodeVisitor {
         nodeAnnotationGraph.addEdge(root, predAnnotation);
     }
     
-    private void applySubstitutionRules(NodeAnnotation a) {
+    private void applySubstitutionRule(NodeAnnotation a) {
+        // If we already transformed this annotation (e.g. as a dependency of another node), skip it
+        if (a.getTransformed()) {
+            return;
+        }
         // Get the predecessors (graph nodes that point to this node)
-        List<NodeAnnotation> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream().map(nodeAnnotationGraph::getEdgeTarget).toList();
+        List<NodeAnnotation> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream()
+                .map(nodeAnnotationGraph::getEdgeSource).toList();
         // Apply the rule in this annotation
         List<Operation> ops = a.getRule().substitute(a.getRootNode());
-        // TODO: Add to code graph
+        
+        // Create the node in the code graph
+        CodeNode codeNode = new CodeNode(ops);
+        codeGraph.addVertex(codeNode);
+        // Keep a map of the node ids for lookup
+        codeGraphLookup.put(a.getRootNode().getNr(), codeNode);
+        
+        for (NodeAnnotation p : predecessors) {
+            int predNr = p.getRootNode().getNr();
+            // If we have a predecessor that we did not transform yet, do it now, recursively
+            if (!codeGraphLookup.containsKey(predNr)) {
+                applySubstitutionRule(annotations.get(predNr));
+            }
+            CodeNode predNode = codeGraphLookup.get(predNr);
+            // Recreate the dependency
+            codeGraph.addEdge(predNode, codeNode);
+        }
+        
+        // Mark all nodes that are covered by this rule as "transformed"
+        // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
+        a.setTransformed(true);
+        for (Node n : a.getRule().getRequiredNodes(graph)) {
+            annotations.get(n.getNr()).setTransformed(true);
+        }
     }
     
     // TODO: Use NodeAnnotation::substitute instead and just call it in the linearize phase?
@@ -197,10 +231,6 @@ public class CodeSelector implements NodeVisitor {
         // TODO: Add operations to the global operations list
         // Preserve the correct order and linearize the graph
         // operations.add(op);
-    }
-    
-    private void dumpGraph() {
-        GraphDumper.dumpNodeAnnotationGraph(nodeAnnotationGraph, graph.toString().substring(6));
     }
 
     private void visitAny(Node node) {

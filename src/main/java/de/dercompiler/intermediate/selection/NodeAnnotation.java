@@ -11,6 +11,7 @@ public class NodeAnnotation {
     private final Node rootNode;
     private final SubstitutionRule rule;
     private boolean visited;
+    private boolean transformed;
 
     /**
      * Creates a new node annotation with the given cost, root node and substitution rule
@@ -19,11 +20,12 @@ public class NodeAnnotation {
      * @param rule The substitution rule used to calculate the given cost
      * @param visited Whether the node has been visited already
      */
-    public NodeAnnotation(int cost, Node rootNode, SubstitutionRule rule, boolean visited) {
+    public NodeAnnotation(int cost, Node rootNode, SubstitutionRule rule, boolean visited, boolean transformed) {
         this.cost = cost;
         this.rootNode = rootNode;
         this.rule = rule;
         this.visited = visited;
+        this.transformed = transformed;
     }
 
     /**
@@ -33,7 +35,7 @@ public class NodeAnnotation {
      * @param rule The substitution rule used to calculate the given cost
      */
     public NodeAnnotation(int cost, Node rootNode, SubstitutionRule rule) {
-        this(cost, rootNode, rule, false);
+        this(cost, rootNode, rule, false, false);
     }
 
     /**
@@ -66,9 +68,23 @@ public class NodeAnnotation {
     }
 
     /**
+     * Returns whether this node has been transformed already
+     */
+    public boolean getTransformed() {
+        return transformed;
+    }
+
+    /**
      * Sets the visited flag for this node
      */
     public void setVisited(boolean visited) {
         this.visited = visited;
+    }
+
+    /**
+     * Sets the transformed flag for this node
+     */
+    public void setTransformed(boolean transformed) {
+        this.transformed = transformed;
     }
 }
