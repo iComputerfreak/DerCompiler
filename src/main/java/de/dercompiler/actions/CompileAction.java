@@ -5,7 +5,9 @@ import de.dercompiler.ast.Program;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.io.CommandLineBuilder;
+import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
@@ -42,24 +44,18 @@ public class CompileAction extends Action {
         Program program = parser.parseProgram();
 
         ErrorStatus.exitProgramIfError();
-
+        
         //Step 2: check AST & Transformation
         PassManager manager = new PassManager(lexer);
-        PassManagerBuilder.buildSemanticsPipeline(manager);
+        PassManagerBuilder.buildTransformationPipeline(manager);
         manager.run(program);
 
         ErrorStatus.exitProgramIfError();
 
         //Step 3: Code Selection
         
-//        CompoundType globalType = firm.Program.getGlobalType();
-//        Type voidType = FirmTypeFactory.getInstance().createFirmPrimitiveType(new VoidType());
-//        MethodType methodType = FirmTypeFactory.getInstance().createFirmMethodType(new Type[]{}, voidType);
-//        Entity methodEntity = new Entity(globalType, "foo", methodType);
-        //firm.Graph graph = new Graph(methodEntity, 0);
-    
-        
         for (Graph graph : program.getGraphs()) {
+            (new OutputMessageHandler(MessageOrigin.CODE_GENERATION)).debugPrint("Running code selection for " + graph);
             CodeSelector selector = new CodeSelector(graph, new HashMap<>());
             List<Operation> operationList = selector.generateCode();
         }

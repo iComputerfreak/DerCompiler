@@ -159,16 +159,26 @@ public class CodeSelector implements NodeVisitor {
         if (!codeGraph.containsVertex(a)) {
             codeGraph.addVertex(a);
         }
-        // Maintain the dependencies
+        for (Node pred : a.getRootNode().getPreds()) {
+            addDependency(a, pred);
+        }
+        // Maintain the dependencies inside the rule
         for (Node n : a.getRule().getRequiredNodes(graph)) {
             // If one of our predecessors has a predecessor that has not been visited yet,
             // add it as an edge in the code graph
             NodeAnnotation predAnnotation = annotations.get(n.getNr());
             if (!predAnnotation.getVisited()) {
-                codeGraph.addVertex(predAnnotation);
-                codeGraph.addEdge(a, predAnnotation);
+                addDependency(a, n);
             }
         }
+    }
+    
+    private void addDependency(NodeAnnotation root, Node pred) {
+        NodeAnnotation predAnnotation = annotations.get(pred.getNr());
+        if (!codeGraph.containsVertex(predAnnotation)) {
+            codeGraph.addVertex(predAnnotation);
+        }
+        codeGraph.addEdge(root, predAnnotation);
     }
     
     // TODO: Use NodeAnnotation::substitute instead and just call it in the linearize phase?

@@ -4,9 +4,6 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
-import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
-import de.dercompiler.ast.statement.Statement;
-import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
@@ -16,12 +13,10 @@ import de.dercompiler.optimization.GraphOptimization;
 import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.MethodDefinition;
-import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
-
 import firm.nodes.Block;
 
 import java.util.List;
@@ -34,6 +29,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
     private FirmMethodGraphStartupPass startUp;
     private TransformationState state;
     private List<GraphOptimization> opts;
+    private Program program;
 
 
     @Override
@@ -47,6 +43,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         state.construction.finish();
         //Graph als .vcg datei erzeugen
         GraphDumper.dumpGraphFinal(state);
+        program.getGraphs().add(state.graph);
         state.clear();
         return false;
     }
@@ -217,15 +214,16 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public void doInitialization(de.dercompiler.ast.Program program) {
+        System.out.println("Initializing");
         if (Objects.isNull(startUp)) new OutputMessageHandler(MessageOrigin.PASSES).internalError("FirmMethodgraphFinalizationPass needs FirmMethodgraphStartupPass, gut it is not in the PassManager");
         state = startUp.getState();
         if (Objects.isNull(state)) state = new TransformationState(program.getGlobalScope());
         this.opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
+        this.program = program;
     }
 
     @Override
     public void doFinalization(Program program) {
-
     }
 
     @Override

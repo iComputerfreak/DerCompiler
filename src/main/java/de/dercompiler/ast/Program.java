@@ -8,7 +8,7 @@ import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -35,6 +35,7 @@ public final class Program extends ASTNode {
     private final SymbolTable symbolTable;
 
     private final GlobalScope globalScope;
+    private final List<firm.Graph> firmGraphs;
 
 
     /**
@@ -49,6 +50,7 @@ public final class Program extends ASTNode {
         isIndexed = false;
 
         this.globalScope = new GlobalScope();
+        this.firmGraphs = new LinkedList<>();
     }
 
     /**
@@ -93,8 +95,7 @@ public final class Program extends ASTNode {
     }
     
     public List<firm.Graph> getGraphs() {
-        // TODO: Return the constructed firm graphs
-        return new ArrayList<>();
+        return firmGraphs;
     }
 
 }

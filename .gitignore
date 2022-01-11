@@ -1,7 +1,8 @@
 # Custom
 
-# macOS .DS_Store files
+# macOS
 .DS_Store
+*.dSYM/
 
 # Shared libraries
 *.a
@@ -9,6 +10,12 @@
 
 # tests.sh files
 .tests
+
+# Code Graph dumps
+*.dot
+
+runtime.cpp
+runAll.sh
 
 .idea/codeStyles/codeStyleConfig.xml
 .idea/inspectionProfiles/
