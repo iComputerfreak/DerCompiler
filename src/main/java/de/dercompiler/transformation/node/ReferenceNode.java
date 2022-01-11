@@ -47,6 +47,10 @@ public abstract class ReferenceNode {
 
     public abstract boolean isReference();
 
+    public Node getReference() {
+        return ref;
+    }
+
     public Mode getMode() {
         return mode;
     }

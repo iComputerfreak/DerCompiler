@@ -45,6 +45,8 @@ public class ArrayElementNode extends ReferenceNode {
 
     @Override
     public boolean isReference() {
-        return true;
+        if (!(type instanceof ArrayType at)) return false;
+        if (at.getDimension() > 0) return true;
+        return at.getElementType() instanceof ClassType;
     }
 }

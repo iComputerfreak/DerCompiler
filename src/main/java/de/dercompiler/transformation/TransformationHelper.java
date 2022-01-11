@@ -5,6 +5,7 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.semantic.type.NullType;
 import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Graph;
@@ -50,7 +51,21 @@ public class TransformationHelper {
     }
 
     public static Node createComp(TransformationState state, Relation relation) {
-        return state.construction.newCmp(state.lhs.genLoad(state), state.rhs.genLoad(state), relation);
+        Node lhs;
+        Node rhs;
+        if (state.lhs.isReference()) {
+            lhs = state.lhs.getReference();
+        } else { //null incuded
+            lhs = state.lhs.genLoad(state);
+        }
+
+        if (state.rhs.isReference()) {
+            rhs = state.rhs.getReference();
+        } else {
+            rhs = state.rhs.genLoad(state);
+        }
+
+        return state.construction.newCmp(lhs, rhs, relation);
     }
 
     public static void createConditionJumps(TransformationState state, Node cmp) {
