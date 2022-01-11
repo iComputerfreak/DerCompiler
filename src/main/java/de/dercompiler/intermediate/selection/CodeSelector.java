@@ -4,17 +4,13 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.EmptyRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.transformation.GraphDumper;
 import firm.nodes.*;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.nio.Attribute;
-import org.jgrapht.nio.DefaultAttribute;
-import org.jgrapht.nio.dot.DOTExporter;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 public class CodeSelector implements NodeVisitor {
@@ -33,7 +29,7 @@ public class CodeSelector implements NodeVisitor {
     // Contains the NodeAnnotation of a given node nr. from the real graph
     private final Map<Integer, NodeAnnotation> annotations;
     private Mode mode;
-    private final Graph<NodeAnnotation, DefaultEdge> codeGraph;
+    private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph;
     private final List<Operation> operations;
 
     /**
@@ -46,7 +42,7 @@ public class CodeSelector implements NodeVisitor {
         this.rules = rules;
         this.annotations = new HashMap<>();
         this.mode = Mode.ANNOTATION;
-        this.codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        this.nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
         this.operations = new ArrayList<>();
     }
 
@@ -91,7 +87,7 @@ public class CodeSelector implements NodeVisitor {
         this.mode = Mode.ANNOTATION; // Set, in case generateCode() is called twice
         graph.walkPostorder(this);
 
-        // Transform the graph into a code graph
+        // Transform the graph into a node annotation graph
         this.mode = Mode.REDUCTION;
         graph.walkTopological(this);
         
@@ -101,7 +97,7 @@ public class CodeSelector implements NodeVisitor {
         // need to switch the mode for the NodeVisitor to work properly
         this.mode = Mode.LINEARIZATION;
         // TODO: Which walk mode?
-        Iterator<NodeAnnotation> it = new BreadthFirstIterator<>(codeGraph);
+        Iterator<NodeAnnotation> it = new BreadthFirstIterator<>(nodeAnnotationGraph);
         while (it.hasNext()) {
             linearizeNode(it.next());
         }
@@ -156,8 +152,8 @@ public class CodeSelector implements NodeVisitor {
         // Build a graph of NodeAnnotations
         
         // The vertex could already exist due to a dependency
-        if (!codeGraph.containsVertex(a)) {
-            codeGraph.addVertex(a);
+        if (!nodeAnnotationGraph.containsVertex(a)) {
+            nodeAnnotationGraph.addVertex(a);
         }
         for (Node pred : a.getRootNode().getPreds()) {
             addDependency(a, pred);
@@ -165,7 +161,7 @@ public class CodeSelector implements NodeVisitor {
         // Maintain the dependencies inside the rule
         for (Node n : a.getRule().getRequiredNodes(graph)) {
             // If one of our predecessors has a predecessor that has not been visited yet,
-            // add it as an edge in the code graph
+            // add it as an edge in the node annotation graph
             NodeAnnotation predAnnotation = annotations.get(n.getNr());
             if (!predAnnotation.getVisited()) {
                 addDependency(a, n);
@@ -175,10 +171,18 @@ public class CodeSelector implements NodeVisitor {
     
     private void addDependency(NodeAnnotation root, Node pred) {
         NodeAnnotation predAnnotation = annotations.get(pred.getNr());
-        if (!codeGraph.containsVertex(predAnnotation)) {
-            codeGraph.addVertex(predAnnotation);
+        if (!nodeAnnotationGraph.containsVertex(predAnnotation)) {
+            nodeAnnotationGraph.addVertex(predAnnotation);
         }
-        codeGraph.addEdge(root, predAnnotation);
+        nodeAnnotationGraph.addEdge(root, predAnnotation);
+    }
+    
+    private void applySubstitutionRules(NodeAnnotation a) {
+        // Get the predecessors (graph nodes that point to this node)
+        List<NodeAnnotation> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream().map(nodeAnnotationGraph::getEdgeTarget).toList();
+        // Apply the rule in this annotation
+        List<Operation> ops = a.getRule().substitute(a.getRootNode());
+        // TODO: Add to code graph
     }
     
     // TODO: Use NodeAnnotation::substitute instead and just call it in the linearize phase?
@@ -196,24 +200,7 @@ public class CodeSelector implements NodeVisitor {
     }
     
     private void dumpGraph() {
-        DOTExporter<NodeAnnotation, DefaultEdge> exporter = new DOTExporter<>(v -> {
-            return "" + v.getRootNode().getNr();
-        });
-        exporter.setVertexAttributeProvider((v) -> {
-            List<Operation> ops = v.getRule().substitute(v.getRootNode());
-            List<String> opStrings = ops.stream().map(o -> o.getOperationType().toString()).toList();
-            String label = v.getRootNode().toString() + "\n-----\n" + String.join("\n", opStrings);
-    
-            Map<String, Attribute> map = new LinkedHashMap<>();
-            map.put("label", DefaultAttribute.createAttribute(label));
-            return map;
-        });
-        
-        try(FileWriter w = new FileWriter("codeGraph" + graph.toString() + ".dot")) {
-            exporter.exportGraph(codeGraph, w);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        GraphDumper.dumpNodeAnnotationGraph(nodeAnnotationGraph, graph.toString().substring(6));
     }
 
     private void visitAny(Node node) {

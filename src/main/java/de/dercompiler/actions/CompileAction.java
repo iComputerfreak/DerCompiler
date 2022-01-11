@@ -5,9 +5,7 @@ import de.dercompiler.ast.Program;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.io.CommandLineBuilder;
-import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
-import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
@@ -55,7 +53,6 @@ public class CompileAction extends Action {
         //Step 3: Code Selection
         
         for (Graph graph : program.getGraphs()) {
-            (new OutputMessageHandler(MessageOrigin.CODE_GENERATION)).debugPrint("Running code selection for " + graph);
             CodeSelector selector = new CodeSelector(graph, new HashMap<>());
             List<Operation> operationList = selector.generateCode();
         }
