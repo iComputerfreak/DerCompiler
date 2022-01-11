@@ -2,20 +2,19 @@ package de.dercompiler.actions;
 
 import de.dercompiler.ast.MainMethod;
 import de.dercompiler.ast.Program;
-import de.dercompiler.general.GeneralErrorIds;
-import de.dercompiler.general.GeneralWarningIds;
+import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.io.CommandLineBuilder;
-import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
-import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
-import de.dercompiler.pass.passes.*;
 import de.dercompiler.util.ErrorStatus;
+import firm.Graph;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents the action to compile the given source code
@@ -44,14 +43,28 @@ public class CompileAction extends Action {
 
         ErrorStatus.exitProgramIfError();
 
-        //Step 2: check AST
+        //Step 2: check AST & Transformation
         PassManager manager = new PassManager(lexer);
         PassManagerBuilder.buildSemanticsPipeline(manager);
         manager.run(program);
 
         ErrorStatus.exitProgramIfError();
 
-        //Step 3: Transformation
+        //Step 3: Code Selection
+        
+//        CompoundType globalType = firm.Program.getGlobalType();
+//        Type voidType = FirmTypeFactory.getInstance().createFirmPrimitiveType(new VoidType());
+//        MethodType methodType = FirmTypeFactory.getInstance().createFirmMethodType(new Type[]{}, voidType);
+//        Entity methodEntity = new Entity(globalType, "foo", methodType);
+        //firm.Graph graph = new Graph(methodEntity, 0);
+    
+        
+        for (Graph graph : program.getGraphs()) {
+            CodeSelector selector = new CodeSelector(graph, new HashMap<>());
+            List<Operation> operationList = selector.generateCode();
+        }
+        
+        ErrorStatus.exitProgramIfError();
 
     }
 

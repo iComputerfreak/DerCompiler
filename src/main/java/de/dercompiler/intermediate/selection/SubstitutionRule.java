@@ -13,7 +13,6 @@ import java.util.List;
  */
 public abstract class SubstitutionRule {
 
-    // TODO: This should probably be a list
     private final Node rootNode;
 
     /**

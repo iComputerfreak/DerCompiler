@@ -1,14 +1,20 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.selection.rules.EmptyRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.nodes.*;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTExporter;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class CodeSelector implements NodeVisitor {
@@ -89,10 +95,12 @@ public class CodeSelector implements NodeVisitor {
         this.mode = Mode.REDUCTION;
         graph.walkTopological(this);
         
+        dumpGraph();
+        
         // This mode switch is not really necessary, since we won't use graph.walk... to walk the graph and we don't
         // need to switch the mode for the NodeVisitor to work properly
         this.mode = Mode.LINEARIZATION;
-        // TODO: What walk mode?
+        // TODO: Which walk mode?
         Iterator<NodeAnnotation> it = new BreadthFirstIterator<>(codeGraph);
         while (it.hasNext()) {
             linearizeNode(it.next());
@@ -102,6 +110,14 @@ public class CodeSelector implements NodeVisitor {
     }
     
     private void annotateNode(Node node) {
+        if (!rules.containsKey(node.getClass())) {
+            // If we have no rules to apply, we skip this node
+            // TODO: When all rules are specified this should not happen anymore!
+            //  Every node needs at least one rule
+            // Dummy annotation:
+            annotations.put(node.getNr(), new NodeAnnotation(0, node, new EmptyRule(node)));
+            return;
+        }
         // We only look at rules that have a root node that matches our current node
         for (SubstitutionRule rule : rules.get(node.getClass())) {
             // Check if rule matches the node and its predecessors
@@ -155,17 +171,39 @@ public class CodeSelector implements NodeVisitor {
         }
     }
     
-    // TODO: This has to be called on the code graph, not the firm graph
     // TODO: Use NodeAnnotation::substitute instead and just call it in the linearize phase?
     private void linearizeNode(NodeAnnotation a) {
         // TODO: Transform all NodeAnnotations into code and add it to the operations list
+        // TODO: Maybe keep using a bfs style to go over the required nodes?
         for (Node n : a.getRule().getRequiredNodes(graph)) {
             List<Operation> code = a.getRule().substitute(n);
         }
         List<Operation> rootCode = a.getRule().substitute(a.getRootNode());
         
         // TODO: Add operations to the global operations list
+        // Preserve the correct order and linearize the graph
         // operations.add(op);
+    }
+    
+    private void dumpGraph() {
+        DOTExporter<NodeAnnotation, DefaultEdge> exporter = new DOTExporter<>(v -> {
+            return "" + v.getRootNode().getNr();
+        });
+        exporter.setVertexAttributeProvider((v) -> {
+            List<Operation> ops = v.getRule().substitute(v.getRootNode());
+            List<String> opStrings = ops.stream().map(o -> o.getOperationType().toString()).toList();
+            String label = v.getRootNode().toString() + "\n-----\n" + String.join("\n", opStrings);
+    
+            Map<String, Attribute> map = new LinkedHashMap<>();
+            map.put("label", DefaultAttribute.createAttribute(label));
+            return map;
+        });
+        
+        try(FileWriter w = new FileWriter("codeGraph" + graph.toString() + ".dot")) {
+            exporter.exportGraph(codeGraph, w);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void visitAny(Node node) {
