@@ -27,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserTest {
 
-    ParserTestHelper helper = new ParserTestHelper();
-
     static SourcePosition POS = ParserTestHelper.DEFAULT_POS;
 
     static Type INT_TYPE = new Type(POS, new IntType(POS), 0);

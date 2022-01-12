@@ -19,8 +19,6 @@ public class ParserTestExpressions {
 
     public static SourcePosition DEFAULT_POS = Lexer.forString("").peek().position();
 
-    private final ParserTestHelper pth = new ParserTestHelper();
-
     @BeforeAll
     static void setup() {
         OutputMessageHandler.setDebug();

@@ -29,11 +29,8 @@ import java.util.Objects;
 
 public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass, ASTStatementVisitor {
 
-    static int i = 0;
-
     private FirmMethodGraphStartupPass startUp;
     private TransformationState state;
-    private List<GraphOptimization> opts;
 
 
     @Override
@@ -251,7 +248,6 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         if (Objects.isNull(startUp)) new OutputMessageHandler(MessageOrigin.PASSES).internalError("FirmMethodgraphFinalizationPass needs FirmMethodgraphStartupPass, gut it is not in the PassManager");
         state = startUp.getState();
         if (Objects.isNull(state)) state = new TransformationState(program.getGlobalScope());
-        this.opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
     }
 
     @Override

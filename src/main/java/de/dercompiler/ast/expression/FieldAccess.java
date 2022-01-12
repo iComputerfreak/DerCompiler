@@ -55,9 +55,4 @@ public final class FieldAccess extends PostfixExpression {
         }
         return null;
     }
-
-    public ReferenceNode errorNoValidFieldAccess(de.dercompiler.semantic.type.Type type, ReferenceNode objRef) {
-        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Error while generating FieldAccess, we got: " + type.getClass().getName() + " and " + objRef.getClass().getName());
-        return null;
-    }
 }

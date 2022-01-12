@@ -14,7 +14,6 @@ import java.util.Stack;
 public class DeadCodeEliminationPass implements BasicBlockPass, ASTStatementVisitor {
 
     private boolean dead;
-    private Method method;
     private Stack<Boolean> state;
     private Class<? extends Pass> pass;
     private DependencyType dep;

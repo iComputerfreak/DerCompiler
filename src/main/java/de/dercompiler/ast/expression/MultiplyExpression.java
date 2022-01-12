@@ -38,7 +38,6 @@ public final class MultiplyExpression extends BinaryExpression {
     public ReferenceNode createNode(TransformationState state) {
         createChildNodes(state);
         Node res = state.construction.newMul(state.lhs.genLoad(state), state.rhs.genLoad(state));
-        Mode mode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
         clearChildNodes(state);
         return new RValueNode(res, getType());
     }

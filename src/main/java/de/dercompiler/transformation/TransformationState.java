@@ -45,8 +45,6 @@ public class TransformationState {
 
     private final Set<Block> returnBlocks;
 
-    private boolean hasReturn = false;
-
     public boolean isAsignement = false;
 
     public TransformationState(GlobalScope scope) {
@@ -92,7 +90,6 @@ public class TransformationState {
         assert(blockStack.size() == 0);
         graph = null;
         construction = null;
-        hasReturn = false;
         returnBlocks.clear();
     }
 
@@ -109,10 +106,6 @@ public class TransformationState {
         blockStack.push(block);
     }
 
-
-    public Block peekBlock() {
-        return blockStack.peek();
-    }
 
     public int stackSize() {
         return blockStack.size();
@@ -213,10 +206,6 @@ public class TransformationState {
 
     public boolean expectValue() {
         return expectValue.peek();
-    }
-
-    public void markReturned(Block block) {
-        returnBlocks.add(block);
     }
 
     public boolean hasReturned(Block block) {

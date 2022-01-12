@@ -67,10 +67,6 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         astExpressionVisitor.visitMethodInvocation(this);
     }
 
-    private Method getMethod(){
-        return methodDefinition.getMethod();
-    }
-
     public ClassType getClassType(){
         return methodDefinition.getReferenceType();
     }

@@ -65,18 +65,6 @@ public class ArrayNode extends ReferenceNode {
         return new ObjectNode(ref, ct);
     }
 
-    private firm.Type type() {
-        return this.type.getFirmTransformationType();
-    }
-
-    public Node getPointer() {
-        return ref;
-    }
-
-    public Type getElementType() {
-        return type;
-    }
-
     public int getDimension() {
         return dim;
     }

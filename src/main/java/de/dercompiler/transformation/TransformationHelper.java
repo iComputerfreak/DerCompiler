@@ -5,10 +5,8 @@ import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.semantic.type.NullType;
 import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
-import firm.Graph;
 import firm.Mode;
 import firm.Relation;
 import firm.Type;
@@ -43,10 +41,10 @@ public class TransformationHelper {
     }
 
     public static void createDirectJump(TransformationState state, Block to) {
-        createJump(state, to, state.construction.newJmp());
+        createJump(to, state.construction.newJmp());
     }
 
-    public static void createJump(TransformationState state, Block to, Node jmp) {
+    public static void createJump(Block to, Node jmp) {
         to.addPred(jmp);
     }
 
@@ -72,12 +70,8 @@ public class TransformationHelper {
         Node cond = state.construction.newCond(cmp);
         Node jmpTrue = state.construction.newProj(cond, Mode.getX(), Cond.pnTrue);
         Node jmpFalse = state.construction.newProj(cond, Mode.getX(), Cond.pnFalse);
-        TransformationHelper.createJump(state, state.trueBlock(), jmpTrue);
-        TransformationHelper.createJump(state, state.falseBlock(), jmpFalse);
-    }
-
-    public static boolean isControlStructure(Statement statement) {
-        return statement instanceof IfStatement || statement instanceof WhileStatement;
+        TransformationHelper.createJump(state.trueBlock(), jmpTrue);
+        TransformationHelper.createJump(state.falseBlock(), jmpFalse);
     }
 
     public static Node createBooleanNode(TransformationState state, boolean value) {

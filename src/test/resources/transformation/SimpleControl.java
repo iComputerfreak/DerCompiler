@@ -104,12 +104,17 @@ class foo {
         }
     }
 
-    */
+    
     public boolean returnTest12(boolean b, int x) {
 		boolean c = true;
 		while (true && b && x > 2 && x < 10) {
 			c = c && (x = x + 1) < 11 && x != 100;
 		}
 		return c;
+	}
+    */
+    public boolean returnTest10(int x) {
+		boolean b = ((false == true != true == false || false && false || false == false != true && true != false) || false != true == false == (true == false && false || true != false || (true || false != false && (true)) || false) && true == false && true || false != true) && false || !(true || false == (true && true == true != false && false == true && false) && false != true && true || true != true) != false || true == false == true != true == true;
+		return b;
 	}
 }
