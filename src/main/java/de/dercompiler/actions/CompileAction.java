@@ -51,7 +51,6 @@ public class CompileAction extends Action {
         ErrorStatus.exitProgramIfError();
 
         //Step 3: Code Selection
-        
         for (Graph graph : program.getGraphs()) {
             CodeSelector selector = new CodeSelector(graph, new HashMap<>());
             List<Operation> operationList = selector.generateCode();

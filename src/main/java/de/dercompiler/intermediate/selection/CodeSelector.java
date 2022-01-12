@@ -88,6 +88,10 @@ public class CodeSelector implements NodeVisitor {
          * symposium on Principles of programming languages. ACM Press, 1999, S. 242–249.
          */
         
+        // TODO: Firm über Blöcke laufen 
+        // graph.walkBlocks();
+        // TODO: Reihenfolge Phis
+        
         /* ============================================= */
         /* 1. Create NodeAnnotations for every firm.Node */
         /* ============================================= */
