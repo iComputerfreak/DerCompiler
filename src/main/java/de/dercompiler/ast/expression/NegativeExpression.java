@@ -40,7 +40,7 @@ public final class NegativeExpression extends UnaryExpression {
         ReferenceNode inner = getEncapsulated().createNode(state);
         if (getEncapsulated() instanceof IntegerValue) {
             // minuses on constant values must be eliminated (MIN_VALUE problem)
-            return inner;
+            //return inner;
         }
         return new RValueNode(state.construction.newMinus(inner.genLoad(state)), getType());
     }
