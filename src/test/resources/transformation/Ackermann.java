@@ -1,8 +1,5 @@
 class Ackermann
 {
-    public int x;
-    public int y;
-    public int z;
 
     public int ack(int m, int n)
     {
@@ -17,7 +14,7 @@ class Ackermann
         else if((m > 0) && (n > 0))
         {
             return ack(m - 1, ack(m, n - 1));
-        } else {
+        }else {
             System.out.println(m);
             return n + 1;
         }
