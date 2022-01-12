@@ -31,7 +31,7 @@ public class FieldNode extends ReferenceNode {
 
     @Override
     public ObjectNode getObjectCallBase(TransformationState state) {
-        return new ObjectNode(ref, getTypeAsClass()); //checks for  class-type
+        return new ObjectNode(genLoad(state), getTypeAsClass()); //checks for  class-type
     }
 
     @Override
