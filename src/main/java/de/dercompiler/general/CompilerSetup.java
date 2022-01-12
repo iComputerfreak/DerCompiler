@@ -6,6 +6,7 @@ import de.dercompiler.io.CommandLineStrings;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.linker.Compiler;
 import de.dercompiler.linker.ExternalToolchain;
 import de.dercompiler.linker.Runner;
 import de.dercompiler.pass.PassManager;
@@ -117,14 +118,16 @@ public class CompilerSetup {
         if (options.compileFirm()) {
             Source src = getSourceFromArgs(options);
             FirmCompileAction action = new FirmCompileAction(src);
+            if (options.basicOptimization()) action.setBasicOptimizationActive(true);
             setAction(action);
         }
 
         if (Objects.isNull(action)) {
             Source src = getSourceFromArgs(options);
-            action = new CompileAction(src);
+            CompileAction action = new CompileAction(src);
+            if (options.basicOptimization()) action.setBasicOptimizationActive(true);
+            setAction(action);
         }
-
 
         return action;
     }

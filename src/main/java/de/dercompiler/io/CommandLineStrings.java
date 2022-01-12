@@ -50,6 +50,16 @@ public class CommandLineStrings {
     public static final String OPTION_NO_INFO = "no-info";
     public static final String OPTION_DUMP_GRAPH = "dump-graph";
 
+    // used only for testing the very basic obligatory optimizations
+    public static final String OPTION_OPTIMIZE = "optimize";
+    // basic obligatory optimizations still active
+    public static final String OPTION_OPTIMIZATION_OFF = "O0";
+
+    // fancy crazy optimizations active
+    public static final String OPTION_OPTIMIZATION_ON = "O1";
+
+
+
     public static final String OPTION_TARGET = "target";
 
     // Descriptions
@@ -87,6 +97,10 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_TARGET = "The name of the target to compile";
     public static final String DESCRIPTION_NO_INFO = "Deactivates info print";
     public static final String DESCRIPTION_DUMP_GRAPH = "Dump all Code as firmGraphs";
+    public static final String DESCRIPTION_OPTIMIZE = "Activate basic optimizations";
+    public static final String DESCRIPTION_OPTIMIZATIONS_OFF = "Activate only basic optimizations";
+    public static final String DESCRIPTION_OPTIMIZATIONS_ON = "Activate crazy optimizations";
+
 
     //compiler assembler and linker
     public static final String OPTION_CLANG         = "clang";

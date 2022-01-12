@@ -7,6 +7,9 @@ import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.optimization.ArithmeticOptimization;
+import de.dercompiler.optimization.GraphOptimization;
+import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
@@ -25,6 +28,7 @@ public class CompileAction extends Action {
     
     // The input file containing the source code to compile
     private final Source source;
+    private boolean basicOptimizationsActive;
 
     /**
      * Creates a new CompileAction with the given source code file
@@ -51,7 +55,13 @@ public class CompileAction extends Action {
         ErrorStatus.exitProgramIfError();
 
         //Step 3: Code Selection
+
+        List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
         for (Graph graph : program.getGraphs()) {
+            if (basicOptimizationsActive) {
+                opts.forEach(opt -> opt.runOnGraph(graph));
+            }
+
             CodeSelector selector = new CodeSelector(graph, new HashMap<>());
             List<Operation> operationList = selector.generateCode();
         }
@@ -63,6 +73,10 @@ public class CompileAction extends Action {
     public void help() {
         CommandLineBuilder.printHelp(compilerName);
 
+    }
+
+    public void setBasicOptimizationActive(boolean active) {
+        this.basicOptimizationsActive = active;
     }
 
     public String actionId() {

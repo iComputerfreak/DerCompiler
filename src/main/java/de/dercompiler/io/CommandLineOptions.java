@@ -119,6 +119,14 @@ public class CommandLineOptions {
 
     public boolean dumpGraph() { return cmd.hasOption(OPTION_DUMP_GRAPH); }
 
+    public boolean basicOptimization() {
+        return cmd.hasOption(OPTION_OPTIMIZE);
+    }
+
+    public boolean optimizationsActive() {
+        return cmd.hasOption(OPTION_OPTIMIZATION_ON) || !cmd.hasOption(OPTION_OPTIMIZATION_OFF);
+    }
+
     public String getOptionArgument(String optionName) {
         return cmd.getOptionValue(optionName);
     }
@@ -295,4 +303,5 @@ public class CommandLineOptions {
     public File getCwd() {
         return resolver.getCwd();
     }
+
 }

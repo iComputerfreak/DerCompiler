@@ -2,7 +2,8 @@ package de.dercompiler.intermediate;
 
 public class RelativeAddress implements Operand {
 
-    private X86Register base; //%bp or
+    // %bp or heap/object pointer
+    private X86Register base;
     private int offset;
 
     @Override
