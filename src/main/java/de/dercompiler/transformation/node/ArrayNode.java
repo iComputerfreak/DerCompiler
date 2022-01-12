@@ -40,7 +40,7 @@ public class ArrayNode extends ReferenceNode {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("invalid ArrayAccess on Array of Dimension 0");
         }
         Node elem_ptr = TransformationHelper.addOffsetToPointer(state, ref, offset);
-        return new ArrayElementNode(elem_ptr, getTypeAsArray().getElementType());
+        return new ArrayElementNode(elem_ptr, type);
     }
 
     @Override
