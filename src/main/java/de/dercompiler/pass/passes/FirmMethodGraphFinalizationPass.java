@@ -72,8 +72,29 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         return false;
     }
 
+    private void checkIfOriginUpdated() {
+        Block block = state.popOrigin();
+
+        if (state.isCondition() && block != state.construction.getCurrentBlock()) {
+            boolean trueBlock = block.equals(state.trueBlock());
+            boolean falseBlock = block.equals(state.falseBlock());
+            if (trueBlock && falseBlock) {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Expression only in one Branch possible");
+            }
+            if (trueBlock) {
+                state.exchangeTrueBlock(state.construction.getCurrentBlock());
+            } else if (falseBlock) {
+                state.exchangeTrueBlock(state.construction.getCurrentBlock());
+            } else {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("we are in a other Block, but we have no Branch, that's odd");
+            }
+        }
+    }
+
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
+        checkIfOriginUpdated();
+
         int nodeId = lvds.getNodeId();
         if (state.res != null) {
             state.construction.setVariable(nodeId, state.res.genLoad(state));
@@ -99,6 +120,8 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        checkIfOriginUpdated();
+
         state.res = null;
         state.popExpect();
     }
@@ -206,6 +229,9 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         //if boolean blocks are set already
         //this is for while, if, boolean localVariableDeclaration and boolean return-statements
         state.res = expression.createNode(state);
+        if (state.res != null) {
+            //state.graph.keepAlive(state.res.genLoad(state));
+        }
         if (!state.isCondition()) return false;
         if (expression.getSurroundingStatement() instanceof WhileStatement) {
             state.trueBlock().mature();

@@ -60,6 +60,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
 
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
+        state.pushOrigin(state.construction.getCurrentBlock());
         state.pushExpectValue();
     }
 
@@ -85,6 +86,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
 
     @Override
     public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        state.pushOrigin(state.construction.getCurrentBlock());
         state.pushExpectValue();
     }
 

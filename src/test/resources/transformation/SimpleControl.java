@@ -1,5 +1,6 @@
 class foo {
 
+    /*
     public static void main(String[] args) {
         int i = 0;
         if (5 == 6) {
@@ -102,4 +103,13 @@ class foo {
             }
         }
     }
+
+    */
+    public boolean returnTest12(boolean b, int x) {
+		boolean c = true;
+		while (true && b && x > 2 && x < 10) {
+			c = c && (x = x + 1) < 11 && x != 100;
+		}
+		return c;
+	}
 }
