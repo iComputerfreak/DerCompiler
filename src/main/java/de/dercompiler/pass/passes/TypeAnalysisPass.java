@@ -7,7 +7,6 @@ import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
-import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
@@ -305,7 +304,7 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
 
     @Override
     public void visitNewArrayExpression(NewArrayExpression newArrayExpression) {
-        Expression dimExpr = newArrayExpression.getSize();
+        Expression dimExpr = newArrayExpression.getNumElements();
 
         dimExpr.accept(this);
         assertTypeEquals(dimExpr, new IntegerType(), "Illegal dimension expression");

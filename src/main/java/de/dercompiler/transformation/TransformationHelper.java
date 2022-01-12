@@ -16,12 +16,12 @@ import firm.nodes.*;
 
 public class TransformationHelper {
 
-    public static Node calculateSize(TransformationState state, Node type_size, Node num_values) {
-        return calculateOffset(state, type_size, num_values);
+    public static Node intToOffset(TransformationState state, Node value) {
+        return state.construction.newConv(value, FirmTypes.offsetType.getMode());
     }
 
     public static Node calculateOffset(TransformationState state, Node type_size, Node num_values) {
-        return state.construction.newMul(state.construction.newConv(type_size, FirmTypes.offsetType.getMode()), state.construction.newConv(num_values, FirmTypes.offsetType.getMode()));
+        return state.construction.newMul(intToOffset(state, type_size), intToOffset(state, num_values));
     }
 
     public static Node addOffsetToPointer(TransformationState state, Node pointer, Node offset) {
