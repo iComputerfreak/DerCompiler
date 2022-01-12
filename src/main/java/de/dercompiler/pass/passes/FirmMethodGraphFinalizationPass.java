@@ -75,7 +75,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
     private void checkIfOriginUpdated() {
         Block block = state.popOrigin();
 
-        if (state.isCondition() && block != state.construction.getCurrentBlock()) {
+        if (state.isCondition() && !block.equals(state.construction.getCurrentBlock())) {
             boolean trueBlock = block.equals(state.trueBlock());
             boolean falseBlock = block.equals(state.falseBlock());
             if (trueBlock && falseBlock) {
