@@ -40,7 +40,7 @@ public final class NotEqualExpression extends BinaryExpression {
         createChildNodes(state);
         state.popExpect();
 
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal, getType());
+        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal.negated(), getType());
         clearChildNodes(state);
 
         state.swapTrueFalseBlock();
