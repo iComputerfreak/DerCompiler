@@ -74,7 +74,9 @@ public class TransformationState {
     }
 
     public void swapTrueFalseBlock() {
-        trueBlockStack.push(exchangeFalseBlock(trueBlockStack.pop()));
+        Stack<Block> tmp = trueBlockStack;
+        trueBlockStack = falseBlockStack;
+        falseBlockStack = tmp;
     }
 
     public void markReturn() {
