@@ -113,8 +113,77 @@ class foo {
 		return c;
 	}
     */
-    public boolean returnTest10(int x) {
-		boolean b = ((false == true != true == false || false && false || false == false != true && true != false) || false != true == false == (true == false && false || true != false || (true || false != false && (true)) || false) && true == false && true || false != true) && false || !(true || false == (true && true == true != false && false == true && false) && false != true && true || true != true) != false || true == false == true != true == true;
+        public boolean state_one() {
+        boolean b = false == true != true == false || false && false || false == false != true && true != false;
+        return b;
+    }
+
+    public boolean state_two() {
+        boolean b = false != true == false == (true == false && false || true != false || (true || false != false && (true)) || false);
+        return b;
+    }
+
+    public boolean state_three() {
+        boolean b = true == false && true || false != true;
+        return b;
+    }
+
+    public boolean state_four() {
+        boolean b = !(true || false == (true && true == true != false && false == true && false) && false != true && true || true != true) != false;
+        return b;
+    }
+
+    public boolean state_five() {
+        boolean b = true == false == true != true == true;
 		return b;
-	}
+    }
+
+    public static void main(String[] args) {
+        foo main = new foo();
+        if (main.state_one()) {
+            System.out.println(1);
+        } else {
+            System.out.println(0);
+        }
+
+        if (main.state_two()) {
+            System.out.println(1);
+        } else {
+            System.out.println(0);
+        }
+
+        if (main.state_three()) {
+            System.out.println(1);
+        } else {
+            System.out.println(0);
+        }
+
+        if (main.state_four()) {
+            System.out.println(1);
+        } else {
+            System.out.println(0);
+        }
+
+        if (main.state_five()) {
+            System.out.println(1);
+        } else {
+            System.out.println(0);
+        }
+
+        boolean b = 
+        (
+            main.state_one()
+            || main.state_two()
+            && main.state_three()
+        )
+        && false
+        || main.state_four()
+        || main.state_five();
+
+        if (b) {
+            System.out.println(1);
+        } else {
+            System.out.println(0);
+        }
+    }
 }
