@@ -1,0 +1,10 @@
+/* TODO? Unclear what is supposed to be wrong here */
+class A {
+    public static void main(String[] args) {
+        new A().m(new int[1][]);
+    }
+
+    public int m(int[][] a) {
+        return a[0][0];
+    }
+}

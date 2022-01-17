@@ -14,7 +14,7 @@ public final class IntegerValue extends PrimaryExpression {
     private final String value;
 
     /**
-        True if an odd number of NegativeExpressions directly surrounds this IntegerValue. Used for type checking.
+     * True if this expression is encapsulated in a NegativeExpression (ignoring _how many_ NegativeExpressions there may be around it)
      */
     private boolean negative;
 

@@ -5,6 +5,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.GlobalScope;
+import de.dercompiler.semantic.StringTable;
 import de.dercompiler.semantic.SymbolTable;
 import de.dercompiler.util.Utils;
 
@@ -32,8 +33,8 @@ public final class Program extends ASTNode {
 
     private boolean isIndexed;
     private final SymbolTable symbolTable;
-
     private final GlobalScope globalScope;
+    private final StringTable stringTable;
 
 
     /**
@@ -45,9 +46,10 @@ public final class Program extends ASTNode {
         super(position);
         this.classes = classes;
         this.symbolTable = new SymbolTable();
+        this.globalScope = new GlobalScope();
+        this.stringTable = new StringTable();
         isIndexed = false;
 
-        this.globalScope = new GlobalScope();
     }
 
     /**
@@ -91,4 +93,7 @@ public final class Program extends ASTNode {
         return globalScope;
     }
 
+    public StringTable getStringTable() {
+        return stringTable;
+    }
 }

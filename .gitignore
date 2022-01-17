@@ -191,4 +191,4 @@ gradle-app.setting
 *.c
 *.exe
 *.out
-test
+test/resources
