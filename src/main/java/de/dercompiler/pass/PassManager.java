@@ -249,6 +249,7 @@ public class PassManager {
 
     private class PassException extends RuntimeException {
         public PassException(String s) {
+            super(s);
         }
     }
 }

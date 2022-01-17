@@ -42,6 +42,7 @@ public class CommandLineBuilder {
         createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_NO_MAIN, false, DESCRIPTION_NO_MAIN);
         createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_TARGET, true, DESCRIPTION_TARGET);
         createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_NO_INFO, false, DESCRIPTION_NO_INFO);
+        createOption(options, COMMAND_NO_SHORT_OPTION, OPTION_DUMP_GRAPH, false, DESCRIPTION_DUMP_GRAPH);
 
         // colors
         createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_NO_COLOR, false, DESCRIPTION_PRINT_NO_COLOR); // --no-color

@@ -3,7 +3,11 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
+import firm.Mode;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -31,10 +35,10 @@ public final class SubtractExpression extends BinaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         createChildNodes(state);
-        Node res = state.construction.newSub(state.lhs, state.rhs);
+        Node res = state.construction.newSub(state.lhs.genLoad(state), state.rhs.genLoad(state));
         clearChildNodes(state);
-        return res;
+        return new RValueNode(res, getType());
     }
 }

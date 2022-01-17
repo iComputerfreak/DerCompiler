@@ -7,9 +7,14 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.semantic.FieldDefinition;
 import de.dercompiler.semantic.type.ClassType;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.FieldNode;
+import de.dercompiler.transformation.node.ObjectNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import de.dercompiler.util.Utils;
 import firm.Entity;
+import firm.Type;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -41,16 +46,13 @@ public final class FieldAccess extends PostfixExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
-        Node obj = encapsulated.createNode(state);
-        if (!(encapsulated.getType() instanceof ClassType ct)) return errorNoValidFieldAccess();
-        FieldDefinition def = ct.getField(fieldName);
-        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), Utils.transformVariableIdentifier(fieldName));
-        return state.construction.newMember(obj, field);
-    }
-
-    public Node errorNoValidFieldAccess() {
-        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Error while generating FieldAccess");
+    public ReferenceNode createNode(TransformationState state) {
+        ReferenceNode objRef = encapsulated.createNode(state);
+        if (state.expectValue()) {
+            return objRef.accessField(state, fieldName);
+        } else {
+            TransformationHelper.booleanValueToConditionalJmp(state, objRef.accessField(state, fieldName).genLoad(state));
+        }
         return null;
     }
 }

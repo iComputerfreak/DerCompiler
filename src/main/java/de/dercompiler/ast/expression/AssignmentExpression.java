@@ -9,10 +9,15 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
+import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Mode;
+import firm.Relation;
 import firm.Type;
+import firm.nodes.Block;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -39,33 +44,71 @@ public final class AssignmentExpression extends BinaryExpression {
         return false;
     }
 
-    @Override
-    public Node createNode(TransformationState state) {
+    private ReferenceNode createBooleanValueNode(TransformationState state) {
+        state.pushExpectValue();
         createChildNodes(state);
-        //TODO if boolean handle assignement properly, similar to LocalVariableDeclaration
-        Node res = null;
-        if (getLhs() instanceof Variable v) {
-            if (v.getDefinition() instanceof LocalVariableDeclarationStatement lvds) {
-                if (state.lhs.getMode() == Mode.getP()) {
-                    TransformationHelper.genStore(state, state.lhs, state.rhs, lvds.getFirmType());
-                } else {
-                    state.construction.setVariable(lvds.getNodeId(), state.rhs);
-                }
-                res = state.rhs;
-            // error
-            //} else if (v.getDefinition() instanceof Parameter p) {
-            } else if (v.getDefinition() instanceof Field f) {
-                TransformationHelper.genStore(state, state.lhs, state.rhs, f.getFirmType());
-                res = state.rhs;
-            } else {
-                new OutputMessageHandler(MessageOrigin.PASSES).internalError("cannot assign Value to variable, because Definition is not local accessible: " + v.getDefinition());
-                return null; //we never return
-            }
+        state.popExpect();
+
+        state.lhs.genStore(state, state.rhs);
+        ReferenceNode node = null;
+        if (state.expectValue()) {
+            node = state.rhs;
         } else {
-            new OutputMessageHandler(MessageOrigin.PASSES).internalError("lvalue is no variable, we can't assign anything: " + getLhs());
-            return null; //we never return
+            Node cmp = state.construction.newCmp(state.rhs.genLoad(state), TransformationHelper.createBooleanNode(state, true), Relation.Equal);
+            TransformationHelper.createConditionJumps(state, cmp);
         }
         clearChildNodes(state);
+        return node;
+    }
+
+    private void createBooleanBranchNode(TransformationState state) {
+        state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
+        //state.pushExpectValue();
+        state.isAsignement = true;
+        createChildNodes(state);
+        state.isAsignement = false;
+        //state.popExpect();
+        afterCreatedBranches(state);
+        clearChildNodes(state);
+    }
+
+    private void afterCreatedBranches(TransformationState state) {
+        Block cur = state.construction.getCurrentBlock();
+        Block assignTrue = state.trueBlock();                       //getter information and setup following complicated cases
+        Block assignFalse = state.falseBlock();
+        assignTrue.mature();
+        assignFalse.mature();
+        state.popBranches();
+
+        state.construction.setCurrentBlock(assignTrue);                         //assign true in case of true
+        Node nodeT = TransformationHelper.createBooleanNode(state, true);
+        state.lhs.genStore(state, new RValueNode(nodeT, getType()));         // create jump to original true-block
+        TransformationHelper.createDirectJump(state, state.trueBlock());
+
+        state.construction.setCurrentBlock(assignFalse);                        //assign false in case of false
+        Node nodeF = TransformationHelper.createBooleanNode(state, false);
+        state.lhs.genStore(state, new RValueNode(nodeF, getType()));         // create jump to original false-block
+        TransformationHelper.createDirectJump(state, state.falseBlock());
+
+        state.construction.setCurrentBlock(cur);
+    }
+
+    @Override
+    public ReferenceNode createNode(TransformationState state) {
+        boolean isBooleanAssign = getLhs().getType().isCompatibleTo(new BooleanType());
+        ReferenceNode res = null;
+        if (isBooleanAssign) {     //in case lhs is boolean we create new branches
+            if (state.expectValue()) {
+                res = createBooleanValueNode(state);
+            } else {
+                createBooleanBranchNode(state);
+            }
+        } else {
+            createChildNodes(state);
+            state.lhs.genStore(state, state.rhs);
+            res = state.rhs;
+            clearChildNodes(state);
+        }
         return res;
     }
 }

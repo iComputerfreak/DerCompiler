@@ -8,7 +8,6 @@ public class MethodDefinition implements Definition {
 
     private final ClassType referenceType;
     private final String identifier;
-    private firm.MethodType firmType;
     private MethodType type;
 
     public Method getMethod() {
@@ -47,11 +46,7 @@ public class MethodDefinition implements Definition {
     }
     
     public firm.MethodType getFirmType() {
-        return firmType;
-    }
-    
-    public void setFirmType(firm.MethodType firmType) {
-        this.firmType = firmType;
+        return type.getFirmType();
     }
     
     public ClassType getReferenceType() {

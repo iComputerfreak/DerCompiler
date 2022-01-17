@@ -1,6 +1,7 @@
 package de.dercompiler.linker;
 
 import de.dercompiler.generation.CodeGenerationErrorIds;
+import de.dercompiler.io.FileResolver;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.util.ErrorStatus;
@@ -39,20 +40,38 @@ public final class Gcc implements Compiler, Assembler {
     }
 
     public void compileFirm(String base) {
-        String runtime = ToolchainUtil.prepareRuntimeCompile();
+        boolean c = false;
+        String runtime;
+        if (c) {
+            runtime = ToolchainUtil.prepareRuntimeCompile();
+        } else {
+            runtime = ToolchainUtil.prepareRuntimeCppCompile();
+        }
         String inputFile = ToolchainUtil.appendAssembleFileExtension(base);
         String outputFile = "a.out";
         Runner runner = new Runner(gcc_path);
         runner.append(inputFile);
         runner.append("-g");
-        runner.append(ToolchainUtil.appendCFileExtension(runtime));
+        if (c) {
+            runner.append(ToolchainUtil.appendCFileExtension(runtime));
+        } else {
+            runner.append(ToolchainUtil.appendCppFileExtension(runtime));
+            runner.append("-lstdc++");
+        }
         runner.append(output);
         runner.append(outputFile);
 
         if (runner.run()) return;
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndContinue(CodeGenerationErrorIds.COMPILER_ERROR, "gcc for runtime failed:");
         try {
+            System.err.println("Gcc returned:");
             runner.getStdErr().transferTo(System.err);
+            System.err.println();
+
+            FileResolver resolver = new FileResolver();
+            if (!resolver.resolve(outputFile).exists()) {
+                resolver.printWorkingDir();
+            }
         } catch (IOException e) {
             //nothing we can do
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("Can't write to error-stream, something gone wrong");

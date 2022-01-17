@@ -1,22 +1,21 @@
 package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
-import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
-import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;
-import de.dercompiler.semantic.type.ClassType;
-import de.dercompiler.semantic.type.InternalClass;
-import de.dercompiler.semantic.type.MethodType;
-import de.dercompiler.semantic.type.VoidType;
+import de.dercompiler.semantic.type.*;
 import de.dercompiler.transformation.LibraryMethods;
+import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ArrayNode;
+import de.dercompiler.transformation.node.ObjectNode;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Entity;
-import firm.Firm;
 import firm.Mode;
 import firm.nodes.Call;
 import firm.nodes.Node;
@@ -68,16 +67,14 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         astExpressionVisitor.visitMethodInvocation(this);
     }
 
-    private Method getMethod(){
-        return methodDefinition.getMethod();
-    }
-
     public ClassType getClassType(){
         return methodDefinition.getReferenceType();
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
+        state.pushExpectValue();
+
         ClassType classType = getClassType();
         String classname = classType.getIdentifier();
         MethodDefinition methodDef = state.globalScope.getMethod(classname, functionName);
@@ -93,12 +90,15 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         }
         //baseIdx == 0, if and only if this method is a library call
         Node[] argNodes = new Node[baseIdx + argsCount];
-        if (!(isLibraryCall() || methodDef.getMethod().isStatic())) {
-            argNodes[0] = encapsulated.createNode(state);
+        if (!isLibraryCall()) {
+            ReferenceNode objRef = encapsulated.createNode(state);
+            argNodes[0] = objRef.getObjectCallBase(state).getBase();
         }
         for (int i = 0; i < argsCount; i++) {
-            argNodes[baseIdx + i] = arguments.get(i).createNode(state);
+            argNodes[baseIdx + i] = arguments.get(i).createNode(state).genLoad(state);
         }
+
+        state.popExpect();
 
         Node mem = state.construction.getCurrentMem();
         Node call = state.construction.newCall(mem, state.construction.newAddress(methodEntity), argNodes, methodEntity.getType());
@@ -107,10 +107,25 @@ public final class MethodInvocationOnObject extends UnaryExpression {
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
 
         if (methodDef.getType().getReturnType().isCompatibleTo(new VoidType())) {
-            return state.construction.newBad(Mode.getANY());
+            return new RValueNode(state.construction.newBad(Mode.getANY()), getType());
         }
         //we don't have to return 2 so always 0
-        return state.construction.newProj(tuple, methodDef.getType().getReturnType().getFirmType().getMode(), 0);
+        firm.Type resType = methodDef.getType().getReturnType().getFirmTransformationType();
+        Node res = state.construction.newProj(tuple, resType.getMode(),  0);
+
+        de.dercompiler.semantic.type.Type ret = methodDef.getType().getReturnType();
+        if (ret instanceof ArrayType at) {
+            return new ArrayNode(res, at.getElementType(), at.getDimension());
+        } else if (ret instanceof ClassType ct) {
+            return new ObjectNode(res, ct);
+        } else if (ret instanceof BooleanType) {
+            if (!state.expectValue()) {
+                TransformationHelper.booleanValueToConditionalJmp(state, res);
+                return null;
+            }
+        }
+        //assume everything else is a basic-type
+        return new RValueNode(res, getType());
     }
 
     public void setImplicitThis(boolean implicitThis) {

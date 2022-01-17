@@ -6,6 +6,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.nodes.Node;
 
 import java.util.Objects;
@@ -26,7 +27,7 @@ public final class ErrorExpression extends Expression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         new OutputMessageHandler(MessageOrigin.TRANSFORM)
                 .internalError("We can't create a Expression for a miss-formed Expression, theres something wrong, we shouldn't even get to this Point!");
         return null;

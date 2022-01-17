@@ -347,7 +347,7 @@ public class PrettyPrinter implements ASTNodeVisitor {
         sb.append("new ");
         sb.append(consArray.getBasicType());
         sb.append("[");
-        consArray.getSize().accept(this);
+        consArray.getNumElements().accept(this);
         sb.append("]");
         sb.append("[]".repeat(consArray.getDimension() - 1));
     }

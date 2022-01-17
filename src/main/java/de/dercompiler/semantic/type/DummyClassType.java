@@ -46,4 +46,17 @@ public final class DummyClassType extends ClassType {
     public boolean hasRealClass() {
         return realType != null;
     }
+
+    public firm.ClassType getFirmType() {
+        return realType.getFirmType();
+    }
+
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return realType.getFirmTransformationType();
+    }
+
+    public void setFirmType(firm.ClassType firmType) {
+        realType.setFirmType(firmType);
+    }
 }

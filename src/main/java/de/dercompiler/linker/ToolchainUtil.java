@@ -35,6 +35,18 @@ public class ToolchainUtil {
         return runtime;
     }
 
+    public static String prepareRuntimeCppCompile() {
+        String runtime = "runtime";
+        String runtime_c = ToolchainUtil.appendCppFileExtension(runtime);
+        try {
+            moveFileFromResourcesToCwd(runtime_c);
+        } catch (Exception e) {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.CANT_OUTPUT_FILE, "Can't copy file " + runtime_c, e);
+        }
+
+        return runtime;
+    }
+
     public static String prepareTestCompile() {
         String testFile = "test";
         String testFileWithExtension = appendCFileExtension(testFile);
@@ -118,8 +130,16 @@ public class ToolchainUtil {
         return appendExtensionToFilename(filename, getCLanguageExtension());
     }
 
+    public static String appendCppFileExtension(String filename) {
+        return appendExtensionToFilename(filename, getCppLanguageExtension());
+    }
+
     public static String getCLanguageExtension() {
         return "c";
+    }
+
+    public static String getCppLanguageExtension() {
+        return "cpp";
     }
 
     public static String[] filesToStrings(File[] files) {

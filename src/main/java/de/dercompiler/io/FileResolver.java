@@ -55,4 +55,18 @@ public class FileResolver {
         return cwd;
     }
 
+    //https://stackoverflow.com/questions/5694385/getting-the-filenames-of-all-files-in-a-folder
+    public void printWorkingDir() {
+        File folder = getCwd();
+        File[] listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                System.out.println("F: " + listOfFiles[i].getName());
+            } else if (listOfFiles[i].isDirectory()) {
+                System.out.println("D: " + listOfFiles[i].getName());
+            }
+        }
+    }
+
 }

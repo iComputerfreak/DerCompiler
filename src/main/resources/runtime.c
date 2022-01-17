@@ -5,14 +5,13 @@
  * or modify this file, but there have to be the 
  * same function-definitions in the modified runtime.
  */
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 extern void main_func();
 
@@ -29,12 +28,13 @@ int32_t read_int() { return getchar(); }
 
 void flush_out() { fflush(stdout); }
 
-void* allocate(int32_t size) {
+void* allocate(int64_t num, int64_t size) {
     //we create always some space on the stack
     //because new int[0] != new int[0] and could
     //otherwise return the same address or NULL
     size_t realsize = size <= 0 ? 1 : size;
-    return malloc(realsize);
+    size_t realnum = num <= 0 ? 1 : num;
+    return calloc(realnum, realsize);
 }
 
 #ifdef __cplusplus

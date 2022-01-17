@@ -1,5 +1,7 @@
 package de.dercompiler.semantic.type;
 
+import de.dercompiler.transformation.FirmTypes;
+
 public class NullType implements Type {
 
     private Type expectedType;
@@ -17,6 +19,11 @@ public class NullType implements Type {
     @Override
     public firm.Type getFirmType() {
         return getExpectedType().getFirmType();
+    }
+
+    @Override
+    public firm.Type getFirmTransformationType() {
+        return FirmTypes.pointerFirmType;
     }
 
     public void setExpectedType(Type expType) {

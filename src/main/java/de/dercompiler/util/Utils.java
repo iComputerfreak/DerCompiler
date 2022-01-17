@@ -31,6 +31,8 @@ public class Utils {
         return true;
     }
 
+    public static final String MANGLED_NAME_SEPARATOR = "_";
+
     public static String transformMethodIdentifier(String identifier) {
         return "m_" + identifier;
     }

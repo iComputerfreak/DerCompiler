@@ -13,6 +13,10 @@ import de.dercompiler.semantic.type.BooleanType;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.FieldNode;
+import de.dercompiler.transformation.node.LocalVariableNode;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Entity;
 import firm.Mode;
 import firm.Relation;
@@ -24,7 +28,6 @@ public final class Variable extends PrimaryExpression {
 
     private final String name;
     // True if the type of this Variable is an instance of InternalClass.
-    private boolean internal;
 
     public ASTDefinition getDefinition() {
         return definition;
@@ -58,28 +61,26 @@ public final class Variable extends PrimaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
+    public ReferenceNode createNode(TransformationState state) {
         ASTDefinition def = getDefinition();
-        Node res = null;
+        ReferenceNode res;
         if (def instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
-            Mode mode = this.getType().getFirmType().getMode();
-            res = state.construction.getVariable(nodeId, mode);
+            Mode mode = this.getType().getFirmTransformationType().getMode();
+            res = new LocalVariableNode(lvds.getRefType(), nodeId);
         } else if (def instanceof Parameter p) {
-            Mode mode = p.getFirmType().getMode();
-            res = state.construction.newProj(state.graph.getArgs(), mode, p.getNodeId());
+            res = new LocalVariableNode(getType(), p.getNodeId());
         } else if (def instanceof Field f) {
             Node this_ = state.construction.newProj(state.graph.getArgs(), Mode.getP(), 0);
             Entity field = state.globalScope.getMemberEntity(f.getClassDeclaration().getIdentifier(), f.getMangledIdentifier());
-            res = state.construction.newMember(this_, field);
+            res = new FieldNode(state.construction.newMember(this_, field), f.getRefType());
         } else {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Variable can only have a Field, Parameter or LocalVariableDefinition, but we got: " + def.getClass().getName());
             return null; //we never return
         }
-        if (def.getRefType().isCompatibleTo(new BooleanType())) {
-            Node cmp = state.construction.newCmp(res, TransformationHelper.createBooleanNode(state, true), Relation.Equal);
-            TransformationHelper.createConditionJumps(state, cmp);
-            return res;
+        if (def.getRefType().isCompatibleTo(new BooleanType()) && !state.expectValue()) {
+            TransformationHelper.booleanValueToConditionalJmp(state, res.genLoad(state));
+            return null;
         }
         return res;
     }

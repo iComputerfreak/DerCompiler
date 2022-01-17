@@ -8,13 +8,16 @@ import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
 import de.dercompiler.ast.statement.*;
+import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.optimization.ArithmeticOptimization;
 import de.dercompiler.optimization.GraphOptimization;
 import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.pass.*;
+import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.BooleanType;
+import de.dercompiler.semantic.type.VoidType;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
@@ -24,33 +27,31 @@ import firm.nodes.Block;
 import java.util.List;
 import java.util.Objects;
 
-public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass {
-
-    static int i = 0;
+public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass, ASTStatementVisitor {
 
     private FirmMethodGraphStartupPass startUp;
     private TransformationState state;
-    private List<GraphOptimization> opts;
 
 
     @Override
     public boolean runOnMethod(Method method) {
-        if (state.noReturnYet()) {
+        MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(), method.getIdentifier());
+        if (def.getType().getReturnType().isCompatibleTo(new VoidType()) && !method.getBlock().hasReturn()) {
             TransformationHelper.createReturn(state, null);
         }
         assert(state.stackSize() == 0);
         assert (state.getNumMarkedStatements() == 0);
         state.construction.finish();
-        //GraphDumper.dumpGraph(state);
-        //opts.forEach(opt -> opt.runOnGraph(state.graph));
         //Graph als .vcg datei erzeugen
-        //GraphDumper.dumpGraphFinal(state);
+        GraphDumper.dumpGraphFinal(state);
         state.clear();
         return false;
     }
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
+        if (block.isDead()) return false;
+
         if (state.removeStatementIfMarked(block)) {
             state.pullBlock();
         }
@@ -59,6 +60,8 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
     @Override
     public boolean runOnStatement(Statement statement) {
+        if (statement.isDead()) return false;
+
         statement.accept(this);
         if (state.removeStatementIfMarked(statement)) {
             state.pullBlock();
@@ -66,66 +69,70 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         return false;
     }
 
+    private void checkIfOriginUpdated() {
+        Block block = state.popOrigin();
+
+        if (state.isCondition() && !block.equals(state.construction.getCurrentBlock())) {
+            boolean trueBlock = block.equals(state.trueBlock());
+            boolean falseBlock = block.equals(state.falseBlock());
+            if (trueBlock && falseBlock) {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Expression only in one Branch possible");
+            }
+            if (trueBlock) {
+                state.exchangeTrueBlock(state.construction.getCurrentBlock());
+            } else if (falseBlock) {
+                state.exchangeTrueBlock(state.construction.getCurrentBlock());
+            } else {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("we are in a other Block, but we have no Branch, that's odd");
+            }
+        }
+    }
+
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
+        checkIfOriginUpdated();
+
         int nodeId = lvds.getNodeId();
-        // Set value if initialized
         if (state.res != null) {
-            state.construction.setVariable(nodeId, state.res);
+            state.construction.setVariable(nodeId, state.res.genLoad(state));
         }
+        state.popExpect();
+        state.res = null;
+    }
 
-        if (!lvds.getExpression().getType().isCompatibleTo(new BooleanType())) {
-            state.res = null;
-            return;
-        }
+    @Override
+    public void visitBasicBlock(BasicBlock basicBlock) {
+        //do nothing
+    }
 
-        if (state.res != null) {
-            state.trueBlock().mature();
-            state.falseBlock().mature();
-            //throw away true and false block
-            state.res = null;
-        } else {
-            Block after = state.construction.newBlock();
-            state.construction.setCurrentBlock(state.trueBlock());
-            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, true));
-            TransformationHelper.createDirectJump(state, after);
+    @Override
+    public void visitEmptyStatement(EmptyStatement emptyStatement) {
+        // do nothing
+    }
 
-            state.construction.setCurrentBlock(state.falseBlock());
-            state.construction.setVariable(nodeId, TransformationHelper.createBooleanNode(state, false));
-            TransformationHelper.createDirectJump(state, after);
-            after.mature();
-            state.construction.setCurrentBlock(after);
-        }
-        state.popBranches();
+    @Override
+    public void visitErrorStatement(ErrorStatement errorStatement) {
+        //do nothing
     }
 
     @Override
     public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        checkIfOriginUpdated();
+
         state.res = null;
+        state.popExpect();
     }
 
     @Override
     public void visitReturnStatement(ReturnStatement returnStatement) {
         if (state.res != null) {
-            TransformationHelper.createReturn(state, state.res);
+            TransformationHelper.createReturn(state, state.res.genLoad(state));
+        } else {
+            TransformationHelper.createReturn(state, null);
         }
-        if (!returnStatement.getExpression().getType().isCompatibleTo(new BooleanType())) {
-            state.res = null;
-            return;
-        }
-        state.trueBlock().mature();
-        state.falseBlock().mature();
-        if (state.res != null) {
-            state.res = null;
-            return;
-        }
-        state.construction.setCurrentBlock(state.trueBlock());
-        TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, true));
-
-        state.construction.setCurrentBlock(state.falseBlock());
-        TransformationHelper.createReturn(state, TransformationHelper.createBooleanNode(state, false));
-
-        state.popBranches();
+        state.res = null;
+        state.popExpect();
+        state.markReturn();
     }
 
     @Override
@@ -139,25 +146,42 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         }
 
         state.trueBlock().mature();
-        state.construction.setCurrentBlock(state.trueBlock());
-        TransformationHelper.createDirectJump(state, after);
+        if (!state.hasReturned(state.trueBlock())) {
+            state.construction.setCurrentBlock(state.trueBlock());
+            TransformationHelper.createDirectJump(state, after);
+        }
 
         if (ifStatement.hasElse()) {
             state.falseBlock().mature();
-            state.construction.setCurrentBlock(state.falseBlock());
-            TransformationHelper.createDirectJump(state, after);
+            if (!state.hasReturned(state.falseBlock())) {
+                state.construction.setCurrentBlock(state.falseBlock());
+                TransformationHelper.createDirectJump(state, after);
+            }
         }
 
         origin.mature();
         state.popBranches();
         state.construction.setCurrentBlock(after);
 
-        boolean falseBlock = origin == state.falseBlock();
+        boolean falseBlock = origin.equals(state.falseBlock());
+        boolean trueBlock = origin.equals(state.trueBlock());
 
         if (falseBlock) { //after
             state.exchangeFalseBlock(after);
-        } else { //true
+        } else if (trueBlock) { //true
             state.exchangeTrueBlock(after);
+        } else if (ifStatement.getSurroundingStatement() == ifStatement.getSurroundingMethod().getBlock()) {
+            //do nothing
+        } else {
+            if (ifStatement.hasElse()) {
+                if (ifStatement.getSurroundingStatement() instanceof IfStatement sur && ifStatement == sur.getElseStatement()) {
+                    state.exchangeFalseBlock(after);
+                } else if (ifStatement.getElseStatement() instanceof IfStatement) {
+                    //do nothing
+                }
+            } else {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
+            }
         }
     }
 
@@ -166,8 +190,10 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         Block origin = state.popOrigin();
         //head must be current
         Block head = state.popHead();
-        state.construction.setCurrentBlock(state.trueBlock());
-        TransformationHelper.createDirectJump(state, head);
+        if (!state.hasReturned(state.trueBlock())) {
+            state.construction.setCurrentBlock(state.trueBlock());
+            TransformationHelper.createDirectJump(state, head);
+        }
         origin.mature();
         state.construction.setCurrentBlock(state.falseBlock());
 
@@ -175,12 +201,17 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
         state.popBranches();
 
-        boolean falseBlock = origin == state.falseBlock();
+        boolean falseBlock = origin.equals(state.falseBlock());
+        boolean trueBlock = origin.equals(state.trueBlock());
 
         if (falseBlock) { //false
             state.exchangeFalseBlock(after);
-        } else { //while and then
+        } else if (trueBlock) { //while and then
             state.exchangeTrueBlock(after);
+        } else if (whileStatement.getSurroundingStatement() == whileStatement.getSurroundingMethod().getBlock()) {
+            //do nothing
+        } else {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
         }
     }
 
@@ -191,15 +222,19 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
     @Override
     public boolean runOnExpression(Expression expression) {
+        if (expression.getSurroundingStatement().isDead()) return false;
         //if boolean blocks are set already
         //this is for while, if, boolean localVariableDeclaration and boolean return-statements
         state.res = expression.createNode(state);
+        if (state.res != null) {
+            //state.graph.keepAlive(state.res.genLoad(state));
+        }
         if (!state.isCondition()) return false;
         if (expression.getSurroundingStatement() instanceof WhileStatement) {
             state.trueBlock().mature();
             state.falseBlock().mature();
         }
-        if (TransformationHelper.isControlStructure(expression.getSurroundingStatement())) {
+        if (state.removeExpressionIfMarked(expression)) {
             // while -> set current block to loop block
             // if -> set current block to then block
             state.pullBlock();
@@ -213,7 +248,6 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
         if (Objects.isNull(startUp)) new OutputMessageHandler(MessageOrigin.PASSES).internalError("FirmMethodgraphFinalizationPass needs FirmMethodgraphStartupPass, gut it is not in the PassManager");
         state = startUp.getState();
         if (Objects.isNull(state)) state = new TransformationState(program.getGlobalScope());
-        this.opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
     }
 
     @Override
@@ -230,7 +264,7 @@ public class FirmMethodGraphFinalizationPass extends ASTLazyStatementVisitor imp
 
     @Override
     public AnalysisUsage invalidatesAnalysis(AnalysisUsage usage) {
-        return null;
+        return usage;
     }
 
     private static long id = 0;

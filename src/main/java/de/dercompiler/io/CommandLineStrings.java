@@ -48,6 +48,7 @@ public class CommandLineStrings {
     public static final String OPTION_PRINT_PIPELINE = "print-pipeline";
     public static final String OPTION_TIME_EXECUTION = "time";
     public static final String OPTION_NO_INFO = "no-info";
+    public static final String OPTION_DUMP_GRAPH = "dump-graph";
 
     public static final String OPTION_TARGET = "target";
 
@@ -85,6 +86,7 @@ public class CommandLineStrings {
 
     public static final String DESCRIPTION_TARGET = "The name of the target to compile";
     public static final String DESCRIPTION_NO_INFO = "Deactivates info print";
+    public static final String DESCRIPTION_DUMP_GRAPH = "Dump all Code as firmGraphs";
 
     //compiler assembler and linker
     public static final String OPTION_CLANG         = "clang";

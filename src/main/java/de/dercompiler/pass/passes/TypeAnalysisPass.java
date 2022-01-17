@@ -7,7 +7,6 @@ import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
-import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
@@ -139,9 +138,7 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
             failTypeCheck(arrayExpr, "Illegal type %s for array expression".formatted(type));
         }
 
-        ArrayType arrayType = (ArrayType) type;
-
-        if (!(indexExpr.getType() instanceof IntegerType index)) {
+        if (!(indexExpr.getType() instanceof IntegerType)) {
             failTypeCheck(indexExpr, "Illegal type %s for index expression".formatted(indexExpr.getType()));
         }
         // typed by VariableAnalysis
@@ -260,7 +257,6 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
     @Override
     public void visitLogicalNotExpression(LogicalNotExpression logicalNotExpression) {
         Expression expr = logicalNotExpression.getEncapsulated();
-        SourcePosition pos = logicalNotExpression.getSourcePosition();
 
         expr.accept(this);
         assertTypeEquals(expr, new BooleanType(), "boolean operation");
@@ -305,7 +301,7 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
 
     @Override
     public void visitNewArrayExpression(NewArrayExpression newArrayExpression) {
-        Expression dimExpr = newArrayExpression.getSize();
+        Expression dimExpr = newArrayExpression.getNumElements();
 
         dimExpr.accept(this);
         assertTypeEquals(dimExpr, new IntegerType(), "Illegal dimension expression");

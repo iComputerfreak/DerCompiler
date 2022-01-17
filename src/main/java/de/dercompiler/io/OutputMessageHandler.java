@@ -39,7 +39,6 @@ public final class OutputMessageHandler {
     private static final int CALLER_STACKTRACE = 1;
 
     private final String ident;
-    private final int idPrefix;
 
     private final MessageOrigin origin;
     private final Color textColor;
@@ -72,7 +71,6 @@ public final class OutputMessageHandler {
         colorizer = globalColorizer;
 
         printStackTrace = globalPrintStackTrace;
-        idPrefix = origin.getId() * PREFIX_MULTIPLIER;
     }
 
     /**
@@ -246,8 +244,32 @@ public final class OutputMessageHandler {
         ErrorStatus.exit(-1);
     }
 
-    public void printPlane(String string) {
+    public void printPlain(String string) {
         System.out.println(string);
+    }
+
+    public void printPlane() {
+        String plane = """
+                                                                  .____   __ _
+     __o__   _______ _ _  _                                     /     /
+     \\    ~\\                                                  /      /
+       \\     '\\                                         ..../      .'
+        . ' ' . ~\\                                      ' /       /
+       .  _    .  ~ \\  .+~\\~ ~ ' ' " " ' ' ~ - - - - - -''_      /
+      .  <#  .  - - -/' . ' \\  __                          '~ - \\
+       .. -           ~-.._ / |__|  ( )  ( )  ( )  0  o    _ _    ~ .
+     .-'                                               .- ~    '-.    -.
+    <                      . ~ ' ' .             . - ~             ~ -.__~_. _ _
+      ~- .       N121PP  .          . . . . ,- ~
+            ' ~ - - - - =.   <#>    .         \\.._
+                        .     ~      ____ _ .. ..  .- .
+                         .         '        ~ -.        ~ -.
+                           ' . . '               ~ - .       ~-.
+                                                       ~ - .      ~ .
+                                                              ~ -...0..~. ____
+""";
+        // by Dick Williams, rjw1@tyrell.net
+        System.out.println(plane);
     }
 
     public void debugPrint(String string) {
@@ -288,6 +310,16 @@ public final class OutputMessageHandler {
         //we use this to get the classname and the line-count where the error gets printed
         Exception e = new Exception();
         internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE], exc);
+    }
+
+    public void internalNestedError(String errorMessage, int depth) {
+        Exception e = new Exception();
+        internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE + depth]);
+    }
+
+    public void internalNestedError(String errorMessage, Exception exc, int depth) {
+        Exception e = new Exception();
+        internalError(errorMessage, e.getStackTrace()[CALLER_STACKTRACE + depth], exc);
     }
 
     /**

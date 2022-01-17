@@ -4,6 +4,8 @@ import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.TransformationState;
+import de.dercompiler.transformation.node.RValueNode;
+import de.dercompiler.transformation.node.ReferenceNode;
 import firm.Mode;
 import firm.nodes.Node;
 
@@ -28,8 +30,8 @@ public final class NullValue extends PrimaryExpression {
     }
 
     @Override
-    public Node createNode(TransformationState state) {
-        return state.construction.newConst(0, Mode.getP());
+    public ReferenceNode createNode(TransformationState state) {
+        return new RValueNode(state.construction.newConst(0, Mode.getP()), getType());
     }
 
     @Override
