@@ -45,6 +45,6 @@ public class ArrayElementNode extends ReferenceNode {
 
     @Override
     public boolean isReference() {
-        return true;
+        return false;
     }
 }

@@ -51,9 +51,10 @@ public final class NewObjectExpression extends PrimaryExpression {
         int size = type.getFirmType().getSize();
 
         Node type_size = state.construction.newConst(size, FirmTypes.offsetType.getMode());
+        Node one = state.construction.newConst(1, FirmTypes.offsetType.getMode());
         Entity methodEntity = LibraryMethods.allocate;
         Node call = state.construction.newCall(mem,
-                state.construction.newAddress(methodEntity),new Node[]{ type_size }, methodEntity.getType());
+                state.construction.newAddress(methodEntity),new Node[]{ one, type_size }, methodEntity.getType());
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);

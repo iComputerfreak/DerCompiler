@@ -19,8 +19,6 @@ import static de.dercompiler.parser.ParserTestHelper.DEFAULT_POS;
 
 public class ParserTestStatements {
 
-    private static final ParserTestHelper pth = new ParserTestHelper();
-
     @BeforeAll
     static void setup() {
         OutputMessageHandler.setDebug();

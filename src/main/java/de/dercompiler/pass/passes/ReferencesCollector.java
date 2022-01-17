@@ -105,7 +105,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
     @Override
     public void visitNewArrayExpression(NewArrayExpression newArrayExpression) {
         if (collects(ReferenceType.NEW_ARRAY)) expressions.add(newArrayExpression);
-        newArrayExpression.getSize().accept(this);
+        newArrayExpression.getNumElements().accept(this);
     }
 
     @Override

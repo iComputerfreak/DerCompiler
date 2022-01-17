@@ -4,13 +4,12 @@ import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
+import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
+import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.visitor.ASTStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.optimization.ArithmeticOptimization;
-import de.dercompiler.optimization.GraphOptimization;
-import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.MethodDefinition;
 import de.dercompiler.semantic.type.VoidType;
@@ -23,19 +22,16 @@ import java.util.List;
 import java.util.Objects;
 
 public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass, ASTStatementVisitor {
-
-    static int i = 0;
-
+    
     private FirmMethodGraphStartupPass startUp;
     private TransformationState state;
-    private List<GraphOptimization> opts;
     private Program program;
 
 
     @Override
     public boolean runOnMethod(Method method) {
         MethodDefinition def = state.globalScope.getMethod(method.getSurroundingClass().getIdentifier(), method.getIdentifier());
-        if (def.getType().getReturnType().isCompatibleTo(new VoidType()) && !method.getBlock().lastIsReturn()) {
+        if (def.getType().getReturnType().isCompatibleTo(new VoidType()) && !method.getBlock().hasReturn()) {
             TransformationHelper.createReturn(state, null);
         }
         assert(state.stackSize() == 0);
@@ -50,6 +46,8 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnBasicBlock(BasicBlock block) {
+        if (block.isDead()) return false;
+
         if (state.removeStatementIfMarked(block)) {
             state.pullBlock();
         }
@@ -58,6 +56,8 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnStatement(Statement statement) {
+        if (statement.isDead()) return false;
+
         statement.accept(this);
         if (state.removeStatementIfMarked(statement)) {
             state.pullBlock();
@@ -65,8 +65,29 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         return false;
     }
 
+    private void checkIfOriginUpdated() {
+        Block block = state.popOrigin();
+
+        if (state.isCondition() && !block.equals(state.construction.getCurrentBlock())) {
+            boolean trueBlock = block.equals(state.trueBlock());
+            boolean falseBlock = block.equals(state.falseBlock());
+            if (trueBlock && falseBlock) {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Expression only in one Branch possible");
+            }
+            if (trueBlock) {
+                state.exchangeTrueBlock(state.construction.getCurrentBlock());
+            } else if (falseBlock) {
+                state.exchangeTrueBlock(state.construction.getCurrentBlock());
+            } else {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("we are in a other Block, but we have no Branch, that's odd");
+            }
+        }
+    }
+
     @Override
     public void visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatement lvds) {
+        checkIfOriginUpdated();
+
         int nodeId = lvds.getNodeId();
         if (state.res != null) {
             state.construction.setVariable(nodeId, state.res.genLoad(state));
@@ -92,6 +113,8 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        checkIfOriginUpdated();
+
         state.res = null;
         state.popExpect();
     }
@@ -195,6 +218,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public boolean runOnExpression(Expression expression) {
+        if (expression.getSurroundingStatement().isDead()) return false;
         //if boolean blocks are set already
         //this is for while, if, boolean localVariableDeclaration and boolean return-statements
         state.res = expression.createNode(state);
@@ -218,7 +242,6 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         if (Objects.isNull(startUp)) new OutputMessageHandler(MessageOrigin.PASSES).internalError("FirmMethodgraphFinalizationPass needs FirmMethodgraphStartupPass, gut it is not in the PassManager");
         state = startUp.getState();
         if (Objects.isNull(state)) state = new TransformationState(program.getGlobalScope());
-        this.opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
         this.program = program;
     }
 

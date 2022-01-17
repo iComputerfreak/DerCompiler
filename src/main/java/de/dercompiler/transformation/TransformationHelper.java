@@ -7,7 +7,6 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
-import firm.Graph;
 import firm.Mode;
 import firm.Relation;
 import firm.Type;
@@ -15,12 +14,12 @@ import firm.nodes.*;
 
 public class TransformationHelper {
 
-    public static Node calculateSize(TransformationState state, Node type_size, Node num_values) {
-        return calculateOffset(state, type_size, num_values);
+    public static Node intToOffset(TransformationState state, Node value) {
+        return state.construction.newConv(value, FirmTypes.offsetType.getMode());
     }
 
     public static Node calculateOffset(TransformationState state, Node type_size, Node num_values) {
-        return state.construction.newMul(state.construction.newConv(type_size, FirmTypes.offsetType.getMode()), state.construction.newConv(num_values, FirmTypes.offsetType.getMode()));
+        return state.construction.newMul(intToOffset(state, type_size), intToOffset(state, num_values));
     }
 
     public static Node addOffsetToPointer(TransformationState state, Node pointer, Node offset) {
@@ -42,27 +41,37 @@ public class TransformationHelper {
     }
 
     public static void createDirectJump(TransformationState state, Block to) {
-        createJump(state, to, state.construction.newJmp());
+        createJump(to, state.construction.newJmp());
     }
 
-    public static void createJump(TransformationState state, Block to, Node jmp) {
+    public static void createJump(Block to, Node jmp) {
         to.addPred(jmp);
     }
 
     public static Node createComp(TransformationState state, Relation relation) {
-        return state.construction.newCmp(state.lhs.genLoad(state), state.rhs.genLoad(state), relation);
+        Node lhs;
+        Node rhs;
+        if (state.lhs.isReference()) {
+            lhs = state.lhs.getReference();
+        } else { //null incuded
+            lhs = state.lhs.genLoad(state);
+        }
+
+        if (state.rhs.isReference()) {
+            rhs = state.rhs.getReference();
+        } else {
+            rhs = state.rhs.genLoad(state);
+        }
+
+        return state.construction.newCmp(lhs, rhs, relation);
     }
 
     public static void createConditionJumps(TransformationState state, Node cmp) {
         Node cond = state.construction.newCond(cmp);
         Node jmpTrue = state.construction.newProj(cond, Mode.getX(), Cond.pnTrue);
         Node jmpFalse = state.construction.newProj(cond, Mode.getX(), Cond.pnFalse);
-        TransformationHelper.createJump(state, state.trueBlock(), jmpTrue);
-        TransformationHelper.createJump(state, state.falseBlock(), jmpFalse);
-    }
-
-    public static boolean isControlStructure(Statement statement) {
-        return statement instanceof IfStatement || statement instanceof WhileStatement;
+        TransformationHelper.createJump(state.trueBlock(), jmpTrue);
+        TransformationHelper.createJump(state.falseBlock(), jmpFalse);
     }
 
     public static Node createBooleanNode(TransformationState state, boolean value) {

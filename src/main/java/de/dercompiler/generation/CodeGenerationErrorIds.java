@@ -30,6 +30,6 @@ public enum CodeGenerationErrorIds implements IErrorIds {
 
     @Override
     public int getId() {
-        return 0;
+        return id;
     }
 }
