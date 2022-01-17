@@ -3,8 +3,11 @@ package de.dercompiler.optimization.ConstantPropagation;
 import firm.TargetValue;
 import firm.nodes.*;
 
+import java.util.HashMap;
+
 public interface ITransferFunction {
-    
+    public void setTargetValues(HashMap<Node, TargetValue> targetValues);
+
     TargetValue getTargetValue(Add node);
 
     TargetValue getTargetValue(And node);
@@ -30,6 +33,8 @@ public interface ITransferFunction {
     TargetValue getTargetValue(Mux node);
 
     TargetValue getTargetValue(Not node);
+
+    TargetValue getTargetValue(Phi node);
 
     TargetValue getTargetValue(Or node);
 

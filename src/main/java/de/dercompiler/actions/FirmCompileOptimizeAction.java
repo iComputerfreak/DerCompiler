@@ -47,7 +47,6 @@ public class FirmCompileOptimizeAction extends Action {
         PassManagerBuilder.buildTransformationPipeline(manager);
         manager.run(program);
         ErrorStatus.exitProgramIfError();
-
         for (firm.Graph graph : program.getGraphs()) {
             new Worklist(null, graph);
         }

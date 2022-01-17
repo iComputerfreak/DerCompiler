@@ -24,14 +24,18 @@ public class Worklist {
         nodeQueue = new LinkedList<Node>();
         successorsMap = new HashMap<Node, List<Node>>();
         targetValueMap = new HashMap<Node, TargetValue>();
+        transferFunction.setTargetValues(targetValueMap);
         transferFunctionVisitor = new TransferFunctionVisitor(transferFunction, nodeQueue, successorsMap, targetValueMap);
-
         this.graph = graph;
+    }
 
-        work();
+    public static void run(ITransferFunction transferFunction, Graph graph){
+        Worklist worklist = new Worklist(transferFunction, graph);
+        worklist.work();
     }
 
     private void work(){
+
         graph.walkTopological(new NodeVisitor() {
             private void doAlways(Node node){
                 for (Node pred: node.getPreds()){
@@ -46,6 +50,7 @@ public class Worklist {
                 }
                 targetValueMap.put(node, UNKNOWN);
                 nodeQueue.add(node);
+
             }
 
             @Override

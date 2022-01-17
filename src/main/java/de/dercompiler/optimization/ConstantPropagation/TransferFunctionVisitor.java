@@ -159,7 +159,7 @@ public class TransferFunctionVisitor implements NodeVisitor {
     public void visit(Or node) {doAlways(node, transferFunction.getTargetValue(node));}
 
     @Override
-    public void visit(Phi node) {}
+    public void visit(Phi node) {doAlways(node, transferFunction.getTargetValue(node));}
 
     @Override
     public void visit(Pin node) {}

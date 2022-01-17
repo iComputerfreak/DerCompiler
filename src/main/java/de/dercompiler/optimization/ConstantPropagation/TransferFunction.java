@@ -13,11 +13,12 @@ public class TransferFunction implements ITransferFunction {
     private static final TargetValue UNKNOWN = TargetValue.getUnknown(); // Bottom
     private static final TargetValue BAD = TargetValue.getBad();         // Top
 
-    private final HashMap<Node, TargetValue> targetValues;
+    private HashMap<Node, TargetValue> targetValues;
 
-    public TransferFunction(HashMap<Node, TargetValue> targetValues) {
+    public void setTargetValues(HashMap<Node, TargetValue> targetValues){
         this.targetValues = targetValues;
     }
+
 
     /**
      * Returns the currently calculated TargetValue for the given node
@@ -43,6 +44,35 @@ public class TransferFunction implements ITransferFunction {
             return BAD;
         }
         return null;
+    }
+
+    private boolean areEqual(Node n1, TargetValue t2){
+        return areEqual(getInternal(n1), t2);
+    }
+
+    private boolean areEqual(TargetValue t1, Node n2){
+        return areEqual(getInternal(n2), t1);
+    }
+    private boolean areEqual(Node n1, Node n2){
+        return areEqual(getInternal(n1), getInternal(n2));
+    }
+
+    private boolean areEqual(TargetValue t1, TargetValue t2) {
+        if (t1.equals(TargetValue.getUnknown())) {
+            return t2.equals(TargetValue.getUnknown());
+        }
+        if (t1.equals(TargetValue.getBad())) {
+            return t2.equals(TargetValue.getBad());
+        }
+        return t1.asInt() == t2.asInt();
+    }
+
+    private boolean isTopOrBottom(Node n){
+        return isTopOrBottom(getInternal(n));
+    }
+
+    private boolean isTopOrBottom(TargetValue t){
+        return t.equals(TargetValue.getBad()) || t.equals(TargetValue.getUnknown());
     }
 
     @Override
@@ -119,6 +149,32 @@ public class TransferFunction implements ITransferFunction {
         TargetValue right = getInternal(node.getRight());
         return Objects.requireNonNullElse(checkBinOp(left, right),
                 left.eor(right));
+    }
+
+    @Override
+    public TargetValue getTargetValue(Phi node) {
+        TargetValue actual = UNKNOWN;
+
+
+        for (Node pred : node.getPreds()){
+            if (areEqual(actual, UNKNOWN)){
+                actual = getInternal(pred);
+            } else if (areEqual(actual, BAD) || areEqual(pred, BAD)) {
+                actual = BAD;
+            } else if (!areEqual(pred, UNKNOWN) && !areEqual(actual, pred)){
+                actual = BAD;
+            }
+            /*
+            if (areEqual(actual, UNKNOWN)){
+                actual = getInternal(pred);
+            } else if (areEqual(actual, BAD) || areEqual(pred, BAD)) {
+                actual = BAD;
+            } else if (!areEqual(pred, UNKNOWN) && !areEqual(actual, pred)){
+               actual = BAD;
+            }*/
+        }
+
+        return actual;
     }
 
     @Override
