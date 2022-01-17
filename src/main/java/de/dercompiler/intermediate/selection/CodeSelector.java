@@ -154,6 +154,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             Node pred = block.getPred(i);
             FirmBlock predBlock = getOrCreateFirmBlock((Block) pred.getBlock());
             if (!blocksGraph.containsVertex(predBlock)) {
+                // TODO: Recursion
                 blocksGraph.addVertex(predBlock);
                 predBlock.setVisited(true);
             }
@@ -165,12 +166,14 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                 blocksGraph.addVertex(intermediate2);
                 // Remove the existing edge and add the new edges
                 blocksGraph.removeEdge(fBlock, predBlock);
+                // TODO: Set weight
                 blocksGraph.addEdge(fBlock, intermediate1);
                 blocksGraph.addEdge(intermediate1, predBlock);
                 blocksGraph.addEdge(fBlock, intermediate2);
                 blocksGraph.addEdge(intermediate2, predBlock);
             } else {
                 DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
+                // TODO: Don't use i for the weight, but the correct label
                 blocksGraph.setEdgeWeight(e, i);
             }
         }
@@ -203,9 +206,9 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             return;
         }
         // We only look at rules that have a root node that matches our current node
-        for (SubstitutionRule rule : rules.get(node.getClass())) {
+        for (SubstitutionRule<?> rule : rules.get(node.getClass())) {
             // Check if rule matches the node and its predecessors
-            if (SubstitutionRule.matches(rule.getRootNode(), node)) {
+            if (rule.matches(node)) {
                 int cost = rule.getCost();
                 // We have to add the cost of all predecessors that are not affected by this rule
                 for (Node p : node.getPreds()) {
@@ -236,8 +239,9 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         assert a != null;
         // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
         if (a.getVisited()) return;
+        SubstitutionRule<?> rule = a.getRule();
         // Mark the annotations of all required nodes visited, since they will be covered by this rule
-        for (Node n : a.getRule().getRequiredNodes(graph)) {
+        for (Node n : rule.getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
             annotations.get(n.getNr()).setVisited(true);
         }
@@ -252,7 +256,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             addDependency(a, pred);
         }
         // Maintain the dependencies inside the rule
-        for (Node n : a.getRule().getRequiredNodes(graph)) {
+        for (Node n : rule.getRequiredNodes(graph)) {
             // If one of our predecessors has a predecessor that has not been visited yet,
             // add it as an edge in the node annotation graph
             NodeAnnotation predAnnotation = annotations.get(n.getNr());
@@ -292,7 +296,8 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         List<NodeAnnotation> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream()
                 .map(nodeAnnotationGraph::getEdgeSource).toList();
         // Apply the rule in this annotation
-        List<Operation> ops = a.getRule().substitute(a.getRootNode());
+        SubstitutionRule<?> rule = a.getRule();
+        List<Operation> ops = rule.substitute(a.getRootNode());
         
         // Create the node in the code graph
         CodeNode codeNode = new CodeNode(ops);
@@ -314,7 +319,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         // Mark all nodes that are covered by this rule as "transformed"
         // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
         a.setTransformed(true);
-        for (Node n : a.getRule().getRequiredNodes(graph)) {
+        for (Node n : rule.getRequiredNodes(graph)) {
             annotations.get(n.getNr()).setTransformed(true);
         }
     }
