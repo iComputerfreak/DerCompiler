@@ -5,20 +5,24 @@ import de.dercompiler.intermediate.selection.rules.EmptyRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.GraphDumper;
+import firm.BlockWalker;
 import firm.nodes.*;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
 import java.util.*;
 
-public class CodeSelector implements NodeVisitor {
+public class CodeSelector implements NodeVisitor, BlockWalker {
     
     private static final OutputMessageHandler logger = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
-    
+
     // The current mode of the CodeSelector
     private enum Mode {
+        BLOCKS,
         ANNOTATION,
         CONSTRUCTION,
         TRANSFORMATION,
@@ -28,12 +32,15 @@ public class CodeSelector implements NodeVisitor {
     private final firm.Graph graph;
     private final Map<Class<? extends Node>, List<SubstitutionRule>> rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
-    private final Map<Integer, NodeAnnotation> annotations;
-    private Mode mode;
-    private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph;
-    private final Graph<CodeNode, DefaultEdge> codeGraph;
-    private final List<Operation> operations;
-    private final Map<Integer, CodeNode> codeGraphLookup;
+    private final Map<Integer, NodeAnnotation> annotations = new HashMap<>();
+    private Mode mode = Mode.BLOCKS;
+    private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+    private final Graph<CodeNode, DefaultEdge> codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+    private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
+    private final List<Operation> operations = new ArrayList<>();
+    private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
+    private final HashMap<Integer, FirmBlock> firmBlocks = new HashMap<>();
+    private int nextIntermediateID = -1;
 
     /**
      * Creates a new CodeSelector with the given Graph and SubstitutionRules
@@ -43,12 +50,6 @@ public class CodeSelector implements NodeVisitor {
     public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
         this.graph = graph;
         this.rules = rules;
-        this.annotations = new HashMap<>();
-        this.mode = Mode.ANNOTATION;
-        this.nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
-        this.codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
-        this.operations = new ArrayList<>();
-        this.codeGraphLookup = new HashMap<>();
     }
 
     /**
@@ -92,6 +93,15 @@ public class CodeSelector implements NodeVisitor {
         // graph.walkBlocks();
         // TODO: Reihenfolge Phis
         
+        // Remove the "Graph " prefix
+        String graphName = graph.toString().substring(6);
+        
+        // TODO
+        this.mode = Mode.BLOCKS;
+        graph.walkBlocksPostorder(this);
+        
+        GraphDumper.dumpBlocksGraph(blocksGraph, graphName);
+        
         /* ============================================= */
         /* 1. Create NodeAnnotations for every firm.Node */
         /* ============================================= */
@@ -104,7 +114,7 @@ public class CodeSelector implements NodeVisitor {
         this.mode = Mode.CONSTRUCTION;
         graph.walkTopological(this);
 
-        GraphDumper.dumpNodeAnnotationGraph(nodeAnnotationGraph, graph.toString().substring(6));
+        GraphDumper.dumpNodeAnnotationGraph(nodeAnnotationGraph, graphName);
 
         /* =========================================================== */
         /* 3. Transform the NodeAnnotation graph into a CodeNode graph */
@@ -115,7 +125,7 @@ public class CodeSelector implements NodeVisitor {
             transformAnnotation(nodeAnnotationGraphIterator.next());
         }
 
-        GraphDumper.dumpCodeGraph(codeGraph, graph.toString().substring(6));
+        GraphDumper.dumpCodeGraph(codeGraph, graphName);
 
         /* ======================================================== */
         /* 3. Linearize the graph by concatenating subsequent nodes */
@@ -126,9 +136,55 @@ public class CodeSelector implements NodeVisitor {
             linearizeNode(codeGraphIterator.next());
         }
 
-        GraphDumper.dumpCodeGraph(codeGraph, "linearized-" + graph.toString().substring(6));
+        GraphDumper.dumpCodeGraph(codeGraph, "linearized-" + graphName);
         
         return operations;
+    }
+
+    @Override
+    public void visitBlock(Block block) {
+        FirmBlock fBlock = getOrCreateFirmBlock(block);
+        // If we already visited the block, return
+        if (fBlock.getVisited()) {
+            return;
+        }
+        fBlock.setVisited(true);
+        blocksGraph.addVertex(fBlock);
+        for (int i = 0; i < block.getPredCount(); i++) {
+            Node pred = block.getPred(i);
+            FirmBlock predBlock = getOrCreateFirmBlock((Block) pred.getBlock());
+            if (!blocksGraph.containsVertex(predBlock)) {
+                blocksGraph.addVertex(predBlock);
+                predBlock.setVisited(true);
+            }
+            // If the graph already contains an edge between these two nodes, add intermediate nodes
+            if (blocksGraph.containsEdge(fBlock, predBlock)) {
+                FirmBlock intermediate1 = new FirmBlock(nextIntermediateID());
+                FirmBlock intermediate2 = new FirmBlock(nextIntermediateID());
+                blocksGraph.addVertex(intermediate1);
+                blocksGraph.addVertex(intermediate2);
+                // Remove the existing edge and add the new edges
+                blocksGraph.removeEdge(fBlock, predBlock);
+                blocksGraph.addEdge(fBlock, intermediate1);
+                blocksGraph.addEdge(intermediate1, predBlock);
+                blocksGraph.addEdge(fBlock, intermediate2);
+                blocksGraph.addEdge(intermediate2, predBlock);
+            } else {
+                DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
+                blocksGraph.setEdgeWeight(e, i);
+            }
+        }
+    }
+    
+    private int nextIntermediateID() {
+        return nextIntermediateID--;
+    }
+    
+    private FirmBlock getOrCreateFirmBlock(Block block) {
+        if (!firmBlocks.containsKey(block.getNr())) {
+            firmBlocks.put(block.getNr(), new FirmBlock(block));
+        }
+        return firmBlocks.get(block.getNr());
     }
 
     /**
