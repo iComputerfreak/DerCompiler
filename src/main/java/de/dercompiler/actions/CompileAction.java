@@ -36,7 +36,6 @@ public class CompileAction extends Action {
      */
     public CompileAction(Source source) {
         this.source = source;
-        MainMethod.useRuntime(false);
     }
 
     public void run() {
