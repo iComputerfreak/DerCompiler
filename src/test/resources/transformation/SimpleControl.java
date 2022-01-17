@@ -113,7 +113,7 @@ class foo {
 		return c;
 	}
     */
-        public boolean state_one() {
+    public boolean state_one() {
         boolean b = false == true != true == false || false && false || false == false != true && true != false;
         return b;
     }

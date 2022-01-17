@@ -34,16 +34,13 @@ public final class NotEqualExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        //state.swapTrueFalseBlock();
-
         state.pushExpectValue();
         createChildNodes(state);
         state.popExpect();
 
         ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal.negated(), getType());
         clearChildNodes(state);
-
-        //state.swapTrueFalseBlock();
+        
         return res;
     }
 }
