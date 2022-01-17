@@ -17,6 +17,10 @@ import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.pass.passes.*;
 import de.dercompiler.util.ErrorStatus;
+import firm.Backend;
+import firm.Dump;
+import firm.Graph;
+import firm.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +75,10 @@ public class CompileAction extends Action {
             return; //we never return
         }
         gcc.compileFirm(base);
+    }
+
+    private void compilerError() {
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.COMPILER_ERROR, "Error while try to run gcc");
     }
 
     public void help() {
