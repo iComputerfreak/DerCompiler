@@ -36,9 +36,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
     private Mode mode = Mode.BLOCKS;
     private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<CodeNode, DefaultEdge> codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
-    private final Graph<CodeNode, DefaultEdge> linearizedCodeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
-    private final List<Operation> operations = new ArrayList<>();
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
     private final HashMap<Integer, FirmBlock> firmBlocks = new HashMap<>();
     private int nextIntermediateID = -1;
@@ -95,7 +93,6 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         // Remove the "Graph " prefix
         String graphName = graph.toString().substring(6);
         
-        // TODO
         this.mode = Mode.BLOCKS;
         graph.walkBlocksPostorder(this);
         
@@ -130,8 +127,10 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* 3. Linearize the graph by concatenating subsequent nodes */
         /* ======================================================== */
         this.mode = Mode.LINEARIZATION;
-        Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph);
-        CodeNode previousNode = null;
+        // We start with the vertices that have no inbound edges
+        Iterable<CodeNode> startVertices = codeGraph.vertexSet().stream().filter(v -> codeGraph.inDegreeOf(v) == 0).toList();
+        Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph, startVertices);
+        List<CodeNode> linearizedCodeNodes = new LinkedList<>();
         while (codeGraphIterator.hasNext()) {
             CodeNode next = codeGraphIterator.next();
             linearizeNode(next);
@@ -139,15 +138,15 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             // TODO: Remove after real rules are implemented
             // Create a debug graph with the linearized nodes
             if (GraphDumper.dump_graph) {
-                linearizedCodeGraph.addVertex(next);
-                if (previousNode != null) {
-                    linearizedCodeGraph.addEdge(previousNode, next);
-                }
-                previousNode = next;
+                linearizedCodeNodes.add(next);
             }
         }
-
-        GraphDumper.dumpCodeGraph(linearizedCodeGraph, "linearized-" + graphName);
+        
+        // TODO: Remove
+        if (GraphDumper.dump_graph) {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
+                    .debugPrint(String.join(", ",linearizedCodeNodes.stream().map(n -> Integer.toString(n.getId())).toList()));
+        }
         
         return blocksGraph;
     }
@@ -165,9 +164,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             Node pred = block.getPred(i);
             FirmBlock predBlock = getOrCreateFirmBlock((Block) pred.getBlock());
             if (!blocksGraph.containsVertex(predBlock)) {
-                // TODO: Recursion
-                blocksGraph.addVertex(predBlock);
-                predBlock.setVisited(true);
+                visitBlock((Block) pred.getBlock());
             }
             // If the graph already contains an edge between these two nodes, add intermediate nodes
             if (blocksGraph.containsEdge(fBlock, predBlock)) {
@@ -176,15 +173,20 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                 blocksGraph.addVertex(intermediate1);
                 blocksGraph.addVertex(intermediate2);
                 // Remove the existing edge and add the new edges
+                double weight = blocksGraph.getEdgeWeight(blocksGraph.getEdge(fBlock, predBlock));
                 blocksGraph.removeEdge(fBlock, predBlock);
-                // TODO: Set weight
+                // Reconstruct the old edge with the old weight
                 blocksGraph.addEdge(fBlock, intermediate1);
+                blocksGraph.setEdgeWeight(fBlock, intermediate1, weight);
                 blocksGraph.addEdge(intermediate1, predBlock);
+                blocksGraph.setEdgeWeight(intermediate1, predBlock, weight);
+                // Create the new edge with the new weight
                 blocksGraph.addEdge(fBlock, intermediate2);
+                blocksGraph.setEdgeWeight(fBlock, intermediate2, i);
                 blocksGraph.addEdge(intermediate2, predBlock);
+                blocksGraph.setEdgeWeight(intermediate2, predBlock, i);
             } else {
                 DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
-                // TODO: Don't use i for the weight, but the correct label
                 blocksGraph.setEdgeWeight(e, i);
             }
         }
@@ -208,6 +210,10 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param node The firm Node for which to create the annotation
      */
     private void annotateNode(Node node) {
+        // We don't annotate basic blocks
+        if (node instanceof Block) {
+            return;
+        }
         if (!rules.containsKey(node.getClass())) {
             // If we have no rules to apply, create a dummy annotation
             // TODO: When all rules are specified this should not happen anymore!
@@ -246,6 +252,10 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param node The node for which to insert the NodeAnnotation
      */
     private void constructNode(Node node) {
+        // We don't annotate basic blocks
+        if (node instanceof Block) {
+            return;
+        }
         NodeAnnotation a = annotations.get(node.getNr());
         assert a != null;
         // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
@@ -311,11 +321,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         List<Operation> ops = rule.substitute(a.getRootNode());
         
         // Create the node in the code graph
-        // TODO: Fix
-        int blockNr = a.getRootNode().getNr();
-        if (!(a.getRootNode() instanceof firm.nodes.Block)) {
-            blockNr = a.getRootNode().getBlock().getNr();
-        }
+        int blockNr = a.getRootNode().getBlock().getNr();
         CodeNode codeNode = new CodeNode(ops, firmBlocks.get(blockNr));
         codeGraph.addVertex(codeNode);
         // Keep a map of the node ids for lookup

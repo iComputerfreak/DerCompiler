@@ -64,7 +64,7 @@ public class CompileAction extends Action {
 
             CodeSelector selector = new CodeSelector(graph, new HashMap<>());
             Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = selector.generateCode();
-            GraphDumper.dumpBlocksGraph(blocksGraph, "finalBlocks");
+            GraphDumper.dumpBlocksGraph(blocksGraph, graph.toString().substring(6) + "-finalBlocks");
         }
         
         ErrorStatus.exitProgramIfError();
