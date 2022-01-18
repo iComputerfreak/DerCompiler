@@ -1,6 +1,8 @@
 package de.dercompiler.optimization.ConstantPropagation;
 
+import firm.BackEdges;
 import firm.Graph;
+import firm.Mode;
 import firm.TargetValue;
 import firm.nodes.*;
 
@@ -11,8 +13,8 @@ import java.util.Queue;
 
 public class Worklist {
 
-    private static final TargetValue UNKNOWN = TargetValue.getUnknown();
-    private static final TargetValue BAD = TargetValue.getBad();
+    public static final TargetValue UNKNOWN = TargetValue.getUnknown();
+    public static final TargetValue BAD = TargetValue.getBad();
 
     private TransferFunctionVisitor transferFunctionVisitor;
     private Queue<Node> nodeQueue;
@@ -162,7 +164,7 @@ public class Worklist {
             @Override
             public void visit(Unknown node) {doAlways(node);}
             @Override
-            public void visitUnknown(Node node) {}
+            public void visitUnknown(Node node) {doAlways(node);}
         });
 
         while (!nodeQueue.isEmpty()){
@@ -171,11 +173,30 @@ public class Worklist {
         }
 
         graph.walkTopological(new NodeVisitor() {
+            private void replaceDivOrMod(Node node, Node previousMemory, Node replacement) {
+                if (!BackEdges.enabled(graph)){
+                    BackEdges.enable(graph);
+                }
+                for (BackEdges.Edge out : BackEdges.getOuts(node)) {
+                    if (out.node.getMode().equals(Mode.getM())) {
+                        Graph.exchange(out.node, previousMemory);
+                    } else {
+                        Graph.exchange(out.node, replacement);
+                    }
+                }
+            }
+
             private void doAlways(Node node){
                 TargetValue value = targetValueMap.get(node);
-                if (!(value.equals(BAD) || value.equals(UNKNOWN))){
-                    Graph.exchange(node, graph.newConst(value));
+
+                if (value != null && !(value.equals(BAD) || value.equals(UNKNOWN))){
+                    if (node instanceof Div div){
+                        replaceDivOrMod(div, div.getMem(), graph.newConst(value));
+                    } else {
+                        Graph.exchange(node, graph.newConst(value));
+                    }
                 }
+
             }
 
             @Override
@@ -287,7 +308,8 @@ public class Worklist {
             @Override
             public void visit(Unknown node) {doAlways(node);}
             @Override
-            public void visitUnknown(Node node) {}
+            public void visitUnknown(Node node) {doAlways(node);}
         });
+        BackEdges.disable(graph);
     }
 }
