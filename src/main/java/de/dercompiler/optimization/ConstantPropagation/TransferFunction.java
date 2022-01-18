@@ -164,14 +164,7 @@ public class TransferFunction implements ITransferFunction {
             } else if (!areEqual(pred, UNKNOWN) && !areEqual(actual, pred)){
                 actual = BAD;
             }
-            /*
-            if (areEqual(actual, UNKNOWN)){
-                actual = getInternal(pred);
-            } else if (areEqual(actual, BAD) || areEqual(pred, BAD)) {
-                actual = BAD;
-            } else if (!areEqual(pred, UNKNOWN) && !areEqual(actual, pred)){
-               actual = BAD;
-            }*/
+          
         }
 
         return actual;

@@ -8,13 +8,17 @@ import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.optimization.ArithmeticOptimization;
+import de.dercompiler.optimization.ConstantPropagation.TransferFunction;
+import de.dercompiler.optimization.ConstantPropagation.Worklist;
 import de.dercompiler.optimization.GraphOptimization;
 import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.util.ErrorStatus;
+import firm.Dump;
 import firm.Graph;
+import firm.TargetValue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -62,8 +66,10 @@ public class CompileAction extends Action {
                 opts.forEach(opt -> opt.runOnGraph(graph));
             }
 
-            CodeSelector selector = new CodeSelector(graph, new HashMap<>());
-            List<Operation> operationList = selector.generateCode();
+            Worklist.run(new TransferFunction(),graph);
+            Dump.dumpGraph(graph, "_" + "optized");
+            //CodeSelector selector = new CodeSelector(graph, new HashMap<>());
+            //List<Operation> operationList = selector.generateCode();
         }
         
         ErrorStatus.exitProgramIfError();
