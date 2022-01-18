@@ -30,14 +30,13 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
     }
     
     private final firm.Graph graph;
-    private final Map<Class<? extends Node>, List<SubstitutionRule>> rules;
+    private final Map<Class<? extends Node>, List<SubstitutionRule<?>>> rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
     private final Map<Integer, NodeAnnotation> annotations = new HashMap<>();
     private Mode mode = Mode.BLOCKS;
     private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<CodeNode, DefaultEdge> codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
-    private final List<Operation> operations = new ArrayList<>();
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
     private final HashMap<Integer, FirmBlock> firmBlocks = new HashMap<>();
     private int nextIntermediateID = -1;
@@ -47,7 +46,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param graph The graph to create intermediate code for
      * @param rules The map of rules to apply, keyed by the class of the root node
      */
-    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
+    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule<?>>> rules) {
         this.graph = graph;
         this.rules = rules;
     }
@@ -73,7 +72,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * 
      * @return The linear list of operations
      */
-    public List<Operation> generateCode() {
+    public Graph<FirmBlock, DefaultWeightedEdge> generateCode() {
         /*
          * ANNOTATE THE GRAPH
          * - Walk the DAG from the leaves (e.g. constants) to the roots (e.g. add) (Graph::walkPostorder)
@@ -89,14 +88,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
          * symposium on Principles of programming languages. ACM Press, 1999, S. 242–249.
          */
         
-        // TODO: Firm über Blöcke laufen 
-        // graph.walkBlocks();
         // TODO: Reihenfolge Phis
         
         // Remove the "Graph " prefix
         String graphName = graph.toString().substring(6);
         
-        // TODO
         this.mode = Mode.BLOCKS;
         graph.walkBlocksPostorder(this);
         
@@ -131,14 +127,28 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* 3. Linearize the graph by concatenating subsequent nodes */
         /* ======================================================== */
         this.mode = Mode.LINEARIZATION;
-        Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph);
+        // We start with the vertices that have no inbound edges
+        Iterable<CodeNode> startVertices = codeGraph.vertexSet().stream().filter(v -> codeGraph.inDegreeOf(v) == 0).toList();
+        Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph, startVertices);
+        List<CodeNode> linearizedCodeNodes = new LinkedList<>();
         while (codeGraphIterator.hasNext()) {
-            linearizeNode(codeGraphIterator.next());
+            CodeNode next = codeGraphIterator.next();
+            linearizeNode(next);
+            
+            // TODO: Remove after real rules are implemented
+            // Create a debug graph with the linearized nodes
+            if (GraphDumper.dump_graph) {
+                linearizedCodeNodes.add(next);
+            }
         }
-
-        GraphDumper.dumpCodeGraph(codeGraph, "linearized-" + graphName);
         
-        return operations;
+        // TODO: Remove
+        if (GraphDumper.dump_graph) {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
+                    .debugPrint(String.join(", ",linearizedCodeNodes.stream().map(n -> Integer.toString(n.getId())).toList()));
+        }
+        
+        return blocksGraph;
     }
 
     @Override
@@ -154,8 +164,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             Node pred = block.getPred(i);
             FirmBlock predBlock = getOrCreateFirmBlock((Block) pred.getBlock());
             if (!blocksGraph.containsVertex(predBlock)) {
-                blocksGraph.addVertex(predBlock);
-                predBlock.setVisited(true);
+                visitBlock((Block) pred.getBlock());
             }
             // If the graph already contains an edge between these two nodes, add intermediate nodes
             if (blocksGraph.containsEdge(fBlock, predBlock)) {
@@ -164,11 +173,18 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                 blocksGraph.addVertex(intermediate1);
                 blocksGraph.addVertex(intermediate2);
                 // Remove the existing edge and add the new edges
+                double weight = blocksGraph.getEdgeWeight(blocksGraph.getEdge(fBlock, predBlock));
                 blocksGraph.removeEdge(fBlock, predBlock);
+                // Reconstruct the old edge with the old weight
                 blocksGraph.addEdge(fBlock, intermediate1);
+                blocksGraph.setEdgeWeight(fBlock, intermediate1, weight);
                 blocksGraph.addEdge(intermediate1, predBlock);
+                blocksGraph.setEdgeWeight(intermediate1, predBlock, weight);
+                // Create the new edge with the new weight
                 blocksGraph.addEdge(fBlock, intermediate2);
+                blocksGraph.setEdgeWeight(fBlock, intermediate2, i);
                 blocksGraph.addEdge(intermediate2, predBlock);
+                blocksGraph.setEdgeWeight(intermediate2, predBlock, i);
             } else {
                 DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
                 blocksGraph.setEdgeWeight(e, i);
@@ -194,6 +210,10 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param node The firm Node for which to create the annotation
      */
     private void annotateNode(Node node) {
+        // We don't annotate basic blocks
+        if (node instanceof Block) {
+            return;
+        }
         if (!rules.containsKey(node.getClass())) {
             // If we have no rules to apply, create a dummy annotation
             // TODO: When all rules are specified this should not happen anymore!
@@ -203,9 +223,9 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             return;
         }
         // We only look at rules that have a root node that matches our current node
-        for (SubstitutionRule rule : rules.get(node.getClass())) {
+        for (SubstitutionRule<?> rule : rules.get(node.getClass())) {
             // Check if rule matches the node and its predecessors
-            if (SubstitutionRule.matches(rule.getRootNode(), node)) {
+            if (rule.matches(node)) {
                 int cost = rule.getCost();
                 // We have to add the cost of all predecessors that are not affected by this rule
                 for (Node p : node.getPreds()) {
@@ -232,12 +252,17 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param node The node for which to insert the NodeAnnotation
      */
     private void constructNode(Node node) {
+        // We don't annotate basic blocks
+        if (node instanceof Block) {
+            return;
+        }
         NodeAnnotation a = annotations.get(node.getNr());
         assert a != null;
         // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
         if (a.getVisited()) return;
+        SubstitutionRule<?> rule = a.getRule();
         // Mark the annotations of all required nodes visited, since they will be covered by this rule
-        for (Node n : a.getRule().getRequiredNodes(graph)) {
+        for (Node n : rule.getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
             annotations.get(n.getNr()).setVisited(true);
         }
@@ -252,7 +277,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             addDependency(a, pred);
         }
         // Maintain the dependencies inside the rule
-        for (Node n : a.getRule().getRequiredNodes(graph)) {
+        for (Node n : rule.getRequiredNodes(graph)) {
             // If one of our predecessors has a predecessor that has not been visited yet,
             // add it as an edge in the node annotation graph
             NodeAnnotation predAnnotation = annotations.get(n.getNr());
@@ -292,10 +317,12 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         List<NodeAnnotation> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream()
                 .map(nodeAnnotationGraph::getEdgeSource).toList();
         // Apply the rule in this annotation
-        List<Operation> ops = a.getRule().substitute(a.getRootNode());
+        SubstitutionRule<?> rule = a.getRule();
+        List<Operation> ops = rule.substitute(a.getRootNode());
         
         // Create the node in the code graph
-        CodeNode codeNode = new CodeNode(ops);
+        int blockNr = a.getRootNode().getBlock().getNr();
+        CodeNode codeNode = new CodeNode(ops, firmBlocks.get(blockNr));
         codeGraph.addVertex(codeNode);
         // Keep a map of the node ids for lookup
         codeGraphLookup.put(a.getRootNode().getNr(), codeNode);
@@ -314,7 +341,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         // Mark all nodes that are covered by this rule as "transformed"
         // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
         a.setTransformed(true);
-        for (Node n : a.getRule().getRequiredNodes(graph)) {
+        for (Node n : rule.getRequiredNodes(graph)) {
             annotations.get(n.getNr()).setTransformed(true);
         }
     }
@@ -324,7 +351,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param node The CodeNode to linearize
      */
     private void linearizeNode(CodeNode node) {
-        // TODO: Implement
+        node.getFirmBlock().addOperations(node.getOperations());
     }
 
     private void visitAny(Node node) {

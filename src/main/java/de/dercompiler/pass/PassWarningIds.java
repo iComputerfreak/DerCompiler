@@ -17,6 +17,6 @@ public enum PassWarningIds implements IWarningIds {
 
     @Override
     public int getId() {
-        return 0;
+        return id;
     }
 }

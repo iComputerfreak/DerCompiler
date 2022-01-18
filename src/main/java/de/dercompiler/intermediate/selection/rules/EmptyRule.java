@@ -10,7 +10,7 @@ import firm.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmptyRule extends SubstitutionRule {
+public class EmptyRule extends SubstitutionRule<Node> {
     
     public EmptyRule(Node rootNode) {
         super(rootNode);
@@ -23,6 +23,7 @@ public class EmptyRule extends SubstitutionRule {
     
     @Override
     public List<Operation> substitute(Node node) {
+        /*Node node = */checkNode(node);
         return List.of(new ConstantOperation(ConstantOperationType.NOP));
     }
     

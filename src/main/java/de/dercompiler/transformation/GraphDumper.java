@@ -4,6 +4,7 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.CodeNode;
 import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
+import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Dump;
@@ -43,7 +44,8 @@ public class GraphDumper {
 
     public static <E> void dumpNodeAnnotationGraph(Graph<NodeAnnotation, E> graph, String name) {
         dumpJGraph(graph, "annotationGraph", name, v -> Integer.toString(v.getRootNode().getNr()), (v) -> {
-            List<Operation> ops = v.getRule().substitute(v.getRootNode());
+            SubstitutionRule<?> rule = v.getRule();
+            List<Operation> ops = rule.substitute(v.getRootNode());
             List<String> opStrings = ops.stream().map(o -> o.getOperationType().toString()).toList();
             String label = "Cost: " + v.getRule().getCost() + "\n" +
                     v.getRootNode().toString() +
@@ -58,19 +60,20 @@ public class GraphDumper {
         dumpJGraph(graph, "codeGraph", name, v -> Integer.toString(v.getId()), (v) -> {
             List<Operation> ops = v.getOperations();
             List<String> opStrings = ops.stream().map(o -> o.getOperationType().toString()).toList();
-            return Map.of("label", DefaultAttribute.createAttribute(String.join("\n", opStrings)));
+            return Map.of("label", DefaultAttribute.createAttribute(v.getId() + "\n" + String.join("\n", opStrings)));
         }, (e) -> new HashMap<>());
     }
 
     public static <E> void dumpBlocksGraph(Graph<FirmBlock, E> graph, String name) {
         dumpJGraph(graph, "blocksGraph", name, v -> Integer.toString(v.getNr()),
-                (v) -> Map.of("label", DefaultAttribute.createAttribute(v.toString())),
+                (v) -> Map.of("label", DefaultAttribute.createAttribute(v.toString() + "\n" + 
+                        String.join("\n", v.getOperations().stream().map(o -> o.getOperationType().toString()).toList()))),
                 (e) -> Map.of("label", DefaultAttribute.createAttribute((int) graph.getEdgeWeight(e))));
     }
     
     private static <V, E> void dumpJGraph(Graph<V, E> graph, String namePrefix, String name,
-                                       Function<V, String> vertexIdProvider,
-                                       Function<V, Map<String, Attribute>> vertexAttributeProvider,
+                                          Function<V, String> vertexIdProvider,
+                                          Function<V, Map<String, Attribute>> vertexAttributeProvider,
                                           Function<E, Map<String, Attribute>> edgeAttributeProvider) {
         if (dump_graph) {
             String file = namePrefix + "-" + name + ".dot";

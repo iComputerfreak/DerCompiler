@@ -3,6 +3,7 @@ package de.dercompiler.transformation.node;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.FieldDefinition;
+import de.dercompiler.semantic.type.ArrayType;
 import de.dercompiler.semantic.type.ClassType;
 import de.dercompiler.semantic.type.Type;
 import de.dercompiler.transformation.TransformationHelper;
@@ -39,7 +40,7 @@ public class ArrayNode extends ReferenceNode {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("invalid ArrayAccess on Array of Dimension 0");
         }
         Node elem_ptr = TransformationHelper.addOffsetToPointer(state, ref, offset);
-        return new ArrayElementNode(elem_ptr, getElementType());
+        return new ArrayElementNode(elem_ptr, type);
     }
 
     @Override
@@ -62,18 +63,6 @@ public class ArrayNode extends ReferenceNode {
         }
         ClassType ct = getTypeAsClass();
         return new ObjectNode(ref, ct);
-    }
-
-    private firm.Type type() {
-        return this.type.getFirmTransformationType();
-    }
-
-    public Node getPointer() {
-        return ref;
-    }
-
-    public Type getElementType() {
-        return type;
     }
 
     public int getDimension() {

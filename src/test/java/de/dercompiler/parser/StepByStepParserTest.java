@@ -44,7 +44,7 @@ public class StepByStepParserTest {
             append(sb, token);
             Lexer curLexer = Lexer.forString(sb.toString());
             Parser parser = new Parser(curLexer);
-            Program prog = parser.parseProgram();
+            parser.parseProgram();
             List<DebugEvent> eventList = OutputMessageHandler.getEvents();
             if (eventList.isEmpty()) {
                 System.out.println(curLexer.printSourceText(curLexer.peek().position()));

@@ -38,7 +38,7 @@ public final class NegativeExpression extends UnaryExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         ReferenceNode inner = getEncapsulated().createNode(state);
-        if (getEncapsulated() instanceof IntegerValue) {
+        if (getEncapsulated() instanceof IntegerValue iv && iv.isNegative()) {
             // minuses on constant values must be eliminated (MIN_VALUE problem)
             return inner;
         }

@@ -81,48 +81,6 @@ public class FirmTypeFactory {
     }
 
     /**
-     * Creates a new {@link firm.ArrayType} with the given properties.
-     * If there is a cached instance with the same properties, this instance will be returned instead
-     * @param elementType The type of the elements in the array
-     * @param elementFirmType The firm type of the elements in the array 
-     * @param numberOfElements The number of elements in the array
-     * @return The newly created {@link firm.ArrayType}
-     * or a cached {@link firm.ArrayType} that was created through this function earlier
-     */
-    private firm.ArrayType getOrCreateFirmArrayType(Type elementType, firm.Type elementFirmType, int numberOfElements) {
-        // Get the HashMap for the element type
-        String identifier = getTypeIdentifier(elementType);
-        if (!arrayTypes.containsKey(identifier)) {
-            firm.ArrayType firmType = new firm.ArrayType(elementFirmType, numberOfElements);
-            arrayTypes.put(identifier, firmType);
-        }
-        return arrayTypes.get(identifier);
-    }
-
-    /**
-     * Returns an identifier that describes the given primitive or class type
-     * @param type The primitive type or class type to describe
-     * @return A string representing the given type (e.g. "int", "boolean", "void", "null" or the class name)
-     */
-    private String getTypeIdentifier(Type type) {
-        if (type instanceof ClassType t) {
-            return t.getIdentifier();
-        } else if (type instanceof IntegerType) {
-            return "int";
-        } else if (type instanceof BooleanType) {
-            return "boolean";
-        } else if (type instanceof VoidType) {
-            return "void";
-        } else if (type instanceof NullType) {
-            return "null";
-        } else {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM)
-                    .internalError("Type identifier for type " + type + " could not be computed.");
-            throw new RuntimeException();
-        }
-    }
-    
-    /**
      * Returns the firm.Type for the given semantic type.
      * The given type has to be either a primitive type (IntegerType, BooleanType, VoidType or NullType)
      * or a ClassType.
@@ -145,7 +103,7 @@ public class FirmTypeFactory {
             if (t.getFirmType() == null) {
                 t.setFirmType(createFirmClassType(t));
             }
-            return t.getFirmType();
+            return t.getFirmTransformationType();
         } else if (type instanceof ArrayType t) {
             firm.Type elementFirmType = getOrCreateFirmVariableType(t.getElementType());
             return createOrGetFirmPointerType(elementFirmType);

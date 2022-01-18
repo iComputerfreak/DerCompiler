@@ -40,12 +40,16 @@ public abstract class ReferenceNode {
         FieldDefinition def = ct.getField(fieldName);
         Type fieldType = def.getType();
         Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), def.getNode().getMangledIdentifier());
-        Node member = state.construction.newMember(ref , field);
+        Node member = state.construction.newMember(genLoad(state), field);
         return new FieldNode(member, fieldType);
     }
     public abstract ObjectNode getObjectCallBase(TransformationState state);
 
     public abstract boolean isReference();
+
+    public Node getReference() {
+        return ref;
+    }
 
     public Mode getMode() {
         return mode;

@@ -496,15 +496,6 @@ public class Parser {
 
     // From here on, we use wlexer instead of lexer
 
-    private boolean isBlockStatement(IToken token) {
-        return isType(token) || isExpression(token) || token instanceof Token t && switch (t) {
-            case L_CURLY_BRACKET, SEMICOLON, IF, WHILE, RETURN -> true;
-            // accept them now in order to get more useful error messages later
-            case FOR, SWITCH, DO -> true;
-            default -> false;
-        };
-    }
-
     public BasicBlock parseBasicBlock(AnchorSet ank) {
         SourcePosition pos = wlexer.position();
         LinkedList<Statement> statements = new LinkedList<>();

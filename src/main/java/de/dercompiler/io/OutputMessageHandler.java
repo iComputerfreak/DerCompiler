@@ -39,7 +39,6 @@ public final class OutputMessageHandler {
     private static final int CALLER_STACKTRACE = 1;
 
     private final String ident;
-    private final int idPrefix;
 
     private final MessageOrigin origin;
     private final Color textColor;
@@ -72,7 +71,6 @@ public final class OutputMessageHandler {
         colorizer = globalColorizer;
 
         printStackTrace = globalPrintStackTrace;
-        idPrefix = origin.getId() * PREFIX_MULTIPLIER;
     }
 
     /**

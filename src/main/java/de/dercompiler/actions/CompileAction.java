@@ -1,9 +1,8 @@
 package de.dercompiler.actions;
 
-import de.dercompiler.ast.MainMethod;
 import de.dercompiler.ast.Program;
-import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.CodeSelector;
+import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
@@ -15,10 +14,16 @@ import de.dercompiler.optimization.PhiOptimization;
 import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
+import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
+
 import firm.Dump;
-import firm.Graph;
+
 import firm.TargetValue;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +45,6 @@ public class CompileAction extends Action {
      */
     public CompileAction(Source source) {
         this.source = source;
-        MainMethod.useRuntime(false);
     }
 
     public void run() {
@@ -61,15 +65,19 @@ public class CompileAction extends Action {
         //Step 3: Code Selection
 
         List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
-        for (Graph graph : program.getGraphs()) {
+        for (firm.Graph graph : program.getGraphs()) {
             if (basicOptimizationsActive) {
                 opts.forEach(opt -> opt.runOnGraph(graph));
             }
 
+
             Worklist.run(new TransferFunction(),graph);
-            Dump.dumpGraph(graph, "_" + "optized");
-            //CodeSelector selector = new CodeSelector(graph, new HashMap<>());
-            //List<Operation> operationList = selector.generateCode();
+            
+
+            CodeSelector selector = new CodeSelector(graph, new HashMap<>());
+            Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = selector.generateCode();
+            GraphDumper.dumpBlocksGraph(blocksGraph, graph.toString().substring(6) + "-finalBlocks");
+
         }
         
         ErrorStatus.exitProgramIfError();

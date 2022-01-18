@@ -30,12 +30,18 @@ public class FieldNode extends ReferenceNode {
     }
 
     @Override
+    public ReferenceNode accessArray(TransformationState state, Node offset) {
+        ArrayType at = getTypeAsArray();
+        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).accessArray(state, offset);
+    }
+
+    @Override
     public ObjectNode getObjectCallBase(TransformationState state) {
-        return new ObjectNode(ref, getTypeAsClass()); //checks for  class-type
+        return new ObjectNode(genLoad(state), getTypeAsClass()); //checks for  class-type
     }
 
     @Override
     public boolean isReference() {
-        return true;
+        return false;
     }
 }

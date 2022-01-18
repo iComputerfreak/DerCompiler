@@ -6,15 +6,16 @@ class Main {
 	public int l;
 
 	public static void main(String[] args) {
+		/*
 		int i = 0;
 		System.out.println(i);
 
 		i = -316 / -582 - 57 * 154 * (-377 - -722 / -529 + 594 - -315 / (996 / 711 + -752 - -339 + 374) - -501 - -900) - (796 + 919 * 88 + 219 * (67 * (770 - 709 * -683) * 414 + 830 * 728 * (963 - 235 / (-4 / 945 / 609 * 200 - 286 / -822 - -463 / -398 - (-382 / 101 - 224) - 682 + -34) - 716 * -138 + -260) / 860) - 876 + -294 * 236) / -287;
 		System.out.println(i);
-
+		*/
 		int j = 1 - - - - - 23;
 		System.out.println(j);
-
+		/*
 		int k = 1 + 2 + 3 + 4 + 5 + 6;
 		System.out.println(k);
 
@@ -46,5 +47,6 @@ class Main {
 
 		int p = a.l * a.i + -m * n / -a.l - a.k * k - 4;
 		System.out.println(p);
+		*/
 	}
 }
