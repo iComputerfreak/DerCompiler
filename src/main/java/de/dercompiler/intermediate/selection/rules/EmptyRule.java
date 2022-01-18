@@ -5,7 +5,6 @@ import de.dercompiler.intermediate.operation.ConstantOperationType;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
-import firm.nodes.Add;
 import firm.nodes.Node;
 
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ public class EmptyRule extends SubstitutionRule<Node> {
     @Override
     public List<Operation> substitute(Node node) {
         /*Node node = */checkNode(node);
-        node.getPred(0);
         return List.of(new ConstantOperation(ConstantOperationType.NOP));
     }
     

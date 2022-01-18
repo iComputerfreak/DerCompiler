@@ -30,12 +30,13 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
     }
     
     private final firm.Graph graph;
-    private final Map<Class<? extends Node>, List<SubstitutionRule>> rules;
+    private final Map<Class<? extends Node>, List<SubstitutionRule<?>>> rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
     private final Map<Integer, NodeAnnotation> annotations = new HashMap<>();
     private Mode mode = Mode.BLOCKS;
     private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<CodeNode, DefaultEdge> codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+    private final Graph<CodeNode, DefaultEdge> linearizedCodeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
     private final List<Operation> operations = new ArrayList<>();
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
@@ -47,7 +48,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param graph The graph to create intermediate code for
      * @param rules The map of rules to apply, keyed by the class of the root node
      */
-    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
+    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule<?>>> rules) {
         this.graph = graph;
         this.rules = rules;
     }
@@ -73,7 +74,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * 
      * @return The linear list of operations
      */
-    public List<Operation> generateCode() {
+    public Graph<FirmBlock, DefaultWeightedEdge> generateCode() {
         /*
          * ANNOTATE THE GRAPH
          * - Walk the DAG from the leaves (e.g. constants) to the roots (e.g. add) (Graph::walkPostorder)
@@ -89,8 +90,6 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
          * symposium on Principles of programming languages. ACM Press, 1999, S. 242–249.
          */
         
-        // TODO: Firm über Blöcke laufen 
-        // graph.walkBlocks();
         // TODO: Reihenfolge Phis
         
         // Remove the "Graph " prefix
@@ -132,13 +131,25 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* ======================================================== */
         this.mode = Mode.LINEARIZATION;
         Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph);
+        CodeNode previousNode = null;
         while (codeGraphIterator.hasNext()) {
-            linearizeNode(codeGraphIterator.next());
+            CodeNode next = codeGraphIterator.next();
+            linearizeNode(next);
+            
+            // TODO: Remove after real rules are implemented
+            // Create a debug graph with the linearized nodes
+            if (GraphDumper.dump_graph) {
+                linearizedCodeGraph.addVertex(next);
+                if (previousNode != null) {
+                    linearizedCodeGraph.addEdge(previousNode, next);
+                }
+                previousNode = next;
+            }
         }
 
-        GraphDumper.dumpCodeGraph(codeGraph, "linearized-" + graphName);
+        GraphDumper.dumpCodeGraph(linearizedCodeGraph, "linearized-" + graphName);
         
-        return operations;
+        return blocksGraph;
     }
 
     @Override
@@ -300,7 +311,12 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         List<Operation> ops = rule.substitute(a.getRootNode());
         
         // Create the node in the code graph
-        CodeNode codeNode = new CodeNode(ops);
+        // TODO: Fix
+        int blockNr = a.getRootNode().getNr();
+        if (!(a.getRootNode() instanceof firm.nodes.Block)) {
+            blockNr = a.getRootNode().getBlock().getNr();
+        }
+        CodeNode codeNode = new CodeNode(ops, firmBlocks.get(blockNr));
         codeGraph.addVertex(codeNode);
         // Keep a map of the node ids for lookup
         codeGraphLookup.put(a.getRootNode().getNr(), codeNode);
@@ -329,7 +345,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param node The CodeNode to linearize
      */
     private void linearizeNode(CodeNode node) {
-        // TODO: Implement
+        node.getFirmBlock().addOperations(node.getOperations());
     }
 
     private void visitAny(Node node) {
