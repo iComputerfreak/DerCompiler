@@ -53,4 +53,10 @@ public class SubRule extends SubstitutionRule {
     public List<Node> getRequiredNodes(Graph realGraph) {
         return List.of(getLeft().getRootNode(), getRight().getRootNode());
     }
+
+    @Override
+    public boolean matches(Node inputNode) {
+        // Any Sub node matches
+        return true;
+    }
 }

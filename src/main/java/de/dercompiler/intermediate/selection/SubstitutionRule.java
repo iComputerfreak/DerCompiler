@@ -1,11 +1,11 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
-import firm.nodes.Cmp;
 import firm.nodes.Node;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
@@ -25,13 +25,25 @@ public abstract class SubstitutionRule {
     public SubstitutionRule(Node rootNode) {
         this.rootNode = rootNode;
     }
-    
-    // TODO: Use and add docs
+
+    /**
+     * Sets the NodeAnnotations for the root node and the other required nodes of this rule
+     * @param node The NodeAnnotation of the rootNode
+     * @param annotationSupplier A function that transforms any of the requiredNodes into NodeAnnotations
+     */
     public void setAnnotations(NodeAnnotation node, Function<Node, NodeAnnotation> annotationSupplier) {
+        if (this.node != null || this.annotationSupplier != null) {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
+                    .internalError("SubstitutionRule.setAnnotations called before clearing existing values.");
+            throw new RuntimeException();
+        }
         this.node = node;
         this.annotationSupplier = annotationSupplier;
     }
-    
+
+    /**
+     * Clears existing NodeAnnotations
+     */
     public void clearAnnotations() {
         this.node = null;
         this.annotationSupplier = null;
@@ -67,46 +79,12 @@ public abstract class SubstitutionRule {
      */
     // Overwritten in subclass
     public abstract List<Node> getRequiredNodes(Graph realGraph);
-    
-    // TODO: Doc
-    public boolean matches(Node inputNode) {
-        return matches(getRootNode(), inputNode);
-    }
 
     /**
-     * Returns whether the given rule matches the given input node
-     * @param ruleNode The rootNode of the rule
-     * @param inputNode The input node that is expected to match the rootNode
-     * @return Whether the given rootNode matches the given input node, including their predecessors
+     * Checks whether the given input node matches this rule
+     * @param inputNode The input node
+     * @return Whether the rootNode of this rule matches the given input node, including their predecessors
      */
-    public static boolean matches(Node ruleNode, Node inputNode) {
-        // The root node's type has to match
-        if (!(inputNode.getClass().equals(ruleNode.getClass()))) {
-            return false;
-        }
-
-        // If the node is a CmpNode, its relation has to match
-        if (ruleNode instanceof Cmp c1 &&
-                inputNode instanceof Cmp c2 &&
-                c1.getRelation() != c2.getRelation()) {
-            return false;
-        }
-
-        // The number of predecessors has to match
-        if (ruleNode.getPredCount() != inputNode.getPredCount()) {
-            return false;
-        }
-        // Each predecessor has to match
-        Iterator<Node> ruleIterator = ruleNode.getPreds().iterator();
-        Iterator<Node> inputIterator = inputNode.getPreds().iterator();
-        while (ruleIterator.hasNext()) {
-            Node nextRoot = ruleIterator.next();
-            Node nextInput = inputIterator.next();
-            if (!matches(nextRoot, nextInput)) {
-                return false;
-            }
-        }
-        return true;
-    }
+    public abstract boolean matches(Node inputNode);
 }
 

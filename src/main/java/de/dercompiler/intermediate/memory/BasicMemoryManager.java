@@ -15,18 +15,18 @@ public class BasicMemoryManager implements MemoryManager {
 
     /*
      *  AR layout:
-     *  ┌────────────┐
-     *  │  arg_n     │ n+3     - each entry 8 bytes in size
-     *  │   ...      │
-     *  │  arg_1     │ 4
-     *  │  this      │ 3
-     *  │  ret_val   │ 2
-     *  │  dyn_link  │ 1
-     *  │  ret_addr  │ 0     __ bp
-     *  │  var_0     │ -1
-     *  │  ...       │
-     *  │  var_m     │ -m-1  __ sp
-     *  └────────────┘
+     *  ,-------------,
+     *  |  arg_n     | n+3     - each entry 8 bytes in size
+     *  |   ...      |
+     *  |  arg_1     | 4
+     *  |  this      | 3
+     *  |  ret_val   | 2
+     *  |  dyn_link  | 1
+     *  |  ret_addr  | 0     __ bp
+     *  |  var_0     | -1
+     *  |  ...       |
+     *  |  var_m     | -m-1  __ sp
+     * ´------------´
      *
      */
 

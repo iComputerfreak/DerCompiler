@@ -46,4 +46,10 @@ public class MinusRule extends SubstitutionRule {
     public List<Node> getRequiredNodes(Graph realGraph) {
         return List.of(getOperator().getRootNode());
     }
+
+    @Override
+    public boolean matches(Node inputNode) {
+        // Any Minus node matches
+        return true;
+    }
 }

@@ -50,4 +50,10 @@ public class NotRule extends SubstitutionRule {
     public List<Node> getRequiredNodes(Graph realGraph) {
         return List.of(getOperator().getRootNode());
     }
+
+    @Override
+    public boolean matches(Node inputNode) {
+        // Any Not node matches
+        return true;
+    }
 }

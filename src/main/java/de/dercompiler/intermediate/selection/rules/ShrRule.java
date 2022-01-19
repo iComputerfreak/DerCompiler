@@ -52,4 +52,10 @@ public class ShrRule extends SubstitutionRule {
     public List<Node> getRequiredNodes(Graph realGraph) {
         return List.of(getLeft().getRootNode(), getRight().getRootNode());
     }
+
+    @Override
+    public boolean matches(Node inputNode) {
+        // Any Shr node matches
+        return true;
+    }
 }

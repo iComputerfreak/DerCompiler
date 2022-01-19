@@ -62,11 +62,17 @@ public class NodeAnnotation {
         return rule;
     }
 
-    // TODO: Doc
+    /**
+     * Returns the target operand (e.g. register, virtual register, ...) of this node
+     */
     public Operand getTarget() {
         return target;
     }
 
+    /**
+     * Sets the target operand (e.g. register, virtual register, ...) of this node
+     * @param target The operand
+     */
     public void setTarget(Operand target) {
         this.target = target;
     }

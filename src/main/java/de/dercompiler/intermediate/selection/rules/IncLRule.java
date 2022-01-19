@@ -1,27 +1,28 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operation.BinaryOperation;
-import de.dercompiler.intermediate.operation.BinaryOperationType;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.operation.UnaryOperation;
+import de.dercompiler.intermediate.operation.UnaryOperationType;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.Add;
+import firm.nodes.Const;
 import firm.nodes.Node;
 
 import java.util.List;
 
-public class AddRule extends SubstitutionRule {
+public class IncLRule extends SubstitutionRule {
     
-    public AddRule(Node rootNode) {
+    public IncLRule(Node rootNode) {
         super(rootNode);
     }
 
     @Override
     public int getCost() {
-        return 1 + getLeft().getCost() + getRight().getCost();
+        return 1 + getOperator().getCost();
     }
 
     private Add getAdd() {
@@ -29,33 +30,30 @@ public class AddRule extends SubstitutionRule {
             return add;
         }
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                .internalError("AddRule has no Add root node");
+                .internalError("IncLRule has no Add root node");
         // We never return
         throw new RuntimeException();
     }
     
-    private NodeAnnotation getLeft() {
+    private NodeAnnotation getOperator() {
         return annotationSupplier.apply(getAdd().getLeft());
-    }
-
-    private NodeAnnotation getRight() {
-        return annotationSupplier.apply(getAdd().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
-        Operation add = new BinaryOperation(BinaryOperationType.ADD, getLeft().getTarget(), getRight().getTarget());
-        return List.of(add);
+        Operation inc = new UnaryOperation(UnaryOperationType.INC, getOperator().getTarget());
+        return List.of(inc);
     }
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(getLeft().getRootNode(), getRight().getRootNode());
+        return List.of(getOperator().getRootNode());
     }
 
     @Override
     public boolean matches(Node inputNode) {
-        // any Add node matches
-        return true;
+        return inputNode instanceof Add add
+                && add.getLeft() instanceof Const constant
+                && constant.getTarval().asInt() == 1;
     }
 }
