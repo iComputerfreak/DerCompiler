@@ -13,6 +13,7 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import java.util.*;
 
@@ -128,8 +129,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* ======================================================== */
         this.mode = Mode.LINEARIZATION;
         // We start with the vertices that have no inbound edges
-        Iterable<CodeNode> startVertices = codeGraph.vertexSet().stream().filter(v -> codeGraph.inDegreeOf(v) == 0).toList();
-        Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph, startVertices);
+        Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
         List<CodeNode> linearizedCodeNodes = new LinkedList<>();
         while (codeGraphIterator.hasNext()) {
             CodeNode next = codeGraphIterator.next();
