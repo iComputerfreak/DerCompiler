@@ -8,14 +8,15 @@ import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
-import firm.nodes.Add;
 import firm.nodes.Node;
+import firm.nodes.Shr;
+import firm.nodes.Shrs;
 
 import java.util.List;
 
-public class AddRule extends SubstitutionRule {
-    
-    public AddRule(Node rootNode) {
+public class ShrsRule extends SubstitutionRule {
+
+    public ShrsRule(Node rootNode) {
         super(rootNode);
     }
 
@@ -24,28 +25,28 @@ public class AddRule extends SubstitutionRule {
         return 1 + getLeft().getCost() + getRight().getCost();
     }
 
-    private Add getAdd() {
-        if (node.getRootNode() instanceof Add add) {
-            return add;
+    private Shrs getShrs() {
+        if (node.getRootNode() instanceof Shrs shrs) {
+            return shrs;
         }
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                .internalError("AddRule has no Add root node");
+                .internalError("ShrsRule has no Shrs root node");
         // We never return
         throw new RuntimeException();
     }
     
     private NodeAnnotation getLeft() {
-        return annotationSupplier.apply(getAdd().getLeft());
+        return annotationSupplier.apply(getShrs().getLeft());
     }
 
     private NodeAnnotation getRight() {
-        return annotationSupplier.apply(getAdd().getRight());
+        return annotationSupplier.apply(getShrs().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
-        BinaryOperation add = new BinaryOperation(BinaryOperationType.ADD, getLeft().getTarget(), getRight().getTarget());
-        return List.of(add);
+        Operation shrs = new BinaryOperation(BinaryOperationType.SHRS, getLeft().getTarget(), getRight().getTarget());
+        return List.of(shrs);
     }
 
     @Override

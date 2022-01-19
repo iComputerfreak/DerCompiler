@@ -13,6 +13,7 @@ public enum BinaryOperationType implements OperationType {
     SAR(""),
     SAL(""),
     SHR(""),
+    SHRS(""), // arithmetic ("signed") right shift
     SUB(""),
     XCHG(""),
     XOR(""),

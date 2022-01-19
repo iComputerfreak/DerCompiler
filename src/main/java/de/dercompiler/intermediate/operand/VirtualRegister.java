@@ -1,10 +1,13 @@
-package de.dercompiler.intermediate;
+package de.dercompiler.intermediate.operand;
+
+import firm.Mode;
 
 public class VirtualRegister implements Operand {
     
     private static long nextID = 0;
     
     private final long id;
+    private Mode mode;
 
     public VirtualRegister() {
         this.id = nextID++;
@@ -17,5 +20,10 @@ public class VirtualRegister implements Operand {
     @Override
     public String getIdentifier() {
         return "@" + id;
+    }
+
+    @Override
+    public Mode getMode() {
+        return mode;
     }
 }

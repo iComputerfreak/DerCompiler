@@ -1,6 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
-import de.dercompiler.intermediate.Operand;
+import de.dercompiler.intermediate.operand.Operand;
 import firm.nodes.Node;
 
 /**

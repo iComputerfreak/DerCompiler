@@ -1,14 +1,18 @@
 package de.dercompiler.intermediate.operation;
 
-import de.dercompiler.intermediate.Operand;
+import de.dercompiler.intermediate.operand.Operand;
+import firm.Mode;
 
 public final class UnaryOperation implements Operation {
 
+    private Mode mode;
     private Operand operand;
     private final OperationType operationType;
 
-    public UnaryOperation(OperationType operationType) {
+    public UnaryOperation(OperationType operationType, Operand operand) {
         this.operationType = operationType;
+        this.operand = operand;
+        this.mode = operand.getMode();
     }
 
     @Override
@@ -23,5 +27,15 @@ public final class UnaryOperation implements Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax() + " " + operand.getIdentifier();
+    }
+
+    @Override
+    public Mode getMode() {
+        return mode;
+    }
+
+    @Override
+    public void setMode(Mode mode) {
+        this.mode = mode;
     }
 }

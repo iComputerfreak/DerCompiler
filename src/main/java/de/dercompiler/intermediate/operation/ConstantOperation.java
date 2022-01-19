@@ -1,11 +1,14 @@
 package de.dercompiler.intermediate.operation;
 
-import de.dercompiler.intermediate.Operand;
+import com.sun.source.tree.UsesTree;
+import de.dercompiler.intermediate.operand.Operand;
+import firm.Mode;
 
 public final class ConstantOperation implements Operation {
 
 
     private final OperationType operationType;
+    private Mode mode;
 
     public ConstantOperation(OperationType operationType) {
         this.operationType = operationType;
@@ -23,5 +26,14 @@ public final class ConstantOperation implements Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax();
+    }
+
+    @Override
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
     }
 }

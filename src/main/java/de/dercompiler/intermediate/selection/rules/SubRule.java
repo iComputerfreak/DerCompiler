@@ -10,12 +10,13 @@ import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.Add;
 import firm.nodes.Node;
+import firm.nodes.Sub;
 
 import java.util.List;
 
-public class AddRule extends SubstitutionRule {
-    
-    public AddRule(Node rootNode) {
+public class SubRule extends SubstitutionRule {
+
+    public SubRule(Node rootNode) {
         super(rootNode);
     }
 
@@ -24,9 +25,9 @@ public class AddRule extends SubstitutionRule {
         return 1 + getLeft().getCost() + getRight().getCost();
     }
 
-    private Add getAdd() {
-        if (node.getRootNode() instanceof Add add) {
-            return add;
+    private Sub getSub() {
+        if (node.getRootNode() instanceof Sub sub) {
+            return sub;
         }
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
                 .internalError("AddRule has no Add root node");
@@ -35,17 +36,17 @@ public class AddRule extends SubstitutionRule {
     }
     
     private NodeAnnotation getLeft() {
-        return annotationSupplier.apply(getAdd().getLeft());
+        return annotationSupplier.apply(getSub().getLeft());
     }
 
     private NodeAnnotation getRight() {
-        return annotationSupplier.apply(getAdd().getRight());
+        return annotationSupplier.apply(getSub().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
-        BinaryOperation add = new BinaryOperation(BinaryOperationType.ADD, getLeft().getTarget(), getRight().getTarget());
-        return List.of(add);
+        Operation sub = new BinaryOperation(BinaryOperationType.SUB, getLeft().getTarget(), getRight().getTarget());
+        return List.of(sub);
     }
 
     @Override
