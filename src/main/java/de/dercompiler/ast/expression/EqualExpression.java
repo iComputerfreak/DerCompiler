@@ -17,7 +17,7 @@ import java.util.Objects;
 
 import static de.dercompiler.lexer.token.OperatorToken.EQUAL;
 
-public final class EqualExpression extends BinaryExpression {
+public final class EqualExpression extends ComparisonExpression {
 
     public EqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
@@ -39,12 +39,6 @@ public final class EqualExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        state.pushExpectValue();
-        createChildNodes(state);
-        state.popExpect();
-
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal, getType());
-        clearChildNodes(state);
-        return res;
+        return TransformationHelper.createComparator(state, this, Relation.Equal, getType());
     }
 }

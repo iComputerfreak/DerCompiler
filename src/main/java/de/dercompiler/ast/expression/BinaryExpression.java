@@ -8,7 +8,7 @@ import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.transformation.node.ReferenceNode;
 import firm.nodes.Node;
 
-public abstract sealed class BinaryExpression extends Expression permits AssignmentExpression, AddExpression, DivisionExpression, EqualExpression, GreaterEqualExpression, GreaterExpression, LessEqualExpression, LessExpression, LogicalAndExpression, LogicalOrExpression, ModuloExpression, MultiplyExpression, SubtractExpression, NotEqualExpression {
+public abstract sealed class BinaryExpression extends Expression permits AddExpression, AssignmentExpression, ComparisonExpression, DivisionExpression, LogicalAndExpression, LogicalOrExpression, ModuloExpression, MultiplyExpression, SubtractExpression {
 
     private final Expression lhs;
     private final Expression rhs;
@@ -33,7 +33,7 @@ public abstract sealed class BinaryExpression extends Expression permits Assignm
 
     public abstract OperatorToken getOperator();
 
-    public void createChildNodes(TransformationState state) {
+    public ReferenceNode createLhs(TransformationState state) {
         if (state.isAsignement) {
             state.pushExpectValue();
         }
@@ -41,13 +41,11 @@ public abstract sealed class BinaryExpression extends Expression permits Assignm
         if (state.isAsignement) {
             state.popExpect();
         }
-        state.rhs = rhs.createNode(state);
-        state.lhs = nodeLhs;
+        return nodeLhs;
     }
 
-    public void clearChildNodes(TransformationState state) {
-        state.lhs = null;
-        state.rhs = null;
+    public ReferenceNode createRhs(TransformationState state) {
+        return rhs.createNode(state);
     }
 
     @Override

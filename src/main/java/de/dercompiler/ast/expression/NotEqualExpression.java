@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import static de.dercompiler.lexer.token.OperatorToken.NOT_EQUAL;
 
-public final class NotEqualExpression extends BinaryExpression {
+public final class NotEqualExpression extends ComparisonExpression {
     public NotEqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
@@ -34,13 +34,6 @@ public final class NotEqualExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        state.pushExpectValue();
-        createChildNodes(state);
-        state.popExpect();
-
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.Equal.negated(), getType());
-        clearChildNodes(state);
-        
-        return res;
+        return TransformationHelper.createComparator(state, this, Relation.Equal.negated(), getType());
     }
 }

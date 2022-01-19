@@ -38,12 +38,17 @@ public final class DivisionExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        createChildNodes(state);
         Node mem = state.construction.getCurrentMem();
-        Node div = state.construction.newDiv(mem, state.lhs.genLoad(state), state.rhs.genLoad(state), binding_ircons.op_pin_state.op_pin_state_pinned);
-        Mode resMode = TransformationHelper.unifyMode(state.lhs.getMode(), state.rhs.getMode());
+
+        ReferenceNode lhs = createLhs(state);
+        Node lhs_raw = lhs.genLoad(state);
+
+        ReferenceNode rhs = createRhs(state);
+        Node rhs_raw = rhs.genLoad(state);
+
+        Node div = state.construction.newDiv(mem, lhs_raw, rhs_raw, binding_ircons.op_pin_state.op_pin_state_pinned);
+        Mode resMode = TransformationHelper.unifyMode(lhs.getMode(), rhs.getMode());
         state.construction.setCurrentMem(state.construction.newProj(div, Mode.getM(), Div.pnM));
-        clearChildNodes(state);
         return new RValueNode(state.construction.newProj(div, resMode, Div.pnRes), getType());
     }
 }
