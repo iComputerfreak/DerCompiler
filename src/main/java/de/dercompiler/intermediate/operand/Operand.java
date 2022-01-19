@@ -4,5 +4,7 @@ import firm.Mode;
 
 public interface Operand {
     String getIdentifier();
+
     Mode getMode();
+    void setMode(Mode mode);
 }

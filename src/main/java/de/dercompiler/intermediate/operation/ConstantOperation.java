@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.operation;
 
-import com.sun.source.tree.UsesTree;
 import de.dercompiler.intermediate.operand.Operand;
 import firm.Mode;
 

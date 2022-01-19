@@ -2,7 +2,6 @@ package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.Operation;
-import jdk.incubator.foreign.ResourceScope;
 
 import java.util.HashMap;
 import java.util.List;

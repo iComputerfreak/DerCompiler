@@ -12,7 +12,6 @@ public final class UnaryOperation implements Operation {
     public UnaryOperation(OperationType operationType, Operand operand) {
         this.operationType = operationType;
         this.operand = operand;
-        this.mode = operand.getMode();
     }
 
     @Override

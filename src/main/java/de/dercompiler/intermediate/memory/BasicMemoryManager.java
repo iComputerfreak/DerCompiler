@@ -1,7 +1,7 @@
 package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.RelativeAddress;
+import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operand.LabelOperand;
 
@@ -39,7 +39,7 @@ public class BasicMemoryManager implements MemoryManager {
      * Pointer to the lowest entry of the current stack.
      * Also serves as variable counter: -offset = #vars.
      */
-    private RelativeAddress stackPointer;
+    private Address stackPointer;
 
     /**
      *  Maps node ids to the offset in the variable stack
@@ -53,7 +53,7 @@ public class BasicMemoryManager implements MemoryManager {
 
     @Override
     public Operand getArgument(int n) {
-        return new RelativeAddress((n + 3) * 8, getBasePointer());
+        return new Address((n + 3) * 8, getBasePointer());
     }
 
     private X86Register getBasePointer() {
@@ -61,7 +61,7 @@ public class BasicMemoryManager implements MemoryManager {
     }
 
     @Override
-    public Operand getLocalVariable(int id) {
+    public Operand getValue(int id) {
         int offset = variables.get(id);
         return basePointer.offset(offset);
     }

@@ -115,6 +115,8 @@ public class CompilerSetup {
             setAction(action);
         }
 
+
+
         if (options.compileFirm()) {
             Source src = getSourceFromArgs(options);
             FirmCompileAction action = new FirmCompileAction(src);

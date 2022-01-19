@@ -27,4 +27,9 @@ public class LabelOperand implements Operand {
     public Mode getMode() {
         return null;
     }
+
+    @Override
+    public void setMode(Mode mode) {
+
+    }
 }

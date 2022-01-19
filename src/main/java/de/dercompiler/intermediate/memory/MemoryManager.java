@@ -1,7 +1,10 @@
 package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operation.Operation;
 import firm.Entity;
+
+import java.util.function.Consumer;
 
 /**
  * This interface describes an object that acts as a layer between the code selection/generation and the actual memory.
@@ -27,17 +30,17 @@ public interface MemoryManager {
     Operand getArgument(int n);
 
     /**
-     * Returns the memory location of the local variable given by its id.
+     * Returns the memory location of the local value given by its id.
      * @param id the id of the local variable needed
      * @return the location of the local variable
      */
-    Operand getLocalVariable(int id);
+    Operand getValue(int id);
 
     /**
-     * Registers a new local variable.
-     * @return The id of the new variable
+     * Registers a new temporary value.
+     * @return The location of the new variable
      */
-    int putLocalVariable(Operand source);
+    Operand pushValue(Operand source);
 
     /**
      * Returns the target location of the return value.
@@ -76,4 +79,6 @@ public interface MemoryManager {
         -- LEAVE -- Set instruction pointer
 
      */
+
+    void setOutput(Consumer<Operation> output);
 }

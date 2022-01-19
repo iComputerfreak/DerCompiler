@@ -16,14 +16,8 @@ import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
-
-import firm.Dump;
-
-import firm.TargetValue;
-
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
-
 
 import java.util.HashMap;
 import java.util.List;

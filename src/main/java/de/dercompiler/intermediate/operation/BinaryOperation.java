@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
+
 import firm.Mode;
 
 public final class BinaryOperation implements Operation {

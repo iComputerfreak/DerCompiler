@@ -21,4 +21,9 @@ public class ConstantValue implements Operand {
     public Mode getMode() {
         return mode;
     }
+
+    @Override
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
 }
