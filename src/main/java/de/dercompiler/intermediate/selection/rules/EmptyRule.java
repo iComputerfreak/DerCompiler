@@ -30,4 +30,9 @@ public class EmptyRule extends SubstitutionRule {
     public List<Node> getRequiredNodes(Graph realGraph) {
         return new ArrayList<>();
     }
+
+    @Override
+    public boolean matches(Node inputNode) {
+        return true;
+    }
 }

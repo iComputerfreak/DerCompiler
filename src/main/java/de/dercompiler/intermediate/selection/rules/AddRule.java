@@ -51,6 +51,13 @@ public class AddRule extends SubstitutionRule {
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
+        // TODO
         return null;
+    }
+
+    @Override
+    public boolean matches(Node inputNode) {
+        // TODO
+        return false;
     }
 }
