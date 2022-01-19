@@ -31,7 +31,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
     }
     
     private final firm.Graph graph;
-    private final Map<Class<? extends Node>, List<SubstitutionRule<?>>> rules;
+    private final Map<Class<? extends Node>, List<SubstitutionRule>> rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
     private final Map<Integer, NodeAnnotation> annotations = new HashMap<>();
     private Mode mode = Mode.BLOCKS;
@@ -47,7 +47,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param graph The graph to create intermediate code for
      * @param rules The map of rules to apply, keyed by the class of the root node
      */
-    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule<?>>> rules) {
+    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
         this.graph = graph;
         this.rules = rules;
     }
@@ -111,7 +111,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         this.mode = Mode.CONSTRUCTION;
         graph.walkTopological(this);
 
-        GraphDumper.dumpNodeAnnotationGraph(nodeAnnotationGraph, graphName);
+        GraphDumper.dumpNodeAnnotationGraph(nodeAnnotationGraph, graphName, (Node n) -> annotations.get(n.getNr()));
 
         /* =========================================================== */
         /* 3. Transform the NodeAnnotation graph into a CodeNode graph */
@@ -130,7 +130,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         this.mode = Mode.LINEARIZATION;
         // We start with the vertices that have no inbound edges
         Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
-        List<CodeNode> linearizedCodeNodes = new LinkedList<>();
+        Map<Integer, List<CodeNode>> linearizedCodeNodes = new HashMap<>();
         while (codeGraphIterator.hasNext()) {
             CodeNode next = codeGraphIterator.next();
             linearizeNode(next);
@@ -138,14 +138,21 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             // TODO: Remove after real rules are implemented
             // Create a debug graph with the linearized nodes
             if (GraphDumper.dump_graph) {
-                linearizedCodeNodes.add(next);
+                int idx = next.getFirmBlock().getNr();
+                linearizedCodeNodes.computeIfAbsent(idx, k -> new LinkedList<>());
+                linearizedCodeNodes.get(idx).add(next);
             }
         }
         
         // TODO: Remove
         if (GraphDumper.dump_graph) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                    .debugPrint(String.join(", ",linearizedCodeNodes.stream().map(n -> Integer.toString(n.getId())).toList()));
+            for (int nr : linearizedCodeNodes.keySet()) {
+                new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
+                        .debugPrint("FirmBlock<" + nr + ">: " +
+                                // List of all node numbers
+                                String.join(", ", linearizedCodeNodes.get(nr).stream()
+                                .map(n -> Integer.toString(n.getId())).toList()));
+            }
         }
         
         return blocksGraph;
@@ -223,7 +230,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             return;
         }
         // We only look at rules that have a root node that matches our current node
-        for (SubstitutionRule<?> rule : rules.get(node.getClass())) {
+        for (SubstitutionRule rule : rules.get(node.getClass())) {
             // Check if rule matches the node and its predecessors
             if (rule.matches(node)) {
                 int cost = rule.getCost();
@@ -260,7 +267,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         assert a != null;
         // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
         if (a.getVisited()) return;
-        SubstitutionRule<?> rule = a.getRule();
+        SubstitutionRule rule = a.getRule();
         // Mark the annotations of all required nodes visited, since they will be covered by this rule
         for (Node n : rule.getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
@@ -317,8 +324,9 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         List<NodeAnnotation> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream()
                 .map(nodeAnnotationGraph::getEdgeSource).toList();
         // Apply the rule in this annotation
-        SubstitutionRule<?> rule = a.getRule();
-        List<Operation> ops = rule.substitute(a.getRootNode());
+        SubstitutionRule rule = a.getRule();
+        rule.setAnnotations(a, (Node n) -> annotations.get(n.getNr()));
+        List<Operation> ops = rule.substitute();
         
         // Create the node in the code graph
         int blockNr = a.getRootNode().getBlock().getNr();
@@ -344,6 +352,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         for (Node n : rule.getRequiredNodes(graph)) {
             annotations.get(n.getNr()).setTransformed(true);
         }
+        rule.clearAnnotations();
     }
 
     /**

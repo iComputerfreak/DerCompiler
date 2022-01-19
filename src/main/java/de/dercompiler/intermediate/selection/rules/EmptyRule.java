@@ -10,7 +10,7 @@ import firm.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmptyRule extends SubstitutionRule<Node> {
+public class EmptyRule extends SubstitutionRule {
     
     public EmptyRule(Node rootNode) {
         super(rootNode);
@@ -18,12 +18,11 @@ public class EmptyRule extends SubstitutionRule<Node> {
     
     @Override
     public int getCost() {
-        return 0;
+        return 1;
     }
     
     @Override
-    public List<Operation> substitute(Node node) {
-        /*Node node = */checkNode(node);
+    public List<Operation> substitute() {
         return List.of(new ConstantOperation(ConstantOperationType.NOP));
     }
     

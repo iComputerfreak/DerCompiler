@@ -42,10 +42,12 @@ public class GraphDumper {
         n = 0;
     }
 
-    public static <E> void dumpNodeAnnotationGraph(Graph<NodeAnnotation, E> graph, String name) {
+    public static <E> void dumpNodeAnnotationGraph(Graph<NodeAnnotation, E> graph, String name, Function<firm.nodes.Node, NodeAnnotation> annotationSupplier) {
         dumpJGraph(graph, "annotationGraph", name, v -> Integer.toString(v.getRootNode().getNr()), (v) -> {
-            SubstitutionRule<?> rule = v.getRule();
-            List<Operation> ops = rule.substitute(v.getRootNode());
+            SubstitutionRule rule = v.getRule();
+            rule.setAnnotations(v, annotationSupplier);
+            List<Operation> ops = rule.substitute();
+            rule.clearAnnotations();
             List<String> opStrings = ops.stream().map(o -> o.getOperationType().toString()).toList();
             String label = "Cost: " + v.getRule().getCost() + "\n" +
                     v.getRootNode().toString() +

@@ -1,35 +1,46 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.Cmp;
 import firm.nodes.Node;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Represents a rule that is used to replace one or multiple {@link firm.nodes.Node}s with a set of {@link Operation}s
  */
-public abstract class SubstitutionRule<T extends Node> {
+public abstract class SubstitutionRule {
 
-    private final T rootNode;
+    private final Node rootNode;
+    protected NodeAnnotation node;
+    protected Function<Node, NodeAnnotation> annotationSupplier;
 
     /**
      * Creates a new SubstitutionRule with the given rootNode
      * @param rootNode The root node for this rule, which is expected to have its necessary predecessors set
      */
-    public SubstitutionRule(T rootNode) {
+    public SubstitutionRule(Node rootNode) {
         this.rootNode = rootNode;
+    }
+    
+    // TODO: Use and add docs
+    public void setAnnotations(NodeAnnotation node, Function<Node, NodeAnnotation> annotationSupplier) {
+        this.node = node;
+        this.annotationSupplier = annotationSupplier;
+    }
+    
+    public void clearAnnotations() {
+        this.node = null;
+        this.annotationSupplier = null;
     }
 
     /**
      * Returns the root node of this rule
      */
-    public T getRootNode() {
+    public Node getRootNode() {
         return rootNode;
     }
 
@@ -41,31 +52,11 @@ public abstract class SubstitutionRule<T extends Node> {
 
     /**
      * Substitutes the given input node using this rule
-     * @param node The input node
      * @return The Operation that resulted in substituting the node and its predecessors according to this rule
      */
     // Overwritten in subclass
     // e.g. new BinaryOperation(ADD, graph.XXX.getLeft(), graph.XXX.getRight())
-    public abstract List<Operation> substitute(Node node);
-
-    /**
-     * Checks if the type of the given node matches the generic type of this rule.
-     * If the types don't match, the function throws an internal error.
-     * @param node The input node
-     * @return The node, cast to the type T
-     */
-    protected T checkNode(Node node) {
-        if (!node.getClass().equals(rootNode.getClass())) {
-            (new OutputMessageHandler(MessageOrigin.CODE_GENERATION))
-                    .internalError("SubstitutionRule " + this.getClass().getName() + " was called with the" +
-                            "wrong type of root node.\nExpected: " + rootNode.getClass().getName() +
-                            "\nActual: " + node.getClass().getName());
-            // We never return
-            return null;
-        }
-        // node and rootNode have the same class; the class of rootNode is T, so casting node to T will always work.
-        return (T) node;
-    }
+    public abstract List<Operation> substitute();
 
     /**
      * Returns all nodes other than the rootNode that are part of this rule, i.e. the root node's predecessors that this
@@ -77,12 +68,13 @@ public abstract class SubstitutionRule<T extends Node> {
     // Overwritten in subclass
     public abstract List<Node> getRequiredNodes(Graph realGraph);
     
+    // TODO: Doc
     public boolean matches(Node inputNode) {
-        return matches(rootNode, inputNode);
+        return matches(getRootNode(), inputNode);
     }
 
     /**
-     * Returns whether the given rule node matches the given input node
+     * Returns whether the given rule matches the given input node
      * @param ruleNode The rootNode of the rule
      * @param inputNode The input node that is expected to match the rootNode
      * @return Whether the given rootNode matches the given input node, including their predecessors

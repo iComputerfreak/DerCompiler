@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
+import de.dercompiler.intermediate.Operand;
 import firm.nodes.Node;
 
 /**
@@ -9,7 +10,8 @@ public class NodeAnnotation {
     
     private final int cost;
     private final Node rootNode;
-    private final SubstitutionRule<?> rule;
+    private final SubstitutionRule rule;
+    private Operand target = null;
     private boolean visited;
     private boolean transformed;
 
@@ -20,7 +22,7 @@ public class NodeAnnotation {
      * @param rule The substitution rule used to calculate the given cost
      * @param visited Whether the node has been visited already
      */
-    public NodeAnnotation(int cost, Node rootNode, SubstitutionRule<?> rule, boolean visited, boolean transformed) {
+    public NodeAnnotation(int cost, Node rootNode, SubstitutionRule rule, boolean visited, boolean transformed) {
         this.cost = cost;
         this.rootNode = rootNode;
         this.rule = rule;
@@ -34,7 +36,7 @@ public class NodeAnnotation {
      * @param rootNode The bottom-most node which will be replaced
      * @param rule The substitution rule used to calculate the given cost
      */
-    public NodeAnnotation(int cost, Node rootNode, SubstitutionRule<?> rule) {
+    public NodeAnnotation(int cost, Node rootNode, SubstitutionRule rule) {
         this(cost, rootNode, rule, false, false);
     }
 
@@ -56,8 +58,17 @@ public class NodeAnnotation {
     /**
      * Returns the substitution rule used
      */
-    public SubstitutionRule<?> getRule() {
+    public SubstitutionRule getRule() {
         return rule;
+    }
+
+    // TODO: Doc
+    public Operand getTarget() {
+        return target;
+    }
+
+    public void setTarget(Operand target) {
+        this.target = target;
     }
 
     /**
