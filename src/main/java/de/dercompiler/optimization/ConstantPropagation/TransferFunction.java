@@ -10,8 +10,8 @@ import java.util.Objects;
 
 public class TransferFunction implements ITransferFunction {
     
-    private static final TargetValue UNKNOWN = TargetValue.getUnknown(); // Bottom
-    private static final TargetValue BAD = TargetValue.getBad();         // Top
+    private static final TargetValue UNKNOWN = Worklist.UNKNOWN; // Bottom
+    private static final TargetValue BAD = Worklist.BAD;         // Top
 
     private HashMap<Node, TargetValue> targetValues;
 
@@ -139,8 +139,10 @@ public class TransferFunction implements ITransferFunction {
     public TargetValue getTargetValue(Div node) {
         TargetValue left = getInternal(node.getLeft());
         TargetValue right = getInternal(node.getRight());
+
         return Objects.requireNonNullElse(checkBinOp(left, right),
-                left.div(right));
+        //        left.div(right));
+                new TargetValue(left.asInt() / right.asInt(), left.getMode()));
     }
 
     @Override
@@ -164,14 +166,7 @@ public class TransferFunction implements ITransferFunction {
             } else if (!areEqual(pred, UNKNOWN) && !areEqual(actual, pred)){
                 actual = BAD;
             }
-            /*
-            if (areEqual(actual, UNKNOWN)){
-                actual = getInternal(pred);
-            } else if (areEqual(actual, BAD) || areEqual(pred, BAD)) {
-                actual = BAD;
-            } else if (!areEqual(pred, UNKNOWN) && !areEqual(actual, pred)){
-               actual = BAD;
-            }*/
+          
         }
 
         return actual;
