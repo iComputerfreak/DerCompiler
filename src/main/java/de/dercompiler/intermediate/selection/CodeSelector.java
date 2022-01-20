@@ -226,7 +226,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             // TODO: When all rules are specified this should not happen anymore!
             //  Every node needs at least one rule
             // Dummy annotation:
-            annotations.put(node.getNr(), new NodeAnnotation(0, node, new EmptyRule(node)));
+            annotations.put(node.getNr(), new NodeAnnotation(0, node, new EmptyRule()));
             return;
         }
         // We only look at rules that have a root node that matches our current node
