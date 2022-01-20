@@ -53,7 +53,8 @@ public class ArrayNode extends ReferenceNode {
         FieldDefinition def = ct.getField(fieldName);
         Type fieldType = def.getReferenceType();
         Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), def.getNode().getMangledIdentifier());
-        Node member = state.construction.newMember(ref , field);
+        if (!isPrepared(NodeAccess.ARRAY_ACCESS)) prepareAccessArray(state);
+        Node member = state.construction.newMember(getPreparedNode(NodeAccess.ARRAY_ACCESS), field);
         return new FieldNode(member, fieldType);
     }
 
