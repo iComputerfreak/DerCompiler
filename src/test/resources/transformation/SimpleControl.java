@@ -112,7 +112,7 @@ class foo {
 		}
 		return c;
 	}
-    */
+    
     public boolean state_one() {
         boolean b = false == true != true == false || false && false || false == false != true && true != false;
         return b;
@@ -185,5 +185,25 @@ class foo {
         } else {
             System.out.println(0);
         }
+    }
+    */
+    public static void main(String[] args) {
+        int[] a = new int[5];
+        int[] b = new int[10];
+
+        int i = 0;
+        while (i < 5) {
+            a[i] = i;
+            b[i] = i;
+            i = i + 1;
+        }
+        b[3] = 2;
+        b[2] = 0;
+        a[0] = 5;
+        System.out.println(a[(a = b)[a[3]]]);
+
+        int x = 1;
+        int y = 2;
+        System.out.println(x * (x = 3) * y * (y = x));
     }
 }
