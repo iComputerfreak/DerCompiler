@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import static de.dercompiler.lexer.token.OperatorToken.GREATER_THAN_EQUAL;
 
-public final class GreaterEqualExpression extends BinaryExpression {
+public final class GreaterEqualExpression extends ComparisonExpression {
     public GreaterEqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
@@ -34,12 +34,6 @@ public final class GreaterEqualExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        state.pushExpectValue();
-        createChildNodes(state);
-        state.popExpect();
-
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.GreaterEqual, getType());
-        clearChildNodes(state);
-        return res;
+        return TransformationHelper.createComparator(state,this, Relation.GreaterEqual, getType());
     }
 }

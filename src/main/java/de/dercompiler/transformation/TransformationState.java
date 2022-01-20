@@ -21,8 +21,6 @@ public class TransformationState {
     public Construction construction;
     public Graph graph;
     public final GlobalScope globalScope;
-    public ReferenceNode lhs;
-    public ReferenceNode rhs;
     public ReferenceNode res;
     public Type currentClass;
 
