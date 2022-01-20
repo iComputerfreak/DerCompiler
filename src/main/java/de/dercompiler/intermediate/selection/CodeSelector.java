@@ -89,8 +89,6 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
          * symposium on Principles of programming languages. ACM Press, 1999, S. 242–249.
          */
         
-        // TODO: Reihenfolge Phis
-        
         // Remove the "Graph " prefix
         String graphName = graph.toString().substring(6);
         
@@ -128,8 +126,22 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* 3. Linearize the graph by concatenating subsequent nodes */
         /* ======================================================== */
         this.mode = Mode.LINEARIZATION;
-        // We start with the vertices that have no inbound edges
+        
+        // Before we go over the nodes in topological order, we have to remove all edges that span between blocks
+        // Since we already transformed the nodes to code, we don't need the edges anymore
+        List<DefaultEdge> edgesToRemove = codeGraph
+                .edgeSet()
+                .stream()
+                .filter(e -> codeGraph.getEdgeSource(e).getFirmBlock().getNr() !=
+                        codeGraph.getEdgeTarget(e).getFirmBlock().getNr())
+                .toList();
+        for (DefaultEdge e : edgesToRemove) {
+            codeGraph.removeEdge(e);
+        }
+        
+        // Do the linearization of the codeGraph
         Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
+        // TODO: Remove after real rules are implemented
         Map<Integer, List<CodeNode>> linearizedCodeNodes = new HashMap<>();
         while (codeGraphIterator.hasNext()) {
             CodeNode next = codeGraphIterator.next();
@@ -144,7 +156,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             }
         }
         
-        // TODO: Remove
+        // TODO: Remove after real rules are implemented
         if (GraphDumper.dump_graph) {
             for (int nr : linearizedCodeNodes.keySet()) {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
@@ -361,7 +373,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param node The CodeNode to linearize
      */
     private void linearizeNode(CodeNode node) {
-        node.getFirmBlock().addOperations(node.getOperations());
+        if (node.isPhi()) {
+            node.getFirmBlock().addPhi(node);
+        } else {
+            node.getFirmBlock().addOperations(node.getOperations());
+        }
     }
 
     private void visitAny(Node node) {
