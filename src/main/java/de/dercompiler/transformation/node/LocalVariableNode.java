@@ -38,7 +38,11 @@ public class LocalVariableNode extends ReferenceNode {
         return this;
     }
 
-
+    @Override
+    public ReferenceNode prepareAccessArray(TransformationState state) {
+        ArrayType at = getTypeAsArray();
+        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).prepareAccessArray(state);
+    }
 
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
