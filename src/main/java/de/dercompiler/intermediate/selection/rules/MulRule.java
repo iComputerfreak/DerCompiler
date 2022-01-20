@@ -46,6 +46,7 @@ public class MulRule extends SubstitutionRule {
     @Override
     public List<Operation> substitute() {
         Operation mul = new BinaryOperation(BinaryOperationType.MUL, getLeft().getTarget(), getRight().getTarget());
+        mul.setMode(getRootNode().getMode());
         return List.of(mul);
     }
 

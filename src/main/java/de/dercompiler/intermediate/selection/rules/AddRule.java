@@ -24,7 +24,7 @@ public class AddRule extends SubstitutionRule {
         return 1 + getLeft().getCost() + getRight().getCost();
     }
 
-    private Add getAdd() {
+    Add getAdd() {
         if (node.getRootNode() instanceof Add add) {
             return add;
         }
@@ -34,17 +34,18 @@ public class AddRule extends SubstitutionRule {
         throw new RuntimeException();
     }
     
-    private NodeAnnotation getLeft() {
+    NodeAnnotation getLeft() {
         return annotationSupplier.apply(getAdd().getLeft());
     }
 
-    private NodeAnnotation getRight() {
+    NodeAnnotation getRight() {
         return annotationSupplier.apply(getAdd().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
         Operation add = new BinaryOperation(BinaryOperationType.ADD, getLeft().getTarget(), getRight().getTarget());
+        add.setMode(getRootNode().getMode());
         return List.of(add);
     }
 

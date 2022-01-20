@@ -39,6 +39,7 @@ public class MinusRule extends SubstitutionRule {
     @Override
     public List<Operation> substitute() {
         Operation minus = new UnaryOperation(UnaryOperationType.NEG, getOperator().getTarget());
+        minus.setMode(getRootNode().getMode());
         return List.of(minus);
     }
 

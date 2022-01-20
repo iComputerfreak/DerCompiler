@@ -46,6 +46,7 @@ public class SubRule extends SubstitutionRule {
     @Override
     public List<Operation> substitute() {
         Operation sub = new BinaryOperation(BinaryOperationType.SUB, getLeft().getTarget(), getRight().getTarget());
+        sub.setMode(getRootNode().getMode());
         return List.of(sub);
     }
 

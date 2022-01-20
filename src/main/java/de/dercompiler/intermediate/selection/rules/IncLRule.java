@@ -42,6 +42,7 @@ public class IncLRule extends SubstitutionRule {
     @Override
     public List<Operation> substitute() {
         Operation inc = new UnaryOperation(UnaryOperationType.INC, getOperator().getTarget());
+        inc.setMode(getRootNode().getMode());
         return List.of(inc);
     }
 
