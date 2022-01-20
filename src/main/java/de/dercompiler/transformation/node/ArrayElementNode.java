@@ -47,7 +47,7 @@ public class ArrayElementNode extends ReferenceNode {
     @Override
     public ReferenceNode prepareAccessArray(TransformationState state) {
         ArrayType at = getTypeAsArray();
-        return new ArrayNode(genLoad(state), at, at.getDimension()).prepareAccessArray(state);
+        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).prepareAccessArray(state);
     }
 
     @Override
