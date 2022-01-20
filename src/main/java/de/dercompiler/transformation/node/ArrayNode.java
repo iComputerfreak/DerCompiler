@@ -22,16 +22,17 @@ public class ArrayNode extends ReferenceNode {
         this.dim = dimension;
     }
 
-    @Override
-    public Node genLoad(TransformationState state) {
-        return ref;
-    }
-
 
     @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
-        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("ArrayNode is a r-Value");
+        new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("store not possible, ArrayNode is a r-Value");
         return null; //we never return
+    }
+
+    @Override
+    public ReferenceNode prepareLoad(TransformationState state) {
+        prepareNode(ref, NodeAccess.LOAD);
+        return this;
     }
 
     @Override
@@ -54,6 +55,15 @@ public class ArrayNode extends ReferenceNode {
         Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), def.getNode().getMangledIdentifier());
         Node member = state.construction.newMember(ref , field);
         return new FieldNode(member, fieldType);
+    }
+
+    @Override
+    public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
+        if (!isElement()) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("invalid MethodCall on Array of Dimension: " + dim);
+        }
+        ClassType ct = getTypeAsClass();
+        return new ObjectNode(ref, ct).prepareGetObjectCallBase(state);
     }
 
     @Override

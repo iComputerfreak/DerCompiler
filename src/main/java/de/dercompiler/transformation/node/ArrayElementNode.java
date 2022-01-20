@@ -15,14 +15,15 @@ public class ArrayElementNode extends ReferenceNode {
     }
 
     @Override
-    public Node genLoad(TransformationState state) {
-        return TransformationHelper.genLoad(state, ref, type.getFirmTransformationType().getMode());
-    }
-
-    @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
         TransformationHelper.genStore(state, ref, value.genLoad(state), value.getType().getFirmTransformationType());
         return value;
+    }
+
+    @Override
+    public ReferenceNode prepareLoad(TransformationState state) {
+        prepareNode(TransformationHelper.genLoad(state, ref, type.getFirmTransformationType().getMode()), NodeAccess.LOAD);
+        return this;
     }
 
     @Override
@@ -35,6 +36,18 @@ public class ArrayElementNode extends ReferenceNode {
     public ReferenceNode accessField(TransformationState state, String fieldName) {
         ClassType ct = getTypeAsClass();
         return new ObjectNode(ref, ct).accessField(state, fieldName);
+    }
+
+    @Override
+    public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
+        prepareNode(ref, NodeAccess.METHOD_CALL_BASE);
+        return this;
+    }
+
+    @Override
+    public ReferenceNode prepareAccessArray(TransformationState state) {
+        ArrayType at = getTypeAsArray();
+        return new ArrayNode(genLoad(state), at, at.getDimension()).prepareAccessArray(state);
     }
 
     @Override

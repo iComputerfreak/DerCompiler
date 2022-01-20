@@ -14,20 +14,25 @@ public class RValueNode extends ReferenceNode {
     }
 
     @Override
-    public Node genLoad(TransformationState state) {
-        return ref;
-    }
-
-    @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
         new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("can't store value in r-value");
         return null;
     }
 
     @Override
+    public ReferenceNode prepareLoad(TransformationState state) {
+        prepareNode(ref, NodeAccess.LOAD);
+        return this;
+    }
+
+    @Override
+    public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
+        return new ObjectNode(ref, getTypeAsClass()).prepareGetObjectCallBase(state);
+    }
+
+    @Override
     public ObjectNode getObjectCallBase(TransformationState state) {
-        ClassType ct = getTypeAsClass();
-        return new ObjectNode(ref, ct);
+        return new ObjectNode(ref, getTypeAsClass());
     }
 
     @Override

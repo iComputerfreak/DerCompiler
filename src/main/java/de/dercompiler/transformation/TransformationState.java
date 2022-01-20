@@ -98,7 +98,7 @@ public class TransformationState {
         if (blockStack.size() != 0 && blockStack.peek() != construction.getCurrentBlock()) {
             construction.setCurrentBlock(blockStack.pop());
         } else {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).printWarning(TransjormationWarrningIds.STACK_EMPTY, "Empty blockStack!");
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).printWarning(TransformationWarrningIds.STACK_EMPTY, "Empty blockStack!");
         }
     }
 
