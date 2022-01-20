@@ -46,7 +46,6 @@ public final class ArrayAccess extends PostfixExpression {
     public ReferenceNode createNode(TransformationState state) {
         ReferenceNode base_ptr = getEncapsulated().createNode(state).prepareAccessArray(state);
 
-        base_ptr = base_ptr.prepareAccessArray(state);
         int type_size_const = base_ptr.getType().getFirmType().getSize();
         Node type_size = state.construction.newConst(type_size_const, Mode.getIu());
         ReferenceNode elements = index.createNode(state);
