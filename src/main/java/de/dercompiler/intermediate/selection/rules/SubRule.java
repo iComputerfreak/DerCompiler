@@ -8,17 +8,12 @@ import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
-import firm.nodes.Add;
 import firm.nodes.Node;
 import firm.nodes.Sub;
 
 import java.util.List;
 
 public class SubRule extends SubstitutionRule {
-
-    public SubRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {
@@ -58,6 +53,6 @@ public class SubRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Sub node matches
-        return true;
+        return inputNode instanceof Sub;
     }
 }

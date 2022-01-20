@@ -15,10 +15,6 @@ import firm.nodes.Node;
 import java.util.List;
 
 public class IncLRule extends SubstitutionRule {
-    
-    public IncLRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {

@@ -12,10 +12,6 @@ import java.util.List;
 
 public class EmptyRule extends SubstitutionRule {
     
-    public EmptyRule(Node rootNode) {
-        super(rootNode);
-    }
-    
     @Override
     public int getCost() {
         return 1;

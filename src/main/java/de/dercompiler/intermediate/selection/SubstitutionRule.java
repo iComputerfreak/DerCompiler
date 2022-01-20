@@ -13,18 +13,14 @@ import java.util.function.Function;
  * Represents a rule that is used to replace one or multiple {@link firm.nodes.Node}s with a set of {@link Operation}s
  */
 public abstract class SubstitutionRule {
-
-    private final Node rootNode;
+    
     protected NodeAnnotation node;
     protected Function<Node, NodeAnnotation> annotationSupplier;
 
     /**
      * Creates a new SubstitutionRule with the given rootNode
-     * @param rootNode The root node for this rule, which is expected to have its necessary predecessors set
      */
-    public SubstitutionRule(Node rootNode) {
-        this.rootNode = rootNode;
-    }
+    public SubstitutionRule() {}
 
     /**
      * Sets the NodeAnnotations for the root node and the other required nodes of this rule
@@ -53,7 +49,7 @@ public abstract class SubstitutionRule {
      * Returns the root node of this rule
      */
     public Node getRootNode() {
-        return rootNode;
+        return node.getRootNode();
     }
 
     /**

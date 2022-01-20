@@ -1,6 +1,8 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operation.*;
+import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.operation.UnaryOperation;
+import de.dercompiler.intermediate.operation.UnaryOperationType;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
@@ -12,10 +14,6 @@ import firm.nodes.Node;
 import java.util.List;
 
 public class MinusRule extends SubstitutionRule {
-    
-    public MinusRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {
@@ -51,6 +49,6 @@ public class MinusRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Minus node matches
-        return true;
+        return inputNode instanceof Minus;
     }
 }

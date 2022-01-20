@@ -15,10 +15,6 @@ import java.util.List;
 
 public class ShlRule extends SubstitutionRule {
 
-    public ShlRule(Node rootNode) {
-        super(rootNode);
-    }
-
     @Override
     public int getCost() {
         return 1 + getLeft().getCost() + getRight().getCost();
@@ -56,6 +52,6 @@ public class ShlRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Shl node matches
-        return true;
+        return inputNode instanceof Shl;
     }
 }

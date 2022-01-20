@@ -11,15 +11,10 @@ import firm.Graph;
 import firm.Mode;
 import firm.nodes.Eor;
 import firm.nodes.Node;
-import firm.nodes.Eor;
 
 import java.util.List;
 
 public class EorRule extends SubstitutionRule {
-
-    public EorRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {
@@ -59,6 +54,6 @@ public class EorRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Eor node matches
-        return true;
+        return inputNode instanceof Eor;
     }
 }

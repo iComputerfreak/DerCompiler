@@ -8,17 +8,13 @@ import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
-import firm.nodes.Shr;
 import firm.nodes.Node;
+import firm.nodes.Shr;
 
 import java.util.List;
 
 public class ShrRule extends SubstitutionRule {
     
-    public ShrRule(Node rootNode) {
-        super(rootNode);
-    }
-
     @Override
     public int getCost() {
         return 1 + getLeft().getCost() + getRight().getCost();
@@ -56,6 +52,6 @@ public class ShrRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Shr node matches
-        return true;
+        return inputNode instanceof Shr;
     }
 }

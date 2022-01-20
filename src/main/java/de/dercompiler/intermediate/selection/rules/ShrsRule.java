@@ -9,16 +9,11 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.Node;
-import firm.nodes.Shr;
 import firm.nodes.Shrs;
 
 import java.util.List;
 
 public class ShrsRule extends SubstitutionRule {
-
-    public ShrsRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {
@@ -57,6 +52,6 @@ public class ShrsRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Shrs node matches
-        return true;
+        return inputNode instanceof Shrs;
     }
 }

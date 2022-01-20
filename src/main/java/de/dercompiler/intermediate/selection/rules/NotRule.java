@@ -9,17 +9,13 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.Mode;
-import firm.nodes.Not;
 import firm.nodes.Node;
+import firm.nodes.Not;
 
 import java.util.List;
 
 public class NotRule extends SubstitutionRule {
     
-    public NotRule(Node rootNode) {
-        super(rootNode);
-    }
-
     @Override
     public int getCost() {
         return 1 + getOperator().getCost();
@@ -54,6 +50,6 @@ public class NotRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Not node matches
-        return true;
+        return inputNode instanceof Not;
     }
 }

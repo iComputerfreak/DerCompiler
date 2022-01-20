@@ -16,10 +16,6 @@ import java.util.List;
 
 public class IncRRule extends SubstitutionRule {
 
-    public IncRRule(Node rootNode) {
-        super(rootNode);
-    }
-
     @Override
     public int getCost() {
         return 1 + getOperator().getCost();

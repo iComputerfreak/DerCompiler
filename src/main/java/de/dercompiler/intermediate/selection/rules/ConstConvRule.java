@@ -4,7 +4,6 @@ import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
-
 import firm.nodes.Const;
 import firm.nodes.Conv;
 import firm.nodes.Node;
@@ -12,10 +11,6 @@ import firm.nodes.Node;
 import java.util.List;
 
 public class ConstConvRule extends SubstitutionRule {
-
-    public ConstConvRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {

@@ -14,10 +14,6 @@ import firm.nodes.Node;
 import java.util.List;
 
 public class AddRule extends SubstitutionRule {
-    
-    public AddRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {
@@ -57,6 +53,6 @@ public class AddRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // any Add node matches
-        return true;
+        return inputNode instanceof Add;
     }
 }

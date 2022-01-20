@@ -10,15 +10,10 @@ import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.Mul;
 import firm.nodes.Node;
-import firm.nodes.Sub;
 
 import java.util.List;
 
 public class MulRule extends SubstitutionRule {
-
-    public MulRule(Node rootNode) {
-        super(rootNode);
-    }
 
     @Override
     public int getCost() {
@@ -58,6 +53,6 @@ public class MulRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Mul node matches
-        return true;
+        return inputNode instanceof Mul;
     }
 }

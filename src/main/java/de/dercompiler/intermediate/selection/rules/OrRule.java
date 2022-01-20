@@ -9,17 +9,13 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.Mode;
-import firm.nodes.Or;
 import firm.nodes.Node;
+import firm.nodes.Or;
 
 import java.util.List;
 
 public class OrRule extends SubstitutionRule {
     
-    public OrRule(Node rootNode) {
-        super(rootNode);
-    }
-
     @Override
     public int getCost() {
         return 1 + getLeft().getCost() + getRight().getCost();
@@ -58,6 +54,6 @@ public class OrRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         // Any Or node matches
-        return true;
+        return inputNode instanceof Or;
     }
 }
