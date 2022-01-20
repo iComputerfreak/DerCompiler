@@ -73,7 +73,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * 
      * @return The linear list of operations
      */
-    public Graph<FirmBlock, DefaultWeightedEdge> generateCode() {
+    public BasicBlockGraph generateCode() {
         /*
          * ANNOTATE THE GRAPH
          * - Walk the DAG from the leaves (e.g. constants) to the roots (e.g. add) (Graph::walkPostorder)
@@ -154,8 +154,8 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                                 .map(n -> Integer.toString(n.getId())).toList()));
             }
         }
-        
-        return blocksGraph;
+        // TODO: is getEntity().getName() the method name?
+        return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
     }
 
     @Override

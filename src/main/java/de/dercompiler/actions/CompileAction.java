@@ -1,8 +1,8 @@
 package de.dercompiler.actions;
 
 import de.dercompiler.ast.Program;
+import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
-import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
@@ -16,8 +16,6 @@ import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.HashMap;
 import java.util.List;
@@ -69,8 +67,8 @@ public class CompileAction extends Action {
             
 
             CodeSelector selector = new CodeSelector(graph, new HashMap<>());
-            Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = selector.generateCode();
-            GraphDumper.dumpBlocksGraph(blocksGraph, graph.toString().substring(6) + "-finalBlocks");
+            BasicBlockGraph blocksGraph = selector.generateCode();
+            GraphDumper.dumpBlocksGraph(blocksGraph.getGraph(), graph.toString().substring(6) + "-finalBlocks");
 
         }
         

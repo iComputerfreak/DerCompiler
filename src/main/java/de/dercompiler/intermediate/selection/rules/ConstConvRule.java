@@ -20,7 +20,7 @@ public class ConstConvRule extends SubstitutionRule {
     @Override
     public List<Operation> substitute() {
         // save as constant operand, no operations
-        annotationSupplier.apply(getRootNode()).setTarget(new Address(getConst().getTarval().asInt(), null));
+        node.setTarget(new Address(getConst().getTarval().asInt(), null));
         return List.of();
     }
 
@@ -42,6 +42,6 @@ public class ConstConvRule extends SubstitutionRule {
     @Override
     public boolean matches(Node inputNode) {
         return inputNode instanceof Conv conv
-                && conv.getOp() instanceof Const constant;
+                && conv.getOp() instanceof Const;
     }
 }
