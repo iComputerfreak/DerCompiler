@@ -66,6 +66,7 @@ public class CompileAction extends Action {
             Worklist.run(new TransferFunction(),graph);
             
 
+            // TODO: Replace HashMap with `RuleSet.getRules()` when ready
             CodeSelector selector = new CodeSelector(graph, new HashMap<>());
             BasicBlockGraph blocksGraph = selector.generateCode();
             GraphDumper.dumpBlocksGraph(blocksGraph.getGraph(), graph.toString().substring(6) + "-finalBlocks");

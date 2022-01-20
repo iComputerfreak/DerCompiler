@@ -15,11 +15,13 @@ public class CodeNode {
     private final int id;
     private final FirmBlock firmBlock;
     private final List<Operation> operations;
+    private final boolean isPhi;
 
-    public CodeNode(List<Operation> operations, FirmBlock block) {
+    public CodeNode(List<Operation> operations, FirmBlock block, boolean isPhi) {
         this.id = CodeNode.nextID();
         this.operations = operations;
         this.firmBlock = block;
+        this.isPhi = isPhi;
     }
 
     public int getId() {
@@ -32,5 +34,9 @@ public class CodeNode {
 
     public List<Operation> getOperations() {
         return operations;
+    }
+    
+    public boolean isPhi() {
+        return isPhi;
     }
 }

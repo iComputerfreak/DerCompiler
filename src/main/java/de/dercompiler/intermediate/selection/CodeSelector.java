@@ -154,6 +154,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                                 .map(n -> Integer.toString(n.getId())).toList()));
             }
         }
+        
         // TODO: is getEntity().getName() the method name?
         return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
     }
@@ -330,7 +331,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         
         // Create the node in the code graph
         int blockNr = a.getRootNode().getBlock().getNr();
-        CodeNode codeNode = new CodeNode(ops, firmBlocks.get(blockNr));
+        CodeNode codeNode = new CodeNode(ops, firmBlocks.get(blockNr), rule.getRootNode() instanceof Phi);
         codeGraph.addVertex(codeNode);
         // Keep a map of the node ids for lookup
         codeGraphLookup.put(a.getRootNode().getNr(), codeNode);

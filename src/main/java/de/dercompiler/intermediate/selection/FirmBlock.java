@@ -10,6 +10,7 @@ public class FirmBlock {
     
     private final int nr;
     private boolean visited;
+    private final List<CodeNode> phis = new LinkedList<>();
     private final List<Operation> operations = new LinkedList<>();
 
     public FirmBlock(int nr) {
@@ -31,6 +32,14 @@ public class FirmBlock {
     
     public void addOperations(List<Operation> ops) {
         this.operations.addAll(ops);
+    }
+
+    public List<CodeNode> getPhis() {
+        return phis;
+    }
+
+    public void addPhi(CodeNode phi) {
+        this.phis.add(phi);
     }
 
     public boolean getVisited() {
