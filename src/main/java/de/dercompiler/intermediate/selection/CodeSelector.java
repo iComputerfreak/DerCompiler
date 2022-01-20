@@ -51,6 +51,13 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         this.graph = graph;
         this.rules = rules;
     }
+    
+    /**
+     * Returns the next free ID to be used for the intermediate blocks in the FirmBlock graph
+     */
+    private int nextIntermediateID() {
+        return nextIntermediateID--;
+    }
 
     /**
      * Generates intermediate code for the Graph that was given when creating this class
@@ -129,15 +136,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         
         // Before we go over the nodes in topological order, we have to remove all edges that span between blocks
         // Since we already transformed the nodes to code, we don't need the edges anymore
-        List<DefaultEdge> edgesToRemove = codeGraph
-                .edgeSet()
+        codeGraph.edgeSet()
                 .stream()
                 .filter(e -> codeGraph.getEdgeSource(e).getFirmBlock().getNr() !=
                         codeGraph.getEdgeTarget(e).getFirmBlock().getNr())
-                .toList();
-        for (DefaultEdge e : edgesToRemove) {
-            codeGraph.removeEdge(e);
-        }
+                .forEach(codeGraph::removeEdge);
         
         // Do the linearization of the codeGraph
         Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
@@ -171,6 +174,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
     }
 
+    /**
+     * Visits the given block, creating a new FirmBlock for it and adding it to the FirmBlock graph,
+     * keeping the existing dependencies
+     * @param block The firm.nodes.Block to visit
+     */
     @Override
     public void visitBlock(Block block) {
         FirmBlock fBlock = getOrCreateFirmBlock(block);
@@ -211,11 +219,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             }
         }
     }
-    
-    private int nextIntermediateID() {
-        return nextIntermediateID--;
-    }
-    
+
+    /**
+     * Returns or creates the FirmBlock for the given firm.nodes.Block and puts it into the global map firmBlocks
+     * @param block The block to transform into a FirmBlock
+     */
     private FirmBlock getOrCreateFirmBlock(Block block) {
         if (!firmBlocks.containsKey(block.getNr())) {
             firmBlocks.put(block.getNr(), new FirmBlock(block));
@@ -226,7 +234,6 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
     /**
      * Creates a NodeAnnotation for the given node in the internal map.
      * Also calculates the optimal rule for transforming the given node.
-     * 
      * @param node The firm Node for which to create the annotation
      */
     private void annotateNode(Node node) {
@@ -385,7 +392,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         switch (mode) {
             case ANNOTATION -> annotateNode(node);
             case CONSTRUCTION -> constructNode(node);
-            default -> logger.internalError("Walking the graph using an unknown mode '" + mode.name() + "'");
+            default -> logger.internalError("Walking the firm graph using an unknown mode '" + mode.name() + "'");
         }
     }
 
