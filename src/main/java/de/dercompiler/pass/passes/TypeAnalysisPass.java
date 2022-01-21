@@ -288,9 +288,9 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
         Expression expr = negativeExpression.getEncapsulated();
 
         if (expr instanceof IntegerValue intValue) {
-            intValue.setNegative(!negativeExpression.isNegative());
+            intValue.setNegative(true);
         } else if (expr instanceof NegativeExpression negValue) {
-            negValue.setNegative(!negativeExpression.isNegative());
+            negValue.setNegative(true);
         }
 
         expr.accept(this);

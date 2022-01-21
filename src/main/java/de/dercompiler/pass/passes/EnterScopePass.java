@@ -43,8 +43,8 @@ public class EnterScopePass implements ClassPass, MethodPass, BasicBlockPass {
 
     @Override
     public AnalysisUsage getAnalysisUsage(AnalysisUsage usage) {
-        usage.requireAnalysis(MemberDeclarationPass.class);
-        usage.setDependency(DependencyType.RUN_IN_NEXT_STEP);
+        usage.requireAnalysis(GlobalsPass.class);
+        usage.setDependency(DependencyType.RUN_DIRECTLY_AFTER);
         return usage;
     }
 

@@ -13,7 +13,7 @@ import java.util.Objects;
 public final class NegativeExpression extends UnaryExpression {
 
     /**
-     * True if an odd number of NegativeExpressions surround this NegativeExpression, which in turn would make its content positive.
+     * True if this expression is encapsulated in a NegativeExpression (ignoring _how many_ NegativeExpressions there may be around it)
      */
     private boolean negative;
 

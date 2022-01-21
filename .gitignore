@@ -190,4 +190,6 @@ gradle-app.setting
 *.obj
 *.c
 *.exe
+
+test/resources
 *.out
