@@ -3,6 +3,7 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.lexer.token.OperatorToken;
+import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.transformation.node.RValueNode;
@@ -46,10 +47,10 @@ public final class ModuloExpression extends BinaryExpression {
         ReferenceNode rhs = createRhs(state);
         Node rhs_raw = rhs.genLoad(state);
 
-        Node div = state.construction.newMod(mem, lhs_raw, rhs_raw, binding_ircons.op_pin_state.op_pin_state_pinned);
+        Node div = state.construction.newMod(mem, state.construction.newConv(lhs_raw, FirmTypes.offsetType.getMode()), state.construction.newConv(rhs_raw, FirmTypes.offsetType.getMode()), binding_ircons.op_pin_state.op_pin_state_pinned);
 
-        Mode mode = TransformationHelper.unifyMode(lhs.getMode(), rhs.getMode());
+        Mode resMode = TransformationHelper.unifyMode(lhs.getMode(), rhs.getMode());
         state.construction.setCurrentMem(state.construction.newProj(div, Mode.getM(), Div.pnM));
-        return new RValueNode(state.construction.newProj(div, mode, Div.pnRes), getType());
+        return new RValueNode(state.construction.newConv(state.construction.newProj(div, FirmTypes.offsetType.getMode(), Div.pnRes), resMode), getType());
     }
 }
