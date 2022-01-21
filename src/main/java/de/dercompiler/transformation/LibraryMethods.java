@@ -23,7 +23,7 @@ public class LibraryMethods {
         read_int = new Entity(OWNER, "read_int", new MethodType(new Type[]{}, new Type[]{FirmTypes.intFirmType}));
         flush_out = new Entity(OWNER, "flush_out", new MethodType(new Type[]{}, new Type[]{}));
 
-        allocate = new Entity(OWNER, "allocate", new MethodType(new Type[]{FirmTypes.offsetType, FirmTypes.offsetType}, new Type[]{FirmTypes.pointerFirmType}));
+        allocate = new Entity(OWNER, "allocate", new MethodType(new Type[]{FirmTypes.longFirmType, FirmTypes.longFirmType}, new Type[]{FirmTypes.pointerFirmType}));
 
         map = new HashMap<>(5);
         map.put("println", print_int);

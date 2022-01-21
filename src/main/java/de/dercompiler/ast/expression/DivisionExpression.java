@@ -47,9 +47,9 @@ public final class DivisionExpression extends BinaryExpression {
         ReferenceNode rhs = createRhs(state);
         Node rhs_raw = rhs.genLoad(state);
 
-        Node div = state.construction.newDiv(mem, state.construction.newConv(lhs_raw, FirmTypes.offsetType.getMode()), state.construction.newConv(rhs_raw, FirmTypes.offsetType.getMode()), binding_ircons.op_pin_state.op_pin_state_pinned);
+        Node div = state.construction.newDiv(mem, state.construction.newConv(lhs_raw, FirmTypes.longFirmType.getMode()), state.construction.newConv(rhs_raw, FirmTypes.longFirmType.getMode()), binding_ircons.op_pin_state.op_pin_state_pinned);
         Mode resMode = TransformationHelper.unifyMode(lhs.getMode(), rhs.getMode());
         state.construction.setCurrentMem(state.construction.newProj(div, Mode.getM(), Div.pnM));
-        return new RValueNode(state.construction.newConv(state.construction.newProj(div, FirmTypes.offsetType.getMode(), Div.pnRes), resMode), getType());
+        return new RValueNode(state.construction.newConv(state.construction.newProj(div, FirmTypes.longFirmType.getMode(), Div.pnRes), resMode), getType());
     }
 }

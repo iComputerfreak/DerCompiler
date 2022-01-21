@@ -1,9 +1,6 @@
 package de.dercompiler.transformation;
 
 import de.dercompiler.ast.expression.ComparisonExpression;
-import de.dercompiler.ast.statement.IfStatement;
-import de.dercompiler.ast.statement.Statement;
-import de.dercompiler.ast.statement.WhileStatement;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.node.RValueNode;
@@ -16,7 +13,7 @@ import firm.nodes.*;
 public class TransformationHelper {
 
     public static Node intToOffset(TransformationState state, Node value) {
-        return state.construction.newConv(value, FirmTypes.offsetType.getMode());
+        return state.construction.newConv(value, FirmTypes.longFirmType.getMode());
     }
 
     public static Node calculateOffset(TransformationState state, Node type_size, Node num_values) {
