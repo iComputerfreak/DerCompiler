@@ -24,19 +24,18 @@ public class AndRule extends SubstitutionRule<And> {
         return getRootNode();
     }
     
-    private NodeAnnotation<Node> getLeft() {
-        return getTypedAnnotation(getAnd().getLeft());
+    private NodeAnnotation<?> getLeft() {
+        return getAnnotation(getAnd().getLeft());
     }
 
-    private NodeAnnotation<Node> getRight() {
-        return getTypedAnnotation(getAnd().getRight());
+    private NodeAnnotation<?> getRight() {
+        return getAnnotation(getAnd().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
         Operation and = new BinaryOperation(BinaryOperationType.AND, getLeft().getTarget(), getRight().getTarget());
         and.setMode(getRootNode().getMode());
-        getAnnotation(getRootNode()).setTarget(new VirtualRegister());
         return List.of(and);
     }
 

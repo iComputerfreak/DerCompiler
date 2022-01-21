@@ -32,9 +32,6 @@ public class NotRule extends SubstitutionRule<Not> {
     public List<Operation> substitute() {
         Operation not = new UnaryOperation(UnaryOperationType.NOT, getOperator().getTarget());
         not.setMode(getMode());
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
         return List.of(not);
     }
 

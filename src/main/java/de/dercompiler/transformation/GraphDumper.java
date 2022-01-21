@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class GraphDumper {
 
@@ -49,12 +50,12 @@ public class GraphDumper {
             rule.setAnnotations(v, annotationSupplier);
             List<Operation> ops = rule.substitute();
             rule.clearAnnotations();
-            List<String> opStrings = ops.stream().map(o -> o.getOperationType().toString()).toList();
+            String opStrings = ops.stream().map(Operation::toString).collect(Collectors.joining("\n"));
             String label = "Cost: " + v.getRule().getCost() + "\n" +
                     v.getRootNode().toString() +
                     "\n-----\n" +
-                    String.join("\n", opStrings)
-                    + (v.getTarget() != null ? "\n==>" + v.getTarget().toString() : "");
+                    opStrings +
+                    (v.getTarget() != null ? "\n==>" + v.getTarget().toString() : "");
             
             return Map.of("label", DefaultAttribute.createAttribute(label));
         }, (e) -> new HashMap<>());
@@ -63,7 +64,7 @@ public class GraphDumper {
     public static <E> void dumpCodeGraph(Graph<CodeNode, E> graph, String name) {
         dumpJGraph(graph, "codeGraph", name, v -> Integer.toString(v.getId()), (v) -> {
             List<Operation> ops = v.getOperations();
-            List<String> opStrings = ops.stream().map(o -> o.getOperationType().toString()).toList();
+            List<String> opStrings = ops.stream().map(Operation::toString).toList();
             return Map.of("label", DefaultAttribute.createAttribute(v.getId() + "\n" + String.join("\n", opStrings)));
         }, (e) -> new HashMap<>());
     }

@@ -33,10 +33,6 @@ public class ShlRule extends SubstitutionRule<Shl> {
 
     @Override
     public List<Operation> substitute() {
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
-
         Operation shl = new BinaryOperation(BinaryOperationType.SHL, getLeft().getTarget(), getRight().getTarget());
         shl.setMode(getMode());
         return List.of(shl);

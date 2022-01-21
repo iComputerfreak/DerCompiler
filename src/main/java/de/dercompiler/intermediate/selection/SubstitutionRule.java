@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -94,6 +95,10 @@ public abstract class SubstitutionRule<T extends Node> {
 
     protected Mode getMode() {
         return node.getRootNode().getMode();
+    }
+
+    protected void setTarget(Operand target) {
+        getAnnotation(getRootNode()).setTarget(target);
     }
 }
 

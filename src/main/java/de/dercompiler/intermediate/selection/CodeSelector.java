@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.EmptyRule;
 import de.dercompiler.io.OutputMessageHandler;
@@ -271,6 +272,14 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             annotations.put(node.getNr(), a);
         }
 
+        setDefaultTarget(annotations.get(node.getNr()));
+
+    }
+
+    private void setDefaultTarget(NodeAnnotation<?> nodeAnnotation) {
+        VirtualRegister target = new VirtualRegister();
+        target.setMode(nodeAnnotation.getRootNode().getMode());
+        nodeAnnotation.setTarget(target);
     }
 
     private <N extends Node> NodeAnnotation<N> createAnnotation(Class<N> nClass, Node node, SubstitutionRule<N> rule) {
@@ -328,7 +337,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param pred The firm Node to which the dependency exists
      */
     private <T extends Node> void addDependency(NodeAnnotation<T> root, Node pred) {
-        NodeAnnotation<T> predAnnotation = (NodeAnnotation<T>) annotations.get(pred.getNr());
+        NodeAnnotation<?> predAnnotation = annotations.get(pred.getNr());
         if (!nodeAnnotationGraph.containsVertex(predAnnotation)) {
             nodeAnnotationGraph.addVertex(predAnnotation);
         }

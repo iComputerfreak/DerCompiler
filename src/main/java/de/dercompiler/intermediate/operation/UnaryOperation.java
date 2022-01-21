@@ -37,4 +37,9 @@ public final class UnaryOperation implements Operation {
     public void setMode(Mode mode) {
         this.mode = mode;
     }
+
+    @Override
+    public String toString() {
+        return "%s %s (%s)".formatted(operationType, operand, mode);
+    }
 }

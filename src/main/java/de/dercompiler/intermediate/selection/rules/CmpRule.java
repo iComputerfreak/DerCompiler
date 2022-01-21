@@ -37,7 +37,10 @@ public class CmpRule extends SubstitutionRule<Cmp> {
     public List<Operation> substitute() {
         Operation cmp = new BinaryOperation(BinaryOperationType.CMP, getLeft().getTarget(), getRight().getTarget());
         cmp.setMode(getCmp().getMode());
-        getAnnotation(getRootNode()).setTarget(new VirtualRegister());
+
+        // result of cmp is found in flag register
+        getAnnotation(getRootNode()).setTarget(null);
+
         return List.of(cmp);
     }
 

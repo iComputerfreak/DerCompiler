@@ -20,9 +20,10 @@ public class ProjRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        getAnnotation(getRootNode()).setTarget(target);
+        if (Objects.equals(getMode(), Mode.getM())) {
+            // not represented in memory
+            this.setTarget(null);
+        }
         return List.of();
     }
 

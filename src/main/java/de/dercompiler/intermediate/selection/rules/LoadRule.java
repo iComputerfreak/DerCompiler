@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperationType;
@@ -12,10 +13,10 @@ import firm.nodes.Proj;
 
 import java.util.List;
 
-public class LoadRule extends SubstitutionRule {
+public class LoadRule extends SubstitutionRule<Proj> {
     @Override
     public int getCost() {
-        return 1 + getTypedAnnotation(getLoad()).getCost();
+        return 1;  //+ getAnnotation(getLoad()).getCost();
     }
 
     private Node getLoad() {
@@ -27,20 +28,14 @@ public class LoadRule extends SubstitutionRule {
     }
 
     private Proj getProj() {
-        if (getRootNode() instanceof Proj proj) {
-            return proj;
-        }
-        // we never return
-        throw new RuntimeException();
+      return getRootNode();
     }
 
 
     @Override
     public List<Operation> substitute() {
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        getAnnotation(getRootNode()).setTarget(target);
-        BinaryOperation mov = new BinaryOperation(BinaryOperationType.MOV, getAnnotation(getLoad()).getTarget(), target);
+        Operand target = getAnnotation(getRootNode()).getTarget();
+        Operation mov = new BinaryOperation(BinaryOperationType.MOV, getAnnotation(getLoad()).getTarget(), target);
         mov.setMode(getMode());
         return List.of(mov);
     }
@@ -51,8 +46,8 @@ public class LoadRule extends SubstitutionRule {
     }
 
     @Override
-    public boolean matches(Node inputNode) {
-        return inputNode instanceof Proj proj
+    public boolean matches(Proj proj) {
+        return proj != null
                 && proj.getPred() instanceof Load;
     }
 }

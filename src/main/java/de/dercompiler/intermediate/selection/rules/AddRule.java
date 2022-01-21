@@ -35,7 +35,6 @@ public class AddRule extends SubstitutionRule<Add> {
     public List<Operation> substitute() {
         Operation add = new BinaryOperation(BinaryOperationType.ADD, getLeft().getTarget(), getRight().getTarget());
         add.setMode(getRootNode().getMode());
-        getAnnotation(getRootNode()).setTarget(new VirtualRegister());
         return List.of(add);
     }
 

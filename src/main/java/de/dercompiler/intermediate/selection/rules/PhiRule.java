@@ -4,11 +4,13 @@ import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
+import firm.Mode;
 import firm.nodes.Node;
 import firm.nodes.Phi;
 import firm.nodes.Sub;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PhiRule extends SubstitutionRule<Phi> {
     @Override
@@ -18,10 +20,10 @@ public class PhiRule extends SubstitutionRule<Phi> {
 
     @Override
     public List<Operation> substitute() {
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
-
+        if (Objects.equals(getMode(), Mode.getM())) {
+            // not represented in memory
+            this.setTarget(null);
+        }
         //TODO: Encode phi operation inside of 'special phi block'
         return List.of();
     }

@@ -9,4 +9,5 @@ public sealed interface Operation permits ConstantOperation, UnaryOperation, Bin
     String getIntelSyntax();
     Mode getMode();
     void setMode(Mode bu);
+    String toString();
 }

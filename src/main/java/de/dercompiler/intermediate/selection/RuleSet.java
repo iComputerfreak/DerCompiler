@@ -24,10 +24,11 @@ public final class RuleSet {
             entry(Not.class, List.<SubstitutionRule<Not>>of(new NotRule())),
             entry(Or.class, List.<SubstitutionRule<Or>>of(new OrRule())),
             entry(Phi.class, List.<SubstitutionRule<Phi>>of(new PhiRule())),
-            entry(Proj.class, List.<SubstitutionRule<Proj>>of(new ProjRule())),
+            entry(Proj.class, List.<SubstitutionRule<Proj>>of(new ProjRule(), new LoadRule())),
             entry(Shl.class, List.<SubstitutionRule<Shl>>of(new ShlRule())),
             entry(Shr.class, List.<SubstitutionRule<Shr>>of(new ShrRule())),
             entry(Shrs.class, List.<SubstitutionRule<Shrs>>of(new ShrsRule())),
+            entry(Store.class, List.<SubstitutionRule<Store>>of(new StoreRule())),
             entry(Sub.class, List.<SubstitutionRule<Sub>>of(new SubRule()))
     );
 

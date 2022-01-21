@@ -37,4 +37,9 @@ public final class BinaryOperation implements Operation {
     public void setMode(Mode mode) {
         this.mode = mode;
     }
+
+    @Override
+    public String toString() {
+        return "%s %s %s (%s)".formatted(operationType, operands[0], operands[1], mode);
+    }
 }

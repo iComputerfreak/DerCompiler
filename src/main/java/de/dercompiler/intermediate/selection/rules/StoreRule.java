@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperationType;
@@ -11,7 +12,7 @@ import firm.nodes.Store;
 
 import java.util.List;
 
-public class StoreRule extends SubstitutionRule {
+public class StoreRule extends SubstitutionRule<Store> {
     @Override
     public int getCost() {
         return 1;
@@ -26,23 +27,17 @@ public class StoreRule extends SubstitutionRule {
     }
 
     private Store getStore() {
-        if (getRootNode() instanceof Store store) {
-            return store;
-        }
-        // we never return
-        throw new RuntimeException();
+        return getRootNode();
     }
 
     @Override
     public List<Operation> substitute() {
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
-
+        Operand targetReg = getAnnotation(getTarget()).getTarget();
         Operation mov = new BinaryOperation(BinaryOperationType.MOV,
-                getAnnotation(getTarget()).getTarget(),
+                targetReg,
                 getAnnotation(getValue()).getTarget());
         mov.setMode(getMode());
+        this.setTarget(targetReg);
         return List.of(mov);
     }
 
@@ -52,7 +47,7 @@ public class StoreRule extends SubstitutionRule {
     }
 
     @Override
-    public boolean matches(Node inputNode) {
-        return false;
+    public boolean matches(Store inputNode) {
+        return inputNode != null;
     }
 }

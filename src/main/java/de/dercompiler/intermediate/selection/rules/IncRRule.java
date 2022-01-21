@@ -20,18 +20,17 @@ public class IncRRule extends AddRule {
     }
 
     private NodeAnnotation<Node> getOperator() {
-        return getTypedAnnotation(getAdd().getRight());
+        return getTypedAnnotation(getAdd().getLeft());
     }
 
     @Override
     public List<Operation> substitute() {
         Operand target = getOperator().getTarget();
-        Operation inc = new UnaryOperation(UnaryOperationType.INC, target);
-        inc.setMode(getMode());
-
         target.setMode(getMode());
         node.setTarget(target);
 
+        Operation inc = new UnaryOperation(UnaryOperationType.INC, target);
+        inc.setMode(getMode());
         return List.of(inc);
     }
 

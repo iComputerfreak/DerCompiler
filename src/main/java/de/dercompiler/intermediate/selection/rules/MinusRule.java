@@ -31,9 +31,6 @@ public class MinusRule extends SubstitutionRule<Minus> {
     public List<Operation> substitute() {
         Operation minus = new UnaryOperation(UnaryOperationType.NEG, getOperator().getTarget());
         minus.setMode(getMode());
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
         return List.of(minus);
     }
 

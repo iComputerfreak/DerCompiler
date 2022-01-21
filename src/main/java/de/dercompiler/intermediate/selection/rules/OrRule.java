@@ -36,9 +36,6 @@ public class OrRule extends SubstitutionRule<Or> {
     public List<Operation> substitute() {
         Operation or = new BinaryOperation(BinaryOperationType.OR, getLeft().getTarget(), getRight().getTarget());
         or.setMode(getMode());
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
         return List.of(or);
     }
 
@@ -49,7 +46,6 @@ public class OrRule extends SubstitutionRule<Or> {
 
     @Override
     public boolean matches(Or inputNode) {
-        // Any Or node matches
-        return inputNode instanceof Or;
+        return inputNode != null;
     }
 }

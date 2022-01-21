@@ -35,9 +35,6 @@ public class MulRule extends SubstitutionRule<Mul> {
     public List<Operation> substitute() {
         Operation mul = new BinaryOperation(BinaryOperationType.MUL, getLeft().getTarget(), getRight().getTarget());
         mul.setMode(getMode());
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
         return List.of(mul);
     }
 

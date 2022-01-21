@@ -16,12 +16,11 @@ public class IncLRule extends AddRule {
 
     @Override
     public int getCost() {
-        return 1 + getOperator().getCost();
+        return 1; //+ getOperator().getCost();
     }
 
-
     private NodeAnnotation<Node> getOperator() {
-        return getTypedAnnotation(getAdd().getLeft());
+        return getTypedAnnotation(getAdd().getRight());
     }
 
     @Override

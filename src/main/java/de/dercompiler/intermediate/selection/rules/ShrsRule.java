@@ -33,10 +33,6 @@ public class ShrsRule extends SubstitutionRule<Shrs> {
 
     @Override
     public List<Operation> substitute() {
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
-
         Operation shrs = new BinaryOperation(BinaryOperationType.SHRS, getLeft().getTarget(), getRight().getTarget());
         shrs.setMode(getMode());
         return List.of(shrs);

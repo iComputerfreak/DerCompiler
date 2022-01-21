@@ -35,4 +35,9 @@ public final class ConstantOperation implements Operation {
     public void setMode(Mode mode) {
         this.mode = mode;
     }
+
+    @Override
+    public String toString() {
+        return "%s (%s)".formatted(operationType, mode);
+    }
 }

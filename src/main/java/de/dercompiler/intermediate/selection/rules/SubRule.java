@@ -33,10 +33,6 @@ public class SubRule extends SubstitutionRule<Sub> {
 
     @Override
     public List<Operation> substitute() {
-        VirtualRegister target = new VirtualRegister();
-        target.setMode(getMode());
-        node.setTarget(target);
-
         Operation sub = new BinaryOperation(BinaryOperationType.SUB, getLeft().getTarget(), getRight().getTarget());
         sub.setMode(getRootNode().getMode());
         return List.of(sub);
