@@ -1,0 +1,5 @@
+class Class {
+  public static void main(String[] args) {
+    return if(var) ; else ;;
+  }
+}

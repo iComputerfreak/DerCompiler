@@ -1,0 +1,4 @@
+class Foo {
+	public void myField;
+	public static void main(String[] args) {}
+}

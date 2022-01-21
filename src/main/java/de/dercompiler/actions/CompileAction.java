@@ -3,6 +3,7 @@ package de.dercompiler.actions;
 import de.dercompiler.ast.Program;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
+import de.dercompiler.intermediate.selection.RuleSet;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
@@ -15,6 +16,7 @@ import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
+import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.util.ErrorStatus;
 
 import java.util.HashMap;
@@ -50,24 +52,27 @@ public class CompileAction extends Action {
         //Step 2: check AST & Transformation
         PassManager manager = new PassManager(lexer);
         PassManagerBuilder.buildTransformationPipeline(manager);
+
+        GraphDumper.dump(true);
+
         manager.run(program);
 
         ErrorStatus.exitProgramIfError();
 
         //Step 3: Code Selection
 
+
         List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
         for (firm.Graph graph : program.getGraphs()) {
             if (basicOptimizationsActive) {
                 opts.forEach(opt -> opt.runOnGraph(graph));
             }
-
-
             Worklist.run(new TransferFunction(),graph);
             
 
             // TODO: Replace HashMap with `RuleSet.getRules()` when ready
-            CodeSelector selector = new CodeSelector(graph, new HashMap<>());
+
+            CodeSelector selector = new CodeSelector(graph, new RuleSet());
             BasicBlockGraph blocksGraph = selector.generateCode();
             GraphDumper.dumpBlocksGraph(blocksGraph.getGraph(), graph.toString().substring(6) + "-finalBlocks");
 

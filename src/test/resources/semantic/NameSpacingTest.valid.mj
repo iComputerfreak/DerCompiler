@@ -1,0 +1,13 @@
+class q {
+	public int q;
+
+	public q q(q qq) {
+		boolean qqq = qqq;
+		q q = q = qq;
+		return q;
+	}
+
+	public static void main(String[] args) {
+		q q = new q();
+	}
+}

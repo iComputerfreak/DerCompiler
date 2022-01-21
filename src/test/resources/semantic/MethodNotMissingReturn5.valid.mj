@@ -1,0 +1,10 @@
+class Foo {
+	public boolean even(int c) {
+		if (c % 2 == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	public static void main(String[] args) {}
+}

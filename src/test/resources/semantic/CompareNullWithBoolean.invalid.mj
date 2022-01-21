@@ -1,0 +1,16 @@
+class Foo {
+    public static void main(String[] args) {
+        boolean b;
+        if (b == null) {}
+        if (null == b) {}
+
+        if (null  == true) {}
+        if (false == null) {}
+
+        if (b != null) {}
+        if (null != b) {}
+
+        if (null != false) {}
+        if (true != null ) {}
+    }
+}

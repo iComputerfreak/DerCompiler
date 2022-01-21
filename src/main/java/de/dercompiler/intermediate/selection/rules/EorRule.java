@@ -1,12 +1,11 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperationType;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.Mode;
 import firm.nodes.Eor;
@@ -14,7 +13,7 @@ import firm.nodes.Node;
 
 import java.util.List;
 
-public class EorRule extends SubstitutionRule {
+public class EorRule extends SubstitutionRule<Eor> {
 
     @Override
     public int getCost() {
@@ -22,38 +21,37 @@ public class EorRule extends SubstitutionRule {
     }
 
     private Eor getSub() {
-        if (node.getRootNode() instanceof Eor eor) {
-            return eor;
-        }
-        new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                .internalError("AddRule has no Add root node");
-        // We never return
-        throw new RuntimeException();
-    }
-    
-    private NodeAnnotation getLeft() {
-        return annotationSupplier.apply(getSub().getLeft());
+        return getRootNode();
     }
 
-    private NodeAnnotation getRight() {
-        return annotationSupplier.apply(getSub().getRight());
+    private NodeAnnotation<Node> getLeft() {
+        return getTypedAnnotation(getSub().getLeft());
+    }
+
+    private NodeAnnotation<Node> getRight() {
+        return getTypedAnnotation(getSub().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
         Operation eor = new BinaryOperation(BinaryOperationType.XOR, getLeft().getTarget(), getRight().getTarget());
-        eor.setMode(Mode.getBu());
+        eor.setMode(node.getRootNode().getMode());
+
+        VirtualRegister target = new VirtualRegister();
+        target.setMode(node.getRootNode().getMode());
+        node.setTarget(target);
+
         return List.of(eor);
     }
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(getLeft().getRootNode(), getRight().getRootNode());
+        return List.of();
     }
 
     @Override
-    public boolean matches(Node inputNode) {
-        // Any Eor node matches
-        return inputNode instanceof Eor;
+    public boolean matches(Eor inputNode) {
+        return inputNode != null;
     }
+
 }

@@ -1,0 +1,6 @@
+               	           if
+ (
+         true
+               	                 ) { System           .         out  	   .        println(
+              			                      argument
+                                        )                			          }

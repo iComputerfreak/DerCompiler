@@ -1,0 +1,8 @@
+class PrivateMember {
+
+    int test[];
+	
+	private int foo() {
+        return 0;
+    }
+}

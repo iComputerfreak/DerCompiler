@@ -1,0 +1,8 @@
+class Foo {
+    public static void main(String	[] args) {
+        boolean a = false;
+        boolean b = true;
+
+        (a || b) = true;
+    }
+}

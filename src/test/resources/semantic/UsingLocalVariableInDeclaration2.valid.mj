@@ -1,0 +1,7 @@
+class Foo {
+	public int q;
+	public void foo() {
+		int q = q;
+	}
+	public static void main(String[] args) {}
+}

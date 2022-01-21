@@ -1,0 +1,5 @@
+class FooTester2 {
+	public boolean isFoo(String maybeFoo; String definitelyFoo) {
+		return maybeFoo _ definitelyFoo;
+	}
+}

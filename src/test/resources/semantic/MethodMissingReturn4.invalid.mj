@@ -1,0 +1,8 @@
+class Foo {
+	public int foo(boolean c) {
+		while (c) {
+			return 1;
+		}
+	}
+	public static void main(String[] args) {}
+}

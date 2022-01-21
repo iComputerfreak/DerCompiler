@@ -1,0 +1,9 @@
+class Foo {
+	public void foo() {
+		this.test = true;
+	}
+	public static void main(String[] args) {
+		new Foo().foo();
+	}
+}
+

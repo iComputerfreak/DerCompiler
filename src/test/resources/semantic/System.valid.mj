@@ -1,0 +1,7 @@
+class validPrint {
+    public static void main(String[] args) {
+        int i = System.in.read();
+		System.out.write(i);
+		System.out.println(i);
+    }
+}

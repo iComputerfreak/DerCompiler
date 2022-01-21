@@ -1,0 +1,14 @@
+class Foo {
+    public static void main(String[] args) {
+        System System;
+        System.out.println(true);
+    }
+}
+
+class System {
+    public Out out;
+}
+
+class Out {
+    public void println(boolean bool) {}
+}

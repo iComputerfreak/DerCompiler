@@ -1,0 +1,10 @@
+class Foo {
+	public int foo(boolean c) {
+		if (c) {
+			return 2;
+		} else {
+			return 3;
+		}
+	}
+	public static void main(String[] args) {}
+}

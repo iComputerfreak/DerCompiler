@@ -1,0 +1,12 @@
+class C {
+    public static void main(String[] args) {
+        Foo a = new Foo();
+        int a = a.foo() = 42;
+    }
+}
+
+class Foo {
+    public int foo() {
+        return 42;
+    }
+}

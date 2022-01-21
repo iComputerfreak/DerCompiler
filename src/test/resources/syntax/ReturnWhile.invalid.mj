@@ -1,0 +1,7 @@
+class ReturnWhile {
+
+    public void returnWhile() {
+        return while(true);
+    }
+
+}

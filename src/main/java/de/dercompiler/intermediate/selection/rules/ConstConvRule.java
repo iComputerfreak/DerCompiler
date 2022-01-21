@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Address;
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -10,7 +11,7 @@ import firm.nodes.Node;
 
 import java.util.List;
 
-public class ConstConvRule extends SubstitutionRule {
+public class ConstConvRule extends SubstitutionRule<Conv> {
 
     @Override
     public int getCost() {
@@ -20,13 +21,14 @@ public class ConstConvRule extends SubstitutionRule {
     @Override
     public List<Operation> substitute() {
         // save as constant operand, no operations
-        node.setTarget(new Address(getConst().getTarval().asInt(), null));
+        Address target = new Address(getConst().getTarval().asInt(), null);
+        target.setMode(getRootNode().getMode());
+        node.setTarget(target);
         return List.of();
     }
 
     private Conv getConv() {
-        if (getRootNode() instanceof Conv conv) return conv;
-        throw new RuntimeException();
+        return getRootNode();
     }
 
     private Const getConst() {
@@ -40,8 +42,8 @@ public class ConstConvRule extends SubstitutionRule {
     }
 
     @Override
-    public boolean matches(Node inputNode) {
-        return inputNode instanceof Conv conv
-                && conv.getOp() instanceof Const;
+    public boolean matches(Conv inputNode) {
+        return inputNode.getOp() instanceof Const;
     }
+
 }

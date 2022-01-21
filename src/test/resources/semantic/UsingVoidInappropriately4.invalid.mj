@@ -1,0 +1,6 @@
+class Foo {
+	public static void main(String[] args) {
+		if (new void[1][0] == null)
+			return;
+	}
+}

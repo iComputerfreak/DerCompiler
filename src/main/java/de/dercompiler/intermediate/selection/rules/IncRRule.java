@@ -1,12 +1,10 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperationType;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
-import de.dercompiler.intermediate.selection.SubstitutionRule;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.Add;
 import firm.nodes.Const;
@@ -14,42 +12,37 @@ import firm.nodes.Node;
 
 import java.util.List;
 
-public class IncRRule extends SubstitutionRule {
+public class IncRRule extends AddRule {
 
     @Override
     public int getCost() {
-        return 1 + getOperator().getCost();
+        return 1; //+ getOperator().getCost();
     }
 
-    private Add getAdd() {
-        if (node.getRootNode() instanceof Add add) {
-            return add;
-        }
-        new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                .internalError("IncLRule has no Add root node");
-        // We never return
-        throw new RuntimeException();
-    }
-
-    private NodeAnnotation getOperator() {
-        return annotationSupplier.apply(getAdd().getRight());
+    private NodeAnnotation<Node> getOperator() {
+        return getTypedAnnotation(getAdd().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
-        Operation inc = new UnaryOperation(UnaryOperationType.INC, getOperator().getTarget());
-        inc.setMode(getRootNode().getMode());
+        Operand target = getOperator().getTarget();
+        Operation inc = new UnaryOperation(UnaryOperationType.INC, target);
+        inc.setMode(getMode());
+
+        target.setMode(getMode());
+        node.setTarget(target);
+
         return List.of(inc);
     }
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(getOperator().getRootNode());
+        return List.of(getAdd().getRight());
     }
 
     @Override
-    public boolean matches(Node inputNode) {
-        return inputNode instanceof Add add
+    public boolean matches(Add add) {
+        return add != null
                 && add.getRight() instanceof Const constant
                 && constant.getTarval().asInt() == 1;
     }

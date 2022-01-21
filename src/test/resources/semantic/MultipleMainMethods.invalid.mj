@@ -1,0 +1,7 @@
+class Foo {
+    public static void main(String[] args) {}
+}
+
+class Bar {
+    public static void main(String[] args) {}
+}

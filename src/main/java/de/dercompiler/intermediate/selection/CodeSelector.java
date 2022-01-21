@@ -16,6 +16,7 @@ import org.jgrapht.traverse.BreadthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CodeSelector implements NodeVisitor, BlockWalker {
     
@@ -31,11 +32,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
     }
     
     private final firm.Graph graph;
-    private final Map<Class<? extends Node>, List<SubstitutionRule>> rules;
+    private final RuleSet rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
-    private final Map<Integer, NodeAnnotation> annotations = new HashMap<>();
+    private final Map<Integer, NodeAnnotation<?>> annotations = new HashMap<>();
     private Mode mode = Mode.BLOCKS;
-    private final Graph<NodeAnnotation, DefaultEdge> nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+    private final Graph<NodeAnnotation<?>, DefaultEdge> nodeAnnotationGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<CodeNode, DefaultEdge> codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
@@ -47,7 +48,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param graph The graph to create intermediate code for
      * @param rules The map of rules to apply, keyed by the class of the root node
      */
-    public CodeSelector(firm.Graph graph, Map<Class<? extends Node>, List<SubstitutionRule>> rules) {
+    public CodeSelector(firm.Graph graph, RuleSet rules) {
         this.graph = graph;
         this.rules = rules;
     }
@@ -122,7 +123,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* 3. Transform the NodeAnnotation graph into a CodeNode graph */
         /* =========================================================== */
         this.mode = Mode.TRANSFORMATION;
-        Iterator<NodeAnnotation> nodeAnnotationGraphIterator = new BreadthFirstIterator<>(nodeAnnotationGraph);
+        Iterator<NodeAnnotation<?>> nodeAnnotationGraphIterator = new BreadthFirstIterator<>(nodeAnnotationGraph);
         while (nodeAnnotationGraphIterator.hasNext()) {
             transformAnnotation(nodeAnnotationGraphIterator.next());
         }
@@ -136,11 +137,12 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         
         // Before we go over the nodes in topological order, we have to remove all edges that span between blocks
         // Since we already transformed the nodes to code, we don't need the edges anymore
-        codeGraph.edgeSet()
+        List<DefaultEdge> edgesToRemove = codeGraph.edgeSet()
                 .stream()
                 .filter(e -> codeGraph.getEdgeSource(e).getFirmBlock().getNr() !=
                         codeGraph.getEdgeTarget(e).getFirmBlock().getNr())
-                .forEach(codeGraph::removeEdge);
+                .collect(Collectors.toList());
+        edgesToRemove.forEach(codeGraph::removeEdge);
         
         // Do the linearization of the codeGraph
         Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
@@ -236,59 +238,62 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * Also calculates the optimal rule for transforming the given node.
      * @param node The firm Node for which to create the annotation
      */
-    private void annotateNode(Node node) {
+    private <T extends Node> void annotateNode(T node) {
         // We don't annotate basic blocks
         if (node instanceof Block) {
             return;
         }
-        if (!rules.containsKey(node.getClass())) {
+        Class<T> aClass = (Class<T>) node.getClass();
+        if (!RuleSet.containsKey(aClass)) {
             // If we have no rules to apply, create a dummy annotation
             // TODO: When all rules are specified this should not happen anymore!
             //  Every node needs at least one rule
             // Dummy annotation:
-            annotations.put(node.getNr(), new NodeAnnotation(0, node, new EmptyRule()));
+            annotations.put(node.getNr(), new NodeAnnotation<Node>(0, node, new EmptyRule()));
             return;
         }
         // We only look at rules that have a root node that matches our current node
-        for (SubstitutionRule rule : rules.get(node.getClass())) {
+        RuleSet.forNodeClass(aClass, rule -> {
             // Check if rule matches the node and its predecessors
             if (rule.matches(node)) {
                 int cost = rule.getCost();
-                // We have to add the cost of all predecessors that are not affected by this rule
-                for (Node p : node.getPreds()) {
-                    // If the predecessor is not affected by this rule, add its minimal cost to the total
-                    if (!rule.getRequiredNodes(graph).contains(p)) {
-                        NodeAnnotation predAnnotation = annotations.get(p.getNr());
-                        assert predAnnotation != null;
-                        cost += predAnnotation.getCost();
-                    }
-                }
+
                 // If we found a cheaper rule for that node (including all predecessors)
                 if (!annotations.containsKey(node.getNr()) || annotations.get(node.getNr()).getCost() > cost) {
                     // Annotate the node
-                    NodeAnnotation a = new NodeAnnotation(rule.getCost(), node, rule);
+                    NodeAnnotation<T> a = this.createAnnotation(aClass, node, rule);
                     annotations.put(node.getNr(), a);
                 }
             }
+        });
+        if (!annotations.containsKey(node.getNr())) {
+            NodeAnnotation<Node> a = this.createAnnotation(Node.class, node, new EmptyRule());
+            annotations.put(node.getNr(), a);
         }
+
     }
 
+    private <N extends Node> NodeAnnotation<N> createAnnotation(Class<N> nClass, Node node, SubstitutionRule<N> rule) {
+        return new NodeAnnotation<N>(rule.getCost(), nClass.cast(node), rule);
+    }
     /**
      * Inserts the NodeAnnotation for the specified node into the NodeAnnotation graph,
      * keeping the dependencies from the firm graph
      * @param node The node for which to insert the NodeAnnotation
      */
-    private void constructNode(Node node) {
+    private <T extends Node> void constructNode(T node) {
         // We don't annotate basic blocks
         if (node instanceof Block) {
             return;
         }
-        NodeAnnotation a = annotations.get(node.getNr());
+        NodeAnnotation<T> a = (NodeAnnotation<T>) annotations.get(node.getNr());
         assert a != null;
         // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
         if (a.getVisited()) return;
-        SubstitutionRule rule = a.getRule();
+        SubstitutionRule<T> rule = a.getRule();
         // Mark the annotations of all required nodes visited, since they will be covered by this rule
+
+        rule.setAnnotations(a, (Node n) -> annotations.get(n.getNr()));
         for (Node n : rule.getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
             annotations.get(n.getNr()).setVisited(true);
@@ -307,11 +312,12 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         for (Node n : rule.getRequiredNodes(graph)) {
             // If one of our predecessors has a predecessor that has not been visited yet,
             // add it as an edge in the node annotation graph
-            NodeAnnotation predAnnotation = annotations.get(n.getNr());
+            NodeAnnotation<?> predAnnotation = annotations.get(n.getNr());
             if (!predAnnotation.getVisited()) {
                 addDependency(a, n);
             }
         }
+        rule.clearAnnotations();
     }
 
     /**
@@ -321,8 +327,8 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * @param root The NodeAnnotation from which the edge starts
      * @param pred The firm Node to which the dependency exists
      */
-    private void addDependency(NodeAnnotation root, Node pred) {
-        NodeAnnotation predAnnotation = annotations.get(pred.getNr());
+    private <T extends Node> void addDependency(NodeAnnotation<T> root, Node pred) {
+        NodeAnnotation<T> predAnnotation = (NodeAnnotation<T>) annotations.get(pred.getNr());
         if (!nodeAnnotationGraph.containsVertex(predAnnotation)) {
             nodeAnnotationGraph.addVertex(predAnnotation);
         }
@@ -335,30 +341,34 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
      * graph, keeping its dependencies.
      * @param a The NodeAnnotation to transform
      */
-    private void transformAnnotation(NodeAnnotation a) {
+    private <T extends Node> void transformAnnotation(NodeAnnotation<T> a) {
         // If we already transformed this annotation (e.g. as a dependency of another node), skip it
         if (a.getTransformed()) {
             return;
         }
         // Get the predecessors (graph nodes that point to this node)
-        List<NodeAnnotation> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream()
+        List<? extends NodeAnnotation<?>> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream()
                 .map(nodeAnnotationGraph::getEdgeSource).toList();
         // Apply the rule in this annotation
-        SubstitutionRule rule = a.getRule();
+        SubstitutionRule<T> rule = a.getRule();
         rule.setAnnotations(a, (Node n) -> annotations.get(n.getNr()));
         List<Operation> ops = rule.substitute();
-        
+
         // Create the node in the code graph
         int blockNr = a.getRootNode().getBlock().getNr();
         CodeNode codeNode = new CodeNode(ops, firmBlocks.get(blockNr), rule.getRootNode() instanceof Phi);
         codeGraph.addVertex(codeNode);
         // Keep a map of the node ids for lookup
         codeGraphLookup.put(a.getRootNode().getNr(), codeNode);
-        
-        for (NodeAnnotation p : predecessors) {
+        rule.clearAnnotations();
+
+        for (NodeAnnotation<?> p : predecessors) {
             int predNr = p.getRootNode().getNr();
             // If we have a predecessor that we did not transform yet, do it now, recursively
             if (!codeGraphLookup.containsKey(predNr)) {
+                // node gets handled elsewhere and gets no own code
+                if (annotations.get(predNr).getVisited()) continue;
+
                 transformAnnotation(annotations.get(predNr));
             }
             CodeNode predNode = codeGraphLookup.get(predNr);
@@ -369,6 +379,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         // Mark all nodes that are covered by this rule as "transformed"
         // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
         a.setTransformed(true);
+        rule.setAnnotations(a, (Node n) -> annotations.get(n.getNr()));
         for (Node n : rule.getRequiredNodes(graph)) {
             annotations.get(n.getNr()).setTransformed(true);
         }

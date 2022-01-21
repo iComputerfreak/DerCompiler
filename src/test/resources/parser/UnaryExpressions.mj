@@ -1,0 +1,15 @@
+class Foo {
+
+    public static void main(String[] args) {
+        - -a;
+        -(-a);
+        -(-(a));
+
+        !a;
+        !(!a);
+        !!a;
+        !!!!a;
+        -!!!!a;
+    }
+
+}

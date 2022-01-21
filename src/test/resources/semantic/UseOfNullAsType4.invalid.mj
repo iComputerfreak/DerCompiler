@@ -1,0 +1,7 @@
+class Foo {
+    public null foo() {
+        return null;
+    }
+    public static void main(String[] args) {
+    }
+}

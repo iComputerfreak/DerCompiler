@@ -1,0 +1,17 @@
+class Foo {
+
+    public static void main(String[] args) {
+        /* An array with a size in the first brackets is valid */
+        int[][][][] array = new int[20][][][];
+        /* The expression is not checked for validity */
+        int[][][][] array = new int[a || b || c && d > true < null][][][];
+
+        /* This should parse as an array access and be valid */
+        int array = new int[20][4];
+        int array = (new int[20])[4];
+
+        /* Array dimension is not checked */
+        int array = new int[20][4][true][null];
+    }
+
+}

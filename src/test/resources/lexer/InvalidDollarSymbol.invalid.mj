@@ -1,0 +1,4 @@
+public static final private int foo = 5;
+/* next char should fail: $*/
+$
+bar int 3 a private

@@ -8,6 +8,7 @@ import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Dump;
+import firm.nodes.Node;
 import org.jgrapht.Graph;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
@@ -42,7 +43,7 @@ public class GraphDumper {
         n = 0;
     }
 
-    public static <E> void dumpNodeAnnotationGraph(Graph<NodeAnnotation, E> graph, String name, Function<firm.nodes.Node, NodeAnnotation> annotationSupplier) {
+    public static <E> void dumpNodeAnnotationGraph(Graph<NodeAnnotation<?>, E> graph, String name, Function<firm.nodes.Node, NodeAnnotation<?>> annotationSupplier) {
         dumpJGraph(graph, "annotationGraph", name, v -> Integer.toString(v.getRootNode().getNr()), (v) -> {
             SubstitutionRule rule = v.getRule();
             rule.setAnnotations(v, annotationSupplier);
@@ -52,7 +53,8 @@ public class GraphDumper {
             String label = "Cost: " + v.getRule().getCost() + "\n" +
                     v.getRootNode().toString() +
                     "\n-----\n" +
-                    String.join("\n", opStrings);
+                    String.join("\n", opStrings)
+                    + (v.getTarget() != null ? "\n==>" + v.getTarget().toString() : "");
             
             return Map.of("label", DefaultAttribute.createAttribute(label));
         }, (e) -> new HashMap<>());

@@ -4,6 +4,7 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
+import firm.Mode;
 import firm.nodes.Node;
 
 import java.util.List;
@@ -12,10 +13,10 @@ import java.util.function.Function;
 /**
  * Represents a rule that is used to replace one or multiple {@link firm.nodes.Node}s with a set of {@link Operation}s
  */
-public abstract class SubstitutionRule {
+public abstract class SubstitutionRule<T extends Node> {
     
-    protected NodeAnnotation node;
-    protected Function<Node, NodeAnnotation> annotationSupplier;
+    protected NodeAnnotation<T> node;
+    protected Function<Node, NodeAnnotation<?>> annotationSupplier;
 
     /**
      * Creates a new SubstitutionRule with the given rootNode
@@ -27,7 +28,7 @@ public abstract class SubstitutionRule {
      * @param node The NodeAnnotation of the rootNode
      * @param annotationSupplier A function that transforms any of the requiredNodes into NodeAnnotations
      */
-    public void setAnnotations(NodeAnnotation node, Function<Node, NodeAnnotation> annotationSupplier) {
+    public void setAnnotations(NodeAnnotation<T> node, Function<Node, NodeAnnotation<?>> annotationSupplier) {
         if (this.node != null || this.annotationSupplier != null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
                     .internalError("SubstitutionRule.setAnnotations called before clearing existing values.");
@@ -48,7 +49,7 @@ public abstract class SubstitutionRule {
     /**
      * Returns the root node of this rule
      */
-    public Node getRootNode() {
+    public T getRootNode() {
         return node.getRootNode();
     }
 
@@ -81,6 +82,18 @@ public abstract class SubstitutionRule {
      * @param inputNode The input node
      * @return Whether the rootNode of this rule matches the given input node, including their predecessors
      */
-    public abstract boolean matches(Node inputNode);
+    public abstract boolean matches(T inputNode);
+
+    protected <N extends Node> NodeAnnotation<N> getTypedAnnotation(N node) {
+        return (NodeAnnotation<N>) annotationSupplier.apply(node);
+    }
+
+    protected NodeAnnotation<?> getAnnotation(Node node) {
+        return annotationSupplier.apply(node);
+    }
+
+    protected Mode getMode() {
+        return node.getRootNode().getMode();
+    }
 }
 

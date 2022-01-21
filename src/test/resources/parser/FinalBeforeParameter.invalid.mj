@@ -1,0 +1,5 @@
+class Foo {
+
+    public foid foo(final int bar) {}
+
+}

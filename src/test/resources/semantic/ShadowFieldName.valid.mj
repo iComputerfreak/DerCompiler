@@ -1,0 +1,7 @@
+class Foo {
+    public int bar;
+
+    public static void main(String[] args) {
+        int bar = 20;
+    }
+}

@@ -1,0 +1,15 @@
+class ForwardReference {
+	public AttrType attr;		/* AttrType not found yet, create DummyType "AttrType" for this */
+}
+
+class AttrType {}			/* Now AttrType is found, entry in globalScope points here */
+						/* DummyType "AttrType"'s realType also points here */
+						/* ForwardReference.attr still points to DummyType */
+
+class BackwardReference {
+	public AttrType attr;		/* AttrType is known and correctly set */
+}
+
+class Main {
+	public static void main(String[] args) {}
+}

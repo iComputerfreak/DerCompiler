@@ -1,0 +1,50 @@
+package de.dercompiler.intermediate.selection.rules;
+
+import de.dercompiler.intermediate.operand.Address;
+import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.selection.SubstitutionRule;
+import firm.Graph;
+import firm.Mode;
+import firm.nodes.Member;
+import firm.nodes.Node;
+
+import java.util.List;
+import java.util.Objects;
+
+public class MemberRule extends SubstitutionRule<Member> {
+    @Override
+    public int getCost() {
+        return 0;
+    }
+
+    private Node getObject() {
+        return getMember().getPtr();
+    }
+
+    @Override
+    public List<Operation> substitute() {
+        // bit -> byte
+        int offset = getMember().getEntity().getBitfieldOffset() / 8;
+        Operand object = getAnnotation(getObject()).getTarget();
+        Address target = Address.offset(object, offset);
+        target.setMode(getMode());
+        node.setTarget(target);
+        return List.of();
+    }
+
+    @Override
+    public List<Node> getRequiredNodes(Graph realGraph) {
+        return List.of();
+    }
+
+    private Member getMember() {
+        return getRootNode();
+    }
+
+    @Override
+    public boolean matches(Member member) {
+        return member != null
+                && Objects.equals(member.getPtr().getMode(), Mode.getP());
+    }
+}

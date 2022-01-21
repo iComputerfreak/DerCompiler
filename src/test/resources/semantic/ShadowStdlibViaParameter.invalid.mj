@@ -1,0 +1,6 @@
+class Foo {
+	public void foo(int System) {
+		System.out.println(42);
+	}
+	public static void main(String[] args) {}
+}

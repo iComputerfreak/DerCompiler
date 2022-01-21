@@ -1,0 +1,7 @@
+/* flush takes no arguments */
+
+class Main {
+	public static void main(String[] args) {
+		System.out.flush(234);
+	}
+}

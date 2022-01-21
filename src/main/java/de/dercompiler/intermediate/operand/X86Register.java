@@ -2,7 +2,7 @@ package de.dercompiler.intermediate.operand;
 
 import firm.Mode;
 
-public enum X86Register implements Operand {
+public enum X86Register implements Register {
     EAX("eax"),
     ECX("ecx"),
     EDX("edx"),

@@ -1,0 +1,9 @@
+class Foo {
+
+    public void foo() {
+        this = null;
+    }
+
+    public static void main(String	[] args) {
+    }
+}

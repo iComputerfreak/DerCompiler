@@ -1,12 +1,11 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperationType;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.Mode;
 import firm.nodes.Node;
@@ -14,7 +13,7 @@ import firm.nodes.Or;
 
 import java.util.List;
 
-public class OrRule extends SubstitutionRule {
+public class OrRule extends SubstitutionRule<Or> {
     
     @Override
     public int getCost() {
@@ -22,37 +21,34 @@ public class OrRule extends SubstitutionRule {
     }
 
     private Or getOr() {
-        if (node.getRootNode() instanceof Or or) {
-            return or;
-        }
-        new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                .internalError("OrRule has no Or root node");
-        // We never return
-        throw new RuntimeException();
+        return getRootNode();
     }
     
-    private NodeAnnotation getLeft() {
-        return annotationSupplier.apply(getOr().getLeft());
+    private NodeAnnotation<Node> getLeft() {
+        return getTypedAnnotation(getOr().getLeft());
     }
 
-    private NodeAnnotation getRight() {
-        return annotationSupplier.apply(getOr().getRight());
+    private NodeAnnotation<Node> getRight() {
+        return getTypedAnnotation(getOr().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
         Operation or = new BinaryOperation(BinaryOperationType.OR, getLeft().getTarget(), getRight().getTarget());
-        or.setMode(Mode.getBu());
+        or.setMode(getMode());
+        VirtualRegister target = new VirtualRegister();
+        target.setMode(getMode());
+        node.setTarget(target);
         return List.of(or);
     }
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(getLeft().getRootNode(), getRight().getRootNode());
+        return List.of();
     }
 
     @Override
-    public boolean matches(Node inputNode) {
+    public boolean matches(Or inputNode) {
         // Any Or node matches
         return inputNode instanceof Or;
     }

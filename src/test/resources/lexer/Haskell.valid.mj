@@ -1,0 +1,23 @@
+data Rope a
+  = Leaf [a]
+  | Inner (Rope a) Int (Rope a)
+  deriving (Show)
+
+instance Foldable Rope where
+  foldr f init (Leaf xs)     = foldr f init xs
+  foldr f init (Inner l _ r) = foldr f (foldr f init r) l
+
+instance Traversable Rope where
+  sequenceA (Leaf  xs   ) = pure Leaf <*> sequenceA xs
+  sequenceA (Inner l w r) = pure Inner <*> sequenceA l <*> pure w <*> sequenceA r
+
+ropeSplitAt :: Int -> Rope a -> (Rope a, Rope a)
+ropeSplitAt n (Leaf  xs   ) = (Leaf (take n xs), Leaf (drop n xs))
+ropeSplitAt n (Inner l w r)
+  | n == w = (l, r)
+  | n <  w
+    = let (splitL, splitR) = ropeSplitAt n l
+      in (splitL, Inner splitR (ropeLength splitR) r)
+  | otherwise
+    = let (splitL, splitR) = ropeSplitAt (n - w) r
+      in (Inner l w splitL, splitR)

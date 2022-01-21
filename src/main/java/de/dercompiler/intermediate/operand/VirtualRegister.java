@@ -2,7 +2,7 @@ package de.dercompiler.intermediate.operand;
 
 import firm.Mode;
 
-public class VirtualRegister implements Operand {
+public class VirtualRegister implements Register {
     
     private static long nextID = 0;
     
@@ -30,5 +30,10 @@ public class VirtualRegister implements Operand {
     @Override
     public void setMode(Mode mode) {
         this.mode = mode;
+    }
+
+    @Override
+    public String toString() {
+        return getIdentifier();
     }
 }

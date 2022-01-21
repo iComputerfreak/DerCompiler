@@ -1,12 +1,11 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperationType;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.Mode;
 import firm.nodes.Node;
@@ -14,7 +13,7 @@ import firm.nodes.Not;
 
 import java.util.List;
 
-public class NotRule extends SubstitutionRule {
+public class NotRule extends SubstitutionRule<Not> {
     
     @Override
     public int getCost() {
@@ -22,34 +21,31 @@ public class NotRule extends SubstitutionRule {
     }
 
     private Not getNot() {
-        if (node.getRootNode() instanceof Not not) {
-            return not;
-        }
-        new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                .internalError("NotRule has no Not root node");
-        // We never return
-        throw new RuntimeException();
+        return getRootNode();
     }
     
-    private NodeAnnotation getOperator() {
-        return annotationSupplier.apply(getNot().getOp());
+    private NodeAnnotation<Node> getOperator() {
+        return getTypedAnnotation(getNot().getOp());
     }
 
     @Override
     public List<Operation> substitute() {
         Operation not = new UnaryOperation(UnaryOperationType.NOT, getOperator().getTarget());
-        not.setMode(Mode.getBu());
+        not.setMode(getMode());
+        VirtualRegister target = new VirtualRegister();
+        target.setMode(getMode());
+        node.setTarget(target);
         return List.of(not);
     }
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(getOperator().getRootNode());
+        return List.of();
     }
 
     @Override
-    public boolean matches(Node inputNode) {
+    public boolean matches(Not inputNode) {
         // Any Not node matches
-        return inputNode instanceof Not;
+        return inputNode != null;
     }
 }

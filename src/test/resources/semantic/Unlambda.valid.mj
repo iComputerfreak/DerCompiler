@@ -1,0 +1,222 @@
+/*
+Implementation of the awesome Unlambda programming language [1].
+Try the following program which prints the Fibonacci numbers to stdout:
+
+```s``s``sii`ki
+  `k.*``s``s`ks
+ ``s`k`s`ks``s``s`ks``s`k`s`kr``s`k`sikk
+  `k``s`ksk
+
+[1]: http://www.madore.org/~david/programs/unlambda/
+*/
+
+class Unlambda {
+    /* Exception bc unlike IOException it's in java.lang */
+    public static void main(String[] args) throws Exception {
+        Term t = new Parser().init().parse();
+        t.print();
+        System.out.write(10);
+        Term t_ = t.eval();
+        System.out.write(10);
+        t_.print();
+        System.out.write(10);
+        System.out.flush();
+    }
+}
+
+class Parser {
+    public int line;
+    public int column;
+
+    public Parser init() {
+        line = 1;
+        column = 1;
+        return this;
+    }
+
+    public int read() throws Exception {
+        int c = System.in.read();
+        if (c == 10) {
+            line = line + 1;
+            column = 1;
+        } else {
+            column = column + 1;
+        }
+        return c;
+    }
+
+    public void error(int errno) {
+        System.out.println(errno);
+        System.out.println(line);
+        System.out.println(column);
+    }
+
+    public Term parse() throws Exception {
+        int inp = read();
+        
+        if (inp == -1) {
+            /* EOF */
+            error(43);
+            return null;
+        }
+
+        /* skip whitespace */
+        while (inp == 32 || inp == 9 || inp == 10 || inp == 13) {
+            inp = read();
+        }
+
+        if (inp == 115) {
+            return new Term().initS();
+        }
+
+        if (inp == 107) {
+            return new Term().initK();
+        }
+
+        if (inp == 105) {
+            return new Term().initI();
+        }
+
+        if (inp == 46) {
+            int octet = read();
+            if (octet == -1) {
+                return null;
+            }
+            return new Term().initDot(octet);
+        }
+
+        if (inp == 114) {
+            return new Term().initDot(10);
+        }
+
+        if (inp == 96) {
+            Term lhs = this.parse();
+            if (lhs == null) {
+                error(52);
+                return null;
+            }
+            Term rhs = this.parse();
+            if (rhs == null) {
+                return null;
+            }
+
+            return new Term().initApp(lhs, rhs);
+        }
+
+        /* parser error */
+        error(42);
+        return null;
+    }
+}
+
+class Term {
+    public int type;
+    public Term lhs;
+    public Term rhs;
+    public int octet;
+
+    public Term initApp(Term lhs, Term rhs) {
+        this.type = 65;
+        this.lhs = lhs;
+        this.rhs = rhs;
+        return this;
+    }
+
+    public Term initS() {
+        this.type = 83;
+        return this;
+    }
+
+    public Term initK() {
+        this.type = 75;
+        return this;
+    }
+
+    public Term initI() {
+        this.type = 73;
+        return this;
+    }
+
+    public Term initDot(int octet) {
+        this.type = 46;
+        this.octet = octet;
+        return this;
+    }
+
+    /* Evaluation */
+
+    public Term eval() {
+        if (isApp()) {
+            /* Unlambda is CbV */
+            Term lhs = this.lhs.eval();
+            Term rhs = this.rhs.eval();
+
+            /* `i X => X */
+            if (lhs.isI()) {
+                return rhs;
+            }
+
+            /* `.C X => X (side effect: C is printed) */
+            if (lhs.isDot()) {
+                System.out.write(lhs.octet);
+                return rhs;
+            }
+
+            /* ``k X Y => X */
+            if (lhs.isApp() && lhs.lhs.isK()) {
+                return lhs.rhs;
+            }
+
+            /* ```s X Y Z => ``X Z `Y Z */
+            if (lhs.isApp() && lhs.lhs.isApp() && lhs.lhs.lhs.isS()) {
+                Term x = lhs.lhs.rhs;
+                Term y = lhs.rhs;
+                Term z = rhs;
+
+                return new Term().initApp(new Term().initApp(x, z), new Term().initApp(y, z)).eval();
+            }
+
+            return new Term().initApp(lhs, rhs);
+        } else {
+            return this;
+        }
+    }
+
+    /* Helper stuff */
+
+    public boolean isS() {
+        return this.type == 83;
+    }
+
+    public boolean isK() {
+        return this.type == 75;
+    }
+
+    public boolean isI() {
+        return this.type == 73;
+    }
+
+    public boolean isApp() {
+        return this.type == 65;
+    }
+
+    public boolean isDot() {
+        return this.type == 46;
+    }
+
+    public void print() {
+        System.out.write(this.type);
+
+        if (this.isDot()) {
+            System.out.write(this.octet);
+        }
+
+        if (this.isApp()) {
+            System.out.write(40);
+            this.lhs.print();
+            System.out.write(32);
+            this.rhs.print();
+            System.out.write(41);
+        }
+    }
+}

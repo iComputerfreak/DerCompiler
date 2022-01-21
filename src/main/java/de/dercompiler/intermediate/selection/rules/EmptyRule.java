@@ -10,7 +10,7 @@ import firm.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmptyRule extends SubstitutionRule {
+public class EmptyRule extends SubstitutionRule<Node> {
     
     @Override
     public int getCost() {

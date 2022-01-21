@@ -1,0 +1,10 @@
+class A {
+  public int x;
+}
+class B {
+  public boolean x;
+  public static void main(String[] args) {
+    int z = 2;
+    int x = new A().x + z;
+  }
+}

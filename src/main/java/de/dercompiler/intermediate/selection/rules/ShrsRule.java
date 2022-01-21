@@ -1,19 +1,18 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperationType;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.nodes.Node;
 import firm.nodes.Shrs;
 
 import java.util.List;
 
-public class ShrsRule extends SubstitutionRule {
+public class ShrsRule extends SubstitutionRule<Shrs> {
 
     @Override
     public int getCost() {
@@ -21,37 +20,36 @@ public class ShrsRule extends SubstitutionRule {
     }
 
     private Shrs getShrs() {
-        if (node.getRootNode() instanceof Shrs shrs) {
-            return shrs;
-        }
-        new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                .internalError("ShrsRule has no Shrs root node");
-        // We never return
-        throw new RuntimeException();
+        return getRootNode();
     }
     
-    private NodeAnnotation getLeft() {
-        return annotationSupplier.apply(getShrs().getLeft());
+    private NodeAnnotation<Node> getLeft() {
+        return getTypedAnnotation(getShrs().getLeft());
     }
 
-    private NodeAnnotation getRight() {
-        return annotationSupplier.apply(getShrs().getRight());
+    private NodeAnnotation<Node> getRight() {
+        return getTypedAnnotation(getShrs().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
+        VirtualRegister target = new VirtualRegister();
+        target.setMode(getMode());
+        node.setTarget(target);
+
         Operation shrs = new BinaryOperation(BinaryOperationType.SHRS, getLeft().getTarget(), getRight().getTarget());
+        shrs.setMode(getMode());
         return List.of(shrs);
     }
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(getLeft().getRootNode(), getRight().getRootNode());
+        return List.of();
     }
 
     @Override
-    public boolean matches(Node inputNode) {
+    public boolean matches(Shrs inputNode) {
         // Any Shrs node matches
-        return inputNode instanceof Shrs;
+        return inputNode != null;
     }
 }

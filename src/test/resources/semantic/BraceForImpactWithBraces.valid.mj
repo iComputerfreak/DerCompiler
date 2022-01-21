@@ -1,0 +1,6 @@
+class q {
+	public q q;
+	public static void main(String[] args) {
+		q q = (q.q = null).q;
+	}
+}

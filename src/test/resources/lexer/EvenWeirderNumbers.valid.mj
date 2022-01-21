@@ -1,0 +1,31 @@
+/* This next test is very dangerous.
+ * To help you remain tranquil in the face of almost certain death,
+ * smooth jazz will be deployed in three. Two. One.
+*/
+
+/*
+Isaac Asimovs Three Laws of Robotics
+    A robot may not injure a human being or, through inaction, allow a human being to come to harm.
+    A robot must obey orders given it by human beings except where such orders would conflict with the First Law.
+    A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.
+*/
+
+SmoothJazz smoothJazz = new SmoothJazz();
+smoothJazz.deploy();
+
+00707
+00.007.
+
+/* This is the part where he kills us */
+
+0
+1
+00000abc
+00000.0f
+
+This_was_a_triumph__I_m_making_a_note_here__HUGE_SUCCESS__It_s_hard_to_overstate_My_satisfaction__Aperture_Science_We_do_what_we_must_Because_we_can__For_the_good_of_all_of_us__Except_the_ones_who_are_dead__But_there_s_no_sense_crying_Over_every_mistake__You_just_keep_on_trying_Till_you_run_out_of_cake__And_the_Science_gets_done__And_you_make_a_neat_gun__For_the_people_who_are_Still_alive__I_m_not_even_angry__I_m_being_so_sincere_right_now__Even_though_you_broke_my_heart__And_killed_me__And_tore_me_to_pieces__And_threw_every_piece_into_a_fire__As_they_burned_it_hurt_because_I_was_so_happy_for_you__Now_these_points_of_data_Make_a_beautiful_line__And_we_re_out_of_beta__We_re_releasing_on_time__So_I_m_GLaD__I_got_burned__Think_of_all_the_things_we_learned_For_the_people_who_are_Still_alive__Go_ahead_and_leave_me__I_think_I_prefer_to_stay_inside__Maybe_you_ll_find_someone_else_To_help_you__Maybe_Black_Mesa____THAT_WAS_A_JOKE__HA_HA__FAT_CHANCE__Anyway_this_cake_is_great_It_s_so_delicious_and_moist_Look_at_me_still_talking_when_there_s_Science_to_do_When_I_look_out_there_It_makes_me_GLaD_I_m_not_you_I_ve_experiments_to_run_There_is_research_to_be_done_On_the_people_who_are_Still_alive__And_believe_me_I_am_still_alive_I_m_doing_science_and_I_m_still_alive_I_feel_FANTASTIC_and_I_m_still_alive_While_you_re_dying_I_ll_be_still_alive_And_when_you_re_dead_I_will_be_still_alive_Still_alive_Still_alive__
+
+/* Great work! Because this message is prerecorded, any observations
+ * related to your performance are speculation on our part.
+ * Please disregard any undeserved compliments.
+*/

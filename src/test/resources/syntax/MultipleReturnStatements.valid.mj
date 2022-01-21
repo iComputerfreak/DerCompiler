@@ -1,0 +1,20 @@
+class PrivateMember {
+
+    public int test;
+	
+	public static void foo(int a) {
+        
+    }
+	
+	public String test; 
+}
+
+class irgendwas{
+
+	public static void fib(Integer i){
+		return fib(1);
+		return fib(test);
+		
+		return;
+	}
+}

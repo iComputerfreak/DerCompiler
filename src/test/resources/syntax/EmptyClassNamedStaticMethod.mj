@@ -1,0 +1,10 @@
+class Empty
+{
+}
+
+class Valid {
+    public static void notMain(void test) throws Exception {
+        0.method(test, method2(0, true)).arr[false].field;
+        return new void[false || 17 = true = false][][][42].call();
+    }
+}

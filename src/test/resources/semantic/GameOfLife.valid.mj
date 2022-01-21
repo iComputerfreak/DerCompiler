@@ -1,0 +1,180 @@
+/*
+Naive implementation of Conway's Game of Life [1].
+Press any key to calculate next generation.
+Press Ctrl+D to end program.
+
+[1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+*/
+class GameOfLife {
+    public static void main(String[] args) throws Exception {
+        new GameOfLife().init().run();
+    }
+
+    public GameOfLife init() {
+        return this;
+    }
+
+    public void run() throws Exception {
+        int rows = 20;
+        int cols = 30;
+
+        Gen genA = new Gen().init(rows, cols);
+        Gen genB = new Gen().init(rows, cols);
+
+        /* Glider */
+        /*
+        genA.set(0, 1, true);
+        genA.set(1, 2, true);
+        genA.set(2, 0, true);
+        genA.set(2, 1, true);
+        genA.set(2, 2, true);
+        */
+
+        /* R-Pentomino */
+        genA.set(9, 15, true);
+        genA.set(9, 16, true);
+        genA.set(10, 14, true);
+        genA.set(10, 15, true);
+        genA.set(11, 15, true);
+
+        clear();
+        genA.print();
+
+        boolean interrupted = false;
+        while (!interrupted) {
+            /* Wait for user interaction */
+            int inp = System.in.read();
+            if (inp == -1) {
+                interrupted = true;
+            }
+
+            genB.nextFrom(genA);
+            clear();
+            genB.print();
+
+            Gen tmp = genA;
+            genA = genB;
+            genB = tmp;
+        }
+    }
+
+    /* Clear screen and reset cursor to 0,0 */
+    public void clear() {
+        /* ESC[2J */
+        System.out.write(27);
+        System.out.write(91);
+        System.out.write(50);
+        System.out.write(74);
+
+        /* ESC[H */
+        System.out.write(27);
+        System.out.write(91);
+        System.out.write(72);
+    }
+}
+
+class Gen {
+    public int rows;
+    public int cols;
+    public boolean[][] cells;
+
+    public Gen init(int rows, int cols) {
+        this.rows = rows;
+        this.cols = cols;
+
+        cells = new boolean[rows][];
+        int row = 0;
+        while (row < rows) {
+            cells[row] = new boolean[cols];
+            row = row + 1;
+        }
+        return this;
+    }
+
+    public void nextFrom(Gen previous) {
+        if (previous.rows != rows || previous.cols != cols) {
+            return;
+        }
+
+        int row = 0;
+        while (row < rows) {
+            int col = 0;
+            while (col < cols) {
+                int neighbors = previous.neighbors(row, col);
+                if (!previous.get(row, col) && neighbors == 3) {
+                    set(row, col, true);
+                } else if (previous.get(row, col) && (neighbors == 2 || neighbors == 3)) {
+                    set(row, col, true);
+                } else {
+                    set(row, col, false);
+                }
+                col = col + 1;
+            }
+            row = row + 1;
+        }
+    }
+
+    public boolean get(int row, int col) {
+        if (row < 0 || row >= rows || col < 0 || col >= cols) {
+            return false;
+        } else {
+            return cells[row][col];
+        }
+    }
+
+    public int neighbors(int row, int col) {
+        int count = 0;
+        
+        if (get(row + 1, col - 1)) count = count + 1;
+        if (get(row + 1, col)) count = count + 1;
+        if (get(row + 1, col + 1)) count = count + 1;
+        if (get(row, col + 1)) count = count + 1;
+        if (get(row - 1, col + 1)) count = count + 1;
+        if (get(row - 1, col)) count = count + 1;
+        if (get(row - 1, col - 1)) count = count + 1;
+        if (get(row, col - 1)) count = count + 1;
+
+        return count;
+    }
+
+    public void set(int row, int col, boolean alive) {
+        cells[row][col] = alive;
+    }
+    
+    public void print() {
+        System.out.write(43);
+        int col = 0;
+        while (col < cols) {
+            System.out.write(45);
+            col = col + 1;
+        }
+        System.out.write(43);
+        System.out.write(10);
+
+        int row = 0;
+        while (row < rows) {
+            col = 0;
+            System.out.write(124);
+            while (col < cols) {
+                if (get(row, col)) {
+                    System.out.write(79);
+                } else {
+                    System.out.write(46);
+                }
+                col = col + 1;
+            }
+            System.out.write(124);
+            System.out.write(10);
+            row = row + 1;
+        }
+
+        System.out.write(43);
+        col = 0;
+        while (col < cols) {
+            System.out.write(45);
+            col = col + 1;
+        }
+        System.out.write(43);
+        System.out.write(10);
+    }
+}

@@ -1,0 +1,17 @@
+class HelloWorld {
+    public static void main(String[] args) {
+        System.out.write(72);
+        System.out.write(101);
+        System.out.write(108);
+        System.out.write(108);
+        System.out.write(111);
+        System.out.write(32);
+        System.out.write(87);
+        System.out.write(111);
+        System.out.write(114);
+        System.out.write(108);
+        System.out.write(100);
+        System.out.write(33);
+        System.out.write(10);
+    }
+}

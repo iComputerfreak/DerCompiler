@@ -1,0 +1,354 @@
+class Foo1 {
+    public Foo2 f;
+}
+class Foo2 {
+    public Foo3 f;
+}
+class Foo3 {
+    public Foo4 f;
+}
+class Foo4 {
+    public Foo5 f;
+}
+class Foo5 {
+    public Foo6 f;
+}
+class Foo6 {
+    public Foo7 f;
+}
+class Foo7 {
+    public Foo8 f;
+}
+class Foo8 {
+    public Foo9 f;
+}
+class Foo9 {
+    public Foo10 f;
+}
+class Foo10 {
+    public Foo11 f;
+}
+class Foo11 {
+    public Foo12 f;
+}
+class Foo12 {
+    public Foo13 f;
+}
+class Foo13 {
+    public Foo14 f;
+}
+class Foo14 {
+    public Foo15 f;
+}
+class Foo15 {
+    public Foo16 f;
+}
+class Foo16 {
+    public Foo17 f;
+}
+class Foo17 {
+    public Foo18 f;
+}
+class Foo18 {
+    public Foo19 f;
+}
+class Foo19 {
+    public Foo20 f;
+}
+class Foo20 {
+    public Foo21 f;
+}
+class Foo21 {
+    public Foo22 f;
+}
+class Foo22 {
+    public Foo23 f;
+}
+class Foo23 {
+    public Foo24 f;
+}
+class Foo24 {
+    public Foo25 f;
+}
+class Foo25 {
+    public Foo26 f;
+}
+class Foo26 {
+    public Foo27 f;
+}
+class Foo27 {
+    public Foo28 f;
+}
+class Foo28 {
+    public Foo29 f;
+}
+class Foo29 {
+    public Foo30 f;
+}
+class Foo30 {
+    public Foo31 f;
+}
+class Foo31 {
+    public Foo32 f;
+}
+class Foo32 {
+    public Foo33 f;
+}
+class Foo33 {
+    public Foo34 f;
+}
+class Foo34 {
+    public Foo35 f;
+}
+class Foo35 {
+    public Foo36 f;
+}
+class Foo36 {
+    public Foo37 f;
+}
+class Foo37 {
+    public Foo38 f;
+}
+class Foo38 {
+    public Foo39 f;
+}
+class Foo39 {
+    public Foo40 f;
+}
+class Foo40 {
+    public Foo41 f;
+}
+class Foo41 {
+    public Foo42 f;
+}
+class Foo42 {
+    public Foo43 f;
+}
+class Foo43 {
+    public Foo44 f;
+}
+class Foo44 {
+    public Foo45 f;
+}
+class Foo45 {
+    public Foo46 f;
+}
+class Foo46 {
+    public Foo47 f;
+}
+class Foo47 {
+    public Foo48 f;
+}
+class Foo48 {
+    public Foo49 f;
+}
+class Foo49 {
+    public Foo50 f;
+}
+class Foo50 {
+    public Foo51 f;
+}
+class Foo51 {
+    public Foo52 f;
+}
+class Foo52 {
+    public Foo53 f;
+}
+class Foo53 {
+    public Foo54 f;
+}
+class Foo54 {
+    public Foo55 f;
+}
+class Foo55 {
+    public Foo56 f;
+}
+class Foo56 {
+    public Foo57 f;
+}
+class Foo57 {
+    public Foo58 f;
+}
+class Foo58 {
+    public Foo59 f;
+}
+class Foo59 {
+    public Foo60 f;
+}
+class Foo60 {
+    public Foo61 f;
+}
+class Foo61 {
+    public Foo62 f;
+}
+class Foo62 {
+    public Foo63 f;
+}
+class Foo63 {
+    public Foo64 f;
+}
+class Foo64 {
+    public Foo65 f;
+}
+class Foo65 {
+    public Foo66 f;
+}
+class Foo66 {
+    public Foo67 f;
+}
+class Foo67 {
+    public Foo68 f;
+}
+class Foo68 {
+    public Foo69 f;
+}
+class Foo69 {
+    public Foo70 f;
+}
+class Foo70 {
+    public Foo71 f;
+}
+class Foo71 {
+    public Foo72 f;
+}
+class Foo72 {
+    public Foo73 f;
+}
+class Foo73 {
+    public Foo74 f;
+}
+class Foo74 {
+    public Foo75 f;
+}
+class Foo75 {
+    public Foo76 f;
+}
+class Foo76 {
+    public Foo77 f;
+}
+class Foo77 {
+    public Foo78 f;
+}
+class Foo78 {
+    public Foo79 f;
+}
+class Foo79 {
+    public Foo80 f;
+}
+class Foo80 {
+    public Foo81 f;
+}
+class Foo81 {
+    public Foo82 f;
+}
+class Foo82 {
+    public Foo83 f;
+}
+class Foo83 {
+    public Foo84 f;
+}
+class Foo84 {
+    public Foo85 f;
+}
+class Foo85 {
+    public Foo86 f;
+}
+class Foo86 {
+    public Foo87 f;
+}
+class Foo87 {
+    public Foo88 f;
+}
+class Foo88 {
+    public Foo89 f;
+}
+class Foo89 {
+    public Foo90 f;
+}
+class Foo90 {
+    public Foo91 f;
+}
+class Foo91 {
+    public Foo92 f;
+}
+class Foo92 {
+    public Foo93 f;
+}
+class Foo93 {
+    public Foo94 f;
+}
+class Foo94 {
+    public Foo95 f;
+}
+class Foo95 {
+    public Foo96 f;
+}
+class Foo96 {
+    public Foo97 f;
+}
+class Foo97 {
+    public Foo98 f;
+}
+class Foo98 {
+    public Foo99 f;
+}
+class Foo99 {
+    public Foo100 f;
+}
+class Foo100 {
+    public Foo101 f;
+}
+class Foo101 {
+    public Foo102 f;
+}
+class Foo102 {
+    public Foo103 f;
+}
+class Foo103 {
+    public Foo104 f;
+}
+class Foo104 {
+    public Foo105 f;
+}
+class Foo105 {
+    public Foo106 f;
+}
+class Foo106 {
+    public Foo107 f;
+}
+class Foo107 {
+    public Foo108 f;
+}
+class Foo108 {
+    public Foo109 f;
+}
+class Foo109 {
+    public Foo110 f;
+}
+class Foo110 {
+    public Foo111 f;
+}
+class Foo111 {
+    public Foo112 f;
+}
+class Foo112 {
+}
+
+class Final {
+  public static void main(String[] args) {
+    Foo1 first;
+    first
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f.f.f.f.f.f.f.f.f.f
+      .f = null;
+  }
+}

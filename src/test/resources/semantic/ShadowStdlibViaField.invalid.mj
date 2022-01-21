@@ -1,0 +1,7 @@
+class Foo {
+	public boolean System;
+	public void foo() {
+		System.out.println(42);
+	}
+	public static void main(String[] args) {}
+}

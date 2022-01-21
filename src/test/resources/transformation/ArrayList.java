@@ -12,6 +12,7 @@ class Main {
 		list.print();
 
 		System.out.println(list.sum());
+		System.out.println(list.capacity);
 	}
 }
 

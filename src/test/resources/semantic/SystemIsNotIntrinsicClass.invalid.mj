@@ -1,0 +1,7 @@
+/* System is not an intrinsic class (like String) */
+
+class Main {
+	public static void main(String[] args) {
+		System s = null;
+	}
+}

@@ -1,0 +1,11 @@
+class Foo {
+	public void bar() {
+		bar();
+		this.bar();
+	}
+	public static void main(String[] args) {
+		Foo foo = new Foo();
+		int[] numbers = new int[100];
+		new Foo().bar();
+	}
+}
