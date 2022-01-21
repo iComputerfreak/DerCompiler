@@ -1,0 +1,39 @@
+class
+identifier math
+{
+public
+int
+identifier add
+(
+int
+identifier a
+,
+int
+identifier b
+)
+{
+return
+identifier a
++
+identifier b
+;
+}
+public
+int
+identifier sub
+(
+int
+identifier a
+,
+int
+identifier b
+)
+{
+return
+identifier a
+-
+identifier b
+;
+}
+}
+EOF

@@ -1,0 +1,11 @@
+identifier foo_
+identifier _
+identifier ____
+identifier a_b_c_d_e
+identifier adsf
+identifier as
+!
+identifier df
+integer literal 11
+identifier foo
+EOF

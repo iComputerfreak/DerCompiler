@@ -14,9 +14,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LexerTest {
 
@@ -45,7 +46,11 @@ public class LexerTest {
                 // Tests that should succeed
                 if (filename.endsWith(".valid.mj")) {
                     // Look for the output file
-                    URI outputFile = this.getClass().getClassLoader().getResource("lexer/" + filename + ".out").toURI();
+                    URL resource = this.getClass().getClassLoader().getResource("lexer/" + filename + ".out");
+                    if (Objects.isNull(resource)) {
+                        fail("LexerTest %s is missing its output file! Better supply it quickly!");
+                    }
+                    URI outputFile = resource.toURI();
                     BufferedReader reader = new BufferedReader(new FileReader(outputFile.getPath()));
 
                     String line;

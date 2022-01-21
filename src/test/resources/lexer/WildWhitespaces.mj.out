@@ -1,0 +1,15 @@
+if
+(
+true
+)
+{
+identifier System
+.
+identifier out
+.
+identifier println
+(
+identifier argument
+)
+}
+EOF

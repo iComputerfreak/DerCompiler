@@ -1,0 +1,33 @@
+integer literal 500
+identifier g
+identifier Zucker
+integer literal 500
+identifier g
+identifier Margarine
+,
+identifier zimmerwarme
+integer literal 10
+identifier Ei
+(
+identifier er
+)
+,
+identifier verquirlte
+integer literal 2
+identifier Pck
+.
+identifier Vanillinzucker
+integer literal 1
+identifier Schuss
+identifier Rum
+integer literal 1
+identifier kg
+identifier Mehl
+integer literal 1
+identifier Liter
+identifier Milch
+integer literal 1
+identifier Pck
+.
+identifier Backpulver
+EOF

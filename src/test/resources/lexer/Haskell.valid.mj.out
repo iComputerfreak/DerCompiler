@@ -1,0 +1,211 @@
+identifier data
+identifier Rope
+identifier a
+=
+identifier Leaf
+[
+identifier a
+]
+|
+identifier Inner
+(
+identifier Rope
+identifier a
+)
+identifier Int
+(
+identifier Rope
+identifier a
+)
+identifier deriving
+(
+identifier Show
+)
+identifier instance
+identifier Foldable
+identifier Rope
+identifier where
+identifier foldr
+identifier f
+identifier init
+(
+identifier Leaf
+identifier xs
+)
+=
+identifier foldr
+identifier f
+identifier init
+identifier xs
+identifier foldr
+identifier f
+identifier init
+(
+identifier Inner
+identifier l
+identifier _
+identifier r
+)
+=
+identifier foldr
+identifier f
+(
+identifier foldr
+identifier f
+identifier init
+identifier r
+)
+identifier l
+identifier instance
+identifier Traversable
+identifier Rope
+identifier where
+identifier sequenceA
+(
+identifier Leaf
+identifier xs
+)
+=
+identifier pure
+identifier Leaf
+<
+*
+>
+identifier sequenceA
+identifier xs
+identifier sequenceA
+(
+identifier Inner
+identifier l
+identifier w
+identifier r
+)
+=
+identifier pure
+identifier Inner
+<
+*
+>
+identifier sequenceA
+identifier l
+<
+*
+>
+identifier pure
+identifier w
+<
+*
+>
+identifier sequenceA
+identifier r
+identifier ropeSplitAt
+:
+:
+identifier Int
+-
+>
+identifier Rope
+identifier a
+-
+>
+(
+identifier Rope
+identifier a
+,
+identifier Rope
+identifier a
+)
+identifier ropeSplitAt
+identifier n
+(
+identifier Leaf
+identifier xs
+)
+=
+(
+identifier Leaf
+(
+identifier take
+identifier n
+identifier xs
+)
+,
+identifier Leaf
+(
+identifier drop
+identifier n
+identifier xs
+)
+)
+identifier ropeSplitAt
+identifier n
+(
+identifier Inner
+identifier l
+identifier w
+identifier r
+)
+|
+identifier n
+==
+identifier w
+=
+(
+identifier l
+,
+identifier r
+)
+|
+identifier n
+<
+identifier w
+=
+identifier let
+(
+identifier splitL
+,
+identifier splitR
+)
+=
+identifier ropeSplitAt
+identifier n
+identifier l
+identifier in
+(
+identifier splitL
+,
+identifier Inner
+identifier splitR
+(
+identifier ropeLength
+identifier splitR
+)
+identifier r
+)
+|
+identifier otherwise
+=
+identifier let
+(
+identifier splitL
+,
+identifier splitR
+)
+=
+identifier ropeSplitAt
+(
+identifier n
+-
+identifier w
+)
+identifier r
+identifier in
+(
+identifier Inner
+identifier l
+identifier w
+identifier splitL
+,
+identifier splitR
+)
+EOF
