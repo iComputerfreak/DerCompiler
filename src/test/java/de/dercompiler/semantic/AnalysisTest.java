@@ -15,8 +15,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AnalysisTest {
 
@@ -52,7 +51,7 @@ public class AnalysisTest {
                     action.run();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    assertTrue(false);
+                    fail("%s failed".formatted(filename));
                 }
                 assertTrue(OutputMessageHandler.getEvents().isEmpty());
             } else if (filename.endsWith(".invalid.mj")) {
@@ -60,12 +59,16 @@ public class AnalysisTest {
                 boolean error = false;
                 try {
                     action.run();
-                    assertFalse(OutputMessageHandler.getEvents().isEmpty());
+                    if (OutputMessageHandler.getEvents().isEmpty()) {
+                        fail("%s did not fail. It should!".formatted(filename));
+                    };
                     error = true;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                assertTrue(error);
+                if (!error) {
+                    fail("%s did not fail. It should!".formatted(filename));
+                }
                 OutputMessageHandler.clearDebugEvents();
 
             }
