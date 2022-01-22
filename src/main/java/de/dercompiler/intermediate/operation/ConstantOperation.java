@@ -3,7 +3,7 @@ package de.dercompiler.intermediate.operation;
 import de.dercompiler.intermediate.operand.Operand;
 import firm.Mode;
 
-public final class ConstantOperation implements Operation {
+public final class ConstantOperation extends Operation {
 
 
     private final OperationType operationType;

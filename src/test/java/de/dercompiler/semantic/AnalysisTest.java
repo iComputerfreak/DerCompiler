@@ -13,7 +13,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +24,39 @@ public class AnalysisTest {
         OutputMessageHandler.setDebug();
     }
 
+    private static void checkFile(File file) {
+        String filename = file.getName();
+        // Skip output files for now (and any other files that are not test cases)
+
+        System.out.println("Testing file " + filename);
+        Source source = Source.forFile(file);
+        CheckAction action = new CheckAction(source, true);
+
+        // Tests that should succeed
+        if (filename.endsWith(".valid.mj")) {
+            try {
+                action.run();
+            } catch (Exception e) {
+                e.printStackTrace();
+                fail();
+            }
+            assertTrue(OutputMessageHandler.getEvents().isEmpty());
+        } else if (filename.endsWith(".invalid.mj")) {
+            // Make sure that the test really fails
+            boolean error = false;
+            try {
+                action.run();
+                assertFalse(OutputMessageHandler.getEvents().isEmpty());
+                error = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            assertTrue(error);
+            OutputMessageHandler.clearDebugEvents();
+
+        }
+    }
+
     @BeforeEach
     void beforeTests() {
         OutputMessageHandler.clearDebugEvents();
@@ -32,47 +64,19 @@ public class AnalysisTest {
 
     @Test
     void testCases() {
-        //OutputMessageHandler.setTestOutput(false);
         // Test the output for all files
         File[] files = getResourceFolderFiles("semantic");
-        Iterator<File> iterator = Arrays.stream(files).iterator();
-        while (iterator.hasNext()) {
-            File file = iterator.next();
-            String filename = file.getName();
-            // Skip output files for now (and any other files that are not test cases)
+        Arrays.stream(files).forEach(AnalysisTest::checkFile);
 
-            System.out.println("Testing file " + filename);
-            Source source = Source.forFile(file);
-            CheckAction action = new CheckAction(source, true);
+        OutputMessageHandler.setTestOutput(true);
+    }
 
-            // Tests that should succeed
-            if (filename.endsWith(".valid.mj")) {
-                try {
-                    action.run();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    fail("%s failed".formatted(filename));
-                }
-                assertTrue(OutputMessageHandler.getEvents().isEmpty());
-            } else if (filename.endsWith(".invalid.mj")) {
-                // Make sure that the test really fails
-                boolean error = false;
-                try {
-                    action.run();
-                    if (OutputMessageHandler.getEvents().isEmpty()) {
-                        fail("%s did not fail. It should!".formatted(filename));
-                    };
-                    error = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (!error) {
-                    fail("%s did not fail. It should!".formatted(filename));
-                }
-                OutputMessageHandler.clearDebugEvents();
+    @Test
+    void checkFeedback() {
+        // Test the output for all files
+        File[] files = getResourceFolderFiles("feedback");
+        Arrays.stream(files).forEach(AnalysisTest::checkFile);
 
-            }
-        }
         OutputMessageHandler.setTestOutput(true);
     }
 

@@ -1,0 +1,7 @@
+/* Fixed: should quit with error indicating that Type b is not compatible with int */
+class a {
+	public static void main(String[] args) {
+		int b;
+		int a = new b();
+	}
+}

@@ -64,7 +64,7 @@ public final class NewArrayExpression extends PrimaryExpression {
         Node mem = state.construction.getCurrentMem();
         Type type = getType().getFirmTransformationType();
 
-        Node type_size = state.construction.newConst(type.getSize(), FirmTypes.offsetType.getMode());
+        Node type_size = state.construction.newConst(type.getSize(), FirmTypes.longFirmType.getMode());
         Entity methodEntity = LibraryMethods.allocate;
         Node call = state.construction.newCall(mem,
                 state.construction.newAddress(methodEntity),new Node[]{ TransformationHelper.intToOffset(state, getNumElements().createNode(state).genLoad(state)), type_size }, methodEntity.getType());

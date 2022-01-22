@@ -11,7 +11,7 @@ public class FirmTypes {
 
     // Static global firm types
     public static final firm.Type intFirmType;
-    public static final firm.Type offsetType;
+    public static final firm.Type longFirmType;
     public static final firm.Type booleanFirmType;
     public static final firm.Type voidFirmType;
     public static final firm.Type pointerFirmType;
@@ -19,7 +19,7 @@ public class FirmTypes {
     static {
         intFirmType = FirmTypeFactory.getInstance()
                 .createFirmPrimitiveType(new IntegerType());
-        offsetType = FirmTypeFactory.getInstance()
+        longFirmType = FirmTypeFactory.getInstance()
                 .createFirmPrimitiveType(new OffsetType());
         booleanFirmType = FirmTypeFactory.getInstance()
                 .createFirmPrimitiveType(new BooleanType());
