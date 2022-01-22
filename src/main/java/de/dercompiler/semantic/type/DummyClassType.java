@@ -17,7 +17,7 @@ public final class DummyClassType extends ClassType {
 
     @Override
     public boolean isCompatibleTo(Type other) {
-        return realType.isCompatibleTo(other);
+        return realType != null && realType.isCompatibleTo(other);
     }
 
     @Override

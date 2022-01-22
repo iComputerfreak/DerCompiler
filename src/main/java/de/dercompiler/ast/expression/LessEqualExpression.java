@@ -14,7 +14,7 @@ import java.util.Objects;
 import static de.dercompiler.lexer.token.OperatorToken.LESS_THAN;
 import static de.dercompiler.lexer.token.OperatorToken.LESS_THAN_EQUAL;
 
-public final class LessEqualExpression extends BinaryExpression {
+public final class LessEqualExpression extends ComparisonExpression {
     public LessEqualExpression(SourcePosition position, Expression lhs, Expression rhs) {
         super(position, lhs, rhs);
     }
@@ -35,12 +35,6 @@ public final class LessEqualExpression extends BinaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        state.pushExpectValue();
-        createChildNodes(state);
-        state.popExpect();
-
-        ReferenceNode res = TransformationHelper.createComparator(state, Relation.LessEqual, getType());
-        clearChildNodes(state);
-        return res;
+        return TransformationHelper.createComparator(state, this, Relation.LessEqual, getType());
     }
 }

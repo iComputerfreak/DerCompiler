@@ -1,0 +1,15 @@
+/* Fixed: Should accept System as attribute */
+class a {
+
+    public int System;
+    public a attr1;
+    public boolean attr2;
+
+    public static void main(String[] args) {
+
+    }
+
+    public void foo() {
+        int b = System + 4;
+    }
+}

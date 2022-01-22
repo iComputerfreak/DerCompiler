@@ -16,20 +16,27 @@ public class ObjectNode extends ReferenceNode{
     }
 
     @Override
-    public Node genLoad(TransformationState state) {
-        return ref; //load returns the reference if we wan't to store it
-    }
-
-    @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
         new OutputMessageHandler(MessageOrigin.TRANSFORM).internalNestedError("no store on classes allowed, we only work on references", 1);
         return value;
     }
 
     @Override
+    public ReferenceNode prepareLoad(TransformationState state) {
+        //load returns the reference if we wan't to store it
+        prepareNode(ref, NodeAccess.LOAD);
+        return this;
+    }
+
+    @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("tried to call ArrayAccess on Object");
         return null; //we never return
+    }
+
+    @Override
+    public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
+        return this;
     }
 
     @Override

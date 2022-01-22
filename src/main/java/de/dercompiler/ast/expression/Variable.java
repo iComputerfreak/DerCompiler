@@ -66,7 +66,6 @@ public final class Variable extends PrimaryExpression {
         ReferenceNode res;
         if (def instanceof LocalVariableDeclarationStatement lvds) {
             int nodeId = lvds.getNodeId();
-            Mode mode = this.getType().getFirmTransformationType().getMode();
             res = new LocalVariableNode(lvds.getRefType(), nodeId);
         } else if (def instanceof Parameter p) {
             res = new LocalVariableNode(getType(), p.getNodeId());

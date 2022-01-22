@@ -19,20 +19,32 @@ public class FieldNode extends ReferenceNode {
     }
 
     @Override
-    public Node genLoad(TransformationState state) {
-        return TransformationHelper.genLoad(state, ref, mode);
-    }
-
-    @Override
     public ReferenceNode genStore(TransformationState state, ReferenceNode value) {
         TransformationHelper.genStore(state, ref, value.genLoad(state), type.getFirmTransformationType());
         return value;
     }
 
     @Override
+    public ReferenceNode prepareLoad(TransformationState state) {
+        prepareNode(TransformationHelper.genLoad(state, ref, mode), NodeAccess.LOAD);
+        return this;
+    }
+
+    @Override
+    public ReferenceNode prepareAccessArray(TransformationState state) {
+        ArrayType at = getTypeAsArray();
+        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).prepareAccessArray(state);
+    }
+
+    @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         ArrayType at = getTypeAsArray();
         return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).accessArray(state, offset);
+    }
+
+    @Override
+    public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
+        return new ObjectNode(genLoad(state), getTypeAsClass()).prepareGetObjectCallBase(state);
     }
 
     @Override

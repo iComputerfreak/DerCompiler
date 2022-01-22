@@ -8,6 +8,7 @@ public class PassManagerBuilder {
         // name-analysis passes
         manager.addPass(new InterClassAnalysisCheckPass());
         manager.addPass(new MemberDeclarationPass());
+        manager.addPass(new GlobalsPass());
         manager.addPass(new EnterScopePass());
         manager.addPass(new VariableAnalysisCheckPass());
         manager.addPass(new LeaveScopePass());

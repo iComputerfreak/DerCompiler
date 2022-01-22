@@ -1,8 +1,6 @@
 package de.dercompiler.transformation;
 
-import de.dercompiler.ast.statement.IfStatement;
-import de.dercompiler.ast.statement.Statement;
-import de.dercompiler.ast.statement.WhileStatement;
+import de.dercompiler.ast.expression.ComparisonExpression;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.node.RValueNode;
@@ -15,7 +13,7 @@ import firm.nodes.*;
 public class TransformationHelper {
 
     public static Node intToOffset(TransformationState state, Node value) {
-        return state.construction.newConv(value, FirmTypes.offsetType.getMode());
+        return state.construction.newConv(value, FirmTypes.longFirmType.getMode());
     }
 
     public static Node calculateOffset(TransformationState state, Node type_size, Node num_values) {
@@ -46,24 +44,6 @@ public class TransformationHelper {
 
     public static void createJump(Block to, Node jmp) {
         to.addPred(jmp);
-    }
-
-    public static Node createComp(TransformationState state, Relation relation) {
-        Node lhs;
-        Node rhs;
-        if (state.lhs.isReference()) {
-            lhs = state.lhs.getReference();
-        } else { //null incuded
-            lhs = state.lhs.genLoad(state);
-        }
-
-        if (state.rhs.isReference()) {
-            rhs = state.rhs.getReference();
-        } else {
-            rhs = state.rhs.genLoad(state);
-        }
-
-        return state.construction.newCmp(lhs, rhs, relation);
     }
 
     public static void createConditionJumps(TransformationState state, Node cmp) {
@@ -110,18 +90,18 @@ public class TransformationHelper {
         }
     }
 
-    public static ReferenceNode createComparator(TransformationState state, Relation relation, de.dercompiler.semantic.type.Type resType) {
+    public static ReferenceNode createComparator(TransformationState state, ComparisonExpression comp, Relation relation, de.dercompiler.semantic.type.Type resType) {
         //we assume here state.lhs and state.rhs are set
         ReferenceNode res = null;
         if (state.expectValue()) {
             Block after = state.construction.newBlock();
             state.pushBranches(after, after);
-            createConditionJumps(state, createComp(state, relation));
+            createConditionJumps(state, comp.createComp(state, relation));
             state.construction.setCurrentBlock(after);
             state.popBranches();
             res = new RValueNode(state.construction.newPhi( new Node[]{createBooleanNode(state, true), createBooleanNode(state, false)} , Mode.getBu()), resType);
         } else {
-            createConditionJumps(state, createComp(state, relation));
+            createConditionJumps(state, comp.createComp(state, relation));
         }
 
         return res;

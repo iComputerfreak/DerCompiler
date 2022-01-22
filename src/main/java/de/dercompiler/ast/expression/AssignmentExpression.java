@@ -46,33 +46,29 @@ public final class AssignmentExpression extends BinaryExpression {
 
     private ReferenceNode createBooleanValueNode(TransformationState state) {
         state.pushExpectValue();
-        createChildNodes(state);
+        ReferenceNode lhs = createLhs(state);
+        ReferenceNode rhs = createRhs(state);
+        lhs.genStore(state, rhs);
         state.popExpect();
 
-        state.lhs.genStore(state, state.rhs);
         ReferenceNode node = null;
         if (state.expectValue()) {
-            node = state.rhs;
+            node = rhs;
         } else {
-            Node cmp = state.construction.newCmp(state.rhs.genLoad(state), TransformationHelper.createBooleanNode(state, true), Relation.Equal);
+            Node cmp = state.construction.newCmp(rhs.genLoad(state), TransformationHelper.createBooleanNode(state, true), Relation.Equal);
             TransformationHelper.createConditionJumps(state, cmp);
         }
-        clearChildNodes(state);
         return node;
     }
 
     private void createBooleanBranchNode(TransformationState state) {
         state.pushBranches(state.construction.newBlock(), state.construction.newBlock());
-        //state.pushExpectValue();
-        state.isAsignement = true;
-        createChildNodes(state);
-        state.isAsignement = false;
-        //state.popExpect();
-        afterCreatedBranches(state);
-        clearChildNodes(state);
-    }
 
-    private void afterCreatedBranches(TransformationState state) {
+        state.isAsignement = true;
+        ReferenceNode lhs = createLhs(state);
+        ReferenceNode rhs = createRhs(state);
+        state.isAsignement = false;
+
         Block cur = state.construction.getCurrentBlock();
         Block assignTrue = state.trueBlock();                       //getter information and setup following complicated cases
         Block assignFalse = state.falseBlock();
@@ -82,15 +78,16 @@ public final class AssignmentExpression extends BinaryExpression {
 
         state.construction.setCurrentBlock(assignTrue);                         //assign true in case of true
         Node nodeT = TransformationHelper.createBooleanNode(state, true);
-        state.lhs.genStore(state, new RValueNode(nodeT, getType()));         // create jump to original true-block
+        lhs.genStore(state, new RValueNode(nodeT, getType()));         // create jump to original true-block
         TransformationHelper.createDirectJump(state, state.trueBlock());
 
         state.construction.setCurrentBlock(assignFalse);                        //assign false in case of false
         Node nodeF = TransformationHelper.createBooleanNode(state, false);
-        state.lhs.genStore(state, new RValueNode(nodeF, getType()));         // create jump to original false-block
+        lhs.genStore(state, new RValueNode(nodeF, getType()));         // create jump to original false-block
         TransformationHelper.createDirectJump(state, state.falseBlock());
 
         state.construction.setCurrentBlock(cur);
+
     }
 
     @Override
@@ -104,10 +101,9 @@ public final class AssignmentExpression extends BinaryExpression {
                 createBooleanBranchNode(state);
             }
         } else {
-            createChildNodes(state);
-            state.lhs.genStore(state, state.rhs);
-            res = state.rhs;
-            clearChildNodes(state);
+            ReferenceNode lhs = createLhs(state);
+            res = createRhs(state);
+            lhs.genStore(state, res);
         }
         return res;
     }

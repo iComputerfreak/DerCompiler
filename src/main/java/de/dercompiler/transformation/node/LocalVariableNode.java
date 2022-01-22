@@ -33,19 +33,26 @@ public class LocalVariableNode extends ReferenceNode {
     }
 
     @Override
+    public ReferenceNode prepareLoad(TransformationState state) {
+        prepareNode(state.construction.getVariable(num, mode), NodeAccess.LOAD);
+        return this;
+    }
+
+    @Override
+    public ReferenceNode prepareAccessArray(TransformationState state) {
+        ArrayType at = getTypeAsArray();
+        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).prepareAccessArray(state);
+    }
+
+    @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         ArrayType at = getTypeAsArray();
         return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).accessArray(state, offset);
     }
 
     @Override
-    public ReferenceNode accessField(TransformationState state, String fieldName) {
-        ClassType ct = getTypeAsClass();
-        FieldDefinition def = ct.getField(fieldName);
-        Type fieldType = def.getType();
-        Entity field = state.globalScope.getMemberEntity(ct.getIdentifier(), def.getNode().getMangledIdentifier());
-        Node member = state.construction.newMember(genLoad(state) , field);
-        return new FieldNode(member, fieldType);
+    public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
+        return new ObjectNode(genLoad(state), getTypeAsClass()).prepareGetObjectCallBase(state);
     }
 
     @Override

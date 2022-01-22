@@ -36,6 +36,7 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
         this.logger = new OutputMessageHandler(MessageOrigin.PASSES);
         this.symbolTable = program.getSymbolTable();
         this.globalScope = program.getGlobalScope();
+        this.stringTable = program.getStringTable();
 
         initializeString();
     }
@@ -84,10 +85,6 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
 
     @Override
     public boolean runOnClass(ClassDeclaration classDeclaration) {
-        stringTable = new StringTable();
-
-        // Do not add the object 'System' if there is a custom class System present
-        if (globalScope.getClass("System") instanceof InternalClass) initializeSystemOut();
 
         for (ClassMember classMember : classDeclaration.getMembers()) {
             if (classMember instanceof Field field) {
