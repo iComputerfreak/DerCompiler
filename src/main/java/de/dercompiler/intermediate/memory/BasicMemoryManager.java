@@ -1,11 +1,11 @@
 package de.dercompiler.intermediate.memory;
 
-import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.Address;
-import de.dercompiler.intermediate.operand.X86Register;
-import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.operand.*;
 
 import de.dercompiler.intermediate.operation.*;
+import de.dercompiler.intermediate.operation.ConstantOperations.Ret;
+import de.dercompiler.intermediate.operation.UnaryOperations.Call;
+import de.dercompiler.intermediate.operation.UnaryOperations.Push;
 import firm.Entity;
 
 import java.util.Map;
@@ -68,7 +68,7 @@ public class BasicMemoryManager implements MemoryManager {
 
      @Override
     public Operand pushValue(Operand source) {
-        output.accept(new UnaryOperation(UnaryOperationType.PUSH, source));
+        output.accept(new Push((Register) source));
         stackPointer = stackPointer.offset(-8);
         return stackPointer.copy();
     }
@@ -85,13 +85,12 @@ public class BasicMemoryManager implements MemoryManager {
         }
         stackPointer = stackPointer.offset(-1);
         pushValue(basePointer);
-        output.accept(new UnaryOperation(UnaryOperationType.CALL, LabelOperand.forMethod(methodEntity)));
+        output.accept(new Call((LabelOperand) LabelOperand.forMethod(methodEntity)));
     }
 
     @Override
     public void leaveMethod(Operand returnValue) {
-
-        output.accept(new ConstantOperation(ConstantOperationType.RET));
+        output.accept(new Ret());
     }
 
     @Override
