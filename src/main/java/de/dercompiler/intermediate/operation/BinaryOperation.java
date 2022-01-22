@@ -4,20 +4,22 @@ import de.dercompiler.intermediate.operand.Operand;
 
 import firm.Mode;
 
-public final class BinaryOperation extends Operation {
+public abstract non-sealed class BinaryOperation extends Operation {
 
-    private Operand[] operands;
+    private Operand target, source;
+
     private final OperationType operationType;
     private Mode mode;
 
-    public BinaryOperation(OperationType operationType, Operand op1, Operand op2) {
+    public BinaryOperation(OperationType operationType, Operand target, Operand source) {
         this.operationType = operationType;
-        this.operands = new Operand[] {op1, op2};
+        this.target = target;
+        this.source = source;
     }
 
     @Override
     public Operand[] getArgs() {
-        return operands;
+        return new Operand[]{target, source};
     }
     
     public OperationType getOperationType() {
@@ -26,7 +28,7 @@ public final class BinaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + operands[0].getIdentifier() + " " + operands[1].getIdentifier();
+        return operationType.getSyntax() + " " + target.getIdentifier() + " " + source.getIdentifier();
     }
 
     @Override
@@ -40,6 +42,6 @@ public final class BinaryOperation extends Operation {
 
     @Override
     public String toString() {
-        return "%s %s %s (%s)".formatted(operationType, operands[0], operands[1], mode);
+        return "%s %s %s (%s)".formatted(operationType, target, source, mode);
     }
 }

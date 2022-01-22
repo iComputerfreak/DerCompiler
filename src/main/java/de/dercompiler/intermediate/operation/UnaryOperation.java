@@ -3,7 +3,7 @@ package de.dercompiler.intermediate.operation;
 import de.dercompiler.intermediate.operand.Operand;
 import firm.Mode;
 
-public final class UnaryOperation extends Operation {
+public abstract non-sealed class UnaryOperation extends Operation {
 
     private Mode mode;
     private Operand operand;

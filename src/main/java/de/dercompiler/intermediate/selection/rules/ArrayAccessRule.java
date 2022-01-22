@@ -1,12 +1,10 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import com.sun.jna.platform.win32.Ddeml;
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.Register;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
-import de.dercompiler.intermediate.operation.BinaryOperationType;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.io.OutputMessageHandler;

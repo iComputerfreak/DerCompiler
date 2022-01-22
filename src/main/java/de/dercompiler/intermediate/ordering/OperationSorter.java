@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.ordering;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operation.BinaryOperationType;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.OperationType;
 
