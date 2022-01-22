@@ -8,8 +8,10 @@ import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Dump;
-import firm.nodes.Node;
+import firm.Mode;
+import firm.nodes.*;
 import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.dot.DOTExporter;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,8 +60,23 @@ public class GraphDumper {
                     opStrings +
                     (v.getTarget() != null ? "\n==>" + v.getTarget().toString() : "");
             
-            return Map.of("label", DefaultAttribute.createAttribute(label));
-        }, (e) -> new HashMap<>());
+            return Map.of(
+                    "label", DefaultAttribute.createAttribute(label),
+                    "color", DefaultAttribute.createAttribute(getNodeColor(v)));
+        }, (e) -> Map.of("color", DefaultAttribute.createAttribute(getEdgeColor(e))));
+    }
+
+    private static <E> String getEdgeColor(E e) {
+        // It seems there is no proper way to get any kind of information about the edge
+        // It is hard to know whether this edge represents "memory flow" or not
+        return "black";
+    }
+
+    private static String getNodeColor(NodeAnnotation<?> v) {
+        Node rootNode = v.getRootNode();
+        if (Objects.equals(rootNode.getMode(), Mode.getM()) || rootNode instanceof Store || rootNode instanceof Load || rootNode instanceof Call
+        || rootNode instanceof Start || rootNode instanceof Return) return "red";
+        return "black";
     }
 
     public static <E> void dumpCodeGraph(Graph<CodeNode, E> graph, String name) {

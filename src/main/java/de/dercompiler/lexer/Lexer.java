@@ -1,7 +1,6 @@
 package de.dercompiler.lexer;
 
 
-import com.sun.jna.platform.win32.WinDef;
 import de.dercompiler.general.GeneralErrorIds;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
@@ -13,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.stream.Stream;
 
 /**
  * Represents a Lexer for MiniJava. It transforms a character input source into a buffered sequence of {@link IToken}s, which allows for a certain lookahead.
@@ -906,23 +904,19 @@ public class Lexer {
     }
 
 
-    private String nextLine() {
+    private void nextLine() {
         try {
             String line = reader.readLine();
             this.tokenBuffer.clear();
-            if (line == null) {
-                this.position.setColumn(line.length() + 1);
-            } else {
+            if (line != null) {
                 // position.newLine() is not suitable here, as the first character of the new line is not read yet
                 // see readCharacter: here, when newLine() is called, currentChar is already the first char of the new line.
                 this.position.line++;
                 this.position.column = 0;
             }
-            return line;
         } catch (IOException e) {
             new OutputMessageHandler(MessageOrigin.LEXER).printErrorAndExit(GeneralErrorIds.IO_EXCEPTION, "Error while reading input file.", e);
         }
-        return null;
     }
 
     /**

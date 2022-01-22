@@ -1,29 +1,30 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Address;
-import de.dercompiler.intermediate.operand.VirtualRegister;
+import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.Mode;
 import firm.nodes.Node;
 import firm.nodes.Proj;
+import firm.nodes.Start;
 
 import java.util.List;
 import java.util.Objects;
 
-public class ProjRule extends SubstitutionRule<Proj> {
+public class ParamRule extends SubstitutionRule<Proj> {
     @Override
     public int getCost() {
-        return 2;
+        return 1;
     }
 
     @Override
     public List<Operation> substitute() {
-        if (Objects.equals(getMode(), Mode.getM())) {
-            // not represented in memory
-            this.setTarget(null);
-        }
+        ParameterRegister target = new ParameterRegister();
+        target.setMode(getMode());
+        setTarget(target);
+
+        //TODO
         return List.of();
     }
 
@@ -34,6 +35,9 @@ public class ProjRule extends SubstitutionRule<Proj> {
 
     @Override
     public boolean matches(Proj inputNode) {
-        return inputNode != null;
+        return inputNode != null
+                && inputNode.getPred() instanceof Proj pred
+                && Objects.equals(pred.getMode(), Mode.getT())
+                && pred.getPred() instanceof Start;
     }
 }

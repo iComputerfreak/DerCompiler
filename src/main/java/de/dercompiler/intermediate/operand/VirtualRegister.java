@@ -19,7 +19,7 @@ public class VirtualRegister implements Register {
 
     @Override
     public String getIdentifier() {
-        return "@" + id;
+        return "@V" + id;
     }
 
     @Override
