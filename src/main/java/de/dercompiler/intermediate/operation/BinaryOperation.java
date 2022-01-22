@@ -4,7 +4,7 @@ import de.dercompiler.intermediate.operand.Operand;
 
 import firm.Mode;
 
-public final class BinaryOperation implements Operation {
+public final class BinaryOperation extends Operation {
 
     private Operand[] operands;
     private final OperationType operationType;

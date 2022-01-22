@@ -11,14 +11,14 @@ public enum X86Register implements Operand {
     RDI("rdi", "edi", "di", "dil"),
     RSP("rsp", "esp", "sp", "spl"),
     RBP("rbp", "ebp", "bp", "bpl"),
-    R8D("r8"),
-    R9D("r9"),
-    R10D("r10"),
-    R11D("r11"),
-    R12D("r12"),
-    R13D("r13"),
-    R14D("r14"),
-    R15D("r15");
+    R8("r8"),
+    R9("r9"),
+    R10("r10"),
+    R11("r11"),
+    R12("r12"),
+    R13("r13"),
+    R14("r14"),
+    R15("r15");
 
     private final String id;
     private final String idd;
