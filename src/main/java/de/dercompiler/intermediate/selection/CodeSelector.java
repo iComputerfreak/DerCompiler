@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
+import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.EmptyRule;
@@ -110,6 +111,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* 1. Create NodeAnnotations for every firm.Node */
         /* ============================================= */
         this.mode = Mode.ANNOTATION; // Set, in case generateCode() is called twice
+        ParameterRegister.resetNextID();
         graph.walkPostorder(this);
 
         /* ===================================== */
@@ -245,14 +247,9 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             return;
         }
         Class<T> aClass = (Class<T>) node.getClass();
-        if (!RuleSet.containsKey(aClass)) {
-            // If we have no rules to apply, create a dummy annotation
-            // TODO: When all rules are specified this should not happen anymore!
-            //  Every node needs at least one rule
-            // Dummy annotation:
-            annotations.put(node.getNr(), new NodeAnnotation<Node>(0, node, new EmptyRule()));
-            return;
-        }
+
+
+
         // We only look at rules that have a root node that matches our current node
         RuleSet.forNodeClass(aClass, rule -> {
             // Check if rule matches the node and its predecessors
@@ -268,6 +265,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
             }
         });
         if (!annotations.containsKey(node.getNr())) {
+            // If we have no rules to apply, create a dummy annotation
+            // TODO: When all rules are specified this should not happen anymore!
+            //  Every node needs at least one rule
+            // Dummy annotation:
+            annotations.put(node.getNr(), new NodeAnnotation<Node>(0, node, new EmptyRule()));
             NodeAnnotation<Node> a = this.createAnnotation(Node.class, node, new EmptyRule());
             annotations.put(node.getNr(), a);
         }
