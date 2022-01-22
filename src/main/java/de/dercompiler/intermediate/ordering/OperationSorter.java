@@ -36,14 +36,14 @@ public abstract class OperationSorter {
             if (i == 0) opData.setDepth(0);
             operationData.set(i, opData);
 
-            if (op.getOperationType() == BinaryOperationType.LOAD) {
+            if (op.getOperationType() == OperationType.LOAD) {
                 Operand loaded = op.getArgs()[1];
 
                 int storeOpNr = mgmt.getCurrStore(loaded);
                 addDependency(opData, storeOpNr, DependencyType.LOAD_STORE);
 
                 mgmt.setCurrLoad(loaded, i);
-            } else if (op.getOperationType() == BinaryOperationType.STORE) {
+            } else if (op.getOperationType() == OperationType.STORE) {
                 Operand stored = op.getArgs()[0];
 
                 int storeOpNr = mgmt.getCurrStore(stored);

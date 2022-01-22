@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.ordering;
 
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.operation.OperationType;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -18,7 +19,7 @@ public class GibbonsMuchnikSorter extends OperationSorter {
         while (!(readyOps = this.getReadyOps()).isEmpty()) {
             // (1) Choose load operations
             OperationData loadOperation = readyOps.stream()
-                    .filter(op -> op.getOperationType() == BinaryOperationType.LOAD)
+                    .filter(op -> op.getOperationType() == OperationType.LOAD)
                     .findFirst().orElse(null);
             if (!Objects.isNull(loadOperation)) {
                 basicBlockOps.add(loadOperation.getOperation());
