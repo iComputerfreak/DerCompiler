@@ -43,13 +43,15 @@ public final class ArrayAccess extends PostfixExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        ReferenceNode base_ptr = getEncapsulated().createNode(state).prepareAccessArray(state);
+        ReferenceNode base_ptr = getEncapsulated().createNode(state);
         if (!(base_ptr.getType() instanceof ArrayType at)) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("NewArrayExpression has no ArrayType");
             return null; //we never return
         }
+        base_ptr = base_ptr.prepareAccessArray(state);
 
         int type_size_const = at.getElementType().getFirmTransformationType().getSize();
+        new OutputMessageHandler(MessageOrigin.TRANSFORM).printInfo(at.getDimension() + " " + type_size_const);
         Node type_size = state.construction.newConst(type_size_const, FirmTypes.longFirmType.getMode());
         ReferenceNode elements = index.createNode(state);
         //convert size?
