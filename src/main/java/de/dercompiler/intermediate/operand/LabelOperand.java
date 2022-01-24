@@ -32,4 +32,9 @@ public class LabelOperand implements Operand {
     public void setMode(Mode mode) {
 
     }
+
+    @Override
+    public String toString() {
+        return getIdentifier();
+    }
 }

@@ -7,13 +7,15 @@ import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
+import firm.Mode;
 import firm.nodes.Jmp;
 import firm.nodes.Node;
+import firm.nodes.Proj;
 
 import java.util.List;
 import java.util.Objects;
 
-public class JmpRule extends SubstitutionRule<Jmp> {
+public class CondJmpRule extends SubstitutionRule<Proj> {
     @Override
     public int getCost() {
         return 1;
@@ -36,8 +38,8 @@ public class JmpRule extends SubstitutionRule<Jmp> {
     }
 
     @Override
-    public boolean matches(Jmp inputNode) {
-        return !Objects.isNull(inputNode);
+    public boolean matches(Proj inputNode) {
+        return !Objects.isNull(inputNode) && Objects.equals(inputNode.getMode(), Mode.getX());
     }
 
     @Override

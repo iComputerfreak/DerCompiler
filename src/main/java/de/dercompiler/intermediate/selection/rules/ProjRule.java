@@ -29,7 +29,7 @@ public class ProjRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of();
+        return List.of(getRootNode());
     }
 
     @Override

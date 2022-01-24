@@ -903,7 +903,9 @@ public class Lexer {
         return sb.toString();
     }
 
-
+    /**
+     * Sets the position to the beginning of the next line
+     */
     private void nextLine() {
         try {
             String line = reader.readLine();
@@ -911,6 +913,11 @@ public class Lexer {
             if (line != null) {
                 // position.newLine() is not suitable here, as the first character of the new line is not read yet
                 // see readCharacter: here, when newLine() is called, currentChar is already the first char of the new line.
+                this.position.line++;
+                this.position.column = 0;
+            } else {
+                //This should be impossible
+                System.out.println("- Lexer walked right through the end of the source file - ");
                 this.position.line++;
                 this.position.column = 0;
             }

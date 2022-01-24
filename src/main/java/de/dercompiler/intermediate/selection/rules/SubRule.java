@@ -14,7 +14,7 @@ public class SubRule extends SubstitutionRule<Sub> {
 
     @Override
     public int getCost() {
-        return 1 + getLeft().getCost() + getRight().getCost();
+        return 1; //+ getLeft().getCost() + getRight().getCost();
     }
 
     private Sub getSub() {
