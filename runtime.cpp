@@ -42,8 +42,8 @@ void* allocate(int64_t num, int64_t size) {
     //otherwise return the same address or NULL
     size_t realsize = size <= 0 ? 1 : size;
     size_t realnum = num <= 0 ? 1 : num;
-    void* res = calloc(realnum, realsize);
-    std::cout << "allocation - size: " << size << " num: " << num << " res: " << res <<"\n";
+    std::cout << "size: " << size << " num: " << num << "\n";
+    return calloc(realnum, realsize);
 }
 
 #ifdef __cplusplus
