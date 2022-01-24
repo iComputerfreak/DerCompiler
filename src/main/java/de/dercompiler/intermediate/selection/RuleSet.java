@@ -14,6 +14,7 @@ public final class RuleSet {
     private static final Map<Class<? extends Node>, List<? extends SubstitutionRule<?>>> rules = Map.ofEntries(
             entry(Add.class, List.<SubstitutionRule<Add>>of(new AddRule(), new IncLRule(), new IncRRule(), new ArrayAccessRule())),
             entry(And.class, List.<SubstitutionRule<And>>of(new AndRule())),
+            entry(Call.class, List.<SubstitutionRule<Call>>of(new CallRule())),
             entry(Cmp.class, List.<SubstitutionRule<Cmp>>of(new CmpRule())),
             entry(Const.class, List.<SubstitutionRule<Const>>of(new ConstRule())),
             entry(Conv.class, List.<SubstitutionRule<Conv>>of(new ConstConvRule(), new ConvRule())),
@@ -25,6 +26,7 @@ public final class RuleSet {
             entry(Not.class, List.<SubstitutionRule<Not>>of(new NotRule())),
             entry(Or.class, List.<SubstitutionRule<Or>>of(new OrRule())),
             entry(Phi.class, List.<SubstitutionRule<Phi>>of(new PhiRule())),
+            entry(Return.class, List.<SubstitutionRule<Return>>of(new ReturnRule())),
             entry(Proj.class, List.<SubstitutionRule<Proj>>of(new ProjRule(), new ProjLoadRule(), new ParamRule())),
             entry(Shl.class, List.<SubstitutionRule<Shl>>of(new ShlRule())),
             entry(Shr.class, List.<SubstitutionRule<Shr>>of(new ShrRule())),

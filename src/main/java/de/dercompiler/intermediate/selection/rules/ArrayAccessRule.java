@@ -1,10 +1,9 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operand.Address;
-import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.Register;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
+import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.io.OutputMessageHandler;
@@ -50,10 +49,8 @@ public class ArrayAccessRule extends AddRule {
     private int getScale() {
         Mul offset = getOffset();
         Operand target = getTypedAnnotation(offset.getLeft()).getTarget();
-        if (target instanceof Address scale) {
-            if (scale.isConstant()) {
-                return scale.asConstant();
-            }
+        if (target instanceof ConstantValue scale) {
+            return scale.getValue();
         }
         // we never return
         throw new RuntimeException();
@@ -84,7 +81,7 @@ public class ArrayAccessRule extends AddRule {
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
             getIndex().setTarget(target);
-            ops = List.of(new BinaryOperation(BinaryOperationType.MOV, idxReg, index));
+            ops = List.of(new Mov(idxReg, index));
         }
 
         getAnnotation(getRootNode()).setTarget(target);

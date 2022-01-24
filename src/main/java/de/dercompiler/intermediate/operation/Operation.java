@@ -3,7 +3,7 @@ package de.dercompiler.intermediate.operation;
 import de.dercompiler.intermediate.operand.Operand;
 import firm.Mode;
 
-public sealed abstract class Operation permits ConstantOperation, UnaryOperation, BinaryOperation {
+public sealed abstract class Operation permits BinaryOperation, ConstantOperation, NaryOperation, UnaryOperation {
     public abstract Operand[] getArgs();
     public abstract OperationType getOperationType();
     public abstract String getIntelSyntax();

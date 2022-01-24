@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.BinaryOperation;
+import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -31,7 +32,7 @@ public class StoreRule extends SubstitutionRule<Store> {
     @Override
     public List<Operation> substitute() {
         Operand targetReg = getAnnotation(getTarget()).getTarget();
-        Operation mov = new BinaryOperation(BinaryOperationType.MOV,
+        Operation mov = new Mov(
                 targetReg,
                 getAnnotation(getValue()).getTarget());
         mov.setMode(getMode());

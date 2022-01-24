@@ -14,7 +14,7 @@ public class ConstantValue implements Operand {
     
     @Override
     public String getIdentifier() {
-        return Integer.toString(value);
+        return "0x%x".formatted(value);
     }
 
     @Override
@@ -29,5 +29,10 @@ public class ConstantValue implements Operand {
 
     public int getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return getIdentifier();
     }
 }

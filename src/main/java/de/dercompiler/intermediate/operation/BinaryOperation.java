@@ -6,7 +6,8 @@ import firm.Mode;
 
 public abstract non-sealed class BinaryOperation extends Operation {
 
-    private Operand target, source;
+    private final Operand target;
+    private final Operand source;
 
     private final OperationType operationType;
     private Mode mode;

@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Address;
+import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -21,7 +22,7 @@ public class ConstConvRule extends SubstitutionRule<Conv> {
     @Override
     public List<Operation> substitute() {
         // save as constant operand, no operations
-        Address target = new Address(getConst().getTarval().asInt(), null);
+        ConstantValue target = new ConstantValue(getConst().getTarval().asInt());
         target.setMode(getRootNode().getMode());
         node.setTarget(target);
         return List.of();

@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operation.ConstantOperation;
+import de.dercompiler.intermediate.operation.ConstantOperations.Nop;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -18,7 +19,7 @@ public class EmptyRule extends SubstitutionRule<Node> {
     
     @Override
     public List<Operation> substitute() {
-        return List.of(new ConstantOperation(ConstantOperationType.NOP));
+        return List.of(new Nop());
     }
     
     @Override

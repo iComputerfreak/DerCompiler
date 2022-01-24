@@ -24,9 +24,7 @@ public class MemberRule extends SubstitutionRule<Member> {
 
     @Override
     public List<Operation> substitute() {
-        // bit -> byte
-        //TODO: Set member offset and size properly
-        int offset = 42; //getMember().getEntity().getBitfieldOffset() / 8;
+        int offset = getMember().getEntity().getOffset();
         Operand object = getAnnotation(getObject()).getTarget();
         Address target = Address.offset(object, offset);
         target.setMode(getMode());

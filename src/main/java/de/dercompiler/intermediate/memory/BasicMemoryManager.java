@@ -3,8 +3,7 @@ package de.dercompiler.intermediate.memory;
 import de.dercompiler.intermediate.operand.*;
 
 import de.dercompiler.intermediate.operation.*;
-import de.dercompiler.intermediate.operation.ConstantOperations.Ret;
-import de.dercompiler.intermediate.operation.UnaryOperations.Call;
+import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.UnaryOperations.Push;
 import firm.Entity;
 
@@ -90,7 +89,7 @@ public class BasicMemoryManager implements MemoryManager {
 
     @Override
     public void leaveMethod(Operand returnValue) {
-        output.accept(new Ret());
+
     }
 
     @Override

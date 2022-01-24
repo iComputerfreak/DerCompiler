@@ -33,7 +33,7 @@ public class CmpRule extends SubstitutionRule<Cmp> {
 
     @Override
     public List<Operation> substitute() {
-        Operation cmp = new BinaryOperation(BinaryOperationType.CMP, getLeft().getTarget(), getRight().getTarget());
+        Operation cmp = new de.dercompiler.intermediate.operation.BinaryOperations.Cmp(getLeft().getTarget(), getRight().getTarget());
         cmp.setMode(getCmp().getMode());
 
         // result of cmp is found in flag register

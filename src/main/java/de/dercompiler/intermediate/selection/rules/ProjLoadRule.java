@@ -1,8 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operation.BinaryOperation;
-import de.dercompiler.intermediate.operation.BinaryOperationType;
+import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -36,7 +35,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
     @Override
     public List<Operation> substitute() {
         Operand target = getAnnotation(getRootNode()).getTarget();
-        Operation mov = new BinaryOperation(BinaryOperationType.MOV, getAnnotation(getLoad()).getTarget(), target);
+        Operation mov = new Mov(getAnnotation(getLoad()).getTarget(), target);
         mov.setMode(getMode());
         return List.of(mov);
     }

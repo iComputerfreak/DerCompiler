@@ -6,30 +6,12 @@ import de.dercompiler.intermediate.operation.OperationType;
 /*
 Shift left
 
-Das rechte Argument ist entweder die Konstante 1 oder das CL Register
+Das rechte Argument ist entweder die Konstante 1, ein 1-byte immediate value oder das CL Register
  */
-public class Shl extends BinaryOperation {
+public class Shl extends ShiftOperation {
 
-    public Shl(Register target, Register source){
+    public Shl(Operand target, Operand source){
         super(OperationType.SHL, target, source);
-    }
-
-    public Shl(Register target, ConstantValue source){
-        super(OperationType.SHL, target, source);
-        if (source.getValue() != 1){
-            throw new RuntimeException();
-        }
-    }
-
-    public Shl(Address target, Register source){
-        super(OperationType.SHL, target, source);
-    }
-
-    public Shl(Address target, ConstantValue source){
-        super(OperationType.SHL, target, source);
-        if (source.getValue() != 1){
-            throw new RuntimeException();
-        }
     }
 
 }

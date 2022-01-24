@@ -3,6 +3,8 @@ package de.dercompiler.intermediate.operation;
 import de.dercompiler.intermediate.operand.Operand;
 import firm.Mode;
 
+import java.util.Objects;
+
 public abstract non-sealed class UnaryOperation extends Operation {
 
     private Mode mode;
@@ -25,7 +27,7 @@ public abstract non-sealed class UnaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + operand.getIdentifier();
+        return operationType.getSyntax() + (Objects.isNull(operand) ? "" :  " " + operand.getIdentifier());
     }
 
     @Override
