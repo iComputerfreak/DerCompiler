@@ -171,7 +171,7 @@ next && inc_successes || inc_failures
 
 # We are currently in .tests, so the build script is located in the folder above us
 step "Testing build script"
-try ../build
+try ../gradlew build -x test
 next && inc_successes || inc_failures
 
 
