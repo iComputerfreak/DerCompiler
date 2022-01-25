@@ -46,14 +46,15 @@ public class ArrayElementNode extends ReferenceNode {
 
     @Override
     public ReferenceNode prepareAccessArray(TransformationState state) {
-        ArrayType at = getTypeAsArray();
-        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).prepareAccessArray(state);
+        prepareNode(genLoadAndReset(state), NodeAccess.ARRAY_ACCESS);
+        return this;
     }
 
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         ArrayType at = getTypeAsArray();
-        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).accessArray(state, offset);
+        if (!isPrepared(NodeAccess.ARRAY_ACCESS)) prepareAccessArray(state);
+        return new ArrayNode(getPreparedNode(NodeAccess.ARRAY_ACCESS), at, at.getDimension()).accessArray(state, offset);
     }
 
     @Override

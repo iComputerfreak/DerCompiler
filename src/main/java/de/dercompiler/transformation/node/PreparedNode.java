@@ -35,6 +35,12 @@ public class PreparedNode {
         return node;
     }
 
+    public Node getPreparedAndReset(NodeAccess check) {
+        Node res = getPrepared(check);
+        access = NodeAccess.UNINITALIZED;
+        return res;
+    }
+
     public boolean isPrepared(NodeAccess access) {
         return this.access != NodeAccess.UNINITALIZED && this.access == access;
     }

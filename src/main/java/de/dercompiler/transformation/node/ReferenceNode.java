@@ -32,6 +32,13 @@ public abstract class ReferenceNode {
         return getPreparedNode(NodeAccess.LOAD);
     }
 
+    protected Node genLoadAndReset(TransformationState state) {
+        if (!isPrepared(NodeAccess.LOAD)) {
+            prepareLoad(state);
+        }
+        return preparedNode.getPreparedAndReset(NodeAccess.LOAD);
+    }
+
     public abstract ReferenceNode genStore(TransformationState state, ReferenceNode value);
 
     public abstract ReferenceNode prepareLoad(TransformationState state);
