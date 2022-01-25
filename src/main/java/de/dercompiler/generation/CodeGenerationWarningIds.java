@@ -4,9 +4,10 @@ import de.dercompiler.io.message.IWarningIds;
 
 public enum CodeGenerationWarningIds implements IWarningIds {
     UNKNOWN_TOOL(400),
+    MISSING_RULE(401),
     ;
 
-    private int id;
+    private final int id;
 
     CodeGenerationWarningIds(int id) {
         this.id = id;

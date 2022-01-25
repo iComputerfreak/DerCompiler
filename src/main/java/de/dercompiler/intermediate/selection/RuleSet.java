@@ -40,6 +40,7 @@ public final class RuleSet {
 
     public static <T extends Node> void forNodeClass(Class<T> nodeClass, Consumer<SubstitutionRule<T>> consumer) {
         // Nothing can go wrong here
+        //noinspection unchecked
         List<SubstitutionRule<T>> substitutionRules = (List<SubstitutionRule<T>>) rules.getOrDefault(nodeClass, List.<SubstitutionRule<T>>of());
         substitutionRules.forEach(consumer);
     }

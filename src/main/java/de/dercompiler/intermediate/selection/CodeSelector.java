@@ -1,6 +1,10 @@
 package de.dercompiler.intermediate.selection;
 
-import de.dercompiler.intermediate.operand.*;
+import de.dercompiler.generation.CodeGenerationWarningIds;
+import de.dercompiler.intermediate.operand.CondTarget;
+import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.CondJmpRule;
 import de.dercompiler.intermediate.selection.rules.EmptyRule;
@@ -34,7 +38,6 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     }
 
     private final firm.Graph graph;
-    private final RuleSet rules;
     // Contains the NodeAnnotation of a given node nr. from the real graph
     private final Map<Integer, NodeAnnotation<?>> annotations = new HashMap<>();
     private Mode mode = Mode.BLOCKS;
@@ -50,11 +53,9 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
      * Creates a new CodeSelector with the given Graph and SubstitutionRules
      *
      * @param graph The graph to create intermediate code for
-     * @param rules The map of rules to apply, keyed by the class of the root node
      */
-    public CodeSelector(firm.Graph graph, RuleSet rules) {
+    public CodeSelector(firm.Graph graph) {
         this.graph = graph;
-        this.rules = rules;
         SubstitutionRule.annotationSupplier = node -> annotations.get(node.getNr());
     }
 
@@ -146,42 +147,19 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
         // Before we go over the nodes in topological order, we have to remove all edges that span between blocks
         // Since we already transformed the nodes to code, we don't need the edges anymore
-        List<DefaultEdge> edgesToRemove = codeGraph.edgeSet()
+        codeGraph.edgeSet()
                 .stream()
                 .filter(e -> codeGraph.getEdgeSource(e).getFirmBlock().getNr() !=
                         codeGraph.getEdgeTarget(e).getFirmBlock().getNr())
-                .toList();
-        edgesToRemove.forEach(codeGraph::removeEdge);
+                .forEach(codeGraph::removeEdge);
 
         // Do the linearization of the codeGraph
         Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
-        // TODO: Remove after real rules are implemented
-        Map<Integer, List<CodeNode>> linearizedCodeNodes = new HashMap<>();
         while (codeGraphIterator.hasNext()) {
             CodeNode next = codeGraphIterator.next();
             linearizeNode(next);
-
-            // TODO: Remove after real rules are implemented
-            // Create a debug graph with the linearized nodes
-            if (GraphDumper.dump_graph) {
-                int idx = next.getFirmBlock().getNr();
-                linearizedCodeNodes.computeIfAbsent(idx, k -> new LinkedList<>());
-                linearizedCodeNodes.get(idx).add(next);
-            }
         }
-
-        // TODO: Remove after real rules are implemented
-        if (GraphDumper.dump_graph) {
-            for (int nr : linearizedCodeNodes.keySet()) {
-                new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                        .debugPrint("FirmBlock<" + nr + ">: " +
-                                // List of all node numbers
-                                String.join(", ", linearizedCodeNodes.get(nr).stream()
-                                        .map(n -> Integer.toString(n.getId())).toList()));
-            }
-        }
-
-        // TODO: is getEntity().getName() the method name?
+        
         return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
     }
 
@@ -202,7 +180,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             LabelOperand target = new LabelOperand("" + targetBlock.getNr());
             a.setTarget(target);
 
-            if (a.getRule() instanceof CondJmpRule cndJmp) {
+            if (a.getRule() instanceof CondJmpRule) {
                 Proj projNode = (Proj) a.getRootNode();
                 Cond cond = (Cond) projNode.getPred(0);
                 CondTarget cndJmpTargets = (CondTarget) annotations.get(cond.getNr()).getTarget();
@@ -285,8 +263,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             node.getPreds().forEach(jmp -> jmpTargets.put(jmp, block));
             return;
         }
+        //noinspection unchecked
         Class<T> aClass = (Class<T>) node.getClass();
-
 
         // We only look at rules that have a root node that matches our current node
         RuleSet.forNodeClass(aClass, rule -> {
@@ -309,9 +287,13 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             // TODO: When all rules are specified this should not happen anymore!
             //  Every node needs at least one rule
             // Dummy annotation:
-            annotations.put(node.getNr(), new NodeAnnotation<Node>(0, node, new EmptyRule()));
             NodeAnnotation<Node> a = this.createAnnotation(Node.class, node, new EmptyRule());
             annotations.put(node.getNr(), a);
+            
+            // Print a warning that there was no matching rule for the node
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
+                    .printWarning(CodeGenerationWarningIds.MISSING_RULE,
+                            "No rule found that matches node nr. " + node.getNr() + ": " + node + ".");
         }
 
         setDefaultTarget(annotations.get(node.getNr()));
@@ -338,6 +320,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         if (node instanceof Block) {
             return;
         }
+        //noinspection unchecked
         NodeAnnotation<T> a = (NodeAnnotation<T>) annotations.get(node.getNr());
         assert a != null;
         // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
@@ -453,6 +436,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     }
 
     void visitAny(Node node) {
+        // We ignore "Proj X" nodes completely
+        if (node instanceof Proj p && p.getMode().equals(firm.Mode.getX())) {
+            return;
+        }
         // Do for any node
         switch (mode) {
             case ANNOTATION -> annotateNode(node);
@@ -460,6 +447,5 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             default -> logger.internalError("Walking the firm graph using an unknown mode '" + mode.name() + "'");
         }
     }
-
-
+    
 }
