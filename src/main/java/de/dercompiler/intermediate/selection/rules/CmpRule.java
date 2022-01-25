@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -30,7 +31,7 @@ public class CmpRule extends SubstitutionRule<Cmp> {
 
     @Override
     public List<Operation> substitute() {
-        Operation cmp = new de.dercompiler.intermediate.operation.BinaryOperations.Cmp(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation cmp = new de.dercompiler.intermediate.operation.BinaryOperations.Cmp(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
         cmp.setMode(getCmp().getMode());
 
         // result of cmp is found in flag register

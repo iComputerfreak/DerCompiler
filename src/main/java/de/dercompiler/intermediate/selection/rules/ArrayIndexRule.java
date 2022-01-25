@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Add;
 import de.dercompiler.intermediate.operation.Operation;
 import firm.Graph;
@@ -17,7 +18,7 @@ public class ArrayIndexRule extends MulRule {
 
     @Override
     public List<Operation> substitute() {
-        Operation add = new Add(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation add = new Add(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
         add.setMode(getRootNode().getMode());
         return List.of(add);
     }

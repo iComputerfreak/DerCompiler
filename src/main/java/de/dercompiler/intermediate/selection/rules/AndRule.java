@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -30,7 +31,7 @@ public class AndRule extends SubstitutionRule<And> {
 
     @Override
     public List<Operation> substitute() {
-        Operation and = new de.dercompiler.intermediate.operation.BinaryOperations.And(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation and = new de.dercompiler.intermediate.operation.BinaryOperations.And(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
         and.setMode(getRootNode().getMode());
         return List.of(and);
     }
