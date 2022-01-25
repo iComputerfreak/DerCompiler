@@ -19,6 +19,10 @@ public abstract non-sealed class BinaryOperation extends Operation {
         this.source = source;
     }
 
+    public Operand getDefinition(){
+        return definition;
+    }
+
     @Override
     public Operand[] getArgs() {
         return new Operand[]{target, source};

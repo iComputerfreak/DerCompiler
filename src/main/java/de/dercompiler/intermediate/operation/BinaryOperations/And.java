@@ -6,7 +6,7 @@ import de.dercompiler.intermediate.operation.OperationType;
 
 public class And extends BinaryOperation {
 
-    public And(Operand target, Operand definition, Operand source, boolean isMemoryOperation){
+    public And(Operand definition, Operand target, Operand source, boolean isMemoryOperation){
         super(OperationType.AND, definition, target, source, isMemoryOperation);
     }
 

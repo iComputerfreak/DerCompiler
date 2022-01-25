@@ -31,7 +31,7 @@ public class BasicMemoryManager implements MemoryManager {
     /**
      *  Pointer to the return address of the current Activation Record.
      */
-    private X86Register basePointer;
+    private X86Register basePointer = X86Register.RBP;
 
     /**
      * Pointer to the lowest entry of the current stack.
@@ -48,6 +48,11 @@ public class BasicMemoryManager implements MemoryManager {
      *  Accepts the operations resulting from memory operations
      */
     private Consumer<Operation> output;
+
+    @Override
+    public Operand getVar(int n) {
+        return new Address(-(n + 1) * 8, getBasePointer());
+    }
 
     @Override
     public Operand getArgument(int n) {

@@ -12,6 +12,9 @@ public class ParameterRegister implements Register {
         return "@P%d".formatted(number);
     }
 
+    public int getId(){
+        return (int) number;
+    }
 
     @Override
     public String toString() {

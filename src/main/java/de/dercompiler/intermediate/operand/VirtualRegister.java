@@ -18,6 +18,10 @@ public class VirtualRegister implements Register {
         nextID = 0;
     }
 
+    public long getId(){
+        return id;
+    }
+
     @Override
     public String getIdentifier() {
         return "@V" + id;
