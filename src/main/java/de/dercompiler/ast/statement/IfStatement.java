@@ -25,6 +25,15 @@ public final class IfStatement extends Statement {
         return Objects.nonNull(elseStatement);
     }
 
+    @Override
+    public void markDead() {
+        super.markDead();
+        thenStatement.markDead();
+        if (hasElse()) {
+            elseStatement.markDead();
+        }
+    }
+
     public Expression getCondition() {
         return condition;
     }

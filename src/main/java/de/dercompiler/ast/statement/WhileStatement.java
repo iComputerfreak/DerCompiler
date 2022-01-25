@@ -27,6 +27,12 @@ public final class WhileStatement extends Statement {
     }
 
     @Override
+    public void markDead() {
+        super.markDead();
+        loop.markDead();
+    }
+
+    @Override
     public boolean syntaxEquals(ASTNode other) {
         if (Objects.isNull(other)) return false;
         if (other instanceof WhileStatement ws) {

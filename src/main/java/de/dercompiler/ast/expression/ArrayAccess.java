@@ -51,7 +51,6 @@ public final class ArrayAccess extends PostfixExpression {
         base_ptr = base_ptr.prepareAccessArray(state);
 
         int type_size_const = at.getElementType().getFirmTransformationType().getSize();
-        new OutputMessageHandler(MessageOrigin.TRANSFORM).printInfo(at.getDimension() + " " + type_size_const);
         Node type_size = state.construction.newConst(type_size_const, FirmTypes.longFirmType.getMode());
         ReferenceNode elements = index.createNode(state);
         //convert size?

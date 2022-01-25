@@ -29,6 +29,14 @@ public final class BasicBlock extends Statement {
         statements.addLast(statement);
     }
 
+    @Override
+    public void markDead() {
+        super.markDead();
+        for (Statement s : statements) {
+            s.markDead();
+        }
+    }
+
     public List<Statement> getStatements() {
         return statements;
     }
