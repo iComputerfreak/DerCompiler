@@ -43,7 +43,7 @@ void* allocate(int64_t num, int64_t size) {
     size_t realsize = size <= 0 ? 1 : size;
     size_t realnum = num <= 0 ? 1 : num;
     void* res = calloc(realnum, realsize);
-    std::cout << "allocation - size: " << size << " num: " << num << " res: " << res <<"\n";
+    //std::cout << "allocation - size: " << size << " num: " << num << " res: " << res <<"\n";
     return res;
 }
 
