@@ -79,6 +79,6 @@ public final class NewArrayExpression extends PrimaryExpression {
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
-        return new ArrayNode(state.construction.newProj(tuple, Mode.getP(), 0), getType(), dimension);
+        return new ArrayNode(state.construction.newProj(tuple, Mode.getP(), 0), at, dimension);
     }
 }
