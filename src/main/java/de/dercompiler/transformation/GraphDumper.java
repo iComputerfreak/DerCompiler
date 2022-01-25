@@ -75,7 +75,7 @@ public class GraphDumper {
     private static String getNodeColor(NodeAnnotation<?> v) {
         Node rootNode = v.getRootNode();
         if (Objects.equals(rootNode.getMode(), Mode.getM()) || rootNode instanceof Store || rootNode instanceof Load || rootNode instanceof Call
-        || rootNode instanceof Start || rootNode instanceof Return) return "red";
+        || rootNode instanceof Div || rootNode instanceof Start || rootNode instanceof Return) return "red";
         return "black";
     }
 

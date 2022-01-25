@@ -23,15 +23,11 @@ public abstract class GraphOptimization extends LazyFirmNodeVisitor {
         return context;
     }
 
-    Graph getGraph() {
-        return context.getGraph();
-    }
-
     Construction getConstruction() {
         return context.getConstruction();
     }
 
-    class OptimizationContext {
+    static class OptimizationContext {
         private Graph currGraph;
         private Construction construction;
 

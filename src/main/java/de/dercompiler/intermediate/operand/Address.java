@@ -38,7 +38,7 @@ public class Address implements Operand {
             case 0, 1, 8, 9 -> "0x%1$x";          // constant
             case 2 -> "%3$s";                   // index /w scale 1
             case 3, 11 -> "%1$d(,%3$s,%4$d)";   // index /w scale > 1
-            case 4, 5 -> "%%%2$s";              // base
+            case 4, 5 -> "(%2$s)";              // base
             case 6 -> "(%2$s,%3$s)";            // base + index
             case 7 -> "(%2$s,%3$s,%4$d)";       // base + index * scale
             case 10 -> "%1$d(,%3$s)";           // constant + index

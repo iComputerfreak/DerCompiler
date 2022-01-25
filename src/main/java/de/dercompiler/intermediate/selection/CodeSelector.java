@@ -115,7 +115,6 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         /* 1. Create NodeAnnotations for every firm.Node */
         /* ============================================= */
         this.mode = Mode.ANNOTATION; // Set, in case generateCode() is called twice
-        ParameterRegister.resetNextID();
         setPhiRules();
         graph.walkPostorder(this);
 

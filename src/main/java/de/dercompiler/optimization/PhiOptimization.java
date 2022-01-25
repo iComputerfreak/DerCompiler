@@ -18,18 +18,6 @@ public class PhiOptimization extends GraphOptimization {
     }
 
     @Override
-    public void visit(Const node) {
-
-        int value = node.getTarval().asInt();
-        if (constants.containsKey(value)) {
-            Node constant = constants.get(value);
-            Graph.exchange(node, constant);
-        } else {
-            constants.put(value, node);
-        }
-    }
-
-    @Override
     public void visit(Phi node) {
         if (node.getMode() == Mode.getM()) return;
 

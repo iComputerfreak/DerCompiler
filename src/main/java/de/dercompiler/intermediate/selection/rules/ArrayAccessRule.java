@@ -11,6 +11,7 @@ import firm.Graph;
 import firm.Mode;
 import firm.nodes.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -88,10 +89,12 @@ public class ArrayAccessRule extends AddRule {
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(
-                getOffset(), // Mul
-                getOffset().getLeft() // Const
-        );
+        List<Node> nodes = new ArrayList<>();
+        nodes.add(getOffset()); // Const
+        nodes.add(getOffset().getLeft()); // Mul
+        if (getOffset().getRight() instanceof Conv conv) nodes.add(conv);
+
+        return nodes;
     }
 
     @Override

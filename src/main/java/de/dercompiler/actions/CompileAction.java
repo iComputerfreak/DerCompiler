@@ -63,7 +63,7 @@ public class CompileAction extends Action {
         for (firm.Graph graph : program.getGraphs()) {
             if (basicOptimizationsActive) {
                 opts.forEach(opt -> opt.runOnGraph(graph));
-                Worklist.run(new TransferFunction(),graph);
+               // Worklist.run(new TransferFunction(),graph);
             }
 
             CodeSelector selector = new CodeSelector(graph);
