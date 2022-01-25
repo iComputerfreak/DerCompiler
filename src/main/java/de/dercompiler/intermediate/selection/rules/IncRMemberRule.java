@@ -33,7 +33,7 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
 
     @Override
     public List<Operation> substitute() {
-        Inc inc = new Inc(getTarget());
+        Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
         return List.of(inc);
     }

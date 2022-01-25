@@ -1,12 +1,11 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.operation.UnaryOperations.Inc;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.nodes.*;
-import de.dercompiler.intermediate.operation.UnaryOperations.Inc;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
 
     @Override
     public List<Operation> substitute() {
-        Inc inc = new Inc(getTarget());
+        Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
         return List.of(inc);
     }
