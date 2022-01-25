@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+import de.dercompiler.intermediate.selection.Signedness;
 import firm.Entity;
 import firm.Mode;
 
@@ -23,15 +25,6 @@ public class LabelOperand implements Operand {
         return label;
     }
 
-    @Override
-    public Mode getMode() {
-        return null;
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-
-    }
 
     @Override
     public String toString() {

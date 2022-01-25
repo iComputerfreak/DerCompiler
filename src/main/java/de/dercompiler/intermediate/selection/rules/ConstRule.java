@@ -13,14 +13,13 @@ import java.util.List;
 public class ConstRule extends SubstitutionRule<Const> {
     @Override
     public int getCost() {
-        return 0;
+        return 1;
     }
 
     @Override
     public List<Operation> substitute() {
         ConstantValue target = new ConstantValue(getConst().getTarval().asInt());
-        target.setMode(getRootNode().getMode());
-        node.setTarget(target);
+        getAnnotation(node).setTarget(target);
         return List.of();
     }
 

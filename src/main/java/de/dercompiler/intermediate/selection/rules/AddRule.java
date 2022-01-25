@@ -16,7 +16,7 @@ public class AddRule extends SubstitutionRule<Add> {
 
     @Override
     public int getCost() {
-        return 2;
+        return 1 + getLeft().getCost() + getRight().getCost();
     }
 
     Add getAdd() {

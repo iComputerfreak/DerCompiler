@@ -25,7 +25,7 @@ public class CondJmpRule extends SubstitutionRule<Proj> {
     public List<Operation> substitute() {
         Operand target = getAnnotation(getRootNode()).getTarget();
         if (!Objects.isNull(target) && target instanceof LabelOperand lbl) {
-            return List.of(new de.dercompiler.intermediate.operation.UnaryOperations.Jmp(lbl));
+            return List.of();
         }
         // we never return
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Jump target was not set correctly: " + target);

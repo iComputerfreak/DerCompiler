@@ -1,12 +1,12 @@
 package de.dercompiler.intermediate.operand;
 
-import firm.Mode;
+import de.dercompiler.intermediate.selection.IRMode;
 
 public class ParameterRegister implements Register {
 
     private static long nextID = 0;
-    private long id;
-    private Mode mode;
+    private final long id;
+    private IRMode mode;
 
     public ParameterRegister() {
         this.id = nextID++;
@@ -21,15 +21,6 @@ public class ParameterRegister implements Register {
         return "@P%d".formatted(id);
     }
 
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
 
     @Override
     public String toString() {

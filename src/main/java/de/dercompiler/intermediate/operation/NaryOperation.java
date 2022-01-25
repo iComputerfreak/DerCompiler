@@ -12,7 +12,6 @@ public abstract non-sealed class NaryOperation extends Operation {
     private final Operand[] operands;
 
     private final OperationType operationType;
-    private Mode mode;
 
     public NaryOperation(OperationType operationType, Operand... operands) {
         this.operationType = operationType;
@@ -35,15 +34,6 @@ public abstract non-sealed class NaryOperation extends Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax() + " " + Arrays.stream(operands).map(Operand::getIdentifier).collect(Collectors.joining(" "));
-    }
-
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
     }
 
     @Override

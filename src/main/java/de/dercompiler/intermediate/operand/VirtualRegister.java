@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
 
 public class VirtualRegister implements Register {
@@ -7,7 +9,6 @@ public class VirtualRegister implements Register {
     private static long nextID = 0;
     
     private final long id;
-    private Mode mode;
 
     public VirtualRegister() {
         this.id = nextID++;
@@ -20,16 +21,6 @@ public class VirtualRegister implements Register {
     @Override
     public String getIdentifier() {
         return "@V" + id;
-    }
-
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-        this.mode = mode;
     }
 
     @Override

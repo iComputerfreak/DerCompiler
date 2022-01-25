@@ -16,7 +16,7 @@ public class IncLRule extends AddRule {
 
     @Override
     public int getCost() {
-        return 1; //+ getOperator().getCost();
+        return 1 + getOperator().getCost();
     }
 
     private NodeAnnotation<Node> getOperator() {
@@ -26,11 +26,10 @@ public class IncLRule extends AddRule {
     @Override
     public List<Operation> substitute() {
         Operand target = getOperator().getTarget();
-        target.setMode(getMode());
-        node.setTarget(target);
+        getAnnotation(node).setTarget(target);
 
         Operation inc = new Inc(target);
-        inc.setMode(getMode());
+        inc.setMode(getDatatype(), getSignedness());
         return List.of(inc);
     }
 

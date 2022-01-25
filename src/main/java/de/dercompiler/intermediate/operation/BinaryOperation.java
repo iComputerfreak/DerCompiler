@@ -1,8 +1,8 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.selection.IRMode;
 
-import firm.Mode;
 
 public abstract non-sealed class BinaryOperation extends Operation {
 
@@ -10,7 +10,6 @@ public abstract non-sealed class BinaryOperation extends Operation {
     private final Operand source;
 
     private final OperationType operationType;
-    private Mode mode;
 
     public BinaryOperation(OperationType operationType, Operand target, Operand source) {
         this.operationType = operationType;
@@ -30,15 +29,6 @@ public abstract non-sealed class BinaryOperation extends Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax() + " " + target.getIdentifier() + " " + source.getIdentifier();
-    }
-
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
     }
 
     @Override

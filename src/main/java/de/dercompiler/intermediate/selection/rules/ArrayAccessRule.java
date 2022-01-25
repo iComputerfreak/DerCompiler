@@ -19,8 +19,7 @@ public class ArrayAccessRule extends AddRule {
 
     @Override
     public int getCost() {
-        return 1;
-        // + (getIndex() instanceof Register ? 0 : getIndex().getCost());
+        return 1 + (getIndex() instanceof Register ? 0 : getIndex().getCost());
     }
 
 

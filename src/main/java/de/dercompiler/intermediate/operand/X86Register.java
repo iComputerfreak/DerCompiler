@@ -1,6 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
-import firm.Mode;
+import de.dercompiler.intermediate.selection.Datatype;
 
 public enum X86Register implements Register {
     RAX("rax", "eax", "ax", "al"),
@@ -24,7 +24,6 @@ public enum X86Register implements Register {
     private final String idd;
     private final String idw;
     private final String idb;
-    private Mode mode;
 
     X86Register(String id) {
         this.id = id;
@@ -39,23 +38,23 @@ public enum X86Register implements Register {
         this.idw = id2;
         this.idb = id1;
     }
-    
+
+    public Operand offset(int offset) {
+        return new Address(offset, this);
+    }
+
+
     @Override
     public String getIdentifier() {
         return id;
     }
 
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
-
-    public Operand offset(int offset) {
-        return new Address(offset, this);
+    public String getIdentifier(Datatype datatype) {
+        return switch (datatype) {
+            case BYTE -> idb;
+            case WORD -> idw;
+            case DWORD -> idd;
+            case QWORD, OTHER -> id;
+        };
     }
 }

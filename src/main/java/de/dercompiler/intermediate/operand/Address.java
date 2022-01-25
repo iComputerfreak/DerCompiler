@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
 
 import java.util.Objects;
@@ -12,7 +14,6 @@ public class Address implements Operand {
     private final int scale;
     private final int offset;
     private int components;
-    private Mode mode;
 
     public Address(int offset, Register base, Register index, int scale) {
         this.offset = offset;
@@ -47,16 +48,6 @@ public class Address implements Operand {
             default -> "???";
         };
         return format.formatted(offset, base, index, scale);
-    }
-
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-        this.mode = mode;
     }
 
     public Address offset(int offset) {

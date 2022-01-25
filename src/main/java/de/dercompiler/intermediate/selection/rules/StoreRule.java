@@ -14,7 +14,7 @@ import java.util.List;
 public class StoreRule extends SubstitutionRule<Store> {
     @Override
     public int getCost() {
-        return 1;
+        return 1 + getAnnotation(getTarget()).getCost() + getAnnotation(getValue()).getCost();
     }
 
     private Node getTarget() {
@@ -35,7 +35,6 @@ public class StoreRule extends SubstitutionRule<Store> {
         Operation mov = new Mov(
                 targetReg,
                 getAnnotation(getValue()).getTarget());
-        mov.setMode(getMode());
         this.setTarget(targetReg);
         return List.of(mov);
     }

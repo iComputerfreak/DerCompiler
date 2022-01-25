@@ -16,7 +16,7 @@ import java.util.Objects;
 public class ProjLoadRule extends SubstitutionRule<Proj> {
     @Override
     public int getCost() {
-        return 1;  //+ getAnnotation(getLoad()).getCost();
+        return 1 + getAnnotation(getLoad()).getCost();
     }
 
     private Node getLoad() {
@@ -36,7 +36,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
     public List<Operation> substitute() {
         Operand target = getAnnotation(getRootNode()).getTarget();
         Operation mov = new Mov(getAnnotation(getLoad()).getTarget(), target);
-        mov.setMode(getMode());
+        mov.setMode(getRootNode().getMode());
         return List.of(mov);
     }
 

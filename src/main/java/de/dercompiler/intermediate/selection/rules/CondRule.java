@@ -4,10 +4,13 @@ import de.dercompiler.intermediate.operand.CondTarget;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.*;
+import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
+import firm.Mode;
+import firm.Relation;
 import firm.nodes.Cmp;
 import firm.nodes.Cond;
 import firm.nodes.Node;
@@ -29,18 +32,42 @@ public class CondRule extends SubstitutionRule<Cond> {
     public List<Operation> createComparisonOp() {
         Node sel = getRootNode().getSelector();
         if (sel instanceof Cmp cmp) {
-            Operation op = switch (cmp.getRelation()) {
-                case False -> new Jmp(getTarget().getFalseTarget());
-                case True -> new Jmp(getTarget().getTrueTarget());
 
+            Operation op;
+
+            op = switch (cmp.getRelation()) {
+                case True -> new Jmp(getTarget().getTrueTarget());
+                case False -> new Jmp(getTarget().getFalseTarget());
                 case Equal -> new Je(getTarget().getTrueTarget());
-                case Less -> new Jl(getTarget().getTrueTarget());
-                case Greater -> new Jg(getTarget().getTrueTarget());
-                case LessEqual -> new Jle(getTarget().getTrueTarget());
-                case GreaterEqual -> new Jge(getTarget().getTrueTarget());
+                case LessGreater -> new Jne(getTarget().getTrueTarget());
                 default -> null;
             };
+
+            if (op == null) {
+                if (cmp.getMode().isSigned()) {
+                    op = switch (cmp.getRelation()) {
+                        case Less -> new Jl(getTarget().getTrueTarget());
+                        case Greater -> new Jg(getTarget().getTrueTarget());
+                        case LessEqual -> new Jle(getTarget().getTrueTarget());
+                        case GreaterEqual -> new Jge(getTarget().getTrueTarget());
+                        default -> null;
+                    };
+                } else {
+                    // unsigned
+                    op = switch (cmp.getRelation()) {
+                        case Less -> new Jb(getTarget().getTrueTarget());
+                        case Greater -> new Ja(getTarget().getTrueTarget());
+                        case LessEqual -> new Jbe(getTarget().getTrueTarget());
+                        case GreaterEqual -> new Jae(getTarget().getTrueTarget());
+                        default -> null;
+                    };
+                }
+            }
+            if (op == null) {
+                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected Cmp relation: " + cmp.getRelation().toString());
+            }
             // If the jump is conditional, the "else"-case is necessary
+            op.setMode(cmp.getMode());
             if (op instanceof Jmp) return List.of(op);
             return List.of(op, new Jmp(getTarget().getFalseTarget()));
         }

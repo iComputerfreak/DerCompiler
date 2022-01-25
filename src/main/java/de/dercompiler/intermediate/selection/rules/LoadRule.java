@@ -12,7 +12,7 @@ import java.util.List;
 public class LoadRule extends SubstitutionRule<Load> {
     @Override
     public int getCost() {
-        return 1;  //+ getAnnotation(getLoad()).getCost();
+        return 1 + getOperand().getCost();
     }
 
 
@@ -21,7 +21,7 @@ public class LoadRule extends SubstitutionRule<Load> {
     }
 
     private NodeAnnotation<?> getOperand() {
-        return getAnnotation(getRootNode().getPtr());
+        return getAnnotation(getLoad().getPtr());
     }
 
     @Override

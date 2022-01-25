@@ -42,7 +42,9 @@ public enum OperationType {
     INC("INC"),
     //Dann die constant Operations
     NOP("NOP"),
-    RET("RET");
+    RET("RET"),
+    CWTL("CWTL"),
+    CLTQ("CLTQ");
 
     private String syntax;
 

@@ -4,12 +4,12 @@ import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.CondJmpRule;
 import de.dercompiler.intermediate.selection.rules.EmptyRule;
+import de.dercompiler.intermediate.selection.rules.PhiRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.GraphDumper;
 import firm.BlockWalker;
 import firm.nodes.*;
-import firm.nodes.Address;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
@@ -19,9 +19,8 @@ import org.jgrapht.traverse.BreadthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class CodeSelector implements NodeVisitor, BlockWalker {
+public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
     private static final OutputMessageHandler logger = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
 
@@ -56,6 +55,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
     public CodeSelector(firm.Graph graph, RuleSet rules) {
         this.graph = graph;
         this.rules = rules;
+        SubstitutionRule.annotationSupplier = node -> annotations.get(node.getNr());
     }
 
     /**
@@ -115,6 +115,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         /* ============================================= */
         this.mode = Mode.ANNOTATION; // Set, in case generateCode() is called twice
         ParameterRegister.resetNextID();
+        setPhiRules();
         graph.walkPostorder(this);
 
         setJumpTargets();
@@ -182,6 +183,17 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
 
         // TODO: is getEntity().getName() the method name?
         return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
+    }
+
+    private void setPhiRules() {
+        graph.walk(new LazyNodeWalker() {
+            @Override
+            void visitAny(Node node) {
+                if (node instanceof Phi phi && !Objects.equals(phi.getMode(), firm.Mode.getM())) {
+                    annotations.put(phi.getNr(), new NodeAnnotation<>(1, phi, new PhiRule(), true, false));
+                }
+            }
+        });
     }
 
     private void setJumpTargets() {
@@ -280,6 +292,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         RuleSet.forNodeClass(aClass, rule -> {
             // Check if rule matches the node and its predecessors
             if (rule.matches(node)) {
+                rule.setNode(node);
                 int cost = rule.getCost();
 
                 // If we found a cheaper rule for that node (including all predecessors)
@@ -288,6 +301,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                     NodeAnnotation<T> a = this.createAnnotation(aClass, node, rule);
                     annotations.put(node.getNr(), a);
                 }
+                rule.clear();
             }
         });
         if (!annotations.containsKey(node.getNr())) {
@@ -306,7 +320,6 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
 
     private void setDefaultTarget(NodeAnnotation<?> nodeAnnotation) {
         Operand target = nodeAnnotation.getRule().createDefaultTarget();
-        target.setMode(nodeAnnotation.getRootNode().getMode());
         nodeAnnotation.setTarget(target);
     }
 
@@ -332,7 +345,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         SubstitutionRule<T> rule = a.getRule();
         // Mark the annotations of all required nodes visited, since they will be covered by this rule
 
-        rule.setAnnotations(a, (Node n) -> annotations.get(n.getNr()));
+        rule.setNode(node);
         for (Node n : rule.getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
             annotations.get(n.getNr()).setVisited(true);
@@ -356,7 +369,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                 addDependency(a, n);
             }
         }
-        rule.clearAnnotations();
+        rule.clear();
     }
 
     /**
@@ -391,7 +404,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
                 .map(nodeAnnotationGraph::getEdgeSource).toList();
         // Apply the rule in this annotation
         SubstitutionRule<T> rule = a.getRule();
-        rule.setAnnotations(a, (Node n) -> annotations.get(n.getNr()));
+        rule.setNode(a.getRootNode());
         List<Operation> ops = rule.substitute();
 
         // Create the node in the code graph
@@ -400,7 +413,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         codeGraph.addVertex(codeNode);
         // Keep a map of the node ids for lookup
         codeGraphLookup.put(a.getRootNode().getNr(), codeNode);
-        rule.clearAnnotations();
+        rule.clear();
 
         for (NodeAnnotation<?> p : predecessors) {
             int predNr = p.getRootNode().getNr();
@@ -419,11 +432,11 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         // Mark all nodes that are covered by this rule as "transformed"
         // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
         a.setTransformed(true);
-        rule.setAnnotations(a, (Node n) -> annotations.get(n.getNr()));
+        rule.setNode(a.getRootNode());
         for (Node n : rule.getRequiredNodes(graph)) {
             annotations.get(n.getNr()).setTransformed(true);
         }
-        rule.clearAnnotations();
+        rule.clear();
     }
 
     /**
@@ -439,7 +452,7 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         }
     }
 
-    private void visitAny(Node node) {
+    void visitAny(Node node) {
         // Do for any node
         switch (mode) {
             case ANNOTATION -> annotateNode(node);
@@ -448,278 +461,5 @@ public class CodeSelector implements NodeVisitor, BlockWalker {
         }
     }
 
-    @Override
-    public void visit(Add add) {
-        visitAny(add);
-    }
 
-    @Override
-    public void visit(Address address) {
-        visitAny(address);
-    }
-
-    @Override
-    public void visit(Align align) {
-        visitAny(align);
-    }
-
-    @Override
-    public void visit(Alloc alloc) {
-        visitAny(alloc);
-    }
-
-    @Override
-    public void visit(Anchor anchor) {
-        visitAny(anchor);
-    }
-
-    @Override
-    public void visit(And and) {
-        visitAny(and);
-    }
-
-    @Override
-    public void visit(Bad bad) {
-        visitAny(bad);
-    }
-
-    @Override
-    public void visit(Bitcast bitcast) {
-        visitAny(bitcast);
-    }
-
-    @Override
-    public void visit(Block block) {
-        visitAny(block);
-    }
-
-    @Override
-    public void visit(Builtin builtin) {
-        visitAny(builtin);
-    }
-
-    @Override
-    public void visit(Call call) {
-        visitAny(call);
-    }
-
-    @Override
-    public void visit(Cmp cmp) {
-        visitAny(cmp);
-    }
-
-    @Override
-    public void visit(Cond cond) {
-        visitAny(cond);
-    }
-
-    @Override
-    public void visit(Confirm confirm) {
-        visitAny(confirm);
-    }
-
-    @Override
-    public void visit(Const aConst) {
-        visitAny(aConst);
-    }
-
-    @Override
-    public void visit(Conv conv) {
-        visitAny(conv);
-    }
-
-    @Override
-    public void visit(CopyB copyB) {
-        visitAny(copyB);
-    }
-
-    @Override
-    public void visit(Deleted deleted) {
-        visitAny(deleted);
-    }
-
-    @Override
-    public void visit(Div div) {
-        visitAny(div);
-    }
-
-    @Override
-    public void visit(Dummy dummy) {
-        visitAny(dummy);
-    }
-
-    @Override
-    public void visit(End end) {
-        visitAny(end);
-    }
-
-    @Override
-    public void visit(Eor eor) {
-        visitAny(eor);
-    }
-
-    @Override
-    public void visit(Free free) {
-        visitAny(free);
-    }
-
-    @Override
-    public void visit(IJmp iJmp) {
-        visitAny(iJmp);
-    }
-
-    @Override
-    public void visit(Id id) {
-        visitAny(id);
-    }
-
-    @Override
-    public void visit(Jmp jmp) {
-        visitAny(jmp);
-    }
-
-    @Override
-    public void visit(Load load) {
-        visitAny(load);
-    }
-
-    @Override
-    public void visit(Member member) {
-        visitAny(member);
-    }
-
-    @Override
-    public void visit(Minus minus) {
-        visitAny(minus);
-    }
-
-    @Override
-    public void visit(Mod mod) {
-        visitAny(mod);
-    }
-
-    @Override
-    public void visit(Mul mul) {
-        visitAny(mul);
-    }
-
-    @Override
-    public void visit(Mulh mulh) {
-        visitAny(mulh);
-    }
-
-    @Override
-    public void visit(Mux mux) {
-        visitAny(mux);
-    }
-
-    @Override
-    public void visit(NoMem noMem) {
-        visitAny(noMem);
-    }
-
-    @Override
-    public void visit(Not not) {
-        visitAny(not);
-    }
-
-    @Override
-    public void visit(Offset offset) {
-        visitAny(offset);
-    }
-
-    @Override
-    public void visit(Or or) {
-        visitAny(or);
-    }
-
-    @Override
-    public void visit(Phi phi) {
-        visitAny(phi);
-    }
-
-    @Override
-    public void visit(Pin pin) {
-        visitAny(pin);
-    }
-
-    @Override
-    public void visit(Proj proj) {
-        visitAny(proj);
-    }
-
-    @Override
-    public void visit(Raise raise) {
-        visitAny(raise);
-    }
-
-    @Override
-    public void visit(Return aReturn) {
-        visitAny(aReturn);
-    }
-
-    @Override
-    public void visit(Sel sel) {
-        visitAny(sel);
-    }
-
-    @Override
-    public void visit(Shl shl) {
-        visitAny(shl);
-    }
-
-    @Override
-    public void visit(Shr shr) {
-        visitAny(shr);
-    }
-
-    @Override
-    public void visit(Shrs shrs) {
-        visitAny(shrs);
-    }
-
-    @Override
-    public void visit(Size size) {
-        visitAny(size);
-    }
-
-    @Override
-    public void visit(Start start) {
-        visitAny(start);
-    }
-
-    @Override
-    public void visit(Store store) {
-        visitAny(store);
-    }
-
-    @Override
-    public void visit(Sub sub) {
-        visitAny(sub);
-    }
-
-    @Override
-    public void visit(Switch aSwitch) {
-        visitAny(aSwitch);
-    }
-
-    @Override
-    public void visit(Sync sync) {
-        visitAny(sync);
-    }
-
-    @Override
-    public void visit(Tuple tuple) {
-        visitAny(tuple);
-    }
-
-    @Override
-    public void visit(Unknown unknown) {
-        visitAny(unknown);
-    }
-
-    @Override
-    public void visitUnknown(Node node) {
-        visitAny(node);
-    }
 }

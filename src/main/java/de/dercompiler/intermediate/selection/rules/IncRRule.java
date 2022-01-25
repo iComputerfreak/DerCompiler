@@ -6,6 +6,7 @@ import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Inc;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import firm.Graph;
+import firm.Mode;
 import firm.nodes.Add;
 import firm.nodes.Const;
 import firm.nodes.Node;
@@ -16,21 +17,20 @@ public class IncRRule extends AddRule {
 
     @Override
     public int getCost() {
-        return 1; //+ getOperator().getCost();
+        return 1 + getOperator().getCost();
     }
 
-    private NodeAnnotation<Node> getOperator() {
-        return getTypedAnnotation(getAdd().getLeft());
+    private NodeAnnotation<?> getOperator() {
+        return getAnnotation(getAdd().getLeft());
     }
 
     @Override
     public List<Operation> substitute() {
         Operand target = getOperator().getTarget();
-        target.setMode(getMode());
-        node.setTarget(target);
+        getAnnotation(node).setTarget(target);
 
         Operation inc = new Inc(target);
-        inc.setMode(getMode());
+        inc.setMode(getRootNode().getMode());
         return List.of(inc);
     }
 

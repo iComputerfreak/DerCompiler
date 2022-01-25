@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
 
 public class CondTarget implements Operand {
@@ -35,13 +37,4 @@ public class CondTarget implements Operand {
         return "cond ? %s : %s".formatted(trueTarget.getIdentifier(), falseTarget.getIdentifier());
     }
 
-    @Override
-    public Mode getMode() {
-        return Mode.getX();
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-
-    }
 }

@@ -29,7 +29,6 @@ public class MinusRule extends SubstitutionRule<Minus> {
     @Override
     public List<Operation> substitute() {
         Operation minus = new Neg(getOperator().getTarget());
-        minus.setMode(getMode());
         return List.of(minus);
     }
 

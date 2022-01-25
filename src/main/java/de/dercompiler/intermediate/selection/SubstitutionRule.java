@@ -17,8 +17,9 @@ import java.util.function.Function;
  */
 public abstract class SubstitutionRule<T extends Node> {
     
-    protected NodeAnnotation<T> node;
-    protected Function<Node, NodeAnnotation<?>> annotationSupplier;
+    protected T node;
+    protected static Function<Node, NodeAnnotation<?>> annotationSupplier;
+    protected IRMode mode;
 
     /**
      * Creates a new SubstitutionRule with the given rootNode
@@ -28,31 +29,29 @@ public abstract class SubstitutionRule<T extends Node> {
     /**
      * Sets the NodeAnnotations for the root node and the other required nodes of this rule
      * @param node The NodeAnnotation of the rootNode
-     * @param annotationSupplier A function that transforms any of the requiredNodes into NodeAnnotations
+     *
      */
-    public void setAnnotations(NodeAnnotation<T> node, Function<Node, NodeAnnotation<?>> annotationSupplier) {
-        if (this.node != null || this.annotationSupplier != null) {
+    public void setNode(T node) {
+        if (this.node != null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
-                    .internalError("SubstitutionRule.setAnnotations called before clearing existing values.");
+                    .internalError("SubstitutionRule.setNode called before clearing existing values.");
             throw new RuntimeException();
         }
         this.node = node;
-        this.annotationSupplier = annotationSupplier;
     }
 
     /**
      * Clears existing NodeAnnotations
      */
-    public void clearAnnotations() {
+    public void clear() {
         this.node = null;
-        this.annotationSupplier = null;
     }
 
     /**
      * Returns the root node of this rule
      */
     public T getRootNode() {
-        return node.getRootNode();
+        return node;
     }
 
     /**
@@ -86,16 +85,12 @@ public abstract class SubstitutionRule<T extends Node> {
      */
     public abstract boolean matches(T inputNode);
 
-    protected <N extends Node> NodeAnnotation<N> getTypedAnnotation(N node) {
+    protected static <N extends Node> NodeAnnotation<N> getTypedAnnotation(N node) {
         return (NodeAnnotation<N>) annotationSupplier.apply(node);
     }
 
-    protected NodeAnnotation<?> getAnnotation(Node node) {
+    protected static NodeAnnotation<?> getAnnotation(Node node) {
         return annotationSupplier.apply(node);
-    }
-
-    protected Mode getMode() {
-        return node.getRootNode().getMode();
     }
 
     protected void setTarget(Operand target) {
@@ -109,5 +104,27 @@ public abstract class SubstitutionRule<T extends Node> {
     public Operand createDefaultTarget() {
         return new VirtualRegister();
     }
+
+    public Datatype getDatatype() {
+        return mode.type();
+    }
+
+    public void setMode(Mode mode) {
+        Datatype datatype = Datatype.forMode(mode);
+        this.mode = new IRMode(datatype, mode.isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
+    }
+
+    public boolean isSigned() {
+        return mode.isSigned();
+    }
+
+    public Signedness getSignedness() {
+        return mode.signedness();
+    }
+
+    public void setMode(Datatype type, Signedness signedness) {
+        this.mode = new IRMode(type, signedness);
+    }
+
 }
 

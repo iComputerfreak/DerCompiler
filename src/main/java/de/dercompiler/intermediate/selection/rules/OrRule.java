@@ -32,7 +32,6 @@ public class OrRule extends SubstitutionRule<Or> {
     @Override
     public List<Operation> substitute() {
         Operation or = new de.dercompiler.intermediate.operation.BinaryOperations.Or(getLeft().getTarget(), getRight().getTarget());
-        or.setMode(getMode());
         return List.of(or);
     }
 

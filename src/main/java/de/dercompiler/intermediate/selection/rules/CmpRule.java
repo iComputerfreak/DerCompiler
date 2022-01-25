@@ -12,11 +12,9 @@ import java.util.List;
 
 public class CmpRule extends SubstitutionRule<Cmp> {
 
-
-
     @Override
     public int getCost() {
-        return 1;  //+ getLeft().getCost() + getRight().getCost();
+        return 1 + getLeft().getCost() + getRight().getCost();
     }
 
     private NodeAnnotation<?> getLeft() {

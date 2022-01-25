@@ -1,13 +1,11 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.Mode;
 import firm.nodes.Node;
 import firm.nodes.Phi;
-import firm.nodes.Sub;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +18,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
 
     @Override
     public List<Operation> substitute() {
-        if (Objects.equals(getMode(), Mode.getM())) {
+        if (Objects.equals(getRootNode().getMode(), Mode.getM())) {
             // not represented in memory
             this.setTarget(null);
         }

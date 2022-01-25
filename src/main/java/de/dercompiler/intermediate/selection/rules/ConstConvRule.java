@@ -16,15 +16,14 @@ public class ConstConvRule extends SubstitutionRule<Conv> {
 
     @Override
     public int getCost() {
-        return 0;
+        return 1 + getAnnotation(getConst()).getCost();
     }
 
     @Override
     public List<Operation> substitute() {
         // save as constant operand, no operations
         ConstantValue target = new ConstantValue(getConst().getTarval().asInt());
-        target.setMode(getRootNode().getMode());
-        node.setTarget(target);
+        getAnnotation(node).setTarget(target);
         return List.of();
     }
 

@@ -7,7 +7,6 @@ import java.util.Objects;
 
 public abstract non-sealed class UnaryOperation extends Operation {
 
-    private Mode mode;
     private Operand operand;
     private final OperationType operationType;
 
@@ -28,16 +27,6 @@ public abstract non-sealed class UnaryOperation extends Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax() + (Objects.isNull(operand) ? "" :  " " + operand.getIdentifier());
-    }
-
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    @Override
-    public void setMode(Mode mode) {
-        this.mode = mode;
     }
 
     @Override

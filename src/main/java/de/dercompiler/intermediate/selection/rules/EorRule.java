@@ -34,11 +34,10 @@ public class EorRule extends SubstitutionRule<Eor> {
     @Override
     public List<Operation> substitute() {
         Operation eor = new Xor(getLeft().getTarget(), getRight().getTarget());
-        eor.setMode(node.getRootNode().getMode());
+        eor.setMode(node.getMode());
 
         VirtualRegister target = new VirtualRegister();
-        target.setMode(node.getRootNode().getMode());
-        node.setTarget(target);
+        getAnnotation(node).setTarget(target);
 
         return List.of(eor);
     }

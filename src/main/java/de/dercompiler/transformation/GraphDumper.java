@@ -11,7 +11,6 @@ import firm.Dump;
 import firm.Mode;
 import firm.nodes.*;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.dot.DOTExporter;
@@ -50,11 +49,12 @@ public class GraphDumper {
     public static <E> void dumpNodeAnnotationGraph(Graph<NodeAnnotation<?>, E> graph, String name, Function<firm.nodes.Node, NodeAnnotation<?>> annotationSupplier) {
         dumpJGraph(graph, "annotationGraph", name, v -> Integer.toString(v.getRootNode().getNr()), (v) -> {
             SubstitutionRule rule = v.getRule();
-            rule.setAnnotations(v, annotationSupplier);
+            rule.setNode(v.getRootNode());
             List<Operation> ops = rule.substitute();
-            rule.clearAnnotations();
+            int cost = rule.getCost();
+            rule.clear();
             String opStrings = ops.stream().map(Operation::toString).collect(Collectors.joining("\n"));
-            String label = "Cost: " + v.getRule().getCost() + "\n" +
+            String label = "Cost: " + cost + "\n" +
                     v.getRootNode().toString() +
                     "\n-----\n" +
                     opStrings +

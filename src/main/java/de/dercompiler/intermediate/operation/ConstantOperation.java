@@ -7,7 +7,6 @@ public abstract non-sealed class ConstantOperation extends Operation {
 
 
     private final OperationType operationType;
-    private Mode mode;
 
     public ConstantOperation(OperationType operationType) {
         this.operationType = operationType;
@@ -27,14 +26,6 @@ public abstract non-sealed class ConstantOperation extends Operation {
         return operationType.getSyntax();
     }
 
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
 
     @Override
     public String toString() {

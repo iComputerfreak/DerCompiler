@@ -18,7 +18,12 @@ import java.util.stream.IntStream;
 public class CallRule extends SubstitutionRule<Call> {
     @Override
     public int getCost() {
-        return 1;
+        int cost = 1;
+        for (int idx = 2; idx < getCall().getPredCount(); idx++) {
+            Node n = getCall().getPred(idx);
+            cost += getAnnotation(n).getCost();
+        }
+        return cost;
     }
 
     @Override
