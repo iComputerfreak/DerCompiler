@@ -14,12 +14,14 @@ public final class RuleSet {
     private static final Map<Class<? extends Node>, List<? extends SubstitutionRule<?>>> rules = Map.ofEntries(
             entry(Add.class, List.<SubstitutionRule<Add>>of(new AddRule(), new IncLRule(), new IncRRule(), new ArrayAccessRule())),
             entry(And.class, List.<SubstitutionRule<And>>of(new AndRule())),
+            entry(Address.class, List.<SubstitutionRule<Address>>of(new AddressRule())),
             entry(Block.class, List.<SubstitutionRule<Block>>of()),
             entry(Call.class, List.<SubstitutionRule<Call>>of(new CallRule())),
             entry(Cmp.class, List.<SubstitutionRule<Cmp>>of(new CmpRule())),
             entry(Const.class, List.<SubstitutionRule<Const>>of(new ConstRule())),
             entry(Cond.class, List.<SubstitutionRule<Cond>>of(new CondRule())),
             entry(Conv.class, List.<SubstitutionRule<Conv>>of(new ConstConvRule(), new ConvRule())),
+            entry(End.class, List.<SubstitutionRule<End>>of(new EndRule())),
             entry(Eor.class, List.<SubstitutionRule<Eor>>of(new EorRule())),
             entry(Jmp.class, List.<SubstitutionRule<Jmp>>of(new JmpRule())),
             entry(Load.class, List.<SubstitutionRule<Load>>of(new LoadRule())),
@@ -34,7 +36,8 @@ public final class RuleSet {
             entry(Shl.class, List.<SubstitutionRule<Shl>>of(new ShlRule())),
             entry(Shr.class, List.<SubstitutionRule<Shr>>of(new ShrRule())),
             entry(Shrs.class, List.<SubstitutionRule<Shrs>>of(new ShrsRule())),
-            entry(Store.class, List.<SubstitutionRule<Store>>of(new StoreRule())),
+            entry(Start.class, List.<SubstitutionRule<Start>>of(new StartRule())),
+            entry(Store.class, List.<SubstitutionRule<Store>>of(new StoreRule(), new IncLMemberRule(), new IncRMemberRule(), new ResetRule())),
             entry(Sub.class, List.<SubstitutionRule<Sub>>of(new SubRule()))
     );
 

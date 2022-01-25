@@ -14,19 +14,22 @@ import java.util.List;
 
 public class IncLRule extends AddRule {
 
+    //
+
     @Override
     public int getCost() {
         return 1 + getOperator().getCost();
     }
 
-    private NodeAnnotation<Node> getOperator() {
-        return getTypedAnnotation(getAdd().getRight());
+    private NodeAnnotation<?> getOperator() {
+        return getAnnotation(getAdd().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
         Operand target = getOperator().getTarget();
         getAnnotation(node).setTarget(target);
+        setMode(getOperator().getRootNode().getMode());
 
         Operation inc = new Inc(target);
         inc.setMode(getDatatype(), getSignedness());

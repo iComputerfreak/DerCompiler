@@ -1,24 +1,15 @@
 package de.dercompiler.intermediate.operand;
 
-import de.dercompiler.intermediate.selection.IRMode;
-
 public class ParameterRegister implements Register {
 
-    private static long nextID = 0;
-    private final long id;
-    private IRMode mode;
-
-    public ParameterRegister() {
-        this.id = nextID++;
-    }
-
-    public static void resetNextID() {
-        nextID = 0;
+    private final long number;
+    public ParameterRegister(int number) {
+        this.number = number;
     }
 
     @Override
     public String getIdentifier() {
-        return "@P%d".formatted(id);
+        return "@P%d".formatted(number);
     }
 
 

@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -12,7 +11,7 @@ import firm.nodes.Start;
 import java.util.List;
 import java.util.Objects;
 
-public class ParamRule extends SubstitutionRule<Proj> {
+public class StartRule extends SubstitutionRule<Start> {
     @Override
     public int getCost() {
         return 1;
@@ -20,9 +19,7 @@ public class ParamRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
-        ParameterRegister target = new ParameterRegister(getRootNode().getNum());
-        setTarget(target);
-
+        this.setTarget(null);
         return List.of();
     }
 
@@ -32,10 +29,7 @@ public class ParamRule extends SubstitutionRule<Proj> {
     }
 
     @Override
-    public boolean matches(Proj inputNode) {
-        return inputNode != null
-                && inputNode.getPred() instanceof Proj pred
-                && Objects.equals(pred.getMode(), Mode.getT())
-                && pred.getPred() instanceof Start;
+    public boolean matches(Start inputNode) {
+        return inputNode != null;
     }
 }

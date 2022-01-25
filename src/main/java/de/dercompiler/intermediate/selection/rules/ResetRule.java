@@ -1,20 +1,21 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.BinaryOperations.Xor;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
+import firm.nodes.Const;
 import firm.nodes.Node;
 import firm.nodes.Store;
 
 import java.util.List;
 
-public class StoreRule extends SubstitutionRule<Store> {
+public class ResetRule extends SubstitutionRule<Store> {
     @Override
     public int getCost() {
-        return 1 + getAnnotation(getTarget()).getCost() + getAnnotation(getValue()).getCost();
+        return 1 + getAnnotation(getTarget()).getCost();
     }
 
     private Node getTarget() {
@@ -32,12 +33,12 @@ public class StoreRule extends SubstitutionRule<Store> {
     @Override
     public List<Operation> substitute() {
         Operand targetReg = getAnnotation(getTarget()).getTarget();
-        Operation mov = new Mov(
+        Operation eor = new Xor(
                 targetReg,
-                getAnnotation(getValue()).getTarget());
+                targetReg);
         this.setTarget(targetReg);
         setMode(getValue().getMode());
-        return List.of(mov);
+        return List.of(eor);
     }
 
     @Override
@@ -47,6 +48,6 @@ public class StoreRule extends SubstitutionRule<Store> {
 
     @Override
     public boolean matches(Store inputNode) {
-        return inputNode != null;
+        return inputNode != null && inputNode.getValue() instanceof Const c && c.getTarval().asInt() == 0;
     }
 }
