@@ -11,8 +11,8 @@ Das rechte Argument ist entweder die Konstante 1, ein 1-byte immediate value ode
  */
 public class Shrs extends BinaryOperation {
 
-    public Shrs(Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.SHRS, target, source, isMemoryOperation);
+    public Shrs(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
+        super(OperationType.SHRS, definition, target, source, isMemoryOperation);
     }
 
 }

@@ -9,8 +9,8 @@ import de.dercompiler.io.message.MessageOrigin;
 
 public class Mov extends BinaryOperation {
 
-    public Mov(Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.MOV, target, source, isMemoryOperation);
+    public Mov(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
+        super(OperationType.MOV, definition, target, source, isMemoryOperation);
         if (target instanceof ConstantValue) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Incompatible operands for operation " + getIntelSyntax());
         }
