@@ -1,8 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import firm.nodes.Node;
 
 /**
@@ -106,4 +104,8 @@ public class NodeAnnotation<T extends Node> {
     public void setTransformed(boolean transformed) {
         this.transformed = transformed;
     }
+
+    /**
+     * Returns whether the annotated node is a memory operation (i.e. receives a projection of the current memory state)
+     */
 }

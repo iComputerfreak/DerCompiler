@@ -1,16 +1,16 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import firm.Mode;
 
 import java.util.Objects;
 
 public abstract non-sealed class UnaryOperation extends Operation {
 
-    private Operand operand;
+    private final Operand operand;
     private final OperationType operationType;
 
-    public UnaryOperation(OperationType operationType, Operand operand) {
+    public UnaryOperation(OperationType operationType, Operand operand, boolean isMemoryOperation) {
+        super(isMemoryOperation);
         this.operationType = operationType;
         this.operand = operand;
     }

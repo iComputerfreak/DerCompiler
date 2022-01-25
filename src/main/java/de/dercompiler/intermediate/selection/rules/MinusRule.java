@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Neg;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -28,7 +27,7 @@ public class MinusRule extends SubstitutionRule<Minus> {
 
     @Override
     public List<Operation> substitute() {
-        Operation minus = new Neg(getOperator().getTarget());
+        Operation minus = new Neg(getOperator().getTarget(), isMemoryOperation());
         return List.of(minus);
     }
 

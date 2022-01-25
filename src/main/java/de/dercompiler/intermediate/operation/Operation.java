@@ -1,14 +1,10 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
-import de.dercompiler.intermediate.operation.UnaryOperations.Cwtl;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
-
-import javax.xml.crypto.Data;
 
 public sealed abstract class Operation permits BinaryOperation, ConstantOperation, NaryOperation, UnaryOperation {
 
@@ -19,6 +15,11 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     public abstract String getIntelSyntax();
 
     private int index;
+    private final boolean isMemoryOperation;
+    
+    protected Operation(boolean isMemoryOperation) {
+        this.isMemoryOperation = isMemoryOperation;
+    }
 
     public int getIndex() {
         return index;
@@ -43,5 +44,9 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
 
     public boolean isSigned() {
         return mode.isSigned();
+    }
+    
+    public boolean isMemoryOperation() {
+        return isMemoryOperation;
     }
 }

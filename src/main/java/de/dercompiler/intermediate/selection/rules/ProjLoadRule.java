@@ -35,7 +35,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
     @Override
     public List<Operation> substitute() {
         Operand target = getAnnotation(getRootNode()).getTarget();
-        Operation mov = new Mov(getAnnotation(getLoad()).getTarget(), target);
+        Operation mov = new Mov(getAnnotation(getLoad()).getTarget(), target, isMemoryOperation());
         mov.setMode(getRootNode().getMode());
         return List.of(mov);
     }

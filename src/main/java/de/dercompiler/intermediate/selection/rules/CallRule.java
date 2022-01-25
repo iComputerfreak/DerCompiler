@@ -3,15 +3,12 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.nodes.Address;
 import firm.nodes.Call;
 import firm.nodes.Node;
 
-import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -30,6 +27,7 @@ public class CallRule extends SubstitutionRule<Call> {
     public List<Operation> substitute() {
         return List.of(new de.dercompiler.intermediate.operation.NaryOperations.Call(
                 getMethod(),
+                isMemoryOperation(),
                 IntStream.range(2, getCall().getPredCount()).mapToObj(idx -> getAnnotation(getCall().getPred(idx)).getTarget()).toArray(Operand[]::new)));
     }
 

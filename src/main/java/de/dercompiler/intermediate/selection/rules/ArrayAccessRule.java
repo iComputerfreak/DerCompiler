@@ -1,8 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operand.Address;
-import de.dercompiler.intermediate.operation.BinaryOperation;
+import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -80,7 +79,7 @@ public class ArrayAccessRule extends AddRule {
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
             getIndex().setTarget(target);
-            ops = List.of(new Mov(idxReg, index));
+            ops = List.of(new Mov(idxReg, index, isMemoryOperation()));
         }
 
         getAnnotation(getRootNode()).setTarget(target);

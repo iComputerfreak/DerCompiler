@@ -8,8 +8,8 @@ import de.dercompiler.intermediate.selection.Signedness;
 
 public class Jmp extends UnaryOperation {
 
-    public Jmp(LabelOperand address){
-        super(OperationType.JMP, address);
+    public Jmp(LabelOperand address, boolean isMemoryOperation) {
+        super(OperationType.JMP, address, isMemoryOperation);
         this.setMode(Datatype.OTHER, Signedness.UNSIGNED);
     }
 

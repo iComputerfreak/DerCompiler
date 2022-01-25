@@ -2,7 +2,6 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Inc;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import firm.Graph;
@@ -28,7 +27,7 @@ public class IncLRule extends AddRule {
         Operand target = getOperator().getTarget();
         getAnnotation(node).setTarget(target);
 
-        Operation inc = new Inc(target);
+        Operation inc = new Inc(target, isMemoryOperation());
         inc.setMode(getDatatype(), getSignedness());
         return List.of(inc);
     }

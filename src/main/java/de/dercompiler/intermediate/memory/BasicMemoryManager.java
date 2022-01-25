@@ -1,9 +1,8 @@
 package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.*;
-
-import de.dercompiler.intermediate.operation.*;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
+import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Push;
 import firm.Entity;
 
@@ -67,7 +66,7 @@ public class BasicMemoryManager implements MemoryManager {
 
      @Override
     public Operand pushValue(Operand source) {
-        output.accept(new Push((Register) source));
+        output.accept(new Push((Register) source, true /* @Robin: TODO: true or false? */));
         stackPointer = stackPointer.offset(-8);
         return stackPointer.copy();
     }
@@ -84,7 +83,7 @@ public class BasicMemoryManager implements MemoryManager {
         }
         stackPointer = stackPointer.offset(-1);
         pushValue(basePointer);
-        output.accept(new Call((LabelOperand) LabelOperand.forMethod(methodEntity)));
+        output.accept(new Call((LabelOperand) LabelOperand.forMethod(methodEntity), true /* @Robin: TODO: true or false? */));
     }
 
     @Override

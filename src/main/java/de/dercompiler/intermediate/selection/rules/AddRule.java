@@ -1,9 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Register;
-import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -33,7 +30,7 @@ public class AddRule extends SubstitutionRule<Add> {
 
     @Override
     public List<Operation> substitute() {
-        Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(getLeft().getTarget(),getRight().getTarget());
+        Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
         add.setMode(getRootNode().getMode());
         return List.of(add);
     }

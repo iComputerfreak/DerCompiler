@@ -30,16 +30,16 @@ public class FirmBlock {
         return operations;
     }
     
-    public void addOperations(List<Operation> ops) {
-        this.operations.addAll(ops);
+    public void insertOperations(int index, List<Operation> ops) {
+        this.operations.addAll(index, ops);
     }
 
     public List<CodeNode> getPhis() {
         return phis;
     }
 
-    public void addPhi(CodeNode phi) {
-        this.phis.add(phi);
+    public void insertPhi(int index, CodeNode phi) {
+        this.phis.add(index, phi);
     }
 
     public boolean getVisited() {

@@ -43,12 +43,12 @@ public class ConvRule extends SubstitutionRule<Conv> {
             Operation convOp = null;
             switch (oldType) {
                 case WORD -> {
-                    convOp = new Cwtl(getOperand().getTarget());
+                    convOp = new Cwtl(getOperand().getTarget(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
                     oldType = Datatype.DWORD;
                 }
                 case DWORD -> {
-                    convOp = new Cltq(getOperand().getTarget());
+                    convOp = new Cltq(getOperand().getTarget(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
                     oldType = Datatype.QWORD;
                 }

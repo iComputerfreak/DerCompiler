@@ -1,14 +1,14 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import firm.Mode;
 
 public abstract non-sealed class ConstantOperation extends Operation {
 
 
     private final OperationType operationType;
 
-    public ConstantOperation(OperationType operationType) {
+    public ConstantOperation(OperationType operationType, boolean isMemoryOperation) {
+        super(isMemoryOperation);
         this.operationType = operationType;
     }
 

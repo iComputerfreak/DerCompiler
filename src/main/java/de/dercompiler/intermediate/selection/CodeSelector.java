@@ -297,7 +297,6 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         }
 
         setDefaultTarget(annotations.get(node.getNr()));
-
     }
 
     private void setDefaultTarget(NodeAnnotation<?> nodeAnnotation) {
@@ -428,10 +427,12 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
      * @param node The CodeNode to linearize
      */
     private void linearizeNode(CodeNode node) {
+        // Since we traverse the graph in the opposite direction (result to operands),
+        // we need to insert the operations at the beginning of the code list
         if (node.isPhi()) {
-            node.getFirmBlock().addPhi(node);
+            node.getFirmBlock().insertPhi(0, node);
         } else {
-            node.getFirmBlock().addOperations(node.getOperations());
+            node.getFirmBlock().insertOperations(0, node.getOperations());
         }
     }
 

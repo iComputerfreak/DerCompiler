@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -27,7 +26,7 @@ public class NotRule extends SubstitutionRule<Not> {
 
     @Override
     public List<Operation> substitute() {
-        Operation not = new de.dercompiler.intermediate.operation.UnaryOperations.Not(getOperator().getTarget());
+        Operation not = new de.dercompiler.intermediate.operation.UnaryOperations.Not(getOperator().getTarget(), isMemoryOperation());
         return List.of(not);
     }
 

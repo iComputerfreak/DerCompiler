@@ -2,11 +2,9 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Inc;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import firm.Graph;
-import firm.Mode;
 import firm.nodes.Add;
 import firm.nodes.Const;
 import firm.nodes.Node;
@@ -29,7 +27,7 @@ public class IncRRule extends AddRule {
         Operand target = getOperator().getTarget();
         getAnnotation(node).setTarget(target);
 
-        Operation inc = new Inc(target);
+        Operation inc = new Inc(target, isMemoryOperation());
         inc.setMode(getRootNode().getMode());
         return List.of(inc);
     }

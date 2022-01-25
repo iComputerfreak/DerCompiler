@@ -8,9 +8,11 @@ import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.Mode;
 import firm.nodes.Node;
+import firm.nodes.Proj;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 /**
  * Represents a rule that is used to replace one or multiple {@link firm.nodes.Node}s with a set of {@link Operation}s
@@ -124,6 +126,14 @@ public abstract class SubstitutionRule<T extends Node> {
 
     public void setMode(Datatype type, Signedness signedness) {
         this.mode = new IRMode(type, signedness);
+    }
+
+    /**
+     * Returns whether this operation depends on the current state of memory
+     */
+    public boolean isMemoryOperation() {
+        return StreamSupport.stream(getRootNode().getPreds().spliterator(), false)
+                .anyMatch(n -> n instanceof Proj p && p.getMode().equals(Mode.getM()));
     }
 
 }

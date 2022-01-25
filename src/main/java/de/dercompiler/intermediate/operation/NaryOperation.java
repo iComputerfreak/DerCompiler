@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import firm.Mode;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -13,7 +12,8 @@ public abstract non-sealed class NaryOperation extends Operation {
 
     private final OperationType operationType;
 
-    public NaryOperation(OperationType operationType, Operand... operands) {
+    public NaryOperation(OperationType operationType, boolean isMemoryOperation, Operand... operands) {
+        super(isMemoryOperation);
         this.operationType = operationType;
         if (!Objects.isNull(operands)) {
             this.operands = operands;

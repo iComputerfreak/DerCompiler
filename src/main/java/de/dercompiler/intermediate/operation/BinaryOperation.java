@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.selection.IRMode;
 
 
 public abstract non-sealed class BinaryOperation extends Operation {
@@ -11,7 +10,8 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     private final OperationType operationType;
 
-    public BinaryOperation(OperationType operationType, Operand target, Operand source) {
+    public BinaryOperation(OperationType operationType, Operand target, Operand source, boolean isMemoryOperation) {
+        super(isMemoryOperation);
         this.operationType = operationType;
         this.target = target;
         this.source = source;

@@ -1,9 +1,6 @@
 package de.dercompiler.intermediate.operation.BinaryOperations;
 
-import de.dercompiler.intermediate.operand.Address;
-import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.Register;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 
@@ -14,8 +11,8 @@ Das rechte Argument ist entweder die Konstante 1, ein 1-byte immediate value ode
  */
 public class Shrs extends BinaryOperation {
 
-    public Shrs(Operand target, Operand source){
-        super(OperationType.SHRS, target, source);
+    public Shrs(Operand target, Operand source, boolean isMemoryOperation) {
+        super(OperationType.SHRS, target, source, isMemoryOperation);
     }
 
 }

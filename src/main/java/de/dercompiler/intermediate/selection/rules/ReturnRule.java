@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -22,9 +21,9 @@ public class ReturnRule extends SubstitutionRule<Return> {
     public List<Operation> substitute() {
         Ret ret;
         if (Objects.isNull(getRetVal())) {
-            ret = new Ret();
+            ret = new Ret(isMemoryOperation());
         } else {
-            ret = new Ret(getRetVal().getTarget());
+            ret = new Ret(getRetVal().getTarget(), isMemoryOperation());
             ret.setMode(getRetVal().getRootNode().getMode());
         }
         this.setTarget(null);

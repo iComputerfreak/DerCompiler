@@ -6,6 +6,6 @@ import de.dercompiler.intermediate.operation.OperationType;
 public class Nop extends ConstantOperation {
 
     public Nop(){
-        super(OperationType.NOP);
+        super(OperationType.NOP, false);
     }
 }
