@@ -1,9 +1,6 @@
 name: mjtest
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
+on: [push, pull_request, workflow_dispatch]
 
 env:
   JAVA_VERSION: 17
