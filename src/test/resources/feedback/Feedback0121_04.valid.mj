@@ -24,6 +24,7 @@ class Main {
             } else {
                 System.out.println(0);
             }
+            i = i + 1;
         }
     }
 }
