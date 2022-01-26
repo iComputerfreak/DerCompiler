@@ -69,7 +69,7 @@ public abstract class ReferenceNode {
 
     public ReferenceNode prepareAccessField(TransformationState state) {
         //gen load but mark as AccessArray
-        prepareNode(genLoad(state), NodeAccess.FIELD_ACCESS);
+        prepareNode(genLoadAndReset(state), NodeAccess.FIELD_ACCESS);
         return this;
     }
 

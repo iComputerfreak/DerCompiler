@@ -38,9 +38,6 @@ public class ArrayNode extends ReferenceNode {
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         Node elem_ptr = TransformationHelper.addOffsetToPointer(state, ref, offset);
-        if (isElement()) {
-            return new ArrayElementNode(elem_ptr, type);
-        }
         return new ArrayElementNode(elem_ptr, getTypeAsArray().getElementType());
     }
 
