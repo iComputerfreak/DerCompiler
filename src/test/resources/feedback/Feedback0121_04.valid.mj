@@ -1,0 +1,24 @@
+class Main {
+
+    public int[] foo() {
+        if (true) {
+            boolean[] array = new boolean[42];
+            int i = 0;
+            while (i < 42) {
+                array[i] = i % 2 == 0;
+                i = i + 1;
+            }
+            return array;
+        } else {
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        int[] res = main.foo();
+        while (i < 42) {
+            System.out.println(res[i]);
+        }
+    }
+}

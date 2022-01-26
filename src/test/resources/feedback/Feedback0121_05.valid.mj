@@ -1,0 +1,8 @@
+class A {
+    public static void main(String[] args) {
+        A[] as = new A[2];
+        as[0] = new A();
+        as[1] = new A();
+        if (as[0] == as[1]) System.out.println(-1);
+    }
+}
