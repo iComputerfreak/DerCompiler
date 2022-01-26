@@ -124,7 +124,8 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
         //create memory phi
         state.construction.getCurrentMem();
 
-        state.pushBlock(head);
+
+        //state.pushBlock(head);
         //push loop block
         state.pushBlock(state.trueBlock());
         //pull from stack after loop-operation(s)

@@ -2,7 +2,10 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.type.NullType;
 import de.dercompiler.transformation.TransformationState;
 import de.dercompiler.transformation.node.RValueNode;
 import de.dercompiler.transformation.node.ReferenceNode;
@@ -31,7 +34,11 @@ public final class NullValue extends PrimaryExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        return new RValueNode(state.construction.newConst(0, Mode.getP()), getType());
+        if (!(getType() instanceof NullType nt)) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("Null has no Null-Type");
+            return null;
+        }
+        return new RValueNode(state.construction.newConst(0, Mode.getP()), nt.getExpectedType());
     }
 
     @Override

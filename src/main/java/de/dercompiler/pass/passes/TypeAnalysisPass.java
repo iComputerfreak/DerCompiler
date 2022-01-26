@@ -114,6 +114,12 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
         }
     }
 
+    private void assertReturnTypeEquals(Expression expr, Type returnType, String description) {
+        if (!returnType.isCompatibleTo(expr.getType())) {
+            failTypeCheck(expr, "Type of %s must be %s".formatted(description, returnType));
+        }
+    }
+
     private ClassType assertCustomBasicType(Expression expr, String description) {
         if (expr.getType() instanceof ClassType type) {
             return type;
@@ -429,7 +435,7 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
             }
         } else {
             expr.accept(this);
-            assertTypeEquals(expr, returnType, "return value for %s method".formatted(returnType));
+            assertReturnTypeEquals(expr, returnType, "return value for %s method".formatted(returnType));
         }
     }
 
