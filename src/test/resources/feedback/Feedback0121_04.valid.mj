@@ -1,6 +1,6 @@
 class Main {
 
-    public int[] foo() {
+    public boolean[] foo() {
         if (true) {
             boolean[] array = new boolean[42];
             int i = 0;
@@ -16,9 +16,14 @@ class Main {
 
     public static void main(String[] args) {
         Main main = new Main();
-        int[] res = main.foo();
+        boolean[] res = main.foo();
+        int i = 0;
         while (i < 42) {
-            System.out.println(res[i]);
+            if (res[i]) {
+                System.out.println(1);
+            } else {
+                System.out.println(0);
+            }
         }
     }
 }
