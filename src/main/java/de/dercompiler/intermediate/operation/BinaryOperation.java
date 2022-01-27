@@ -21,7 +21,15 @@ public abstract non-sealed class BinaryOperation extends Operation {
     public Operand[] getArgs() {
         return new Operand[]{target, source};
     }
-    
+
+    public Operand getTarget() {
+        return target;
+    }
+
+    public Operand getSource() {
+        return source;
+    }
+
     public OperationType getOperationType() {
         return operationType;
     }
@@ -33,6 +41,6 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     @Override
     public String toString() {
-        return "%s %s %s (%s)".formatted(operationType, target, source, mode);
+        return "%s %s %s (%s%s)".formatted(operationType, target, source, mode, isMemoryOperation()? "/M" : "");
     }
 }

@@ -4,7 +4,7 @@ import de.dercompiler.intermediate.operand.Operand;
 import firm.nodes.Node;
 
 /**
- * Represents an annotation of a {@link firm.nodes.Node}
+ * Represents an annotation of a {@link Node}
  */
 public class NodeAnnotation<T extends Node> {
     
@@ -14,6 +14,9 @@ public class NodeAnnotation<T extends Node> {
     private Operand target = null;
     private boolean visited;
     private boolean transformed;
+    private boolean componentRoot;
+    private boolean visitedEncountered;
+    private int component;
 
     /**
      * Creates a new node annotation with the given cost, root node and substitution rule
@@ -103,6 +106,14 @@ public class NodeAnnotation<T extends Node> {
      */
     public void setTransformed(boolean transformed) {
         this.transformed = transformed;
+    }
+
+    public void setComponent(int component) {
+        this.component = component;
+    }
+
+    public int getComponent() {
+        return component;
     }
 
     /**

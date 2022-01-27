@@ -5,6 +5,8 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
+import firm.MethodType;
+import firm.Mode;
 import firm.nodes.Address;
 import firm.nodes.Call;
 import firm.nodes.Node;
@@ -25,10 +27,29 @@ public class CallRule extends SubstitutionRule<Call> {
 
     @Override
     public List<Operation> substitute() {
-        return List.of(new de.dercompiler.intermediate.operation.NaryOperations.Call(
+        de.dercompiler.intermediate.operation.NaryOperations.Call call = new de.dercompiler.intermediate.operation.NaryOperations.Call(
                 getMethod(),
-                isMemoryOperation(),
-                IntStream.range(2, getCall().getPredCount()).mapToObj(idx -> getAnnotation(getCall().getPred(idx)).getTarget()).toArray(Operand[]::new)));
+                true,
+                getArgRegister());
+        call.setMode(getResultMode());
+        return List.of(call);
+    }
+
+    private Mode getResultMode() {
+        if (getMethodType().getNRess() > 0) {
+            return getMethodType().getResType(0).getMode();
+        }
+        return Mode.getANY();
+    }
+
+    private MethodType getMethodType() {
+        Address ptr = (Address) node.getPtr();
+        MethodType type = (MethodType) ptr.getEntity().getType();
+        return type;
+    }
+
+    private Operand[] getArgRegister() {
+        return IntStream.range(2, getCall().getPredCount()).mapToObj(idx -> getAnnotation(getCall().getPred(idx)).getTarget()).toArray(Operand[]::new);
     }
 
     private LabelOperand getMethod() {
@@ -48,8 +69,7 @@ public class CallRule extends SubstitutionRule<Call> {
     @Override
     public boolean matches(Call inputNode) {
         return inputNode != null
-                && inputNode.getPtr() instanceof Address method
-                && !method.getEntity().getName().equals("allocate");
+                && inputNode.getPtr() instanceof Address method;
 
     }
 }

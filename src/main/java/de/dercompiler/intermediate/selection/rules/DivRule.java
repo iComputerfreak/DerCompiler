@@ -4,36 +4,36 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
-import firm.nodes.Add;
+import firm.nodes.Div;
 import firm.nodes.Node;
 
 import java.util.List;
 
-public class AddRule extends SubstitutionRule<Add> {
+public class DivRule extends SubstitutionRule<Div> {
 
     @Override
     public int getCost() {
         return 1 + getLeft().getCost() + getRight().getCost();
     }
 
-    Add getAdd() {
+    Div getDiv() {
         return getRootNode();
     }
     
     NodeAnnotation<?> getLeft() {
-        return getAnnotation(getAdd().getLeft());
+        return getAnnotation(getDiv().getLeft());
     }
 
     NodeAnnotation<?> getRight() {
-        return getAnnotation(getAdd().getRight());
+        return getAnnotation(getDiv().getRight());
     }
 
     @Override
     public List<Operation> substitute() {
-        Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
-        add.setMode(getRootNode().getMode());
+        Operation div = new de.dercompiler.intermediate.operation.BinaryOperations.Div(getLeft().getTarget(), getRight().getTarget());
+        div.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
-        return List.of(add);
+        return List.of(div);
     }
 
     @Override
@@ -42,8 +42,8 @@ public class AddRule extends SubstitutionRule<Add> {
     }
 
     @Override
-    public boolean matches(Add inputNode) {
-        // any Add node matches
+    public boolean matches(Div inputNode) {
+        // any Div node matches
         return true;
     }
 

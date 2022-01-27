@@ -38,7 +38,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
     public List<Operation> substitute() {
         Operand operandTarget = getAnnotation(getLoad()).getTarget();
         if (operandTarget instanceof Address addr && addr.isRegister()) {
-            setTarget(addr.asRegister());
+            setTarget(addr);
             return List.of();
         } else {
             Operand target = getAnnotation(getRootNode()).getTarget();
@@ -50,7 +50,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
-        return List.of(getLoad());
+        return List.of();
     }
 
     @Override

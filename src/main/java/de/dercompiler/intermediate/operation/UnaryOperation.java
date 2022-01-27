@@ -31,6 +31,6 @@ public abstract non-sealed class UnaryOperation extends Operation {
 
     @Override
     public String toString() {
-        return "%s %s (%s)".formatted(operationType, operand, mode);
+        return "%s %s (%s%s)".formatted(operationType, operand, mode, isMemoryOperation()? "/M" : "");
     }
 }

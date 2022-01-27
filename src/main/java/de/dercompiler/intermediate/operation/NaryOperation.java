@@ -38,7 +38,7 @@ public abstract non-sealed class NaryOperation extends Operation {
 
     @Override
     public String toString() {
-        return "%s (%s)".formatted(getIntelSyntax(), mode);
+        return "%s (%s%s)".formatted(getIntelSyntax(), mode, isMemoryOperation()? "/M" : "");
     }
 }
 

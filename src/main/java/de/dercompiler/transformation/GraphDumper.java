@@ -59,23 +59,27 @@ public class GraphDumper {
                     "\n-----\n" +
                     opStrings +
                     (v.getTarget() != null ? "\n==>" + v.getTarget().toString() : "");
-            
+
             return Map.of(
                     "label", DefaultAttribute.createAttribute(label),
                     "color", DefaultAttribute.createAttribute(getNodeColor(v)));
-        }, (e) -> Map.of("color", DefaultAttribute.createAttribute(getEdgeColor(e))));
+        }, (e) -> Map.of("style", DefaultAttribute.createAttribute(getEdgeStyle(graph, e))));
     }
 
-    private static <E> String getEdgeColor(E e) {
+    private static <E> String getEdgeStyle(Graph<NodeAnnotation<?>, E> graph, E e) {
         // It seems there is no proper way to get any kind of information about the edge
         // It is hard to know whether this edge represents "memory flow" or not
-        return "black";
+        if (graph.getEdgeSource(e).getRootNode().getBlock().getNr() != graph.getEdgeTarget(e).getRootNode().getBlock().getNr()) {
+            return "dashed";
+        }
+
+        return "solid";
     }
 
     private static String getNodeColor(NodeAnnotation<?> v) {
         Node rootNode = v.getRootNode();
         if (Objects.equals(rootNode.getMode(), Mode.getM()) || rootNode instanceof Store || rootNode instanceof Load || rootNode instanceof Call
-        || rootNode instanceof Div || rootNode instanceof Start || rootNode instanceof Return) return "red";
+                || rootNode instanceof Div || rootNode instanceof Start || rootNode instanceof Return) return "red";
         return "black";
     }
 
@@ -89,11 +93,11 @@ public class GraphDumper {
 
     public static <E> void dumpBlocksGraph(Graph<FirmBlock, E> graph, String name) {
         dumpJGraph(graph, "blocksGraph", name, v -> Integer.toString(v.getNr()),
-                (v) -> Map.of("label", DefaultAttribute.createAttribute(v.toString() + "\n" + 
-                        String.join("\n", v.getOperations().stream().map(Operation::getIntelSyntax).toList()))),
+                (v) -> Map.of("label", DefaultAttribute.createAttribute(v.toString() + "\n" +
+                        v.getOperations())),
                 (e) -> Map.of("label", DefaultAttribute.createAttribute((int) graph.getEdgeWeight(e))));
     }
-    
+
     private static <V, E> void dumpJGraph(Graph<V, E> graph, String namePrefix, String name,
                                           Function<V, String> vertexIdProvider,
                                           Function<V, Map<String, Attribute>> vertexAttributeProvider,
@@ -104,10 +108,10 @@ public class GraphDumper {
             DOTExporter<V, E> exporter = new DOTExporter<>(vertexIdProvider);
             exporter.setVertexAttributeProvider(vertexAttributeProvider);
             exporter.setEdgeAttributeProvider(edgeAttributeProvider);
-            
+
             File directory = new File("graphs");
             directory.mkdir();
-            try(FileWriter w = new FileWriter("graphs/" + file)) {
+            try (FileWriter w = new FileWriter("graphs/" + file)) {
                 exporter.exportGraph(graph, w);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -19,4 +19,5 @@ public abstract class BinArithOperation extends BinaryOperation {
             //throw new RuntimeException("Incompatible operand types in %s node: %s %s".formatted(type.toString(), target.getIdentifier(), source.getIdentifier()));
         }
     }
+
 }

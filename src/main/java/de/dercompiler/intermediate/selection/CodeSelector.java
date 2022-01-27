@@ -4,7 +4,6 @@ import de.dercompiler.generation.CodeGenerationWarningIds;
 import de.dercompiler.intermediate.operand.CondTarget;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.CondJmpRule;
 import de.dercompiler.intermediate.selection.rules.EmptyRule;
@@ -12,6 +11,7 @@ import de.dercompiler.intermediate.selection.rules.PhiRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.GraphDumper;
+import de.dercompiler.util.GraphUtil;
 import firm.BlockWalker;
 import firm.nodes.*;
 import org.jgrapht.Graph;
@@ -20,9 +20,13 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.ClosestFirstIterator;
+import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import java.util.*;
+
+import static de.dercompiler.intermediate.selection.Datatype.OTHER;
 
 public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
@@ -46,7 +50,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
     private final HashMap<Integer, FirmBlock> firmBlocks = new HashMap<>();
-    private final Map<Node, Block> jmpTargets = new HashMap<>();
+    private final Map<Node, String> jmpTargets = new HashMap<>();
     private int nextIntermediateID = -1;
 
     /**
@@ -132,9 +136,17 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         /* 3. Transform the NodeAnnotation graph into a CodeNode graph */
         /* =========================================================== */
         this.mode = Mode.TRANSFORMATION;
+        NodeAnnotation<?> start = annotations.get(graph.getStart().getNr());
+        transformAnnotation(start);
+
         Iterator<NodeAnnotation<?>> nodeAnnotationGraphIterator = new BreadthFirstIterator<>(nodeAnnotationGraph);
         while (nodeAnnotationGraphIterator.hasNext()) {
-            transformAnnotation(nodeAnnotationGraphIterator.next());
+            NodeAnnotation<?> next = nodeAnnotationGraphIterator.next();
+            if (!next.getTransformed()) {
+                int compIdx = firmBlocks.get(next.getRootNode().getBlock().getNr()).newComponent();
+                next.setComponent(compIdx);
+            }
+            transformAnnotation(next);
         }
 
         GraphDumper.dumpCodeGraph(codeGraph, graphName);
@@ -146,19 +158,20 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
         // Before we go over the nodes in topological order, we have to remove all edges that span between blocks
         // Since we already transformed the nodes to code, we don't need the edges anymore
-        codeGraph.edgeSet()
+        List<DefaultEdge> removeEdges = codeGraph.edgeSet()
                 .stream()
                 .filter(e -> codeGraph.getEdgeSource(e).getFirmBlock().getNr() !=
-                        codeGraph.getEdgeTarget(e).getFirmBlock().getNr())
-                .forEach(codeGraph::removeEdge);
+                        codeGraph.getEdgeTarget(e).getFirmBlock().getNr()).toList();
+        removeEdges.forEach(codeGraph::removeEdge);
 
         // Do the linearization of the codeGraph
-        Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
+
+        Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph);
         while (codeGraphIterator.hasNext()) {
             CodeNode next = codeGraphIterator.next();
             linearizeNode(next);
         }
-        
+
         return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
     }
 
@@ -167,7 +180,15 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             @Override
             void visitAny(Node node) {
                 if (node instanceof Phi phi && !Objects.equals(phi.getMode(), firm.Mode.getM())) {
-                    annotations.put(phi.getNr(), new NodeAnnotation<>(1, phi, new PhiRule(), true, false));
+                    boolean inRow = false;
+                    for (int i = 0; i < phi.getPredCount(); i++) {
+                        // only set for the last Phi in a row (in case of swapping)
+                        if (phi.getPred(i) instanceof Phi) {
+                            inRow = true;
+                            break;
+                        }
+                    }
+                    annotations.put(phi.getNr(), new NodeAnnotation<>(1, phi, new PhiRule(), !inRow, false));
                 }
             }
         });
@@ -175,8 +196,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
     private void setJumpTargets() {
         annotations.values().stream().filter(a -> a.getRule().needsJmpTarget()).forEach(a -> {
-            Node targetBlock = jmpTargets.get(a.getRootNode());
-            LabelOperand target = new LabelOperand("" + targetBlock.getNr());
+            String targetLabel = jmpTargets.get(a.getRootNode());
+            LabelOperand target = new LabelOperand("" + targetLabel);
             a.setTarget(target);
 
             if (a.getRule() instanceof CondJmpRule) {
@@ -206,14 +227,16 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         }
         fBlock.setVisited(true);
         blocksGraph.addVertex(fBlock);
+
         for (int i = 0; i < block.getPredCount(); i++) {
             Node pred = block.getPred(i);
             FirmBlock predBlock = getOrCreateFirmBlock((Block) pred.getBlock());
             if (!blocksGraph.containsVertex(predBlock)) {
                 visitBlock((Block) pred.getBlock());
             }
+
             // If the graph already contains an edge between these two nodes, add intermediate nodes
-            if (blocksGraph.containsEdge(fBlock, predBlock)) {
+           /* if (blocksGraph.containsEdge(fBlock, predBlock)) {
                 FirmBlock intermediate1 = new FirmBlock(nextIntermediateID());
                 FirmBlock intermediate2 = new FirmBlock(nextIntermediateID());
                 blocksGraph.addVertex(intermediate1);
@@ -232,9 +255,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 blocksGraph.addEdge(intermediate2, predBlock);
                 blocksGraph.setEdgeWeight(intermediate2, predBlock, i);
             } else {
-                DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
-                blocksGraph.setEdgeWeight(e, i);
-            }
+            */
+            DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
+            blocksGraph.setEdgeWeight(e, i);
+            /*}*/
         }
     }
 
@@ -251,6 +275,18 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     }
 
     /**
+     * Returns or creates the FirmBlock for the given id and puts it into the global map firmBlocks
+     *
+     * @param id The id of the new FirmBlock
+     */
+    FirmBlock getOrCreateFirmBlock(int id) {
+        if (!firmBlocks.containsKey(id)) {
+            firmBlocks.put(id, new FirmBlock(id));
+        }
+        return firmBlocks.get(id);
+    }
+
+    /**
      * Creates a NodeAnnotation for the given node in the internal map.
      * Also calculates the optimal rule for transforming the given node.
      *
@@ -259,7 +295,11 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private <T extends Node> void annotateNode(T node) {
         // We don't annotate basic blocks
         if (node instanceof Block block) {
-            node.getPreds().forEach(jmp -> jmpTargets.put(jmp, block));
+            for (int i = 0; i < node.getPredCount(); i++) {
+                Node jmp = node.getPred(i);
+                String fmt = node.getPredCount() > 1 ? "%1$d_%2$d" : "%1$d";
+                jmpTargets.put(jmp, fmt.formatted(block.getNr(), i));
+            }
             return;
         }
         //noinspection unchecked
@@ -288,7 +328,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             // Dummy annotation:
             NodeAnnotation<Node> a = this.createAnnotation(Node.class, node, new EmptyRule());
             annotations.put(node.getNr(), a);
-            
+
             // Print a warning that there was no matching rule for the node
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION)
                     .printWarning(CodeGenerationWarningIds.MISSING_RULE,
@@ -322,7 +362,13 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         NodeAnnotation<T> a = (NodeAnnotation<T>) annotations.get(node.getNr());
         assert a != null;
         // If we already visited the node (i.e. already transformed it using a rule in one of its successors), skip it
-        if (a.getVisited()) return;
+        if (a.getVisited()) {
+            if (!nodeAnnotationGraph.containsVertex(a)) nodeAnnotationGraph.addVertex(a);
+            for (Node pred : a.getRootNode().getPreds()) {
+                addDependency(a, pred);
+            }
+            return;
+        }
         SubstitutionRule<T> rule = a.getRule();
         // Mark the annotations of all required nodes visited, since they will be covered by this rule
 
@@ -380,30 +426,48 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         if (a.getTransformed()) {
             return;
         }
-        // Get the predecessors (graph nodes that point to this node)
-        List<? extends NodeAnnotation<?>> predecessors = nodeAnnotationGraph.incomingEdgesOf(a).stream()
-                .map(nodeAnnotationGraph::getEdgeSource).toList();
+        System.out.println("tr " + a.getRootNode().toString());
         // Apply the rule in this annotation
         SubstitutionRule<T> rule = a.getRule();
-        rule.setNode(a.getRootNode());
+        T rootNode = a.getRootNode();
+        rule.setNode(rootNode);
         List<Operation> ops = rule.substitute();
 
         // Create the node in the code graph
-        int blockNr = a.getRootNode().getBlock().getNr();
-        CodeNode codeNode = new CodeNode(ops, firmBlocks.get(blockNr), rule.getRootNode() instanceof Phi);
-        codeGraph.addVertex(codeNode);
+        int blockNr = rootNode.getBlock().getNr();
+
+        // Falls Phinode, werden hier mehr CodeNodes im Hintergrund erzeugt
+        CodeNode codeNode;
+        FirmBlock fBlock = getOrCreateFirmBlock(blockNr);
+        if (a.getRule() instanceof PhiRule phiRule && phiRule.getDatatype() != OTHER) {
+            codeNode = createPhiNode(fBlock, phiRule);
+        } else {
+            codeNode = new CodeNode(ops, fBlock, rootNode.getNr());
+            codeGraph.addVertex(codeNode);
+        }
+        codeNode.setComponent(a.getComponent());
+
         // Keep a map of the node ids for lookup
-        codeGraphLookup.put(a.getRootNode().getNr(), codeNode);
+        codeGraphLookup.put(rootNode.getNr(), codeNode);
         rule.clear();
+
+        // Get the predecessors (graph nodes that point to this node)
+        List<? extends NodeAnnotation<?>> predecessors = GraphUtil.getPredecessors(a, nodeAnnotationGraph);
 
         for (NodeAnnotation<?> p : predecessors) {
             int predNr = p.getRootNode().getNr();
             // If we have a predecessor that we did not transform yet, do it now, recursively
             if (!codeGraphLookup.containsKey(predNr)) {
                 // node gets handled elsewhere and gets no own code
-                if (annotations.get(predNr).getVisited()) continue;
-
-                transformAnnotation(annotations.get(predNr));
+                boolean visited = annotations.get(predNr).getVisited();
+                if (!visited) {
+                    System.out.print("->");
+                    transformAnnotation(annotations.get(predNr));
+                }
+                int actualCmp = annotations.get(predNr).getComponent();
+                codeNode.setComponent(actualCmp);
+                a.setComponent(actualCmp);
+                if (visited) continue;
             }
             CodeNode predNode = codeGraphLookup.get(predNr);
             // Recreate the dependency
@@ -413,12 +477,65 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         // Mark all nodes that are covered by this rule as "transformed"
         // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
         a.setTransformed(true);
-        rule.setNode(a.getRootNode());
+        rule.setNode(rootNode);
         for (Node n : rule.getRequiredNodes(graph)) {
             annotations.get(n.getNr()).setTransformed(true);
         }
         rule.clear();
     }
+
+    /**
+     * Creates a phi code node and code nodes for the phi blocks of fBlock.
+     *
+     * @param fBlock  the target firm block
+     * @param phiRule the rule representing the phi node
+     * @return the new (empty) phi node for the fBlock
+     */
+    private CodeNode createPhiNode(FirmBlock fBlock, PhiRule phiRule) {
+
+        // This is not for Phi M nodes
+        PhiNode node = new PhiNode(phiRule, fBlock);
+        codeGraph.addVertex(node);
+        List<FirmBlock> succBlocks = GraphUtil.getSuccessors(fBlock, blocksGraph);
+        for (int i = 0; i < phiRule.getPredCount(); i++) {
+            Operation movOp = phiRule.getCodeForSucc(i);
+            CodeNode succCode = new CodeNode(List.of(movOp), getOrCreatePhiBlock(fBlock, i, succBlocks.get(i)));
+            codeGraphLookup.put(succCode.getId(), succCode);
+
+            // Insert new phi code node in between this node and the original successor
+            node.setCodeForPred(succCode, i);
+            codeGraph.addVertex(succCode);
+            codeGraph.addEdge(node, succCode);
+            //codeGraph.addEdge(succCode, codeGraphLookup.get(phiRule.node.getPred(i).getNr()));
+        }
+
+        return node;
+    }
+
+    private FirmBlock getOrCreatePhiBlock(FirmBlock target, int idx, FirmBlock oldSuccessorI) {
+        int phiBlockNr = target.getNr() * 100 + idx;
+        if (firmBlocks.containsKey(phiBlockNr)) {
+            return firmBlocks.get(phiBlockNr);
+        }
+
+        FirmBlock phiBlock = new FirmBlock(phiBlockNr);
+        firmBlocks.put(phiBlockNr, phiBlock);
+        blocksGraph.addVertex(phiBlock);
+
+        target.setPhiBlock(idx, phiBlock);
+
+        //replace edge
+        DefaultWeightedEdge oldEdge = blocksGraph.getEdge(target, oldSuccessorI);
+        DefaultWeightedEdge newEdge0 = blocksGraph.addEdge(phiBlock, oldSuccessorI);
+        DefaultWeightedEdge newEdge1 = blocksGraph.addEdge(target, phiBlock);
+        blocksGraph.setEdgeWeight(newEdge0, blocksGraph.getEdgeWeight(oldEdge));
+        blocksGraph.setEdgeWeight(newEdge1, blocksGraph.getEdgeWeight(oldEdge));
+        blocksGraph.removeEdge(oldEdge);
+
+
+        return phiBlock;
+    }
+
 
     /**
      * Linearizes the given node by concatenating operations lists
@@ -428,17 +545,23 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private void linearizeNode(CodeNode node) {
         // Since we traverse the graph in the opposite direction (result to operands),
         // we need to insert the operations at the beginning of the code list
+        FirmBlock firmBlock = node.getFirmBlock();
         if (node.isPhi()) {
-            node.getFirmBlock().insertPhi(0, node);
+            //PhiNode contains code for left and right branch
+            firmBlock.insertPhi((PhiNode) node);
+        } else if (node.isJump()) {
+            firmBlock.setJump(node);
         } else {
-            node.getFirmBlock().insertOperations(0, node.getOperations());
+            System.out.println("lin " + node.getId());
+            firmBlock.insertOperations(node);
         }
     }
 
     void visitAny(Node node) {
         // We ignore "Proj X" nodes completely
         if (node instanceof Proj p && p.getMode().equals(firm.Mode.getX())) {
-            return;
+            // Sorry, we need them! :)
+            //return;
         }
         // Do for any node
         switch (mode) {
@@ -447,5 +570,5 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             default -> logger.internalError("Walking the firm graph using an unknown mode '" + mode.name() + "'");
         }
     }
-    
+
 }

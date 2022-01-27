@@ -33,6 +33,10 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
         mode = new IRMode(datatype, signedness);
     }
 
+    public void setMode(IRMode mode) {
+        setMode(mode.type(), mode.signedness());
+    }
+
     public void setMode(Mode mode) {
         Datatype datatype = Datatype.forMode(mode);
         this.mode = new IRMode(datatype, mode.isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
@@ -48,5 +52,9 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     
     public boolean isMemoryOperation() {
         return isMemoryOperation;
+    }
+
+    public IRMode getMode() {
+        return mode;
     }
 }

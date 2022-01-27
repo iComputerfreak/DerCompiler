@@ -108,7 +108,7 @@ public abstract class SubstitutionRule<T extends Node> {
     }
 
     public Datatype getDatatype() {
-        return mode.type();
+        return mode != null ? mode.type() : null;
     }
 
     public void setMode(Mode mode) {
@@ -126,6 +126,10 @@ public abstract class SubstitutionRule<T extends Node> {
 
     public void setMode(Datatype type, Signedness signedness) {
         this.mode = new IRMode(type, signedness);
+    }
+
+    public IRMode getMode() {
+        return mode;
     }
 
     /**

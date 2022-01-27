@@ -27,15 +27,19 @@ public class ProjRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
-        if (Objects.equals(getRootNode().getMode(), Mode.getM())) {
-            // not represented in memory
-            this.setTarget(null);
-        } else {
-            Operand predTarget = getAnnotation(getOperand()).getTarget();
-            if (predTarget instanceof Address addr && addr.isRegister()) {
-                setTarget(addr.asRegister());
+        switch (getRootNode().getMode().getName()) {
+            case "M", "T" -> {
+                // not represented in memory
+                this.setTarget(null);
+            }
+            default -> {
+                Operand predTarget = getAnnotation(getOperand()).getTarget();
+                if (predTarget instanceof Address addr && addr.isRegister()) {
+                    setTarget(addr.asRegister());
+                }
             }
         }
+        ;
         return List.of();
     }
 

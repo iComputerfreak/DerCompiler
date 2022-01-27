@@ -20,6 +20,9 @@ public class ConstRule extends SubstitutionRule<Const> {
     public List<Operation> substitute() {
         ConstantValue target = new ConstantValue(getConst().getTarval().asInt());
         getAnnotation(node).setTarget(target);
+        // Const nodes are not useful, so we omit them
+        getAnnotation(node).setTransformed(true);
+        setMode(getConst().getMode());
         return List.of();
     }
 

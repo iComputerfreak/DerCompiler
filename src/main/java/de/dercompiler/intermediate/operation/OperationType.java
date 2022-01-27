@@ -5,6 +5,7 @@ public enum OperationType {
     ADD("ADD"),
     AND("AND"),
     CMP("CMP"),
+    DIV("DIV"),
     MOV("MOV"),
     OR("OR"),
     ROL("ROL"),
@@ -22,7 +23,6 @@ public enum OperationType {
     //Dann die unary Operations
     CALL("CALL"),
     DEC("DEC"),
-    DIV("DIV"),
     MUL("MUL"),
     JA("JA"),
     JAE("JAE"),
@@ -36,6 +36,7 @@ public enum OperationType {
     JMP("JMP"),
     JNE("JNE"),
     NEG("NEG"),
+    MOD("MOD"),
     NOT(""),
     POP("POP"),
     PUSH("PUSH"),
@@ -44,7 +45,9 @@ public enum OperationType {
     NOP("NOP"),
     RET("RET"),
     CWTL("CWTL"),
-    CLTQ("CLTQ");
+    CLTQ("CLTQ"),
+    LBL("LBL"),
+    ;
 
     private String syntax;
 

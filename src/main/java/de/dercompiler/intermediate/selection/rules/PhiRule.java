@@ -1,5 +1,8 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.ConstantOperations.Nop;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -18,11 +21,14 @@ public class PhiRule extends SubstitutionRule<Phi> {
 
     @Override
     public List<Operation> substitute() {
-        if (Objects.equals(getRootNode().getMode(), Mode.getM())) {
+        Phi root = getRootNode();
+        if (Objects.equals(root.getMode(), Mode.getM())) {
             // not represented in memory
             this.setTarget(null);
         }
-        //TODO: Encode phi operation inside of 'special phi block'
+
+        /** The code for the different Phi blocks is supposed to be created in getCodeForPred(int) */
+        setMode(root.getPred(0).getMode());
         return List.of();
     }
 
@@ -34,5 +40,24 @@ public class PhiRule extends SubstitutionRule<Phi> {
     @Override
     public boolean matches(Phi inputNode) {
         return inputNode != null;
+    }
+
+    public int getPredCount() {
+        return getRootNode().getPredCount();
+    }
+
+    public Operation getCodeForSucc(int i) {
+        Phi root = getRootNode();
+        Operand target = getAnnotation(root).getTarget();
+        Operand source = getAnnotation(root.getPred(i)).getTarget();
+        if (!source.equals(target)) {
+            Mov mov = new Mov(target, source, false);
+            mov.setMode(getAnnotation(root.getPred(i)).getRootNode().getMode());
+            return mov;
+        } else {
+            // Register is the same after loop
+            return new Nop();
+        }
+
     }
 }

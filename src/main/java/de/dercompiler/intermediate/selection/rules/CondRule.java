@@ -4,10 +4,12 @@ import de.dercompiler.intermediate.operand.CondTarget;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.*;
+import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
+import firm.Mode;
 import firm.nodes.Cmp;
 import firm.nodes.Cond;
 import firm.nodes.Node;
@@ -36,26 +38,26 @@ public class CondRule extends SubstitutionRule<Cond> {
                 case True -> new Jmp(getTarget().getTrueTarget(), isMemoryOperation());
                 case False -> new Jmp(getTarget().getFalseTarget(), isMemoryOperation());
                 case Equal -> new Je(getTarget().getTrueTarget(), isMemoryOperation());
-                case LessGreater -> new Jne(getTarget().getTrueTarget(), isMemoryOperation());
+                case LessGreater, UnorderedLessGreater -> new Jne(getTarget().getTrueTarget(), isMemoryOperation());
                 default -> null;
             };
 
             if (op == null) {
-                if (cmp.getMode().isSigned()) {
+                if (getOperandMode().isSigned()) {
                     op = switch (cmp.getRelation()) {
-                        case Less -> new Jl(getTarget().getTrueTarget(), isMemoryOperation());
-                        case Greater -> new Jg(getTarget().getTrueTarget(), isMemoryOperation());
-                        case LessEqual -> new Jle(getTarget().getTrueTarget(), isMemoryOperation());
-                        case GreaterEqual -> new Jge(getTarget().getTrueTarget(), isMemoryOperation());
+                        case Less, UnorderedLess -> new Jl(getTarget().getTrueTarget(), isMemoryOperation());
+                        case Greater, UnorderedGreater -> new Jg(getTarget().getTrueTarget(), isMemoryOperation());
+                        case LessEqual, UnorderedLessEqual -> new Jle(getTarget().getTrueTarget(), isMemoryOperation());
+                        case GreaterEqual, UnorderedGreaterEqual -> new Jge(getTarget().getTrueTarget(), isMemoryOperation());
                         default -> null;
                     };
                 } else {
                     // unsigned
                     op = switch (cmp.getRelation()) {
-                        case Less -> new Jb(getTarget().getTrueTarget(), isMemoryOperation());
-                        case Greater -> new Ja(getTarget().getTrueTarget(), isMemoryOperation());
-                        case LessEqual -> new Jbe(getTarget().getTrueTarget(), isMemoryOperation());
-                        case GreaterEqual -> new Jae(getTarget().getTrueTarget(), isMemoryOperation());
+                        case Less, UnorderedLess -> new Jb(getTarget().getTrueTarget(), isMemoryOperation());
+                        case Greater, UnorderedGreater -> new Ja(getTarget().getTrueTarget(), isMemoryOperation());
+                        case LessEqual, UnorderedLessEqual -> new Jbe(getTarget().getTrueTarget(), isMemoryOperation());
+                        case GreaterEqual, UnorderedGreaterEqual -> new Jae(getTarget().getTrueTarget(), isMemoryOperation());
                         default -> null;
                     };
                 }
@@ -64,11 +66,18 @@ public class CondRule extends SubstitutionRule<Cond> {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected Cmp relation: " + cmp.getRelation().toString());
             }
             // If the jump is conditional, the "else"-case is necessary
-            op.setMode(cmp.getMode());
+            op.setMode(Mode.getX());
             if (op instanceof Jmp) return List.of(op);
-            return List.of(op, new Jmp(getTarget().getFalseTarget(), isMemoryOperation()));
+            Jmp jmpElse = new Jmp(getTarget().getFalseTarget(), isMemoryOperation());
+            jmpElse.setMode(Mode.getX());
+            return List.of(op, jmpElse);
         }
         return null;
+    }
+
+    private IRMode getOperandMode() {
+        Cmp selector = (Cmp) getRootNode().getSelector();
+        return IRMode.forMode(selector.getLeft().getMode());
     }
 
     private CondTarget getTarget() {
@@ -94,4 +103,5 @@ public class CondRule extends SubstitutionRule<Cond> {
     public Operand createDefaultTarget() {
         return new CondTarget();
     }
+
 }

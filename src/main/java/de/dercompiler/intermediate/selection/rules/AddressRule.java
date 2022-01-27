@@ -22,6 +22,7 @@ public class AddressRule extends SubstitutionRule<Address> {
     public List<Operation> substitute() {
         setTarget(null);
         setMode(getRootNode().getMode());
+        getAnnotation(node).setTransformed(true); // Address nodes are not useful, so we omit them
         return List.of();
     }
 

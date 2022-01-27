@@ -13,8 +13,6 @@ import java.util.List;
 
 public class IncLRule extends AddRule {
 
-    //
-
     @Override
     public int getCost() {
         return 1 + getOperator().getCost();
