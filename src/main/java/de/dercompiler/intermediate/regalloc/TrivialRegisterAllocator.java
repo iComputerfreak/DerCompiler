@@ -48,6 +48,16 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
         }
     }
 
+    private String getOperand(Operand operand){
+        if (operand instanceof VirtualRegister vr){
+            return getLocalVar((int) vr.getId());
+        } else if (operand instanceof ParameterRegister pr){
+            return getParam(pr.getId());
+        } else {
+            return null;
+        }
+    }
+
     private String getLocalVar(int n){
         return manager.getVar(n).getIdentifier();
     }
@@ -60,34 +70,22 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
                 Operand[] operands = bo.getArgs();
 
                 //Operand 1 wird geladen
-                if (operands[0] instanceof VirtualRegister vr){
-                    getLocalVar((int) vr.getId());
-                    addAssembly("MOV %r10," + getLocalVar((int) vr.getId()));
-                } else if (operands[0] instanceof ParameterRegister pr){
-                    addAssembly("MOV %r10," + getParam(pr.getId()));
-                }
+                addAssembly("MOV %r10," + getOperand(operands[0]));
+
                 //Operand 2 wird geladen
-                if (operands[1] instanceof VirtualRegister vr){
-                    addAssembly("MOV %r11," + getLocalVar((int) vr.getId()));
-                } else if (operands[1] instanceof ParameterRegister pr){
-                    addAssembly("MOV %r11," + getParam(pr.getId()));
-                }
+                addAssembly("MOV %r11," + getOperand(operands[1]));
+
                 //Operation durchführen
                 addAssembly(op.getOperationType().getSyntax() + " %r10, %r11");
+
                 //Ergebnis wieder auf den Stack schreiben
-                getLocalVar((int) ((VirtualRegister) bo.getDefinition()).getId());
-                addAssembly("MOV " + getLocalVar((int) ((VirtualRegister) bo.getDefinition()).getId()) + ", %r10");
+                addAssembly("MOV " + getOperand(bo.getDefinition()) + ", %r10");
 
             } else if (op instanceof Ret ret){
 
                 if (ret.getArgs().length != 0){
                     Operand operand = ret.getArgs()[0];
-                    if (operand instanceof VirtualRegister vr){
-                        getLocalVar((int) vr.getId());
-                        addAssembly("MOV " +  manager.getReturnValue().getIdentifier() + "," +  getLocalVar((int) vr.getId()));
-                    } else if (operand instanceof ParameterRegister pr){
-                        addAssembly("MOV " +  manager.getReturnValue().getIdentifier() + "," + getParam((int) pr.getId()));
-                    }
+                    addAssembly("MOV " +  manager.getReturnValue().getIdentifier() + "," +  getOperand(operand));
                 }
                 addAssembly("RET");
 
