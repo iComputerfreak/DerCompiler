@@ -103,13 +103,17 @@ public class TypeAnalysisPass extends ASTLazyStatementVisitor implements Stateme
     }
 
     private void assertTypeEqual(Expression lhs, Expression rhs, String description) {
+        //only to be sure that expected types of null are set
+        rhs.getType().isCompatibleTo(lhs.getType());
         if (!lhs.getType().isCompatibleTo(rhs.getType())) {
             failTypeCheck(rhs, "Types do not match in " + description);
         }
     }
 
     private void assertTypeEquals(Expression expr, Type type, String description) {
-        if (!expr.getType().isCompatibleTo(type)) {
+        //only to be sure that expected types of null are set
+        expr.getType().isCompatibleTo(type);
+        if (!type.isCompatibleTo(expr.getType())) {
             failTypeCheck(expr, "Type of %s must be %s".formatted(description, type));
         }
     }

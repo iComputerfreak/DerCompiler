@@ -55,7 +55,7 @@ class Main {
 
 		i[0] = new int[1];
 
-		if (i[0] == null) {
+		if (null == i[0]) {
 			System.out.println(17);
 		}
 	}

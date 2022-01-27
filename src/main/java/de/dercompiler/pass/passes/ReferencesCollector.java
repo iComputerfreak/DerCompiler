@@ -20,7 +20,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
 
     enum ReferenceType {
-        VARIABLE, FIELD, METHOD_INVOCATION, ARRAY_ACCESS, ASSIGNMENT_EXPRESSION, NEW_OBJECT, NEW_ARRAY, NULL_VALUE, UNINITIALIZED_VALUE
+        VARIABLE, FIELD, METHOD_INVOCATION, ARRAY_ACCESS, ASSIGNMENT_EXPRESSION, NEW_OBJECT, NEW_ARRAY, NULL_VALUE, THIS, UNINITIALIZED_VALUE
     }
 
     public ReferencesCollector() {
@@ -125,7 +125,7 @@ public class ReferencesCollector implements ASTExpressionVisitor {
 
     @Override
     public void visitThisValue(ThisValue thisValue) {
-        expressions.add(thisValue);
+        if (collects(ReferenceType.THIS)) expressions.add(thisValue);
     }
 
     @Override
