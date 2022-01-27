@@ -29,18 +29,28 @@ public class ArrayElementNode extends ReferenceNode {
     @Override
     public ObjectNode getObjectCallBase(TransformationState state) {
         ClassType ct = getTypeAsClass();
-        return new ObjectNode(ref, ct);
+        if (!isPrepared(NodeAccess.METHOD_CALL_BASE)) {
+            prepareGetObjectCallBase(state);
+        }
+        return new ObjectNode(getPreparedNode(NodeAccess.METHOD_CALL_BASE), ct);
+    }
+
+    @Override
+    public ReferenceNode prepareAccessField(TransformationState state) {
+        prepareNode(genLoadAndReset(state), NodeAccess.FIELD_ACCESS);
+        return this;
     }
 
     @Override
     public ReferenceNode accessField(TransformationState state, String fieldName) {
         ClassType ct = getTypeAsClass();
-        return new ObjectNode(ref, ct).accessField(state, fieldName);
+        if (!isPrepared(NodeAccess.FIELD_ACCESS)) prepareAccessField(state);
+        return new ObjectNode(getPreparedNode(NodeAccess.FIELD_ACCESS), ct).accessField(state, fieldName);
     }
 
     @Override
     public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
-        prepareNode(ref, NodeAccess.METHOD_CALL_BASE);
+        prepareNode(genLoadAndReset(state), NodeAccess.METHOD_CALL_BASE);
         return this;
     }
 
