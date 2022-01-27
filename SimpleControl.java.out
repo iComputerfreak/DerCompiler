@@ -1,0 +1,192 @@
+	.text
+# -- Begin  main_func
+	.p2align 4,,15
+	.globl main_func
+	.type	main_func, @function
+main_func:
+/*.L0:*/                          /* Block BB[71:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[524:66] */
+	mov %rsp, %rbp                   /* be_Copy Lu[527:69] */
+	xorl %eax, %eax                  /* amd64_xor_0 T[538:80] */
+	movl $0x3, %ecx                  /* amd64_mov_imm Lu[497:39] */
+	cmpl $3, %ecx                    /* amd64_cmp T[498:40] */
+	jne .L1                          /* amd64_jcc T[500:42] */
+	/* fallthrough to .L2 */         /* amd64_jcc T[500:42] */
+.L2:                              /* Block BB[440:32] preds: .L0, freq: 0.500 */
+	xorl %ecx, %ecx                  /* amd64_xor_0 T[536:78] */
+	jmp .L3                          /* amd64_jmp X[491:33] */
+.L4:                              /* Block BB[113:30] preds: .L1, freq: 10.000 */
+	addl $2, %eax                    /* amd64_add T[531:73] */
+	/* fallthrough to .L1 */         /* amd64_jmp X[489:31] */
+.L1:                              /* Block BB[112:10] preds: .L0 .L3 .L4, freq: 11.000 */
+	testl %eax, %eax                 /* amd64_test T[530:72] */
+	jne .L4                          /* amd64_jcc T[482:24] */
+	/* fallthrough to .L5 */         /* amd64_jcc T[482:24] */
+.L5:                              /* Block BB[114:9] preds: .L1, freq: 1.000 */
+	leave                            /* amd64_leave T[519:61] */
+	ret                              /* amd64_ret X[476:18] */
+.L6:                              /* Block BB[98:34] preds: .L3, freq: 5.000 */
+	addl $2, %eax                    /* amd64_add T[534:76] */
+	/* fallthrough to .L3 */         /* amd64_jmp X[493:35] */
+.L3:                              /* Block BB[97:19] preds: .L2 .L6, freq: 5.500 */
+	testb %cl, %cl                   /* amd64_test T[533:75] */
+	je .L6                           /* amd64_jcc T[505:47] */
+	jmp .L1                          /* amd64_jcc T[505:47] */
+	.size	main_func, .-main_func
+# -- End  main_func
+
+# -- Begin  0m_mainDummy
+	.p2align 4,,15
+	.globl 0m_mainDummy
+	.type	0m_mainDummy, @function
+0m_mainDummy:
+/*.L200:*/                        /* Block BB[136:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[634:92] */
+	mov %rsp, %rbp                   /* be_Copy Lu[637:95] */
+	xorl %eax, %eax                  /* amd64_xor_0 T[651:109] */
+	movl $0x3, %ecx                  /* amd64_mov_imm Lu[595:53] */
+	cmpl $3, %ecx                    /* amd64_cmp T[596:54] */
+	jne .L201                        /* amd64_jcc T[598:56] */
+	/* fallthrough to .L202 */       /* amd64_jcc T[598:56] */
+.L202:                            /* Block BB[450:32] preds: .L200, freq: 0.500 */
+	xorl %ecx, %ecx                  /* amd64_xor_0 T[649:107] */
+	jmp .L203                        /* amd64_jmp X[575:33] */
+.L204:                            /* Block BB[178:40] preds: .L201, freq: 10.000 */
+	addl $2, %eax                    /* amd64_add T[644:102] */
+	/* fallthrough to .L201 */       /* amd64_jmp X[583:41] */
+.L201:                            /* Block BB[177:21] preds: .L200 .L203 .L204, freq: 11.000 */
+	testl %eax, %eax                 /* amd64_test T[643:101] */
+	jne .L204                        /* amd64_jcc T[589:47] */
+	/* fallthrough to .L205 */       /* amd64_jcc T[589:47] */
+.L205:                            /* Block BB[456:28] preds: .L201, freq: 1.000 */
+	movq $0xFFFFFFFFFFFFFFF6, %rcx    /* amd64_mov_imm Lu[611:69] */
+	jmp .L206                        /* amd64_jmp X[571:29] */
+.L207:                            /* Block BB[163:34] preds: .L203, freq: 5.000 */
+	addl $2, %eax                    /* amd64_add T[647:105] */
+	/* fallthrough to .L203 */       /* amd64_jmp X[577:35] */
+.L203:                            /* Block BB[162:19] preds: .L202 .L207, freq: 5.500 */
+	testb %cl, %cl                   /* amd64_test T[646:104] */
+	je .L207                         /* amd64_jcc T[603:61] */
+	jmp .L201                        /* amd64_jcc T[603:61] */
+.L208:                            /* Block BB[192:70] preds: .L206, freq: 10.000 */
+	cmpl $20, %eax                   /* amd64_cmp T[613:71] */
+	jle .L209                        /* amd64_jcc T[615:73] */
+	/* fallthrough to .L210 */       /* amd64_jcc T[615:73] */
+.L210:                            /* Block BB[448:51] preds: .L208, freq: 5.000 */
+	mov %rcx, %rax                   /* be_Copy Lu[628:86] */
+	/* fallthrough to .L209 */       /* amd64_jmp X[594:52] */
+.L209:                            /* Block BB[203:30] preds: .L208 .L210, freq: 10.000 */
+	addl $1, %eax                    /* amd64_add T[641:99] */
+	/* fallthrough to .L206 */       /* amd64_jmp X[573:31] */
+.L206:                            /* Block BB[191:10] preds: .L205 .L209, freq: 11.000 */
+	testl %eax, %eax                 /* amd64_test T[640:98] */
+	jns .L208                        /* amd64_jcc T[568:26] */
+	/* fallthrough to .L211 */       /* amd64_jcc T[568:26] */
+.L211:                            /* Block BB[193:9] preds: .L206, freq: 1.000 */
+	leave                            /* amd64_leave T[629:87] */
+	ret                              /* amd64_ret X[560:18] */
+	.size	0m_mainDummy, .-0m_mainDummy
+# -- End  0m_mainDummy
+
+# -- Begin  0m_bar
+	.p2align 4,,15
+	.globl 0m_bar
+	.type	0m_bar, @function
+0m_bar:
+/*.L400:*/                        /* Block BB[227:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[685:29] */
+	mov %rsp, %rbp                   /* be_Copy Lu[688:32] */
+	movl $0x2, %eax                  /* amd64_mov_imm Lu[666:10] */
+	leave                            /* amd64_leave T[680:24] */
+	ret                              /* amd64_ret X[672:16] */
+	.size	0m_bar, .-0m_bar
+# -- End  0m_bar
+
+# -- Begin  0m_simpleWhile
+	.p2align 4,,15
+	.globl 0m_simpleWhile
+	.type	0m_simpleWhile, @function
+0m_simpleWhile:
+/*.L600:*/                        /* Block BB[240:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[768:77] */
+	mov %rsp, %rbp                   /* be_Copy Lu[771:80] */
+	movl $0x2, %esi                  /* amd64_mov_imm Lu[719:28] */
+	movl $0xA, %ecx                  /* amd64_mov_imm Lu[723:32] */
+	jmp .L601                        /* amd64_jmp X[715:24] */
+.L602:                            /* Block BB[248:25] preds: .L601, freq: 10.000 */
+	leal 2(%rcx), %eax               /* amd64_lea Lu[718:27] */
+	cltd                             /* amd64_cltd Lu[720:29] */
+	idivl %esi                       /* amd64_idiv T[721:30] */
+	subl %eax, %ecx                  /* amd64_sub T[725:34] */
+	/* fallthrough to .L601 */       /* amd64_jmp X[717:26] */
+.L601:                            /* Block BB[247:10] preds: .L600 .L602, freq: 11.000 */
+	testl %ecx, %ecx                 /* amd64_test T[774:83] */
+	jg .L602                         /* amd64_jcc T[713:22] */
+	/* fallthrough to .L603 */       /* amd64_jcc T[713:22] */
+.L603:                            /* Block BB[249:9] preds: .L601, freq: 1.000 */
+	mov %rcx, %rax                   /* be_Copy Lu[762:71] */
+	leave                            /* amd64_leave T[763:72] */
+	ret                              /* amd64_ret X[710:19] */
+	.size	0m_simpleWhile, .-0m_simpleWhile
+# -- End  0m_simpleWhile
+
+# -- Begin  0m_calc
+	.p2align 4,,15
+	.globl 0m_calc
+	.type	0m_calc, @function
+0m_calc:
+/*.L800:*/                        /* Block BB[272:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[810:35] */
+	mov %rsp, %rbp                   /* be_Copy Lu[813:38] */
+	movl $0x3, %eax                  /* amd64_mov_imm Lu[785:10] */
+	addl $4, %eax                    /* amd64_add T[816:41] */
+	movl $0x2, %ecx                  /* amd64_mov_imm Lu[787:12] */
+	imull $8, %ecx                   /* amd64_imul T[788:13] */
+	subl %ecx, %eax                  /* amd64_sub T[790:15] */
+	leave                            /* amd64_leave T[805:30] */
+	ret                              /* amd64_ret X[797:22] */
+	.size	0m_calc, .-0m_calc
+# -- End  0m_calc
+
+# -- Begin  0m_bool
+	.p2align 4,,15
+	.globl 0m_bool
+	.type	0m_bool, @function
+0m_bool:
+/*.L1000:*/                       /* Block BB[291:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[847:29] */
+	mov %rsp, %rbp                   /* be_Copy Lu[850:32] */
+	xorl %eax, %eax                  /* amd64_xor_0 T[853:35] */
+	leave                            /* amd64_leave T[842:24] */
+	ret                              /* amd64_ret X[834:16] */
+	.size	0m_bool, .-0m_bool
+# -- End  0m_bool
+
+# -- Begin  0m_lazyAndOr
+	.p2align 4,,15
+	.globl 0m_lazyAndOr
+	.type	0m_lazyAndOr, @function
+0m_lazyAndOr:
+/*.L1200:*/                       /* Block BB[327:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[884:29] */
+	mov %rsp, %rbp                   /* be_Copy Lu[887:32] */
+	movl $0x3, %eax                  /* amd64_mov_imm Lu[865:10] */
+	leave                            /* amd64_leave T[879:24] */
+	ret                              /* amd64_ret X[871:16] */
+	.size	0m_lazyAndOr, .-0m_lazyAndOr
+# -- End  0m_lazyAndOr
+
+# -- Begin  0m_simpleIf
+	.p2align 4,,15
+	.globl 0m_simpleIf
+	.type	0m_simpleIf, @function
+0m_simpleIf:
+/*.L1400:*/                       /* Block BB[373:2] preds: none, freq: 1.000 */
+	pushq %rbp                       /* amd64_push_reg T[919:29] */
+	mov %rsp, %rbp                   /* be_Copy Lu[922:32] */
+	movl $0x9, %eax                  /* amd64_mov_imm Lu[900:10] */
+	leave                            /* amd64_leave T[914:24] */
+	ret                              /* amd64_ret X[906:16] */
+	.size	0m_simpleIf, .-0m_simpleIf
+# -- End  0m_simpleIf
+
