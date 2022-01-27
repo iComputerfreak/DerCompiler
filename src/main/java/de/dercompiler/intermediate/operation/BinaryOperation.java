@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 
 
 public abstract non-sealed class BinaryOperation extends Operation {
@@ -11,9 +12,9 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     private final OperationType operationType;
 
-    public BinaryOperation(OperationType operationType, Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
+    public BinaryOperation(OperationType operationType, Operand target, Operand source, boolean isMemoryOperation) {
         super(isMemoryOperation);
-        this.definition = definition;
+        this.definition = new VirtualRegister();
         this.operationType = operationType;
         this.target = target;
         this.source = source;

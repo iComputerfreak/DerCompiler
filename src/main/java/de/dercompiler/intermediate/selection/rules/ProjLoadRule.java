@@ -43,7 +43,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
             return List.of();
         } else {
             Operand target = getAnnotation(getRootNode()).getTarget();
-            Operation mov = new Mov(new VirtualRegister(), operandTarget, target, isMemoryOperation());
+            Operation mov = new Mov(operandTarget, target, isMemoryOperation());
             mov.setMode(getRootNode().getMode());
             return List.of(mov);
         }

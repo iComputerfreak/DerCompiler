@@ -32,10 +32,10 @@ public class StoreRule extends SubstitutionRule<Store> {
     @Override
     public List<Operation> substitute() {
         Operand targetReg = getAnnotation(getTarget()).getTarget();
-        Operation mov = new Mov(new VirtualRegister(),
+        Operation mov = new Mov(
                 targetReg,
                 getAnnotation(getValue()).getTarget(),
-                isMemoryOperation());
+                true);
         this.setTarget(targetReg);
         setMode(getValue().getMode());
         return List.of(mov);

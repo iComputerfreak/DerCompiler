@@ -13,8 +13,8 @@ Das rechte Argument ist entweder die Konstante 1 oder das CL Register
  */
 public class Rol extends ShiftOperation {
 
-    public Rol(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.ROL, definition, target, source, isMemoryOperation);
+    public Rol(Operand target, Operand source, boolean isMemoryOperation) {
+        super(OperationType.ROL, target, source, isMemoryOperation);
     }
 
 }

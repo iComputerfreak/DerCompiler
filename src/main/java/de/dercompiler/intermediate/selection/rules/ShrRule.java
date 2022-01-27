@@ -31,7 +31,7 @@ public class ShrRule extends SubstitutionRule<Shr> {
 
     @Override
     public List<Operation> substitute() {
-        Operation shr = new de.dercompiler.intermediate.operation.BinaryOperations.Shr(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation shr = new de.dercompiler.intermediate.operation.BinaryOperations.Shr(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
         return List.of(shr);
     }
 
