@@ -8,10 +8,8 @@ import de.dercompiler.intermediate.operation.BinaryOperations.*;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
-import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class EasyTest {
 
@@ -24,9 +22,9 @@ public class EasyTest {
         VirtualRegister v5 = new VirtualRegister();
         ParameterRegister p1 = new ParameterRegister(0);
 
-        Operation o1 = new Add(v3, v2, p1, true);
-        Operation o2 = new Sub(v5, v3, v4, true);
-        Operation o3 = new Ret(p1, true);
+        Operation o1 = new Add(v2, p1);
+        Operation o2 = new Sub(v3, v1);
+        Operation o3 = new Ret(p1);
 
         LinkedList<Operation> ops = new LinkedList<Operation>();
         ops.add(o1);
