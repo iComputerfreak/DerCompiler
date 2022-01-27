@@ -2,17 +2,16 @@ package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.intermediate.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
-import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.ParameterRegister;
-import de.dercompiler.intermediate.operand.VirtualRegister;
-import de.dercompiler.intermediate.operand.X86Register;
+import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
+import de.dercompiler.intermediate.operation.BinaryOperations.Add;
 import de.dercompiler.intermediate.operation.NaryOperation;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+
 
 public class TrivialRegisterAllocator extends RegisterAllocator{
 
@@ -36,6 +35,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
         outputMessageHandler.printInfo(assembly);
     }
 
+    //maxVar gibt an welche die Variable im Stack mit der niedrigsten Adresse ist
+    private int maxVar = -1;
     private X86Register[] parameterRegister = new X86Register[]{X86Register.RDI, X86Register.RSI, X86Register.RDX, X86Register.RCX, X86Register.R8, X86Register.R9};
     /*
     parameter 1 bis 6 stehen in den parameter Registern und der Rest steht auf dem Stack
@@ -59,6 +60,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
     }
 
     private String getLocalVar(int n){
+        maxVar = Integer.max(maxVar, n);
         return manager.getVar(n).getIdentifier();
     }
 
@@ -90,12 +92,31 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
                 addAssembly("RET");
 
             } else if (op instanceof Call call){
+                //args[0] ist LabelOperand
                 Operand[] args = call.getArgs();
-                for (int i = 0; i < 6 && i < args.length; i++){
-
-                    //Annahme: die Call argumente sind alles VirtualRegister
-                    //Werte auf dem Stack müssen noch gesicher werden
+                int tempMaxVar = maxVar;
+                //Die 6 ParameterRegister müssen gesichert werden
+                for (int i = 0; i < 6; i++){
+                    addAssembly("MOV " +  getLocalVar(maxVar + 1) + "," + getParam(i+1));
                 }
+                //Die Parameter müssen in Regsiter bzw auf den Stack geschrieben werden
+                for (int i = 1; i < args.length && i < 7; i++){
+                    addAssembly("MOV " + getParam(i) + "," + getOperand(args[i]));
+                }
+                //Die restlichen Parameter müssen auf den Stack geschreiben werden
+                for (int i = 7; i < args.length; i++){
+                    addAssembly("MOV " + getLocalVar(maxVar + 1) + "," + getOperand(args[i]));
+                }
+
+                //Die Funktion aufrufen
+                addAssembly("CALL " +  args[0].getIdentifier());
+
+                //Die 6 Parameter wieder vom Stack in die Register schreiben
+                maxVar = tempMaxVar;
+                for (int i = 0; i < 6; i++){
+                    addAssembly("MOV " + getParam(i+1) + "," +getLocalVar(maxVar + 1));
+                }
+                maxVar = tempMaxVar;
             }
 
         }
