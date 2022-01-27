@@ -7,6 +7,6 @@ import de.dercompiler.intermediate.operation.OperationType;
 public class Mod extends BinArithOperation {
 
     public Mod(Operand target, Operand source) {
-        super(OperationType.MOD, new VirtualRegister(), target, source, true);
+        super(OperationType.MOD, target, source, true);
     }
 }

@@ -16,4 +16,9 @@ public class Lbl extends UnaryOperation {
     public String toString() {
         return this.label.toString() + ":";
     }
+
+    @Override
+    public boolean needsDefinition() {
+        return false;
+    }
 }

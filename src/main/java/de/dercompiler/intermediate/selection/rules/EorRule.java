@@ -32,7 +32,7 @@ public class EorRule extends SubstitutionRule<Eor> {
 
     @Override
     public List<Operation> substitute() {
-        Operation eor = new Xor(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation eor = new Xor(getLeft().getTarget(), getRight().getTarget());
         eor.setMode(node.getMode());
 
         VirtualRegister target = new VirtualRegister();

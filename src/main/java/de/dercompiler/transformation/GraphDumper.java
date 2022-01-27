@@ -57,8 +57,7 @@ public class GraphDumper {
             String label = "Cost: " + cost + "\n" +
                     v.getRootNode().toString() +
                     "\n-----\n" +
-                    opStrings +
-                    (v.getTarget() != null ? "\n==>" + v.getTarget().toString() : "");
+                    opStrings;
 
             return Map.of(
                     "label", DefaultAttribute.createAttribute(label),

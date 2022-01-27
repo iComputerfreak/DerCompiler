@@ -26,9 +26,4 @@ public abstract non-sealed class ConstantOperation extends Operation {
         return operationType.getSyntax();
     }
 
-
-    @Override
-    public String toString() {
-        return "%s (%s%s)".formatted(operationType, mode, isMemoryOperation()? "/M" : "");
-    }
 }

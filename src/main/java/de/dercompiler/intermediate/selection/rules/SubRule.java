@@ -31,7 +31,7 @@ public class SubRule extends SubstitutionRule<Sub> {
 
     @Override
     public List<Operation> substitute() {
-        Operation sub = new de.dercompiler.intermediate.operation.BinaryOperations.Sub(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation sub = new de.dercompiler.intermediate.operation.BinaryOperations.Sub(getLeft().getTarget(), getRight().getTarget());
         sub.setMode(getRootNode().getMode());
         return List.of(sub);
     }

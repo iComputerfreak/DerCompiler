@@ -6,7 +6,6 @@ import de.dercompiler.intermediate.operand.VirtualRegister;
 
 public abstract non-sealed class BinaryOperation extends Operation {
 
-    private final Operand definition;
     private final Operand target;
     private final Operand source;
 
@@ -14,14 +13,9 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     public BinaryOperation(OperationType operationType, Operand target, Operand source, boolean isMemoryOperation) {
         super(isMemoryOperation);
-        this.definition = new VirtualRegister();
         this.operationType = operationType;
         this.target = target;
         this.source = source;
-    }
-
-    public Operand getDefinition(){
-        return definition;
     }
 
     @Override
@@ -46,8 +40,4 @@ public abstract non-sealed class BinaryOperation extends Operation {
         return operationType.getSyntax() + " " + target.getIdentifier() + " " + source.getIdentifier();
     }
 
-    @Override
-    public String toString() {
-        return "%s %s %s (%s%s)".formatted(operationType, target, source, mode, isMemoryOperation()? "/M" : "");
-    }
 }

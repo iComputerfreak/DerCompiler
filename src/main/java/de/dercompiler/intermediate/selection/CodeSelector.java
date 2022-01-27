@@ -204,6 +204,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 Proj projNode = (Proj) a.getRootNode();
                 Cond cond = (Cond) projNode.getPred(0);
                 CondTarget cndJmpTargets = (CondTarget) annotations.get(cond.getNr()).getTarget();
+                if (Objects.isNull(cndJmpTargets)) {
+                    cndJmpTargets = new CondTarget();
+                    annotations.get(cond.getNr()).setTarget(cndJmpTargets);
+                }
                 switch (projNode.getNum()) {
                     case 0 -> cndJmpTargets.setFalseTarget(target);
                     case 1 -> cndJmpTargets.setTrueTarget(target);
@@ -335,12 +339,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                             "No rule found that matches node nr. " + node.getNr() + ": " + node + ".");
         }
 
-        setDefaultTarget(annotations.get(node.getNr()));
-    }
 
-    private void setDefaultTarget(NodeAnnotation<?> nodeAnnotation) {
-        Operand target = nodeAnnotation.getRule().createDefaultTarget();
-        nodeAnnotation.setTarget(target);
     }
 
     private <N extends Node> NodeAnnotation<N> createAnnotation(Class<N> nClass, Node node, SubstitutionRule<N> rule) {

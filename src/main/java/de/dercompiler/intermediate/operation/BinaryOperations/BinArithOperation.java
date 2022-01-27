@@ -9,7 +9,7 @@ import de.dercompiler.intermediate.operation.OperationType;
 
 public abstract class BinArithOperation extends BinaryOperation {
 
-    public BinArithOperation(OperationType type, Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
+    public BinArithOperation(OperationType type, Operand target, Operand source, boolean isMemoryOperation) {
         super(type, target, source, isMemoryOperation);
         if (!(target instanceof Register && source instanceof Register ||
                 target instanceof Register && source instanceof Address ||

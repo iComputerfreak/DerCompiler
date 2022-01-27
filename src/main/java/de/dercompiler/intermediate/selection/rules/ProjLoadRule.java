@@ -18,7 +18,7 @@ import java.util.Objects;
 public class ProjLoadRule extends SubstitutionRule<Proj> {
     @Override
     public int getCost() {
-        return 1 + getAnnotation(getLoad().getPred(0)).getCost();
+        return 1 + getAnnotation(getLoad().getPred(1)).getCost();
     }
 
     private Node getLoad() {
@@ -42,7 +42,8 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
             setTarget(addr);
             return List.of();
         } else {
-            Operand target = getAnnotation(getRootNode()).getTarget();
+            Operand target = new VirtualRegister();
+            setTarget(target);
             Operation mov = new Mov(operandTarget, target, isMemoryOperation());
             mov.setMode(getRootNode().getMode());
             return List.of(mov);

@@ -21,4 +21,5 @@ public class Call extends NaryOperation {
         System.arraycopy(args, 0, allArgs, 1, args.length);
         return allArgs;
     }
+
 }

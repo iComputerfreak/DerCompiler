@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -31,7 +30,7 @@ public class ShrRule extends SubstitutionRule<Shr> {
 
     @Override
     public List<Operation> substitute() {
-        Operation shr = new de.dercompiler.intermediate.operation.BinaryOperations.Shr(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation shr = new de.dercompiler.intermediate.operation.BinaryOperations.Shr(getLeft().getTarget(), getRight().getTarget());
         return List.of(shr);
     }
 

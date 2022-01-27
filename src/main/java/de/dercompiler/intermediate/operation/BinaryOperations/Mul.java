@@ -10,7 +10,7 @@ import de.dercompiler.intermediate.operation.OperationType;
 public class Mul extends BinArithOperation {
 
     public Mul(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.MUL, definition, target, source, isMemoryOperation);
+        super(OperationType.MUL, target, source, isMemoryOperation);
     }
 
 }

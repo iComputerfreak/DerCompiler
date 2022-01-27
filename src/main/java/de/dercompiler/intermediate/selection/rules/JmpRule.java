@@ -23,7 +23,7 @@ public class JmpRule extends SubstitutionRule<Jmp> {
     public List<Operation> substitute() {
         Operand target = getAnnotation(getRootNode()).getTarget();
         if (!Objects.isNull(target) && target instanceof LabelOperand lbl) {
-            de.dercompiler.intermediate.operation.UnaryOperations.Jmp jmp = new de.dercompiler.intermediate.operation.UnaryOperations.Jmp(lbl, isMemoryOperation());
+            de.dercompiler.intermediate.operation.UnaryOperations.Jmp jmp = new de.dercompiler.intermediate.operation.UnaryOperations.Jmp(lbl);
             jmp.setMode(getRootNode().getMode());
             return List.of(jmp);
         }
