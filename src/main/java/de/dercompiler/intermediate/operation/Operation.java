@@ -1,6 +1,8 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.Register;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
@@ -8,6 +10,7 @@ import firm.Mode;
 
 public sealed abstract class Operation permits BinaryOperation, ConstantOperation, NaryOperation, UnaryOperation {
 
+    private Operand definition;
     protected IRMode mode;
 
     public abstract Operand[] getArgs();
@@ -18,6 +21,9 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     private final boolean isMemoryOperation;
     
     protected Operation(boolean isMemoryOperation) {
+        if (this.needsDefinition()) {
+            this.definition = new VirtualRegister();
+        }
         this.isMemoryOperation = isMemoryOperation;
     }
 
@@ -56,5 +62,27 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
 
     public IRMode getMode() {
         return mode;
+    }
+
+    public Operand getDefinition() {
+        return definition;
+    }
+
+    public boolean needsDefinition() {
+        return true;
+    }
+
+    public void setDefinition(Operand targetReg) {
+        this.definition = targetReg;
+    }
+
+    @Override
+    public String toString() {
+        return "%s (%s%s)%s".formatted(
+                getIntelSyntax(),
+                mode,
+                isMemoryOperation()? "/M" : "",
+                needsDefinition() ? " ⇒ " + getDefinition() : ""
+        );
     }
 }

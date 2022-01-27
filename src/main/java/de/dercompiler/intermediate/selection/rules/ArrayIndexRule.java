@@ -18,7 +18,7 @@ public class ArrayIndexRule extends MulRule {
 
     @Override
     public List<Operation> substitute() {
-        Operation add = new Add(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation add = new Add(getLeft().getTarget(), getRight().getTarget());
         add.setMode(getRootNode().getMode());
         return List.of(add);
     }

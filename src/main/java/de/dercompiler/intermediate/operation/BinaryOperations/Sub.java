@@ -5,8 +5,8 @@ import de.dercompiler.intermediate.operation.OperationType;
 
 public class Sub extends BinArithOperation {
 
-    public Sub(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.SUB, definition, target, source, isMemoryOperation);
+    public Sub(Operand target, Operand source) {
+        super(OperationType.SUB, target, source, false);
     }
 
 }

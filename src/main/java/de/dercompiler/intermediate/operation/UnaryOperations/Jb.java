@@ -4,10 +4,10 @@ import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 
-public class Jb extends UnaryOperation {
+public class Jb extends JumpOperation {
 
-    public Jb(LabelOperand address, boolean isMemoryOperation) {
-        super(OperationType.JB, address, isMemoryOperation);
+    public Jb(LabelOperand address) {
+        super(OperationType.JB, address);
     }
 
 }

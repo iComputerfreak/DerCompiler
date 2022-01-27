@@ -21,9 +21,9 @@ public class ReturnRule extends SubstitutionRule<Return> {
     public List<Operation> substitute() {
         Ret ret;
         if (Objects.isNull(getRetVal())) {
-            ret = new Ret(isMemoryOperation());
+            ret = new Ret();
         } else {
-            ret = new Ret(getRetVal().getTarget(), isMemoryOperation());
+            ret = new Ret(getRetVal().getTarget());
             ret.setMode(getRetVal().getRootNode().getMode());
         }
         this.setTarget(null);

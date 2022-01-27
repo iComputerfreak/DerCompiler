@@ -18,4 +18,9 @@ public class Xchg extends BinaryOperation {
     public Xchg(Address target, Register source, boolean isMemoryOperation) {
         super(OperationType.XCHG, target, source, isMemoryOperation);
     }
+
+    @Override
+    public boolean needsDefinition() {
+        return false;
+    }
 }

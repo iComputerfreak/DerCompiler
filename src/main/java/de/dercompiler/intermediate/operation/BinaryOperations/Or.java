@@ -6,7 +6,7 @@ import de.dercompiler.intermediate.operation.OperationType;
 public class Or extends BinArithOperation {
 
     public Or(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.OR, definition, target, source, isMemoryOperation);
+        super(OperationType.OR, target, source, isMemoryOperation);
     }
 
 }

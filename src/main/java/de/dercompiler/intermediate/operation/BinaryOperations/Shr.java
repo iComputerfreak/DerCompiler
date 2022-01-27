@@ -9,8 +9,8 @@ Das rechte Argument ist entweder die Konstante 1, ein 1-byte immediate value ode
  */
 public class Shr extends ShiftOperation {
 
-    public Shr(Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.SHR, target, source, isMemoryOperation);
+    public Shr(Operand target, Operand source) {
+        super(OperationType.SHR, target, source, false);
     }
 
 }

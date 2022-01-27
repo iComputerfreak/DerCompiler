@@ -83,7 +83,7 @@ public class ArrayAccessRule extends AddRule {
             ops = List.of(new Mov(idxReg, index, isMemoryOperation()));
         }
 
-        getAnnotation(getRootNode()).setTarget(target);
+        setTarget(target);
         return ops;
     }
 

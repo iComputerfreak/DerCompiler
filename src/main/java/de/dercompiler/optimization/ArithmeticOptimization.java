@@ -5,10 +5,13 @@ import de.dercompiler.io.message.MessageOrigin;
 import firm.Construction;
 import firm.Graph;
 import firm.Mode;
+import firm.Relation;
 import firm.nodes.*;
 
 import java.util.HashMap;
 import java.util.function.BiFunction;
+
+import static java.lang.Integer.MIN_VALUE;
 
 public class ArithmeticOptimization extends GraphOptimization {
 
@@ -175,9 +178,7 @@ public class ArithmeticOptimization extends GraphOptimization {
                     if (exponent > 0) {
                         replaceDiv(node, getConstruction().newShrs(dividend, getConstruction().newConst(exponent, Mode.getIu())));
                         logger.printInfo("Apply arith/DivToRshs to %s and %s".formatted(dividend.toString(), divisor.toString()));
-                    }
-
-                    else if (dividend instanceof Const dvdConst) {
+                    } else if (dividend instanceof Const dvdConst) {
                         replaceDiv(node, getConstruction().newConst(dvdConst.getTarval().div(dsrConst.getTarval())));
                         logger.printInfo("Apply arith/Div2Consts to %s and %s".formatted(dividend.toString(), divisor.toString()));
                     }
@@ -243,6 +244,55 @@ public class ArithmeticOptimization extends GraphOptimization {
             } else return false;
         });
     }
+
+    @Override
+    public void visit(Cmp node) {
+        Relation oldRel = node.getRelation();
+        if (node.getLeft().equals(node.getRight())) {
+            Relation rel = switch (oldRel) {
+                case False, Less, UnorderedLessGreater, Greater, Unordered, LessGreater, UnorderedGreater, UnorderedLess -> Relation.False;
+                case True, Equal, LessEqual, GreaterEqual, UnorderedGreaterEqual, UnorderedLessEqual, LessEqualGreater, UnorderedEqual -> Relation.True;
+            };
+            node.setRelation(rel);
+        } else if (node.getLeft() instanceof Const constA) {
+            if (node.getRight() instanceof Const constB) {
+                int compare = Integer.compare(constA.getTarval().asInt(), constB.getTarval().asInt());
+                Relation rel = switch (compare) {
+                    case -1 -> oldRel.contains(Relation.Less) ? Relation.True : Relation.False;
+                    case 0 -> oldRel.contains(Relation.Equal) ? Relation.True : Relation.False;
+                    case 1 -> oldRel.contains(Relation.Greater) ? Relation.True : Relation.False;
+                    default -> oldRel;
+                };
+                node.setRelation(rel);
+            } else if (oldRel.contains(Relation.Unordered)) {
+                if (constA.getTarval().asInt() == 0) {
+                    // 0 <= x (Unsigned) -> True
+                    // 0 > x (Unsigned) -> False
+                    setRelationIfContains(node, Relation.LessEqual);
+                } else if (constA.getTarval().asInt() == -1) {
+                    // 0xffffffff >= x (Unsigned) -> True
+                    // 0xffffffff < x (Unsigned) -> False
+                    setRelationIfContains(node, Relation.LessEqual);
+                }
+            } else {
+                if (constA.getTarval().asInt() == Integer.MIN_VALUE) {
+                    // MIN_VALUE <= x -> True
+                    // MIN_VALUE > x -> False
+                    setRelationIfContains(node, Relation.LessEqual);
+                } else if (constA.getTarval().asInt() == Integer.MAX_VALUE) {
+                    // MAX_VALUE >= x -> True
+                    // MAX_VALUE < x -> False
+                    setRelationIfContains(node, Relation.GreaterEqual);
+                }
+            }
+        }
+    }
+
+    private void setRelationIfContains(Cmp node, Relation rel) {
+        if (node.getRelation().contains(rel)) node.setRelation(Relation.True);
+        else if (node.getRelation().contains(rel.inversed())) node.setRelation(Relation.False);
+    }
+
 
     @Override
     public void visit(And node) {

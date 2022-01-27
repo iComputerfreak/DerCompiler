@@ -5,8 +5,8 @@ import de.dercompiler.intermediate.operation.OperationType;
 
 public class Xor extends BinArithOperation {
 
-    public Xor(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.XOR, definition, target, source, isMemoryOperation);
+    public Xor(Operand target, Operand source) {
+        super(OperationType.XOR, target, source, false);
     }
 
 }

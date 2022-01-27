@@ -27,6 +27,10 @@ public abstract non-sealed class NaryOperation extends Operation {
         return Arrays.copyOf(operands, operands.length);
     }
 
+    public int getArgsCount() {
+        return operands != null ? operands.length : 0;
+    }
+
     public OperationType getOperationType() {
         return operationType;
     }
@@ -36,9 +40,5 @@ public abstract non-sealed class NaryOperation extends Operation {
         return operationType.getSyntax() + " " + Arrays.stream(operands).map(Operand::getIdentifier).collect(Collectors.joining(" "));
     }
 
-    @Override
-    public String toString() {
-        return "%s (%s%s)".formatted(getIntelSyntax(), mode, isMemoryOperation()? "/M" : "");
-    }
 }
 

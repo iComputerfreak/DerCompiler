@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.ConstantOperations.Nop;
 import de.dercompiler.intermediate.operation.Operation;
@@ -29,6 +30,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
 
         /** The code for the different Phi blocks is supposed to be created in getCodeForPred(int) */
         setMode(root.getPred(0).getMode());
+        setTarget(new VirtualRegister());
         return List.of();
     }
 
@@ -50,14 +52,8 @@ public class PhiRule extends SubstitutionRule<Phi> {
         Phi root = getRootNode();
         Operand target = getAnnotation(root).getTarget();
         Operand source = getAnnotation(root.getPred(i)).getTarget();
-        if (!source.equals(target)) {
-            Mov mov = new Mov(target, source, false);
-            mov.setMode(getAnnotation(root.getPred(i)).getRootNode().getMode());
-            return mov;
-        } else {
-            // Register is the same after loop
-            return new Nop();
-        }
-
+        Mov mov = new Mov(target, source, false);
+        mov.setMode(getAnnotation(root.getPred(i)).getRootNode().getMode());
+        return mov;
     }
 }

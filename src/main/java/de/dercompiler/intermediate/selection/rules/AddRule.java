@@ -31,7 +31,7 @@ public class AddRule extends SubstitutionRule<Add> {
 
     @Override
     public List<Operation> substitute() {
-        Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(getLeft().getTarget(), getRight().getTarget());
         add.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
         return List.of(add);

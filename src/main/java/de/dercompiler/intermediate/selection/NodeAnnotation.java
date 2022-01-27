@@ -14,8 +14,6 @@ public class NodeAnnotation<T extends Node> {
     private Operand target = null;
     private boolean visited;
     private boolean transformed;
-    private boolean componentRoot;
-    private boolean visitedEncountered;
     private int component;
 
     /**

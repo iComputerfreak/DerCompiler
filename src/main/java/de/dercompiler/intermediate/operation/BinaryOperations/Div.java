@@ -8,6 +8,6 @@ import de.dercompiler.intermediate.operation.OperationType;
 public class Div extends BinArithOperation {
 
     public Div(Operand target, Operand source) {
-        super(OperationType.DIV, new VirtualRegister(), target, source, true);
+        super(OperationType.DIV, target, source, true);
     }
 }

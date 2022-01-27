@@ -17,4 +17,9 @@ public class Mov extends BinaryOperation {
         }
     }
 
+    @Override
+    public boolean needsDefinition() {
+        return false;
+    }
+
 }

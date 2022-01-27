@@ -5,8 +5,8 @@ import de.dercompiler.intermediate.operation.OperationType;
 
 public class Add extends BinArithOperation {
 
-    public Add(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.ADD,definition, target, source, isMemoryOperation);
+    public Add(Operand target, Operand source) {
+        super(OperationType.ADD, target, source, false);
     }
 
 }

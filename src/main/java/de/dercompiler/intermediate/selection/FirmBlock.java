@@ -11,7 +11,6 @@ import firm.nodes.Block;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class FirmBlock {
 
@@ -169,7 +168,7 @@ public class FirmBlock {
 
     public void setPhiBlock(int idx, FirmBlock phiBlock) {
         phiBlock.setPhiNode(true);
-        phiBlock.setJump(new CodeNode(List.of(new Jmp(new LabelOperand(this.getNr() + ""), true)), this));
+        phiBlock.setJump(new CodeNode(List.of(new Jmp(new LabelOperand(this.getNr() + ""))), this));
         if (phis.size() == idx) phis.add(phiBlock);
         else if (phis.size() < idx)
             throw new RuntimeException("Cant add this phi block before all of its predecessors.");

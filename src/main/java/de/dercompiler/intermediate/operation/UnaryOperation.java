@@ -29,8 +29,4 @@ public abstract non-sealed class UnaryOperation extends Operation {
         return operationType.getSyntax() + (Objects.isNull(operand) ? "" :  " " + operand.getIdentifier());
     }
 
-    @Override
-    public String toString() {
-        return "%s %s (%s%s)".formatted(operationType, operand, mode, isMemoryOperation()? "/M" : "");
-    }
 }

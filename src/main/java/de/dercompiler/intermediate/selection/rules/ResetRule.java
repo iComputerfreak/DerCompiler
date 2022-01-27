@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Xor;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -33,11 +32,9 @@ public class ResetRule extends SubstitutionRule<Store> {
     @Override
     public List<Operation> substitute() {
         Operand targetReg = getAnnotation(getTarget()).getTarget();
-        Operation eor = new Xor(new VirtualRegister(),
-                targetReg,
-                targetReg,
-                isMemoryOperation());
+        Operation eor = new Xor(targetReg, targetReg);
         this.setTarget(targetReg);
+        eor.setDefinition(targetReg);
         setMode(getValue().getMode());
         return List.of(eor);
     }

@@ -8,4 +8,9 @@ public class Nop extends ConstantOperation {
     public Nop(){
         super(OperationType.NOP, false);
     }
+
+    @Override
+    public boolean needsDefinition() {
+        return false;
+    }
 }

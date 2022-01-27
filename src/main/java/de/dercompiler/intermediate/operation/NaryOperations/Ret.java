@@ -10,11 +10,16 @@ import de.dercompiler.intermediate.operation.OperationType;
  */
 public class Ret extends NaryOperation {
 
-    public Ret(Operand result, boolean isMemoryOperation){
-        super(OperationType.RET, isMemoryOperation, result);
+    public Ret(Operand result){
+        super(OperationType.RET, true, result);
     }
 
-    public Ret(boolean isMemoryOperation) {
-        super(OperationType.RET, isMemoryOperation);
+    public Ret() {
+        super(OperationType.RET, true);
+    }
+
+    @Override
+    public boolean needsDefinition() {
+        return getArgsCount() > 0;
     }
 }
