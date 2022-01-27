@@ -36,6 +36,8 @@ public interface MemoryManager {
      */
     Operand getValue(int id);
 
+
+    Operand getVar(int n);
     /**
      * Registers a new temporary value.
      * @return The location of the new variable

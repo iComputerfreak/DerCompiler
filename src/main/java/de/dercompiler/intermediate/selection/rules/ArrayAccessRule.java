@@ -80,7 +80,7 @@ public class ArrayAccessRule extends AddRule {
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
             getIndex().setTarget(target);
-            ops = List.of(new Mov(idxReg, index, isMemoryOperation()));
+            ops = List.of(new Mov(new VirtualRegister(), idxReg, index, isMemoryOperation()));
         }
 
         getAnnotation(getRootNode()).setTarget(target);

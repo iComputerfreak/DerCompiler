@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.operation.BinaryOperations;
 
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.ConstantValue;
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.Register;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
@@ -10,28 +11,10 @@ Rotate right
 
 Das rechte Argument ist entweder die Konstante 1 oder das CL Register
  */
-public class Ror extends BinaryOperation {
+public class Ror extends ShiftOperation {
 
-    public Ror(Register target, Register source, boolean isMemoryOperation) {
-        super(OperationType.ROR, target, source, isMemoryOperation);
-    }
-
-    public Ror(Register target, ConstantValue source, boolean isMemoryOperation) {
-        super(OperationType.ROR, target, source, isMemoryOperation);
-        if (source.getValue() != 1){
-            throw new RuntimeException();
-        }
-    }
-
-    public Ror(Address target, Register source, boolean isMemoryOperation) {
-        super(OperationType.ROR, target, source, isMemoryOperation);
-    }
-
-    public Ror(Address target, ConstantValue source, boolean isMemoryOperation) {
-        super(OperationType.ROR, target, source, isMemoryOperation);
-        if (source.getValue() != 1){
-            throw new RuntimeException();
-        }
+    public Ror(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
+        super(OperationType.ROR, definition, target, source, isMemoryOperation);
     }
 
 }

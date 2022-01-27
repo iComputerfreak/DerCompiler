@@ -22,7 +22,7 @@ public class Address implements Operand {
         this.scale = scale;
 
         // which parts are actually set?
-        this.components = this.offset > 0 ? 1 : 0;
+        this.components = this.offset != 0 ? 1 : 0;
         components = (components << 1) + (Objects.isNull(this.base) ? 0 : 1);
         components = (components << 1) + (Objects.isNull(this.index) ? 0 : 1);
         components = (components << 1) + (this.scale > 1 ? 1 : 0);

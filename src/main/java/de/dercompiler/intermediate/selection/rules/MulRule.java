@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -30,7 +31,7 @@ public class MulRule extends SubstitutionRule<Mul> {
 
     @Override
     public List<Operation> substitute() {
-        Operation mul = new de.dercompiler.intermediate.operation.BinaryOperations.Mul(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation mul = new de.dercompiler.intermediate.operation.BinaryOperations.Mul(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
         mul.setMode(getRootNode().getMode());
         return List.of(mul);
     }

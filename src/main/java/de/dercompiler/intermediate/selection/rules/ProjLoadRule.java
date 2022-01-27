@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -42,7 +43,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
             return List.of();
         } else {
             Operand target = getAnnotation(getRootNode()).getTarget();
-            Operation mov = new Mov(operandTarget, target, isMemoryOperation());
+            Operation mov = new Mov(new VirtualRegister(), operandTarget, target, isMemoryOperation());
             mov.setMode(getRootNode().getMode());
             return List.of(mov);
         }

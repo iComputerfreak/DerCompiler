@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -30,7 +31,7 @@ public class OrRule extends SubstitutionRule<Or> {
 
     @Override
     public List<Operation> substitute() {
-        Operation or = new de.dercompiler.intermediate.operation.BinaryOperations.Or(getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation or = new de.dercompiler.intermediate.operation.BinaryOperations.Or(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
         return List.of(or);
     }
 
