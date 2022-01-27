@@ -26,7 +26,7 @@ public class NullTypeCheckPass implements ExpressionPass {
             if (type.getExpectedType() == null)  {
                 failSpecs(nullValue, "NullValue has no expected type", false);
             } else {
-                System.out.println("null at " + nullValue.getSourcePosition() + " is just fine being a " + type.getExpectedType() + "!");
+                //logger.printInfo("null at " + nullValue.getSourcePosition() + " is just fine being a " + type.getExpectedType() + "!");
             }
         });
         return false;

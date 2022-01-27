@@ -11,6 +11,8 @@ import firm.Entity;
 import firm.Mode;
 import firm.nodes.Node;
 
+import java.util.Objects;
+
 public abstract class ReferenceNode {
 
     protected Node ref;
@@ -21,6 +23,9 @@ public abstract class ReferenceNode {
     public ReferenceNode(Node ref, Type type) {
         this.ref = ref;
         this.type = type;
+        if (Objects.isNull(type)) {
+            throw new NullPointerException("Failed to create ReferenceNode for node %s: type is null");
+        }
         this.mode = type.getFirmTransformationType().getMode();
         this.preparedNode = new PreparedNode();
     }
