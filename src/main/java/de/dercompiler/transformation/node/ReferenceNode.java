@@ -11,6 +11,8 @@ import firm.Entity;
 import firm.Mode;
 import firm.nodes.Node;
 
+import java.util.Objects;
+
 public abstract class ReferenceNode {
 
     protected Node ref;
@@ -21,6 +23,9 @@ public abstract class ReferenceNode {
     public ReferenceNode(Node ref, Type type) {
         this.ref = ref;
         this.type = type;
+        if (Objects.isNull(type)) {
+            throw new NullPointerException("Failed to create ReferenceNode for node %s: type is null");
+        }
         this.mode = type.getFirmTransformationType().getMode();
         this.preparedNode = new PreparedNode();
     }
@@ -30,6 +35,13 @@ public abstract class ReferenceNode {
             prepareLoad(state);
         }
         return getPreparedNode(NodeAccess.LOAD);
+    }
+
+    protected Node genLoadAndReset(TransformationState state) {
+        if (!isPrepared(NodeAccess.LOAD)) {
+            prepareLoad(state);
+        }
+        return preparedNode.getPreparedAndReset(NodeAccess.LOAD);
     }
 
     public abstract ReferenceNode genStore(TransformationState state, ReferenceNode value);
@@ -62,7 +74,7 @@ public abstract class ReferenceNode {
 
     public ReferenceNode prepareAccessField(TransformationState state) {
         //gen load but mark as AccessArray
-        prepareNode(genLoad(state), NodeAccess.FIELD_ACCESS);
+        prepareNode(genLoadAndReset(state), NodeAccess.FIELD_ACCESS);
         return this;
     }
 

@@ -2,7 +2,10 @@ package de.dercompiler.ast.expression;
 
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.type.ArrayType;
 import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
@@ -40,9 +43,14 @@ public final class ArrayAccess extends PostfixExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
-        ReferenceNode base_ptr = getEncapsulated().createNode(state).prepareAccessArray(state);
+        ReferenceNode base_ptr = getEncapsulated().createNode(state);
+        if (!(base_ptr.getType() instanceof ArrayType at)) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("NewArrayExpression has no ArrayType");
+            return null; //we never return
+        }
+        base_ptr = base_ptr.prepareAccessArray(state);
 
-        int type_size_const = base_ptr.getType().getFirmType().getSize();
+        int type_size_const = at.getElementType().getFirmTransformationType().getSize();
         Node type_size = state.construction.newConst(type_size_const, FirmTypes.longFirmType.getMode());
         ReferenceNode elements = index.createNode(state);
         //convert size?

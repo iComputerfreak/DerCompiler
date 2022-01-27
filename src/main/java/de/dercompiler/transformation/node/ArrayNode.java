@@ -37,11 +37,8 @@ public class ArrayNode extends ReferenceNode {
 
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
-        if (isElement()) {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("invalid ArrayAccess on Array of Dimension 0");
-        }
         Node elem_ptr = TransformationHelper.addOffsetToPointer(state, ref, offset);
-        return new ArrayElementNode(elem_ptr, type);
+        return new ArrayElementNode(elem_ptr, getTypeAsArray().getElementType());
     }
 
     @Override
@@ -81,7 +78,8 @@ public class ArrayNode extends ReferenceNode {
     }
 
     public boolean isElement() {
-        return dim == 0;
+        //element, because we are in a one-dimensional
+        return dim == 1;
     }
 
     @Override

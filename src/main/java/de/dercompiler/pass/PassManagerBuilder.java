@@ -12,6 +12,7 @@ public class PassManagerBuilder {
         manager.addPass(new EnterScopePass());
         manager.addPass(new VariableAnalysisCheckPass());
         manager.addPass(new LeaveScopePass());
+        manager.addPass(new NullTypeCheckPass());
 
         // type-analysis passes
         manager.addPass(new TypeAnalysisPass());
@@ -25,6 +26,7 @@ public class PassManagerBuilder {
         manager.addPass(new FirmTypePass());
         manager.addPass(new CountVariablesPass());
         manager.addPass(new DeadCodeEliminationPass().init(CountVariablesPass.class, DependencyType.RUN_DIRECTLY_AFTER));
+
 
         FirmMethodGraphStartupPass fms = new FirmMethodGraphStartupPass();
         FirmMethodGraphFinalizationPass fmf = new FirmMethodGraphFinalizationPass();

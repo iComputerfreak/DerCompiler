@@ -115,7 +115,7 @@ public final class MethodInvocationOnObject extends UnaryExpression {
 
         de.dercompiler.semantic.type.Type ret = methodDef.getType().getReturnType();
         if (ret instanceof ArrayType at) {
-            return new ArrayNode(res, at.getElementType(), at.getDimension());
+            return new ArrayNode(res, at, at.getDimension());
         } else if (ret instanceof ClassType ct) {
             return new ObjectNode(res, ct);
         } else if (ret instanceof BooleanType) {

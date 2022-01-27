@@ -29,31 +29,42 @@ public class ArrayElementNode extends ReferenceNode {
     @Override
     public ObjectNode getObjectCallBase(TransformationState state) {
         ClassType ct = getTypeAsClass();
-        return new ObjectNode(ref, ct);
+        if (!isPrepared(NodeAccess.METHOD_CALL_BASE)) {
+            prepareGetObjectCallBase(state);
+        }
+        return new ObjectNode(getPreparedNode(NodeAccess.METHOD_CALL_BASE), ct);
+    }
+
+    @Override
+    public ReferenceNode prepareAccessField(TransformationState state) {
+        prepareNode(genLoadAndReset(state), NodeAccess.FIELD_ACCESS);
+        return this;
     }
 
     @Override
     public ReferenceNode accessField(TransformationState state, String fieldName) {
         ClassType ct = getTypeAsClass();
-        return new ObjectNode(ref, ct).accessField(state, fieldName);
+        if (!isPrepared(NodeAccess.FIELD_ACCESS)) prepareAccessField(state);
+        return new ObjectNode(getPreparedNode(NodeAccess.FIELD_ACCESS), ct).accessField(state, fieldName);
     }
 
     @Override
     public ReferenceNode prepareGetObjectCallBase(TransformationState state) {
-        prepareNode(ref, NodeAccess.METHOD_CALL_BASE);
+        prepareNode(genLoadAndReset(state), NodeAccess.METHOD_CALL_BASE);
         return this;
     }
 
     @Override
     public ReferenceNode prepareAccessArray(TransformationState state) {
-        ArrayType at = getTypeAsArray();
-        return new ArrayNode(genLoad(state), at.getElementType(), at.getDimension()).prepareAccessArray(state);
+        prepareNode(genLoadAndReset(state), NodeAccess.ARRAY_ACCESS);
+        return this;
     }
 
     @Override
     public ReferenceNode accessArray(TransformationState state, Node offset) {
         ArrayType at = getTypeAsArray();
-        return new ArrayNode(genLoad(state), at, at.getDimension()).accessArray(state, offset);
+        if (!isPrepared(NodeAccess.ARRAY_ACCESS)) prepareAccessArray(state);
+        return new ArrayNode(getPreparedNode(NodeAccess.ARRAY_ACCESS), at, at.getDimension()).accessArray(state, offset);
     }
 
     @Override

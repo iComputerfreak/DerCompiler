@@ -3,7 +3,10 @@ package de.dercompiler.ast.expression;
 import de.dercompiler.ast.ASTNode;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
 import de.dercompiler.ast.type.BasicType;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.SourcePosition;
+import de.dercompiler.semantic.type.ArrayType;
 import de.dercompiler.transformation.FirmTypes;
 import de.dercompiler.transformation.LibraryMethods;
 import de.dercompiler.transformation.TransformationHelper;
@@ -62,8 +65,13 @@ public final class NewArrayExpression extends PrimaryExpression {
     @Override
     public ReferenceNode createNode(TransformationState state) {
         Node mem = state.construction.getCurrentMem();
-        Type type = getType().getFirmTransformationType();
-
+        de.dercompiler.semantic.type.Type arrayType = getType();
+        if (!(arrayType instanceof ArrayType at)) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("NewArrayExpression has no ArrayType");
+            return null; //we never return
+        }
+        
+        Type type = at.getElementType().getFirmTransformationType();
         Node type_size = state.construction.newConst(type.getSize(), FirmTypes.longFirmType.getMode());
         Entity methodEntity = LibraryMethods.allocate;
         Node call = state.construction.newCall(mem,
@@ -71,6 +79,6 @@ public final class NewArrayExpression extends PrimaryExpression {
 
         state.construction.setCurrentMem(state.construction.newProj(call, Mode.getM(), Call.pnM));
         Node tuple = state.construction.newProj(call, Mode.getT(), Call.pnTResult);
-        return new ArrayNode(state.construction.newProj(tuple, Mode.getP(), 0), getType(), dimension);
+        return new ArrayNode(state.construction.newProj(tuple, Mode.getP(), 0), at, dimension);
     }
 }

@@ -1,0 +1,11 @@
+class Main {
+
+    public static void main(String[] args) {
+        int[] a = new int[100000000];
+        /* index 0x20000000 */
+        a[67108864] = 1;
+        a[0] = 0;
+        System.out.println(a[67108864]);
+        System.out.println(a[0]);
+    }
+}

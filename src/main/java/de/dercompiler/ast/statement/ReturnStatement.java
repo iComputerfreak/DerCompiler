@@ -30,6 +30,11 @@ public final class ReturnStatement extends Statement {
     }
 
     @Override
+    public boolean hasReturn() {
+        return true;
+    }
+
+    @Override
     public void accept(ASTStatementVisitor asTStatementVisitor) {
         asTStatementVisitor.visitReturnStatement(this);
     }

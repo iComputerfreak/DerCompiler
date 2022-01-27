@@ -59,6 +59,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         if (statement.isDead()) return false;
 
         statement.accept(this);
+
         if (state.removeStatementIfMarked(statement)) {
             state.pullBlock();
         }
