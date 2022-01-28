@@ -25,7 +25,7 @@ public class UnknownRule extends SubstitutionRule<Unknown> {
     public List<Operation> substitute() {
         ConstantValue target = new ConstantValue(-1);
         setMode(node.getMode());
-        getAnnotation(node).setTarget(target);
+        setTarget(target);
         return List.of();
     }
 

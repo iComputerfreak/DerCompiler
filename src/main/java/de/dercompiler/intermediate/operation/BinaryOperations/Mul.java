@@ -9,8 +9,8 @@ import de.dercompiler.intermediate.operation.OperationType;
  */
 public class Mul extends BinArithOperation {
 
-    public Mul(Operand definition, Operand target, Operand source, boolean isMemoryOperation) {
-        super(OperationType.MUL, target, source, isMemoryOperation);
+    public Mul(Operand target, Operand source) {
+        super(OperationType.MUL, target, source, false);
     }
 
 }

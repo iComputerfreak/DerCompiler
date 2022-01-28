@@ -25,11 +25,11 @@ public class IncLRule extends AddRule {
     @Override
     public List<Operation> substitute() {
         Operand target = getOperator().getTarget();
-        getAnnotation(node).setTarget(target);
+        setTarget(target);
         setMode(getOperator().getRootNode().getMode());
 
         Operation inc = new Inc(target, isMemoryOperation());
-        inc.setMode(getDatatype(), getSignedness());
+        inc.setMode(node.getMode());
         return List.of(inc);
     }
 

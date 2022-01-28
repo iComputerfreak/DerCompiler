@@ -13,6 +13,7 @@ import de.dercompiler.lexer.LexerTest;
 import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.transformation.FirmSetup;
 import firm.Firm;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,11 @@ public class ParserTest {
         Firm.init(null, new String[]{ "pic=1" });
         System.out.println("Initialized libFirm Version: " + Firm.getMinorVersion() + "." + Firm.getMajorVersion());
         OutputMessageHandler.setDebug();
+    }
+
+    @AfterAll
+    static void cleanUp() {
+        Firm.finish();
     }
 
     @BeforeEach

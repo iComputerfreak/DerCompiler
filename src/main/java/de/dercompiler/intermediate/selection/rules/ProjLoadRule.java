@@ -44,7 +44,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
         } else {
             Operand target = new VirtualRegister();
             setTarget(target);
-            Operation mov = new Mov(operandTarget, target, isMemoryOperation());
+            Operation mov = new Mov(operandTarget, target, true );
             mov.setMode(getRootNode().getMode());
             return List.of(mov);
         }

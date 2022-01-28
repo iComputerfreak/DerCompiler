@@ -35,8 +35,7 @@ public class EorRule extends SubstitutionRule<Eor> {
         Operation eor = new Xor(getLeft().getTarget(), getRight().getTarget());
         eor.setMode(node.getMode());
 
-        VirtualRegister target = new VirtualRegister();
-        getAnnotation(node).setTarget(target);
+        setTarget(eor.getDefinition());
 
         return List.of(eor);
     }

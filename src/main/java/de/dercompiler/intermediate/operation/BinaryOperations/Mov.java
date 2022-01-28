@@ -2,7 +2,6 @@ package de.dercompiler.intermediate.operation.BinaryOperations;
 
 import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.io.OutputMessageHandler;

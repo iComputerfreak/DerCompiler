@@ -32,7 +32,7 @@ public class ModRule extends SubstitutionRule<Mod> {
     public List<Operation> substitute() {
         Operation mod = new de.dercompiler.intermediate.operation.BinaryOperations.Mod(getLeft().getTarget(), getRight().getTarget());
         mod.setMode(getRootNode().getMode());
-        setMode(getRootNode().getMode());
+        setTarget(mod.getDefinition());
         return List.of(mod);
     }
 

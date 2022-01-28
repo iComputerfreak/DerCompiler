@@ -64,6 +64,7 @@ public class CondRule extends SubstitutionRule<Cond> {
             }
             if (op == null) {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected Cmp relation: " + cmp.getRelation().toString());
+                throw new RuntimeException();
             }
             // If the jump is conditional, the "else"-case is necessary
             op.setMode(Mode.getX());

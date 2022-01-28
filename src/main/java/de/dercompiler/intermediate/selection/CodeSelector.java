@@ -4,6 +4,7 @@ import de.dercompiler.generation.CodeGenerationWarningIds;
 import de.dercompiler.intermediate.operand.CondTarget;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.CondJmpRule;
 import de.dercompiler.intermediate.selection.rules.EmptyRule;
@@ -120,7 +121,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         /* ============================================= */
         this.mode = Mode.ANNOTATION; // Set, in case generateCode() is called twice
         setPhiRules();
-        graph.walkPostorder(this);
+        graph.walkTopological(this);
 
         setJumpTargets();
 
@@ -188,7 +189,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                             break;
                         }
                     }
-                    annotations.put(phi.getNr(), new NodeAnnotation<>(1, phi, new PhiRule(), !inRow, false));
+                    NodeAnnotation<Phi> a = new NodeAnnotation<>(1, phi, new PhiRule(), false/*!inRow*/, false);
+                    a.setTarget(new VirtualRegister());
+                    annotations.put(phi.getNr(), a);
+
                 }
             }
         });
@@ -240,7 +244,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             }
 
             // If the graph already contains an edge between these two nodes, add intermediate nodes
-           /* if (blocksGraph.containsEdge(fBlock, predBlock)) {
+            if (blocksGraph.containsEdge(fBlock, predBlock)) {
                 FirmBlock intermediate1 = new FirmBlock(nextIntermediateID());
                 FirmBlock intermediate2 = new FirmBlock(nextIntermediateID());
                 blocksGraph.addVertex(intermediate1);
@@ -259,10 +263,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 blocksGraph.addEdge(intermediate2, predBlock);
                 blocksGraph.setEdgeWeight(intermediate2, predBlock, i);
             } else {
-            */
+
             DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
             blocksGraph.setEdgeWeight(e, i);
-            /*}*/
+            }
         }
     }
 
@@ -375,6 +379,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         for (Node n : rule.getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
             annotations.get(n.getNr()).setVisited(true);
+
         }
 
         // Build a graph of NodeAnnotations
@@ -395,6 +400,9 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 addDependency(a, n);
             }
         }
+        //Initialize target
+        rule.substitute();
+
         rule.clear();
     }
 
@@ -425,7 +433,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         if (a.getTransformed()) {
             return;
         }
-        System.out.println("tr " + a.getRootNode().toString());
+        //System.out.println("tr " + a.getRootNode().toString());
         // Apply the rule in this annotation
         SubstitutionRule<T> rule = a.getRule();
         T rootNode = a.getRootNode();
@@ -460,7 +468,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 // node gets handled elsewhere and gets no own code
                 boolean visited = annotations.get(predNr).getVisited();
                 if (!visited) {
-                    System.out.print("->");
+                    //System.out.print("->");
                     transformAnnotation(annotations.get(predNr));
                 }
                 int actualCmp = annotations.get(predNr).getComponent();
@@ -551,7 +559,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         } else if (node.isJump()) {
             firmBlock.setJump(node);
         } else {
-            System.out.println("lin " + node.getId());
+            //System.out.println("lin " + node.getId());
             firmBlock.insertOperations(node);
         }
     }

@@ -31,8 +31,9 @@ public class MulRule extends SubstitutionRule<Mul> {
 
     @Override
     public List<Operation> substitute() {
-        Operation mul = new de.dercompiler.intermediate.operation.BinaryOperations.Mul(new VirtualRegister(), getLeft().getTarget(), getRight().getTarget(), isMemoryOperation());
+        Operation mul = new de.dercompiler.intermediate.operation.BinaryOperations.Mul(getLeft().getTarget(), getRight().getTarget());
         mul.setMode(getRootNode().getMode());
+        getAnnotation(node).setTarget(mul.getDefinition());
         return List.of(mul);
     }
 

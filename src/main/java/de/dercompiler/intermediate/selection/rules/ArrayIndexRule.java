@@ -20,6 +20,7 @@ public class ArrayIndexRule extends MulRule {
     public List<Operation> substitute() {
         Operation add = new Add(getLeft().getTarget(), getRight().getTarget());
         add.setMode(getRootNode().getMode());
+        setTarget(add.getDefinition());
         return List.of(add);
     }
 

@@ -33,6 +33,7 @@ public class DivRule extends SubstitutionRule<Div> {
         Operation div = new de.dercompiler.intermediate.operation.BinaryOperations.Div(getLeft().getTarget(), getRight().getTarget());
         div.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
+        setTarget(div.getDefinition());
         return List.of(div);
     }
 

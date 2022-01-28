@@ -83,7 +83,8 @@ public class ArrayAccessShlRRule extends AddRule {
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
             getIndex().setTarget(target);
-            ops = List.of(new Mov(idxReg, index, isMemoryOperation()));
+            Mov mov = new Mov(idxReg, index, isMemoryOperation() );
+            ops = List.of(mov);
         }
 
         getAnnotation(getRootNode()).setTarget(target);

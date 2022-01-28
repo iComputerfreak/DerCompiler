@@ -23,7 +23,7 @@ public class ConstConvRule extends SubstitutionRule<Conv> {
     public List<Operation> substitute() {
         // save as constant operand, no operations
         ConstantValue target = new ConstantValue(getConst().getTarval().asInt());
-        getAnnotation(node).setTarget(target);
+        setTarget(target);
         return List.of();
     }
 

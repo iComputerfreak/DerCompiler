@@ -34,6 +34,7 @@ public class AddRule extends SubstitutionRule<Add> {
         Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(getLeft().getTarget(), getRight().getTarget());
         add.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
+        setTarget(add.getDefinition());
         return List.of(add);
     }
 

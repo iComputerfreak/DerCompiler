@@ -35,7 +35,7 @@ public final class RuleSet {
             entry(Or.class, List.<SubstitutionRule<Or>>of(new OrRule())),
             entry(Phi.class, List.<SubstitutionRule<Phi>>of(new PhiRule())),
             entry(Return.class, List.<SubstitutionRule<Return>>of(new ReturnRule())),
-            entry(Proj.class, List.<SubstitutionRule<Proj>>of(new ProjRule(), new ProjLoadRule(), new ParamRule(), new CondJmpRule(), new NewRule())),
+            entry(Proj.class, List.<SubstitutionRule<Proj>>of(new ProjRule(), new ProjLoadRule(), new ParamRule(), new CondJmpRule(), new NewRule(), new ProjDivRule())),
             entry(Shl.class, List.<SubstitutionRule<Shl>>of(new ShlRule())),
             entry(Shr.class, List.<SubstitutionRule<Shr>>of(new ShrRule())),
             entry(Shrs.class, List.<SubstitutionRule<Shrs>>of(new ShrsRule())),

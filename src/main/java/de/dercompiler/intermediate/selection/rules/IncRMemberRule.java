@@ -20,21 +20,25 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
     }
 
     private Add getAdd() {
-        return node.getValue() instanceof Add add ? add : null;
+        if (node.getValue() instanceof Add add) return add;
+        throw new RuntimeException();
     }
 
     public Const getConst() {
-        return getAdd().getRight() instanceof Const constant ? constant : null;
+        if (getAdd().getRight() instanceof Const constant) return constant;
+        throw new RuntimeException();
     }
 
     private Proj getProj() {
-        return getAdd().getLeft() instanceof Proj proj ? proj : null;
+        if (getAdd().getLeft() instanceof Proj proj) return proj;
+        throw new RuntimeException();
     }
 
     @Override
     public List<Operation> substitute() {
         Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
+        setTarget(inc.getDefinition());
         return List.of(inc);
     }
 

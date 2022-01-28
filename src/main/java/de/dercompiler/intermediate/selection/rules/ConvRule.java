@@ -59,7 +59,7 @@ public class ConvRule extends SubstitutionRule<Conv> {
         }
 
         Address target = Address.ofOperand(op);
-        getAnnotation(node).setTarget(target);
+        setTarget(target);
 
         return ops;
     }

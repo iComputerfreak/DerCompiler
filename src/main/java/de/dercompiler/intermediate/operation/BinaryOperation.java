@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 
 
 public abstract non-sealed class BinaryOperation extends Operation {

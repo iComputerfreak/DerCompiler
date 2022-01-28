@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MemberRule extends SubstitutionRule<Member> {
+
     @Override
     public int getCost() {
         return 1 + getAnnotation(getObject()).getCost();
@@ -27,7 +28,7 @@ public class MemberRule extends SubstitutionRule<Member> {
         int offset = getMember().getEntity().getOffset();
         Operand object = getAnnotation(getObject()).getTarget();
         Address target = Address.offset(object, offset);
-        getAnnotation(node).setTarget(target);
+        setTarget(target);
         return List.of();
     }
 

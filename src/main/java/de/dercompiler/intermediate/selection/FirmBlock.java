@@ -10,6 +10,7 @@ import de.dercompiler.intermediate.operation.UnaryOperations.Jmp;
 import firm.nodes.Block;
 
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class FirmBlock {
@@ -66,55 +67,59 @@ public class FirmBlock {
         if (hasPhis()) {
             System.out.println("Here!");
             for (FirmBlock phi : getPhis()) {
-                List<Operation> linearization = new ArrayList<>();
-                ArrayList<BinaryOperation> allMoves = new ArrayList<>(phi.components.values().stream()
-                        .flatMap(c -> c.operations().stream())
-                        .map(op -> (BinaryOperation) op).toList());
-
-                // All registers that shall be overwritten but not read from are safe
-                List<Operand> safeToWrite = new ArrayList<>(allMoves.stream().map(BinaryOperation::getTarget).toList());
-                allMoves.stream().map(BinaryOperation::getSource).forEach(safeToWrite::remove);
-
-                while (!allMoves.isEmpty()) {
-                    if (safeToWrite.isEmpty()) {
-                        VirtualRegister temp = new VirtualRegister();
-                        Operand source = allMoves.get(0).getTarget();
-                        Mov mov = new Mov(temp, source, false);
-                        mov.setMode(allMoves.get(0).getMode());
-                        linearization.add(mov);
-                        allMoves.replaceAll(op -> {
-                            if (op.getTarget() == source) {
-                                Mov repl = new Mov(temp, op.getSource(), false);
-                                repl.setMode(op.getMode());
-                                return repl;
-                            } else return op;
-                        });
-                        safeToWrite.add(temp);
-                    }
-
-                    Operand target = safeToWrite.remove(0);
-                    for (int i = 0; i < allMoves.size(); i++) {
-                        BinaryOperation mov = allMoves.get(i);
-                        if (mov.getTarget().equals(target)) {
-                            linearization.add(mov);
-                            if (mov.getSource() instanceof VirtualRegister vreg && !safeToWrite.contains(vreg))
-                                safeToWrite.add(vreg);
-                            allMoves.remove(mov);
-                            i--;
-                        }
-                    }
-
-                }
+                List<Operation> linearization = eliminatePhi(phi);
                 phi.components = Map.of(0, new Component(linearization));
             }
 
         }
 
-        if (components.size() > 1) {
-            // There may be a phi block part
+        // TODO There may be a phi block part, a component that has no memory operations whatsoever and that ultimately
+        //  only deals with one phi variable. It might be useful to move it to the top of the actual phi block
 
+    }
+
+    private List<Operation> eliminatePhi(FirmBlock phi) {
+        List<Operation> linearization = new ArrayList<>();
+        ArrayList<BinaryOperation> allMoves = new ArrayList<>(phi.components.values().stream()
+                .flatMap(c -> c.operations().stream())
+                .map(op -> (BinaryOperation) op).toList());
+
+        // All registers that shall be overwritten but not read from are safe
+        List<Operand> safeToWrite = new ArrayList<>(allMoves.stream().map(BinaryOperation::getTarget).toList());
+        allMoves.stream().map(BinaryOperation::getSource).forEach(safeToWrite::remove);
+
+        while (!allMoves.isEmpty()) {
+            if (safeToWrite.isEmpty()) {
+                // Introduce temp register to save one of the registers to
+                VirtualRegister temp = new VirtualRegister();
+                Operand source = allMoves.get(0).getTarget();
+                Mov mov = new Mov(temp, source, false);
+                mov.setMode(allMoves.get(0).getMode());
+                linearization.add(mov);
+                allMoves.replaceAll(op -> {
+                    if (op.getTarget() == source) {
+                        Mov repl = new Mov(temp, op.getSource(), false);
+                        repl.setMode(op.getMode());
+                        return repl;
+                    } else return op;
+                });
+                safeToWrite.add(temp);
+            }
+
+            Operand target = safeToWrite.remove(0);
+            for (int i = 0; i < allMoves.size(); i++) {
+                BinaryOperation mov = allMoves.get(i);
+                if (mov.getTarget().equals(target)) {
+                    linearization.add(mov);
+                    if (mov.getSource() instanceof VirtualRegister vreg && !safeToWrite.contains(vreg))
+                        safeToWrite.add(vreg);
+                    allMoves.remove(mov);
+                    i--;
+                }
+            }
 
         }
+        return linearization;
     }
 
     public void insertOperations(CodeNode ops) {
@@ -181,6 +186,14 @@ public class FirmBlock {
 
     private void setPhiNode(boolean phiNode) {
         this.phiNode = phiNode;
+    }
+
+    public List<Operation> getJumps() {
+        return List.copyOf(jumps.getOperations());
+    }
+
+    public void replaceJumpTarget(LabelOperand oldTarget, LabelOperand newTarget) {
+
     }
 
     record Component(List<Operation> operations) {

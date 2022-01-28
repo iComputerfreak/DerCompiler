@@ -3,7 +3,6 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
-import de.dercompiler.intermediate.operation.ConstantOperations.Nop;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -52,7 +51,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
         Phi root = getRootNode();
         Operand target = getAnnotation(root).getTarget();
         Operand source = getAnnotation(root.getPred(i)).getTarget();
-        Mov mov = new Mov(target, source, false);
+        Mov mov = new Mov(target, source, false );
         mov.setMode(getAnnotation(root.getPred(i)).getRootNode().getMode());
         return mov;
     }

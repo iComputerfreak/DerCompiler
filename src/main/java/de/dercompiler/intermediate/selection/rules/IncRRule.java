@@ -25,7 +25,7 @@ public class IncRRule extends AddRule {
     @Override
     public List<Operation> substitute() {
         Operand target = getOperator().getTarget();
-        getAnnotation(node).setTarget(target);
+        setTarget(target);
         setMode(getOperator().getRootNode().getMode());
 
         Operation inc = new Inc(target, isMemoryOperation());
