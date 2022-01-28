@@ -47,22 +47,7 @@ public class GraphDumper {
     }
 
     public static <E> void dumpNodeAnnotationGraph(Graph<NodeAnnotation<?>, E> graph, String name, Function<firm.nodes.Node, NodeAnnotation<?>> annotationSupplier) {
-        dumpJGraph(graph, "annotationGraph", name, v -> Integer.toString(v.getRootNode().getNr()), (v) -> {
-            SubstitutionRule rule = v.getRule();
-            rule.setNode(v.getRootNode());
-            List<Operation> ops = rule.substitute();
-            int cost = rule.getCost();
-            rule.clear();
-            String opStrings = ops.stream().map(Operation::toString).collect(Collectors.joining("\n"));
-            String label = "Cost: " + cost + "\n" +
-                    v.getRootNode().toString() +
-                    "\n-----\n" +
-                    opStrings;
-
-            return Map.of(
-                    "label", DefaultAttribute.createAttribute(label),
-                    "color", DefaultAttribute.createAttribute(getNodeColor(v)));
-        }, (e) -> Map.of("style", DefaultAttribute.createAttribute(getEdgeStyle(graph, e))));
+        dumpJGraph(graph, "annotationGraph", name, v -> Integer.toString(v.getRootNode().getNr()), GraphDumper::createAnnotationNode, (e) -> Map.of("style", DefaultAttribute.createAttribute(getEdgeStyle(graph, e))));
     }
 
     private static <E> String getEdgeStyle(Graph<NodeAnnotation<?>, E> graph, E e) {
@@ -109,7 +94,7 @@ public class GraphDumper {
             exporter.setEdgeAttributeProvider(edgeAttributeProvider);
 
             File directory = new File("graphs");
-            directory.mkdir();
+            boolean created = directory.mkdir();
             try (FileWriter w = new FileWriter("graphs/" + file)) {
                 exporter.exportGraph(graph, w);
             } catch (IOException e) {
@@ -120,5 +105,23 @@ public class GraphDumper {
 
     public static void dump(boolean active) {
         dump_graph = active;
+    }
+
+    private static <T extends Node> Map<String, Attribute> createAnnotationNode(NodeAnnotation<T> v) {
+        SubstitutionRule<T> rule = v.getRule();
+        rule.setNode(v.getRootNode());
+        List<Operation> ops = rule.substitute();
+        int cost = rule.getCost();
+        rule.clear();
+        String opStrings = ops.stream().map(Operation::toString).collect(Collectors.joining("\n"));
+        String label = "Cost: " + cost + "\n" +
+                v.getRootNode().toString() +
+                "\n-----\n" +
+                opStrings
+                + (v.getTarget() != null ? "\n ==> " + v.getTarget() : "");
+
+        return Map.of(
+                "label", DefaultAttribute.createAttribute(label),
+                "color", DefaultAttribute.createAttribute(getNodeColor(v)));
     }
 }

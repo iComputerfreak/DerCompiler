@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -33,7 +34,12 @@ public class SubRule extends SubstitutionRule<Sub> {
     public List<Operation> substitute() {
         Operation sub = new de.dercompiler.intermediate.operation.BinaryOperations.Sub(getLeft().getTarget(), getRight().getTarget());
         sub.setMode(getRootNode().getMode());
-        setTarget(sub.getDefinition());
+        Operand target = getAnnotation(node).getTarget();
+        if (target != null) {
+            sub.setDefinition(target);
+        } else {
+            setTarget(sub.getDefinition());
+        }
         return List.of(sub);
     }
 

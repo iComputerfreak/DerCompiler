@@ -65,7 +65,7 @@ public class FirmBlock {
 
     private void finish() {
         if (hasPhis()) {
-            System.out.println("Here!");
+            //System.out.println("Here!");
             for (FirmBlock phi : getPhis()) {
                 List<Operation> linearization = eliminatePhi(phi);
                 phi.components = Map.of(0, new Component(linearization));
@@ -80,9 +80,11 @@ public class FirmBlock {
 
     private List<Operation> eliminatePhi(FirmBlock phi) {
         List<Operation> linearization = new ArrayList<>();
-        ArrayList<BinaryOperation> allMoves = new ArrayList<>(phi.components.values().stream()
+        ArrayList<BinaryOperation> allMoves = phi.components.values().stream()
                 .flatMap(c -> c.operations().stream())
-                .map(op -> (BinaryOperation) op).toList());
+                .map(op -> (BinaryOperation) op)
+                .filter(op -> !op.getSource().equals(op.getTarget()))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         // All registers that shall be overwritten but not read from are safe
         List<Operand> safeToWrite = new ArrayList<>(allMoves.stream().map(BinaryOperation::getTarget).toList());
@@ -172,7 +174,7 @@ public class FirmBlock {
     }
 
     public void setPhiBlock(int idx, FirmBlock phiBlock) {
-        phiBlock.setPhiNode(true);
+        phiBlock.markPhiNode();
         phiBlock.setJump(new CodeNode(List.of(new Jmp(new LabelOperand(this.getNr() + ""))), this));
         if (phis.size() == idx) phis.add(phiBlock);
         else if (phis.size() < idx)
@@ -184,8 +186,8 @@ public class FirmBlock {
         return phiNode;
     }
 
-    private void setPhiNode(boolean phiNode) {
-        this.phiNode = phiNode;
+    private void markPhiNode() {
+        this.phiNode = true;
     }
 
     public List<Operation> getJumps() {

@@ -28,10 +28,8 @@ public class ProjRule extends SubstitutionRule<Proj> {
     @Override
     public List<Operation> substitute() {
         switch (getRootNode().getMode().getName()) {
-            case "M" -> {
-                // not represented in memory
-                this.setTarget(null);
-            }
+            // not represented in memory
+            case "M", "X" -> this.setTarget(null);
             default -> {
                 Operand predTarget = getAnnotation(getOperand()).getTarget();
                 //if (predTarget instanceof Address addr && addr.isRegister()) {
@@ -40,7 +38,7 @@ public class ProjRule extends SubstitutionRule<Proj> {
                 setTarget(predTarget);
             }
         }
-        ;
+
         return List.of();
     }
 

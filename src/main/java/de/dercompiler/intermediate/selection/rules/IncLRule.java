@@ -29,6 +29,7 @@ public class IncLRule extends AddRule {
         setMode(getOperator().getRootNode().getMode());
 
         Operation inc = new Inc(target, isMemoryOperation());
+        inc.setDefinition(target);
         inc.setMode(node.getMode());
         return List.of(inc);
     }

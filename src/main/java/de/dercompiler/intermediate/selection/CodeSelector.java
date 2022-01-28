@@ -14,6 +14,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.GraphUtil;
 import firm.BlockWalker;
+import firm.Mode;
 import firm.nodes.*;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -167,7 +168,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
         // Do the linearization of the codeGraph
 
-        Iterator<CodeNode> codeGraphIterator = new BreadthFirstIterator<>(codeGraph);
+        Iterator<CodeNode> codeGraphIterator = new TopologicalOrderIterator<>(codeGraph);
         while (codeGraphIterator.hasNext()) {
             CodeNode next = codeGraphIterator.next();
             linearizeNode(next);
@@ -189,7 +190,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                             break;
                         }
                     }
-                    NodeAnnotation<Phi> a = new NodeAnnotation<>(1, phi, new PhiRule(), false/*!inRow*/, false);
+                    NodeAnnotation<Phi> a = new NodeAnnotation<>(1, phi, new PhiRule(), !inRow, false);
                     a.setTarget(new VirtualRegister());
                     annotations.put(phi.getNr(), a);
 
@@ -346,8 +347,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
     }
 
-    private <N extends Node> NodeAnnotation<N> createAnnotation(Class<N> nClass, Node node, SubstitutionRule<N> rule) {
-        return new NodeAnnotation<N>(rule.getCost(), nClass.cast(node), rule);
+    private <N extends Node> NodeAnnotation<N> createAnnotation(Class<N> nClass, N node, SubstitutionRule<N> rule) {
+        return new NodeAnnotation<>(rule.getCost(), nClass.cast(node), rule);
     }
 
     /**
@@ -382,6 +383,9 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
         }
 
+        // Initialize targets
+        rule.substitute();
+
         // Build a graph of NodeAnnotations
 
         // The vertex could already exist due to a dependency
@@ -400,8 +404,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 addDependency(a, n);
             }
         }
-        //Initialize target
-        rule.substitute();
+
 
         rule.clear();
     }
@@ -505,6 +508,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         codeGraph.addVertex(node);
         List<FirmBlock> succBlocks = GraphUtil.getSuccessors(fBlock, blocksGraph);
         for (int i = 0; i < phiRule.getPredCount(); i++) {
+            if (Objects.equals(phiRule.getRootNode().getMode(), firm.Mode.getM())) continue;
             Operation movOp = phiRule.getCodeForSucc(i);
             CodeNode succCode = new CodeNode(List.of(movOp), getOrCreatePhiBlock(fBlock, i, succBlocks.get(i)));
             codeGraphLookup.put(succCode.getId(), succCode);
@@ -565,11 +569,6 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     }
 
     void visitAny(Node node) {
-        // We ignore "Proj X" nodes completely
-        if (node instanceof Proj p && p.getMode().equals(firm.Mode.getX())) {
-            // Sorry, we need them! :)
-            //return;
-        }
         // Do for any node
         switch (mode) {
             case ANNOTATION -> annotateNode(node);

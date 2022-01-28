@@ -22,14 +22,27 @@ public class PhiRule extends SubstitutionRule<Phi> {
     @Override
     public List<Operation> substitute() {
         Phi root = getRootNode();
-        if (Objects.equals(root.getMode(), Mode.getM())) {
+        if (root.getMode().equals(Mode.getM())) {
             // not represented in memory
-            this.setTarget(null);
+            setTarget(null);
+
+
+            // avoid intra-block cycles
+            for (int i = 0; i < 2; i++) {
+                if (root.getPred(i).equals(root)) {
+                    root.setPred(i, root.getPred((i + 1) % 2));
+                }
+            }
+            return List.of();
         }
 
-        /** The code for the different Phi blocks is supposed to be created in getCodeForPred(int) */
+        /* The code for the different Phi blocks is supposed to be created in getCodeForPred(int) */
         setMode(root.getPred(0).getMode());
-        setTarget(new VirtualRegister());
+        Operand target = getAnnotation(node).getTarget();
+        if (target == null) {
+            setTarget(new VirtualRegister());
+        }
+
         return List.of();
     }
 
@@ -51,7 +64,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
         Phi root = getRootNode();
         Operand target = getAnnotation(root).getTarget();
         Operand source = getAnnotation(root.getPred(i)).getTarget();
-        Mov mov = new Mov(target, source, false );
+        Mov mov = new Mov(target, source, isMemoryOperation());
         mov.setMode(getAnnotation(root.getPred(i)).getRootNode().getMode());
         return mov;
     }

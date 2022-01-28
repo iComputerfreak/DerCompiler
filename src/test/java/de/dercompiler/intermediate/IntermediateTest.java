@@ -17,6 +17,7 @@ import java.io.FileFilter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -68,13 +69,16 @@ public class IntermediateTest {
         File[] files = getResourceFolderFiles("transformation", javaFiles());
         Arrays.stream(files).forEach(IntermediateTest::checkFile);
 
+        files = getResourceFolderFiles("compile-only", javaFiles());
+        Arrays.stream(files).forEach(IntermediateTest::checkFile);
+
         OutputMessageHandler.setTestOutput(true);
     }
 
     private static File[] getResourceFolderFiles(String folder, FileFilter filter) {
         try {
             ClassLoader loader = LexerTest.class.getClassLoader();
-            URI uri = loader.getResource(folder).toURI();
+            URI uri = Objects.requireNonNull(loader.getResource(folder)).toURI();
             String path = uri.getPath();
             return new File(path).listFiles(filter);
         } catch (URISyntaxException e) {
