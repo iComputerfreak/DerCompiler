@@ -24,6 +24,7 @@ class DataArray {
         data = new Data[width][];
         return this;
     }
+    
     public DataArray init2(int length) {
         this.length = length;
         int i = 0;
