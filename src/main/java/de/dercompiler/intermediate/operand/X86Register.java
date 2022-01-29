@@ -46,7 +46,7 @@ public enum X86Register implements Register {
 
     @Override
     public String getIdentifier() {
-        return id;
+        return "%"  + id;
     }
 
     public String getIdentifier(Datatype datatype) {

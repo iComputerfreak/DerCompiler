@@ -2,6 +2,8 @@ package de.dercompiler.intermediate.operation.NaryOperations;
 
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operation.BinaryOperation;
+import de.dercompiler.intermediate.operation.BinaryOperations.Rol;
 import de.dercompiler.intermediate.operation.NaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 
@@ -20,6 +22,10 @@ public class Call extends NaryOperation {
         allArgs[0] = method;
         System.arraycopy(args, 0, allArgs, 1, args.length);
         return allArgs;
+    }
+
+    public NaryOperation allocate(){
+        return new Call((LabelOperand) getArgs()[0], true);
     }
 
 }
