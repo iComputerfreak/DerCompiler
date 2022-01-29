@@ -17,4 +17,8 @@ public class Rol extends ShiftOperation {
         super(OperationType.ROL, target, source, isMemoryOperation);
     }
 
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new Rol(target, source, true);
+    }
 }

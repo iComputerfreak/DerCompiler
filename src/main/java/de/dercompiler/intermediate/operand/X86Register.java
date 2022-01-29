@@ -50,7 +50,7 @@ public enum X86Register implements Register {
     }
 
     public String getIdentifier(Datatype datatype) {
-        return switch (datatype) {
+        return "%" + switch (datatype) {
             case BYTE -> idb;
             case WORD -> idw;
             case DWORD -> idd;

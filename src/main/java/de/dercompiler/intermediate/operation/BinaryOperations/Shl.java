@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation.BinaryOperations;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 /*
 Shift left
@@ -13,4 +14,8 @@ public class Shl extends ShiftOperation {
         super(OperationType.SHL, target, source, false);
     }
 
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new Shl(target, source);
+    }
 }

@@ -2,9 +2,7 @@ package de.dercompiler.codeGeneration;
 
 import de.dercompiler.intermediate.Function;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
-import de.dercompiler.intermediate.operand.LabelOperand;
-import de.dercompiler.intermediate.operand.ParameterRegister;
-import de.dercompiler.intermediate.operand.VirtualRegister;
+import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperations.*;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
@@ -19,7 +17,7 @@ import java.util.LinkedList;
 
 public class EasyTest {
 
-    //@Test
+    @Test
     void test(){
         VirtualRegister v1 = new VirtualRegister();
         VirtualRegister v2 = new VirtualRegister();
@@ -32,10 +30,11 @@ public class EasyTest {
 
         Operation o4 = new Call(new LabelOperand("haha"),true, v1, v2,v1,v2,v1,v2,v1);
 
-        Operation o1 = new Add(v2, p1);
+        Add o1 = new Add(v2, p1);
         Operation o2 = new Sub(v3, v1);
         Operation o3 = new Ret(p1);
 
+        System.out.println(o1.allocate(X86Register.RDX.offset(2), new ConstantValue(10)).getIntelSyntax());
 
         LinkedList<Operation> ops = new LinkedList<Operation>();
         ops.add(o1);

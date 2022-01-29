@@ -36,7 +36,9 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + target.getIdentifier() + " " + source.getIdentifier();
+        return operationType.getSyntax() + " " + target.getIdentifier() + "," + source.getIdentifier();
     }
+
+    public abstract BinaryOperation allocate(Operand target, Operand source);
 
 }
