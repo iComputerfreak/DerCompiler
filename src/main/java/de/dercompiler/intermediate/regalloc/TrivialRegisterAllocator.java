@@ -25,26 +25,18 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
 
     private final OutputMessageHandler outputMessageHandler = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
 
-    private String assembly;
-
-    private void addAssembly(String string){
-        assembly += string + "\n";
-    }
-
-    private void resetAssembly(){
-        assembly = "\n";
-    }
-
-    private void printAssembly(){
-        outputMessageHandler.printInfo(assembly);
-    }
-
     //maxVar gibt an welche die Variable im Stack mit der niedrigsten Adresse ist
     private int maxVar = -1;
-    private X86Register[] parameterRegister = new X86Register[]{X86Register.RDI, X86Register.RSI, X86Register.RDX, X86Register.RCX, X86Register.R8, X86Register.R9};
     /*
     parameter 1 bis 6 stehen in den parameter Registern und der Rest steht auf dem Stack
      */
+    private X86Register[] parameterRegister = new X86Register[]{X86Register.RDI, X86Register.RSI, X86Register.RDX, X86Register.RCX, X86Register.R8, X86Register.R9};
+    /*
+    Diese Register werden gebraucht, wenn ein ein binärer Operator aus zwei Adressen besteht die je Base und Index haben
+     */
+    private X86Register[] freeRegister = new X86Register[]{X86Register.R12, X86Register.R13, X86Register.R14, X86Register.R15};
+    private int freeRegisterIndex = 0;
+
     private Operand getParam(int n){
         if (n < 7){
             return parameterRegister[n-1];
@@ -58,8 +50,18 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
             return getLocalVar((int) vr.getId());
         } else if (operand instanceof ParameterRegister pr){
             return getParam(pr.getId());
+        } else if (operand instanceof Address address){
+            X86Register x86RegisterBase = freeRegister[freeRegisterIndex++];
+            ops.add(new Mov(x86RegisterBase, getOperand(address.getBase()), true));
+            X86Register x86RegisterIndex = null;
+            Register indexRegister = address.getIndex();
+            if (indexRegister != null){
+                x86RegisterIndex = freeRegister[freeRegisterIndex++];
+                ops.add(new Mov(x86RegisterIndex, getOperand(indexRegister), true));
+            }
+            return address.allocate(x86RegisterBase, x86RegisterIndex);
         } else {
-            return null;
+            return operand;
         }
     }
 
@@ -68,41 +70,40 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
         return manager.getVar(n);
     }
 
+    List<Operation> ops;
+
     @Override
     public void allocateRegisters(Function function) {
-        List<Operation> ops = new LinkedList<Operation>();
+        ops = new LinkedList<Operation>();
 
-        resetAssembly();
         for (Operation op : function.getOperations()){
             if (op instanceof BinaryOperation bo){
                 Operand[] operands = bo.getArgs();
 
                 //Operand 1 wird geladen
-                addAssembly("MOV %r10," + getOperand(operands[0]).getIdentifier());
                 ops.add(new Mov(X86Register.R10, getOperand(operands[0]), true));
 
                 //Operand 2 wird geladen
-                addAssembly("MOV %r11," + getOperand(operands[1]).getIdentifier());
                 ops.add(new Mov(X86Register.R11, getOperand(operands[1]), true));
 
 
                 //Operation durchführen
-                addAssembly(op.getOperationType().getSyntax() + " %r10, %r11");
                 ops.add(bo.allocate(X86Register.R10, X86Register.R11));
 
+
                 //Ergebnis wieder auf den Stack schreiben
-                addAssembly("MOV " + getOperand(bo.getDefinition()).getIdentifier() + ", %r10");
-                ops.add(new Mov(getOperand(bo.getDefinition()), X86Register.R10, true));
+                if (bo.needsDefinition()){
+                    ops.add(new Mov(getOperand(bo.getDefinition()), X86Register.R10, true));
+                }
+
 
 
             } else if (op instanceof Ret ret){
 
                 if (ret.getArgs().length != 0){
                     Operand operand = ret.getArgs()[0];
-                    addAssembly("MOV " +  manager.getReturnValue().getIdentifier() + "," +  getOperand(operand).getIdentifier());
                     ops.add(new Mov(manager.getReturnValue(), getOperand(operand), true));
                 }
-                addAssembly("RET");
                 ops.add(new Ret());
 
 
@@ -112,37 +113,30 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
                 int tempMaxVar = maxVar;
                 //Die 6 ParameterRegister müssen gesichert werden
                 for (int i = 0; i < 6; i++){
-                    addAssembly("MOV " +  getLocalVar(maxVar + 1).getIdentifier() + "," + getParam(i+1).getIdentifier());
                     ops.add(new Mov(getLocalVar(maxVar+1), getParam(i+1), true));
                 }
                 //Die Parameter müssen in Regsiter bzw auf den Stack geschrieben werden
                 for (int i = 1; i < args.length && i < 7; i++){
-                    addAssembly("MOV " + getParam(i).getIdentifier() + "," + getOperand(args[i]).getIdentifier());
                     ops.add(new Mov(getParam(i), getOperand(args[i]), true));
 
                 }
                 //Die restlichen Parameter müssen auf den Stack geschreiben werden
                 for (int i = 7; i < args.length; i++){
-                    addAssembly("MOV " + getLocalVar(maxVar + 1).getIdentifier() + "," + getOperand(args[i]).getIdentifier());
                     ops.add(new Mov(getLocalVar(maxVar + 1), getOperand(args[i]), true));
                 }
 
                 //Die Funktion aufrufen
-                addAssembly("CALL " +  args[0].getIdentifier());
                 ops.add(call.allocate());
 
                 //Die 6 Parameter wieder vom Stack in die Register schreiben
                 maxVar = tempMaxVar;
                 for (int i = 0; i < 6; i++){
-                    addAssembly("MOV " + getParam(i+1).getIdentifier() + "," +getLocalVar(maxVar + 1).getIdentifier());
                     ops.add(new Mov(getParam(i+1), getLocalVar(maxVar+1), true));
                 }
                 maxVar = tempMaxVar;
             }
-
+            freeRegisterIndex = 0;
         }
-        printAssembly();
-        System.out.println("haha ab hier");
         ops.forEach(x -> System.out.println(x.getIntelSyntax()));
     }
 }

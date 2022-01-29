@@ -17,7 +17,7 @@ import java.util.LinkedList;
 
 public class EasyTest {
 
-    @Test
+    //@Test
     void test(){
         VirtualRegister v1 = new VirtualRegister();
         VirtualRegister v2 = new VirtualRegister();
@@ -30,9 +30,9 @@ public class EasyTest {
 
         Operation o4 = new Call(new LabelOperand("haha"),true, v1, v2,v1,v2,v1,v2,v1);
 
-        Add o1 = new Add(v2, p1);
-        Operation o2 = new Sub(v3, v1);
-        Operation o3 = new Ret(p1);
+        Add o1 = new Add(new Address(3,v3,v4,8), new Address(2, v1, v2, 4));
+        Operation o2 = new Sub(v3, o1.getDefinition());
+        Operation o3 = new Ret(o2.getDefinition());
 
         LinkedList<Operation> ops = new LinkedList<Operation>();
         ops.add(o1);
