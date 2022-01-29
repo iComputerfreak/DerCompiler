@@ -34,8 +34,6 @@ public class EasyTest {
         Operation o2 = new Sub(v3, v1);
         Operation o3 = new Ret(p1);
 
-        System.out.println(o1.allocate(X86Register.RDX.offset(2), new ConstantValue(10)).getIntelSyntax());
-
         LinkedList<Operation> ops = new LinkedList<Operation>();
         ops.add(o1);
         ops.add(o2);

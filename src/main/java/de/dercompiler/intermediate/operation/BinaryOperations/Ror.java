@@ -19,6 +19,6 @@ public class Ror extends ShiftOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Ror(target, source);
+        return new Ror(target, source, true);
     }
 }
