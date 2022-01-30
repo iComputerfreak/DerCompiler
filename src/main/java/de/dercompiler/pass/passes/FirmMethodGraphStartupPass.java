@@ -46,6 +46,7 @@ public class FirmMethodGraphStartupPass implements MethodPass, StatementPass, AS
                 state.construction.setVariable(p.getNodeId(),
                         state.construction.newProj(state.graph.getArgs(), p.getRefType().getFirmTransformationType().getMode(), p.getNodeId()));
             }
+        }
         return false;
     }
 
