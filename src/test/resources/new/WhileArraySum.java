@@ -18,7 +18,7 @@ class Main {
 					array[i][j][k] = i + j + k;
 					k = k + 1;
 				}
-				j++;
+				j = j + 1;
 			}
 			i = i + 1;
 		}
@@ -30,16 +30,16 @@ class Main {
 			int m = 0;
 			while (m < 100) {
 				arrayRed[l][m] = sum(array[l][m], 100);
-				m++;
+				m = m + 1;
 			}
-			l++;
+			l = l + 1;
 		}
 		
 		int[] arrayRed2 = new int[100];
 		int n = 0;
 		while (n < 100) {
 			arrayRed2[n] = sum(arrayRed[n], 100);
-			n++;
+			n = n + 1;
 		}
 		
 		System.out.println(sum(arrayRed2, 100));
@@ -50,7 +50,7 @@ class Main {
 		int sum = 0;
 		while (i < length) {
 			sum = sum + array[i];
-			i++;
+			i = i + 1;
 		}
 		return sum;
 	}
