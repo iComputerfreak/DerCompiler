@@ -46,11 +46,11 @@ public enum X86Register implements Register {
 
     @Override
     public String getIdentifier() {
-        return "%"  + id;
+        return id;
     }
 
     public String getIdentifier(Datatype datatype) {
-        return "%" + switch (datatype) {
+        return switch (datatype) {
             case BYTE -> idb;
             case WORD -> idw;
             case DWORD -> idd;
