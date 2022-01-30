@@ -1,9 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.Register;
 import de.dercompiler.intermediate.operand.VirtualRegister;
-import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
@@ -35,7 +33,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
         this.index = index;
     }
 
-    public void setMode(Datatype datatype, Signedness signedness) {
+    public void setMode(IRMode.Datatype datatype, Signedness signedness) {
         mode = new IRMode(datatype, signedness);
     }
 
@@ -44,11 +42,11 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     }
 
     public void setMode(Mode mode) {
-        Datatype datatype = Datatype.forMode(mode);
+        IRMode.Datatype datatype = IRMode.Datatype.forMode(mode);
         this.mode = new IRMode(datatype, mode.isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
     }
 
-    public Datatype getDatatype() {
+    public IRMode.Datatype getDatatype() {
         return mode.type();
     }
 

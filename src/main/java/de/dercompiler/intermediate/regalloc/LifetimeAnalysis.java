@@ -12,7 +12,7 @@ public class LifetimeAnalysis {
         int numberOfOperations = function.getOperations().size();
         if (numberOfOperations == 0) return vlt;
 
-        Iterator<Operation> revIt = function.getOperations().descendingIterator();
+        Iterator<Operation> revIt = new LinkedList<>(function.getOperations()).descendingIterator();
         Operation op = revIt.next();
         for (int i = 0; i < numberOfOperations; i++) {
 

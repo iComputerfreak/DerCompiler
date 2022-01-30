@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.*;
+import de.dercompiler.intermediate.operation.BinaryOperations.Lea;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -12,6 +13,7 @@ import firm.Mode;
 import firm.nodes.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,6 +62,9 @@ public class ArrayAccessRule extends AddRule {
     public List<Operation> substitute() {
         Operand index = getIndex().getTarget();
         Address target;
+        // Load eff. address into vReg
+        VirtualRegister targetAddr = new VirtualRegister();
+
         List<Operation> ops;
 
         if (getArray() == null) {
@@ -67,21 +72,22 @@ public class ArrayAccessRule extends AddRule {
         }
         Address address = Address.ofOperand(getArray());
 
+        ops = new LinkedList<>();
         if (index instanceof Register idxReg) {
             // index is already a register, so no operation needed
             target = address.setIndex(idxReg, getScale());
-            ops = List.of();
         } else if (index instanceof Address tAddr && tAddr.isRegister()) {
             // index is already a register, so no operation needed
             target = address.setIndex(tAddr.asRegister(), getScale());
-            ops = List.of();
         } else {
-            // index needs to be moved to a register so that we can use it as the index register
+            // Load effective address of index
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
             getIndex().setTarget(target);
-            ops = List.of(new Mov(idxReg, index, isMemoryOperation()));
+            ops.add(new Lea(idxReg, index));
         }
+
+        ops.add(new Lea(targetAddr, target));
 
         setTarget(target);
         return ops;

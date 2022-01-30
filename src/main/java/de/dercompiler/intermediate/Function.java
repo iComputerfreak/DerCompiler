@@ -2,16 +2,15 @@ package de.dercompiler.intermediate;
 
 import de.dercompiler.intermediate.operation.Operation;
 
-import java.util.LinkedList;
 import java.util.*;
 
 public class Function {
 
-    private final LinkedList<Operation> operations;
+    private final List<Operation> operations;
     private final int num;
     private final String functionName;
 
-    public Function(String functionName, LinkedList<Operation> ops) {
+    public Function(String functionName, List<Operation> ops) {
         this.functionName = functionName;
 
         int i = 0;
@@ -23,7 +22,7 @@ public class Function {
         num = i;
     }
 
-    public LinkedList<Operation> getOperations() {
+    public List<Operation> getOperations() {
         return operations;
     }
 

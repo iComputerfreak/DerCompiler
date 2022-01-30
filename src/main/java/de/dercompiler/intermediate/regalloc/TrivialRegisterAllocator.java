@@ -12,6 +12,7 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
+import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.UnaryArithmeticOperation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -20,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class TrivialRegisterAllocator extends RegisterAllocator{
+public class TrivialRegisterAllocator extends RegisterAllocator {
 
     public TrivialRegisterAllocator(MemoryManager manager) {
         super(manager);
@@ -33,32 +34,44 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
     /*
     parameter 1 bis 6 stehen in den parameter Registern und der Rest steht auf dem Stack
      */
-    private X86Register[] parameterRegister = new X86Register[]{X86Register.RDI, X86Register.RSI, X86Register.RDX, X86Register.RCX, X86Register.R8, X86Register.R9};
+    private X86Register[] parameterRegister = new X86Register[]{
+            X86Register.RDI,
+            X86Register.RSI,
+            X86Register.RDX,
+            X86Register.RCX,
+            X86Register.R8,
+            X86Register.R9
+    };
     /*
     Diese Register werden gebraucht, wenn ein ein binärer Operator aus zwei Adressen besteht die je Base und Index haben
      */
-    private X86Register[] freeRegister = new X86Register[]{X86Register.R12, X86Register.R13, X86Register.R14, X86Register.R15};
+    private X86Register[] freeRegister = new X86Register[]{
+            X86Register.R12,
+            X86Register.R13,
+            X86Register.R14,
+            X86Register.R15
+    };
     private int freeRegisterIndex = 0;
 
-    private Operand getParam(int n){
-        if (n < 7){
-            return parameterRegister[n-1];
+    private Operand getParam(int n) {
+        if (n < 7) {
+            return parameterRegister[n - 1];
         } else {
             return manager.getArgument(n - 6);
         }
     }
 
-    private Operand getOperand(Operand operand){
-        if (operand instanceof VirtualRegister vr){
+    private Operand getOperand(Operand operand) {
+        if (operand instanceof VirtualRegister vr) {
             return getLocalVar((int) vr.getId());
-        } else if (operand instanceof ParameterRegister pr){
+        } else if (operand instanceof ParameterRegister pr) {
             return getParam(pr.getId());
-        } else if (operand instanceof Address address){
+        } else if (operand instanceof Address address) {
             X86Register x86RegisterBase = freeRegister[freeRegisterIndex++];
             ops.add(new Mov(x86RegisterBase, getOperand(address.getBase()), true));
             X86Register x86RegisterIndex = null;
             Register indexRegister = address.getIndex();
-            if (indexRegister != null){
+            if (indexRegister != null) {
                 x86RegisterIndex = freeRegister[freeRegisterIndex++];
                 ops.add(new Mov(x86RegisterIndex, getOperand(indexRegister), true));
             }
@@ -68,7 +81,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
         }
     }
 
-    private Operand getLocalVar(int n){
+    private Operand getLocalVar(int n) {
         maxVar = Integer.max(maxVar, n);
         return manager.getVar(n);
     }
@@ -79,8 +92,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
     public void allocateRegisters(Function function) {
         ops = new LinkedList<Operation>();
 
-        for (Operation op : function.getOperations()){
-            if (op instanceof Div div){
+        for (Operation op : function.getOperations()) {
+            if (op instanceof Div div) {
                 Operand[] operands = div.getArgs();
                 Operand dividend = operands[0];
                 Operand divisor = operands[1];
@@ -112,7 +125,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
                 //RDI wiederherstellen
                 ops.add(new Mov(X86Register.R11, X86Register.RDX, true));
 
-            } else if (op instanceof BinaryOperation bo){
+            } else if (op instanceof BinaryOperation bo) {
                 Operand[] operands = bo.getArgs();
 
                 //Operand 1 wird geladen
@@ -127,36 +140,35 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
 
 
                 //Ergebnis wieder auf den Stack schreiben
-                if (bo.needsDefinition()){
+                if (bo.needsDefinition()) {
                     ops.add(new Mov(getOperand(bo.getDefinition()), X86Register.R10, true));
                 }
 
 
+            } else if (op instanceof Ret ret) {
 
-            } else if (op instanceof Ret ret){
-
-                if (ret.getArgs().length != 0){
+                if (ret.getArgs().length != 0) {
                     Operand operand = ret.getArgs()[0];
                     ops.add(new Mov(manager.getReturnValue(), getOperand(operand), true));
                 }
                 ops.add(new Ret());
 
 
-            } else if (op instanceof Call call){
+            } else if (op instanceof Call call) {
                 //args[0] ist LabelOperand
                 Operand[] args = call.getArgs();
                 int tempMaxVar = maxVar;
                 //Die 6 ParameterRegister müssen gesichert werden
-                for (int i = 0; i < 6; i++){
-                    ops.add(new Mov(getLocalVar(maxVar+1), getParam(i+1), true));
+                for (int i = 0; i < 6; i++) {
+                    ops.add(new Mov(getLocalVar(maxVar + 1), getParam(i + 1), true));
                 }
                 //Die Parameter müssen in Regsiter bzw auf den Stack geschrieben werden
-                for (int i = 1; i < args.length && i < 7; i++){
+                for (int i = 1; i < args.length && i < 7; i++) {
                     ops.add(new Mov(getParam(i), getOperand(args[i]), true));
 
                 }
                 //Die restlichen Parameter müssen auf den Stack geschreiben werden
-                for (int i = 7; i < args.length; i++){
+                for (int i = 7; i < args.length; i++) {
                     ops.add(new Mov(getLocalVar(maxVar + 1), getOperand(args[i]), true));
                 }
 
@@ -165,13 +177,15 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
 
                 //Die 6 Parameter wieder vom Stack in die Register schreiben
                 maxVar = tempMaxVar;
-                for (int i = 0; i < 6; i++){
-                    ops.add(new Mov(getParam(i+1), getLocalVar(maxVar+1), true));
+                for (int i = 0; i < 6; i++) {
+                    ops.add(new Mov(getParam(i + 1), getLocalVar(maxVar + 1), true));
                 }
                 maxVar = tempMaxVar;
-            } else if (op instanceof JumpOperation jo){
+            } else if (op instanceof LabelOperation lbl) {
+                ops.add(lbl);
+            } else if (op instanceof JumpOperation jo) {
                 ops.add(jo);
-            } else if (op instanceof UnaryArithmeticOperation uao){
+            } else if (op instanceof UnaryArithmeticOperation uao) {
                 Operand operand = uao.getArgs()[0];
 
                 //Operand in Register hohlen

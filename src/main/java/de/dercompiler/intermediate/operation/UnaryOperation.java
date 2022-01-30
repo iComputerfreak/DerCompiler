@@ -15,6 +15,10 @@ public abstract non-sealed class UnaryOperation extends Operation {
         this.operand = operand;
     }
 
+    public Operand getArg() {
+        return operand;
+    }
+
     @Override
     public Operand[] getArgs() {
         return new Operand[]{operand};

@@ -1,8 +1,13 @@
 package de.dercompiler.actions;
 
 import de.dercompiler.ast.Program;
+import de.dercompiler.intermediate.Function;
+import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
+import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.intermediate.selection.FirmBlock;
@@ -75,17 +80,18 @@ public class CompileAction extends Action {
             BasicBlockGraph blocksGraph = selector.generateCode();
             GraphDumper.dumpBlocksGraph(blocksGraph.getGraph(), graph.toString().substring(6) + "-finalBlocks");
 
+            //Step 4: Block ordering
 
             MyBlockSorter sorter = new MyBlockSorter();
             List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
-            List<LabelOperand> jmpTargets = firmBlocks.stream().flatMap(FirmBlock::getJumpTargets).collect(Collectors.toList());
+            Function f = new Function(graph.toString(), firmBlocks.stream().flatMap(b -> b.getOperations().stream()).toList());
+
+            //new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(f);
+
 
             StringJoiner joiner = new StringJoiner("\n");
             for (FirmBlock firmBlock : firmBlocks) {
-                if (jmpTargets.stream().anyMatch(lbl -> lbl.getIdentifier().equals(firmBlock.getId()))) {
-                    joiner.add("L%s:".formatted(firmBlock.getId()));
-                }
-                String operations = firmBlock.getOperations();
+                String operations = firmBlock.getText();
                 joiner.add(operations);
             }
             System.out.println(joiner);

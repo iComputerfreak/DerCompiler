@@ -1,9 +1,5 @@
 package de.dercompiler.intermediate.operand;
 
-import de.dercompiler.intermediate.selection.Datatype;
-import de.dercompiler.intermediate.selection.Signedness;
-import firm.Mode;
-
 public class VirtualRegister implements Register {
     
     private static long nextID = 0;

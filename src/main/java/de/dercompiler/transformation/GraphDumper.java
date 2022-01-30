@@ -78,7 +78,7 @@ public class GraphDumper {
     public static <E> void dumpBlocksGraph(Graph<FirmBlock, E> graph, String name) {
         dumpJGraph(graph, "blocksGraph", name, v -> "\"%s\"".formatted(v.getId()),
                 (v) -> Map.of("label", DefaultAttribute.createAttribute(v.toString() + "\n" +
-                        v.getOperations())),
+                        v.getText())),
                 (e) -> Map.of("label", DefaultAttribute.createAttribute((int) graph.getEdgeWeight(e))));
     }
 

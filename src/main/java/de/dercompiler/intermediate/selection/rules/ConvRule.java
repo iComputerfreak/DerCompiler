@@ -5,10 +5,7 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
 import de.dercompiler.intermediate.operation.UnaryOperations.Cwtl;
-import de.dercompiler.intermediate.selection.Datatype;
-import de.dercompiler.intermediate.selection.NodeAnnotation;
-import de.dercompiler.intermediate.selection.Signedness;
-import de.dercompiler.intermediate.selection.SubstitutionRule;
+import de.dercompiler.intermediate.selection.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
@@ -37,20 +34,20 @@ public class ConvRule extends SubstitutionRule<Conv> {
         }
 
         List<Operation> ops = new ArrayList<>();
-        Datatype newType = Datatype.forMode(getRootNode().getMode());
-        Datatype oldType = Datatype.forMode(getRootNode().getOp().getMode());
+        IRMode.Datatype newType = IRMode.Datatype.forMode(getRootNode().getMode());
+        IRMode.Datatype oldType = IRMode.Datatype.forMode(getRootNode().getOp().getMode());
         while (oldType.compareTo(newType) < 0) {
             Operation convOp = null;
             switch (oldType) {
                 case WORD -> {
                     convOp = new Cwtl(getOperand().getTarget(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
-                    oldType = Datatype.DWORD;
+                    oldType = IRMode.Datatype.DWORD;
                 }
                 case DWORD -> {
                     convOp = new Cltq(getOperand().getTarget(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
-                    oldType = Datatype.QWORD;
+                    oldType = IRMode.Datatype.QWORD;
                 }
                 default -> {
                     new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected conversion type");

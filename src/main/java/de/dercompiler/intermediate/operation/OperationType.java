@@ -7,6 +7,7 @@ public enum OperationType {
     AND("AND"),
     CMP("CMP"),
     DIV("DIV"),
+    LEA("LEA"),
     MOV("MOV"),
     OR("OR"),
     ROL("ROL"),
@@ -36,6 +37,7 @@ public enum OperationType {
     JLE("JLE"),
     JMP("JMP"),
     JNE("JNE"),
+    LBL("LBL"),
     NEG("NEG"),
     MOD("MOD"),
     NOT(""),
@@ -46,9 +48,7 @@ public enum OperationType {
     NOP("NOP"),
     RET("RET"),
     CWTL("CWTL"),
-    CLTQ("CLTQ"),
-    LBL("LBL"),
-    ;
+    CLTQ("CLTQ");
 
     private String syntax;
 

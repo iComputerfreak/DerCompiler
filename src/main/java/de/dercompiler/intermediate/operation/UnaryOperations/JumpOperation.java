@@ -4,6 +4,7 @@ import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.intermediate.operation.UnaryOperation;
+import jdk.jfr.Label;
 
 public abstract class JumpOperation extends UnaryOperation {
     public JumpOperation(OperationType operationType, Operand operand) {
@@ -18,4 +19,8 @@ public abstract class JumpOperation extends UnaryOperation {
     }
 
     public abstract JumpOperation setTo(LabelOperand labelOperand);
+
+    public LabelOperand getTarget() {
+        return (LabelOperand) this.getArgs()[0];
+    }
 }

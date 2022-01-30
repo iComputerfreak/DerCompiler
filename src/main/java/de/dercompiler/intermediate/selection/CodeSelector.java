@@ -23,9 +23,6 @@ import org.jgrapht.traverse.BreadthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static de.dercompiler.intermediate.selection.Datatype.OTHER;
 
 public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
@@ -49,7 +46,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
     private final HashMap<String, FirmBlock> firmBlocks = new HashMap<>();
-    private final Map<Node, String> jmpTargets = new HashMap<>();
+    private final Map<Node, String> jmpTargets = new HashMap<Node, String>();
     private int nextIntermediateID = -1;
 
     /**
@@ -210,8 +207,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
     private void setJumpTargets() {
         annotations.values().stream().filter(a -> a.getRule().needsJmpTarget()).forEach(a -> {
-            String targetLabel = jmpTargets.get(a.getRootNode());
-            LabelOperand target = new LabelOperand("" + targetLabel);
+            String targetBlockId = jmpTargets.get(a.getRootNode());
+            LabelOperand target = new LabelOperand(targetBlockId);
             a.setTarget(target);
 
             if (a.getRule() instanceof CondJmpRule) {
@@ -476,7 +473,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         // Falls Phinode, werden hier mehr CodeNodes im Hintergrund erzeugt
         CodeNode codeNode;
         FirmBlock fBlock = getOrCreateFirmBlock(blockNr);
-        if (a.getRule() instanceof PhiRule phiRule && phiRule.getDatatype() != OTHER) {
+        if (a.getRule() instanceof PhiRule phiRule && phiRule.getDatatype() != IRMode.Datatype.OTHER) {
             codeNode = createPhiNode(fBlock, phiRule);
         } else {
             codeNode = new CodeNode(ops, fBlock, rootNode.getNr());
@@ -551,13 +548,13 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     }
 
     private FirmBlock getOrCreatePhiBlock(FirmBlock target, int idx, FirmBlock oldSuccessorI) {
-        String phiBlockNr = target.getIdForPhiNode(idx);
-        if (firmBlocks.containsKey(phiBlockNr)) {
-            return firmBlocks.get(phiBlockNr);
+        String phiBlockId = target.getIdForPhiNode(idx);
+        if (firmBlocks.containsKey(phiBlockId)) {
+            return firmBlocks.get(phiBlockId);
         }
 
-        FirmBlock phiBlock = new FirmBlock(""+phiBlockNr);
-        firmBlocks.put(phiBlockNr, phiBlock);
+        FirmBlock phiBlock = new FirmBlock(target, idx);
+        firmBlocks.put(phiBlockId, phiBlock);
         blocksGraph.addVertex(phiBlock);
 
         target.setPhiBlock(idx, phiBlock);

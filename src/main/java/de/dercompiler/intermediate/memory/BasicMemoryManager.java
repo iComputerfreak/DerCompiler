@@ -88,7 +88,6 @@ public class BasicMemoryManager implements MemoryManager {
         }
         stackPointer = stackPointer.offset(-1);
         pushValue(basePointer);
-        output.accept(new Call((LabelOperand) LabelOperand.forMethod(methodEntity), true));
     }
 
     @Override

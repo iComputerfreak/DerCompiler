@@ -1,8 +1,5 @@
 package de.dercompiler.intermediate.operand;
 
-import de.dercompiler.intermediate.selection.Datatype;
-import de.dercompiler.intermediate.selection.Signedness;
-
 public class ConstantValue implements Operand {
     
     private final int value;
@@ -13,7 +10,7 @@ public class ConstantValue implements Operand {
     
     @Override
     public String getIdentifier() {
-        return "0x%x".formatted(value);
+        return "0x%X".formatted(value);
     }
 
     public int getValue() {

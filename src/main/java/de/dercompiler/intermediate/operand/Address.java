@@ -1,9 +1,5 @@
 package de.dercompiler.intermediate.operand;
 
-import de.dercompiler.intermediate.selection.Datatype;
-import de.dercompiler.intermediate.selection.Signedness;
-import firm.Mode;
-
 import java.util.Objects;
 
 public class Address implements Operand {

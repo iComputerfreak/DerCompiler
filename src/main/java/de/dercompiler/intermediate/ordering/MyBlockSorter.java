@@ -48,7 +48,14 @@ public class MyBlockSorter implements BlockSorter {
             classify(blocks.next());
         }
 
-        return chainsToList(chains);
+        List<FirmBlock> sorted = chainsToList(chains);
+        return sorted;
+    }
+
+    private boolean isJmpTarget(FirmBlock block) {
+        return graph.vertexSet().stream()
+                .flatMap(FirmBlock::getJumpTargets)
+                .map(LabelOperand::getIdentifier).anyMatch(b -> b.equals(block.getId()));
     }
 
     private List<FirmBlock> chainsToList(List<ArrayList<FirmBlock>> chains) {
@@ -122,9 +129,15 @@ public class MyBlockSorter implements BlockSorter {
             return false;
         }
 
-        if (!hard) chainFrom.get(chainFrom.size() - 1).replaceJumpTarget(to.getId(), null);
+        if (!hard) {
+            // implement fallthrough
+            chainFrom.get(chainFrom.size() - 1).replaceJumpTarget(to.getId(), null);
+        }
+
         chainFrom.addAll(chainTo);
         chains.remove(chainTo);
+
+        to.setIsJumpTarget(isJmpTarget(to));
 
         return true;
     }
@@ -190,7 +203,7 @@ public class MyBlockSorter implements BlockSorter {
             }
         }
         if (bProps.getBlockClass().isBranchHead()) {
-            handleIf(block);
+            //handleIf(block);
         }
 
         if (bProps.getBlockClass().isSink()) {
@@ -276,21 +289,25 @@ public class MyBlockSorter implements BlockSorter {
         List<Operation> jumps = pred.getJumps();
         List<LabelOperand> targets = jumps.stream().filter(op -> op instanceof JumpOperation)
                 .map(op -> (JumpOperation) op)
-                .map(jmp -> (LabelOperand) jmp.getArgs()[0]).toList();
+                .map(JumpOperation::getTarget)
+                .toList();
         boolean success = false;
         for (int i = 0; i < targets.size(); i++) {
             LabelOperand t = targets.get(i);
-            String tName = t.getIdentifier();
-            if (!blocks.containsKey(tName) && tName.contains("_")) {
+
+            if (!blocks.containsKey(t) && t.isPhiNode()) {
                 // empty phi block that has not been realized
                 jumps = new ArrayList<>(jumps);
                 JumpOperation jmp = (JumpOperation) jumps.get(i);
-                jumps.set(i, jmp.setTo(new LabelOperand(tName.substring(0, tName.indexOf("_")))));
+
+                jumps.set(i, jmp.setTo(t.getMainNode()));
             }
             success = true;
         }
         if (success) pred.setJump(new CodeNode(jumps, pred));
     }
+
+
 
     private void handleString(FirmBlock block, FirmBlock pred) {
         //Unify chains of Strings

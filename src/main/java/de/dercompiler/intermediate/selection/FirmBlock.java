@@ -9,11 +9,11 @@ import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Jmp;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
+import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
 import firm.nodes.Block;
 
 import java.util.*;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -28,6 +28,8 @@ public class FirmBlock {
     private int nextComponentID = 1;
     private boolean phiNode;
     private int predCount;
+    private boolean isJumpTarget;
+    private FirmBlock mainNode;
 
     public FirmBlock(String id) {
         this.id = id;
@@ -41,6 +43,11 @@ public class FirmBlock {
         this.predCount = block.getPredCount();
     }
 
+    public FirmBlock(FirmBlock main, int phiIdx) {
+        this(main.getIdForPhiNode(phiIdx));
+        setMainNode(main);
+    }
+
     public String getId() {
         return id;
     }
@@ -49,25 +56,32 @@ public class FirmBlock {
         return List.copyOf(components.values());
     }
 
-    public String getOperations() {
+    public List<Operation> getOperations() {
+        List<Operation> operations = new LinkedList<>();
+
+        if (isJumpTarget()) operations.add(new LabelOperation(this.getId()));
+
+        operations.addAll(components.values().stream().filter(component -> !component.isEmpty()).flatMap(cmp ->
+                cmp.getOperations().stream()).toList());
+
+        if (jumps != null) {
+            operations.addAll(jumps.getOperations());
+        }
+
+        return operations;
+    }
+
+    public String getText() {
         finish();
-        StringBuilder stringBuilder = new StringBuilder();
+        StringJoiner joiner = new StringJoiner("\n");
 
         // Phi code is in their own blocks now
+        String blockCode = getOperations().stream()
+                .map(Operation::toString)
+                .collect(Collectors.joining("\n"));
+        joiner.add(blockCode);
 
-        String blockCode = components.values().stream().filter(component -> !component.isEmpty()).map(cmp ->
-                cmp.getOperations().stream()
-                        .map(Operation::toString)
-                        .collect(Collectors.joining("\n"))
-        ).collect(Collectors.joining("\n------\n"));
-        stringBuilder.append(blockCode);
-
-        if (!Objects.isNull(jumps)) {
-            stringBuilder.append("\n");
-            String jumpCode = jumps.getOperations().stream().map(Object::toString).collect(Collectors.joining("\n"));
-            stringBuilder.append(jumpCode);
-        }
-        return stringBuilder.toString();
+        return joiner.toString();
     }
 
     private void finish() {
@@ -181,7 +195,7 @@ public class FirmBlock {
 
     public void setPhiBlock(int idx, FirmBlock phiBlock) {
         phiBlock.markPhiNode();
-        phiBlock.setJump(new CodeNode(List.of(new Jmp(new LabelOperand(this.getId() + ""))), this));
+        phiBlock.setJump(new CodeNode(List.of(new Jmp(new LabelOperand(this.getId()))), this));
         if (phis.size() == idx) phis.add(phiBlock);
         else if (phis.size() < idx)
             throw new RuntimeException("Cant add this phi block before all of its predecessors.");
@@ -201,28 +215,31 @@ public class FirmBlock {
         return List.copyOf(jumps.getOperations());
     }
 
-    public void replaceJumpTarget(String oldTargetId, String newTargetId) {
+    public void replaceJumpTarget(String oldTarget, String newTarget) {
         List<Operation> jmps = jumps.getOperations();
 
-        List<LabelOperand> targets = jmps.stream()
+        List<String> targets = jmps.stream()
                 .filter(jmp -> jmp instanceof JumpOperation)
-                .map(jmp -> (LabelOperand) jmp.getArgs()[0]).toList();
+                .map(jmp -> (LabelOperand) jmp.getArgs()[0])
+                .map(LabelOperand::getIdentifier).toList();
 
         if (targets.isEmpty()) return;
 
-        int replaceIdx = IntStream.of(0, targets.size() - 1).filter(i -> targets.get(i).getIdentifier().equals(oldTargetId)).findAny().orElse(-1);
+        int replaceIdx = IntStream.of(0, targets.size() - 1)
+                .filter(i -> targets.get(i).equals(oldTarget))
+                .findAny().orElse(-1);
 
         switch (jmps.size()) {
             case 1 -> {
                 if (replaceIdx == 0) {
-                    setJump(newTargetId != null ? new CodeNode(new Jmp(new LabelOperand(newTargetId)), this) : null);
+                    setJump(newTarget != null ? new CodeNode(new Jmp(new LabelOperand(newTarget)), this) : null);
                 }
             }
             case 2 -> {
                 if (replaceIdx == 0) {
                     JumpOperation condJmp = (JumpOperation) jmps.get(0);
-                    if (newTargetId != null) {
-                        JumpOperation replace = condJmp.setTo(new LabelOperand(newTargetId));
+                    if (newTarget != null) {
+                        JumpOperation replace = condJmp.setTo(new LabelOperand(newTarget));
                         setJump(new CodeNode(replace, this));
                     } else {
                         JumpOperation invert = condJmp.invert((LabelOperand) jmps.get(1).getArgs()[0]);
@@ -230,8 +247,8 @@ public class FirmBlock {
                     }
                 } else if (replaceIdx == 1) {
                     Jmp jmp1 = (Jmp) jmps.get(1);
-                    if (newTargetId != null) {
-                        Jmp replace = jmp1.setTo(new LabelOperand(newTargetId));
+                    if (newTarget != null) {
+                        Jmp replace = jmp1.setTo(new LabelOperand(newTarget));
                         setJump(new CodeNode(replace, this));
                     } else {
                         setJump(new CodeNode(jmps.get(0), this));
@@ -259,6 +276,22 @@ public class FirmBlock {
         return jumps == null ? Stream.<LabelOperand>builder().build() :
                 jumps.getOperations().stream()
                 .filter(op -> op instanceof JumpOperation).map(op -> (LabelOperand) op.getArgs()[0]);
+    }
+
+    public void setIsJumpTarget(boolean isJumpTarget) {
+        this.isJumpTarget = isJumpTarget;
+    }
+
+    public boolean isJumpTarget() {
+        return isJumpTarget;
+    }
+
+    public FirmBlock getMainNode() {
+        return mainNode;
+    }
+
+    public void setMainNode(FirmBlock mainNode) {
+        this.mainNode = mainNode;
     }
 
     record Component(List<Operation> operations) {
