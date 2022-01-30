@@ -22,17 +22,21 @@ public class PhiRule extends SubstitutionRule<Phi> {
     @Override
     public List<Operation> substitute() {
         Phi root = getRootNode();
+
+        // avoid intra-block cycles
+        for (int i = 0; i < 2; i++) {
+            if (root.getPred(i).equals(root)) {
+                root.setPred(i, root.getPred((i + 1) % 2));
+            }
+        }
+
+
         if (root.getMode().equals(Mode.getM())) {
             // not represented in memory
             setTarget(null);
 
 
-            // avoid intra-block cycles
-            for (int i = 0; i < 2; i++) {
-                if (root.getPred(i).equals(root)) {
-                    root.setPred(i, root.getPred((i + 1) % 2));
-                }
-            }
+
             return List.of();
         }
 

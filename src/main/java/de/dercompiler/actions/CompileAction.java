@@ -1,8 +1,11 @@
 package de.dercompiler.actions;
 
 import de.dercompiler.ast.Program;
+import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.ordering.MyBlockSorter;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
+import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.Source;
 import de.dercompiler.lexer.Lexer;
@@ -18,6 +21,8 @@ import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
 
 import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents the action to compile the given source code
@@ -63,12 +68,27 @@ public class CompileAction extends Action {
         for (firm.Graph graph : program.getGraphs()) {
             if (basicOptimizationsActive) {
                 opts.forEach(opt -> opt.runOnGraph(graph));
-               // Worklist.run(new TransferFunction(),graph);
+                Worklist.run(new TransferFunction(),graph);
             }
 
             CodeSelector selector = new CodeSelector(graph);
             BasicBlockGraph blocksGraph = selector.generateCode();
             GraphDumper.dumpBlocksGraph(blocksGraph.getGraph(), graph.toString().substring(6) + "-finalBlocks");
+
+
+            MyBlockSorter sorter = new MyBlockSorter();
+            List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
+            List<LabelOperand> jmpTargets = firmBlocks.stream().flatMap(FirmBlock::getJumpTargets).collect(Collectors.toList());
+
+            StringJoiner joiner = new StringJoiner("\n");
+            for (FirmBlock firmBlock : firmBlocks) {
+                if (jmpTargets.stream().anyMatch(lbl -> lbl.getIdentifier().equals(firmBlock.getId()))) {
+                    joiner.add("L%s:".formatted(firmBlock.getId()));
+                }
+                String operations = firmBlock.getOperations();
+                joiner.add(operations);
+            }
+            System.out.println(joiner);
 
         }
         

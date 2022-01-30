@@ -19,6 +19,10 @@ public class CodeNode {
         this(operations, block, nextID());
     }
 
+    public CodeNode(Operation op, FirmBlock block) {
+        this(List.of(op), block);
+    }
+
     public static int nextID() {
         return nextID++;
     }

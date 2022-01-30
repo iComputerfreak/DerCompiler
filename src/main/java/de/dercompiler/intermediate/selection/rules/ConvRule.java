@@ -52,9 +52,12 @@ public class ConvRule extends SubstitutionRule<Conv> {
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
                     oldType = Datatype.QWORD;
                 }
-                default -> new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected conversion type");
+                default -> {
+                    new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected conversion type");
+                    throw new RuntimeException();
+                }
             }
-
+            convOp.setDefinition(getOperand().getTarget());
             ops.add(convOp);
         }
 

@@ -5,37 +5,44 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Jmp;
+import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import firm.nodes.Block;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class FirmBlock {
 
-    private final int nr;
+    private final String id;
     private boolean visited;
     private final List<FirmBlock> phis;
     private Map<Integer, Component> components;
     private CodeNode jumps;
     private int nextComponentID = 1;
     private boolean phiNode;
+    private int predCount;
 
-    public FirmBlock(int nr) {
-        this.nr = nr;
+    public FirmBlock(String id) {
+        this.id = id;
         this.visited = false;
         phis = new LinkedList<>();
         components = new HashMap<>();
     }
 
     public FirmBlock(Block block) {
-        this(block.getNr());
+        this(block.getNr() + "");
+        this.predCount = block.getPredCount();
     }
 
-    public int getNr() {
-        return nr;
+    public String getId() {
+        return id;
     }
 
     public List<Component> getComponents() {
@@ -70,7 +77,6 @@ public class FirmBlock {
                 List<Operation> linearization = eliminatePhi(phi);
                 phi.components = Map.of(0, new Component(linearization));
             }
-
         }
 
         // TODO There may be a phi block part, a component that has no memory operations whatsoever and that ultimately
@@ -162,7 +168,7 @@ public class FirmBlock {
 
     @Override
     public String toString() {
-        return "FirmBlock<" + nr + ">";
+        return "FirmBlock<" + id + ">";
     }
 
     public void setJump(CodeNode node) {
@@ -175,7 +181,7 @@ public class FirmBlock {
 
     public void setPhiBlock(int idx, FirmBlock phiBlock) {
         phiBlock.markPhiNode();
-        phiBlock.setJump(new CodeNode(List.of(new Jmp(new LabelOperand(this.getNr() + ""))), this));
+        phiBlock.setJump(new CodeNode(List.of(new Jmp(new LabelOperand(this.getId() + ""))), this));
         if (phis.size() == idx) phis.add(phiBlock);
         else if (phis.size() < idx)
             throw new RuntimeException("Cant add this phi block before all of its predecessors.");
@@ -191,11 +197,68 @@ public class FirmBlock {
     }
 
     public List<Operation> getJumps() {
+        if (jumps == null) return List.of();
         return List.copyOf(jumps.getOperations());
     }
 
-    public void replaceJumpTarget(LabelOperand oldTarget, LabelOperand newTarget) {
+    public void replaceJumpTarget(String oldTargetId, String newTargetId) {
+        List<Operation> jmps = jumps.getOperations();
 
+        List<LabelOperand> targets = jmps.stream()
+                .filter(jmp -> jmp instanceof JumpOperation)
+                .map(jmp -> (LabelOperand) jmp.getArgs()[0]).toList();
+
+        if (targets.isEmpty()) return;
+
+        int replaceIdx = IntStream.of(0, targets.size() - 1).filter(i -> targets.get(i).getIdentifier().equals(oldTargetId)).findAny().orElse(-1);
+
+        switch (jmps.size()) {
+            case 1 -> {
+                if (replaceIdx == 0) {
+                    setJump(newTargetId != null ? new CodeNode(new Jmp(new LabelOperand(newTargetId)), this) : null);
+                }
+            }
+            case 2 -> {
+                if (replaceIdx == 0) {
+                    JumpOperation condJmp = (JumpOperation) jmps.get(0);
+                    if (newTargetId != null) {
+                        JumpOperation replace = condJmp.setTo(new LabelOperand(newTargetId));
+                        setJump(new CodeNode(replace, this));
+                    } else {
+                        JumpOperation invert = condJmp.invert((LabelOperand) jmps.get(1).getArgs()[0]);
+                        setJump(new CodeNode(invert, this));
+                    }
+                } else if (replaceIdx == 1) {
+                    Jmp jmp1 = (Jmp) jmps.get(1);
+                    if (newTargetId != null) {
+                        Jmp replace = jmp1.setTo(new LabelOperand(newTargetId));
+                        setJump(new CodeNode(replace, this));
+                    } else {
+                        setJump(new CodeNode(jmps.get(0), this));
+                    }
+                }
+            }
+
+            // it is allowed that the oldTarget does not match any of the current targets in case of hard unification
+        }
+    }
+
+    public int getPredCount() {
+        return predCount;
+    }
+
+    public String getIdForPhiNode(int idx) {
+        return this.id + "_" + idx;
+    }
+
+    public boolean hasReturn() {
+        return Objects.nonNull(jumps) && jumps.getOperations().get(0) instanceof Ret;
+    }
+
+    public Stream<LabelOperand> getJumpTargets() {
+        return jumps == null ? Stream.<LabelOperand>builder().build() :
+                jumps.getOperations().stream()
+                .filter(op -> op instanceof JumpOperation).map(op -> (LabelOperand) op.getArgs()[0]);
     }
 
     record Component(List<Operation> operations) {

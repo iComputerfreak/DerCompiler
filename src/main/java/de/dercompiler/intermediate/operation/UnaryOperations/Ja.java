@@ -10,4 +10,14 @@ public class Ja extends JumpOperation {
         super(OperationType.JA, address);
     }
 
+
+    @Override
+    public Jbe invert(LabelOperand otherTarget) {
+        return new Jbe(otherTarget);
+    }
+
+    @Override
+    public Ja setTo(LabelOperand labelOperand) {
+        return new Ja(labelOperand);
+    }
 }
