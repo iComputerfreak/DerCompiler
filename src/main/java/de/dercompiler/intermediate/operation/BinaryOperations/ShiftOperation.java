@@ -9,7 +9,7 @@ import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
-public class ShiftOperation extends BinaryOperation {
+public abstract class ShiftOperation extends BinaryOperation {
     public ShiftOperation(OperationType operationType, Operand target, Operand source, boolean isMemoryOperation) {
         super(operationType, target, source, isMemoryOperation);
         if (!(target instanceof Register || target instanceof Address)

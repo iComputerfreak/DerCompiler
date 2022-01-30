@@ -2,9 +2,7 @@ package de.dercompiler.codeGeneration;
 
 import de.dercompiler.intermediate.Function;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
-import de.dercompiler.intermediate.operand.LabelOperand;
-import de.dercompiler.intermediate.operand.ParameterRegister;
-import de.dercompiler.intermediate.operand.VirtualRegister;
+import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperations.*;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
@@ -32,10 +30,9 @@ public class EasyTest {
 
         Operation o4 = new Call(new LabelOperand("haha"),true, v1, v2,v1,v2,v1,v2,v1);
 
-        Operation o1 = new Add(v2, p1);
-        Operation o2 = new Sub(v3, v1);
-        Operation o3 = new Ret(p1);
-
+        Add o1 = new Add(new Address(3,v3,v4,8), new Address(2, v1, v2, 4));
+        Operation o2 = new Sub(v3, o1.getDefinition());
+        Operation o3 = new Ret(o2.getDefinition());
 
         LinkedList<Operation> ops = new LinkedList<Operation>();
         ops.add(o1);

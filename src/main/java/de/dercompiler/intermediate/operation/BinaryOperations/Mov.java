@@ -21,4 +21,8 @@ public class Mov extends BinaryOperation {
         return false;
     }
 
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new Mov(target, source, true);
+    }
 }

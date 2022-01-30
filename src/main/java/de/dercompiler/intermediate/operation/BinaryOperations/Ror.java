@@ -17,4 +17,8 @@ public class Ror extends ShiftOperation {
         super(OperationType.ROR, target, source, isMemoryOperation);
     }
 
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new Ror(target, source, true);
+    }
 }

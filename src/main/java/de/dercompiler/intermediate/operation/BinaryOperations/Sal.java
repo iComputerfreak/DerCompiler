@@ -17,4 +17,8 @@ public class Sal extends ShiftOperation {
         super(OperationType.SAL, target, source, isMemoryOperation);
     }
 
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new Sal(target, source, false);
+    }
 }

@@ -15,4 +15,8 @@ public class Shrs extends BinaryOperation {
         super(OperationType.SHRS, target, source, false);
     }
 
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new Shrs(target, source);
+    }
 }

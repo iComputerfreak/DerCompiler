@@ -32,6 +32,18 @@ public class Address implements Operand {
         this(offset, base, null, 1);
     }
 
+    public Register getBase(){
+        return base;
+    }
+
+    public Register getIndex(){
+        return index;
+    }
+
+    public Address allocate(X86Register base, X86Register index){
+        return new Address(offset, base, index, scale);
+    }
+
     @Override
     public String getIdentifier() {
         String format = switch (components) {

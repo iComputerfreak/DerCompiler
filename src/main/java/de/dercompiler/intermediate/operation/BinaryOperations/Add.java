@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation.BinaryOperations;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 
 public class Add extends BinArithOperation {
@@ -9,4 +10,8 @@ public class Add extends BinArithOperation {
         super(OperationType.ADD, target, source, false);
     }
 
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new Add(target, source);
+    }
 }

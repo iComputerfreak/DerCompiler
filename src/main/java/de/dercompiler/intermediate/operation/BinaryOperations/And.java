@@ -10,4 +10,9 @@ public class And extends BinaryOperation {
         super(OperationType.AND, target, source, false);
     }
 
+
+    @Override
+    public BinaryOperation allocate(Operand target, Operand source){
+        return new And(target, source);
+    }
 }
