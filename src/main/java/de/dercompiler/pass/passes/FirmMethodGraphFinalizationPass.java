@@ -61,8 +61,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
     @Override
     public boolean runOnStatement(Statement statement) {
         if (statement.isDead()) return false;
-
-        state.printStatement(statement);
+        
         statement.accept(this);
 
         if (state.removeStatementIfMarked(statement)) {

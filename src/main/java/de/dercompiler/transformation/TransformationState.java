@@ -46,9 +46,6 @@ public class TransformationState {
 
     public boolean isAsignement = false;
 
-    public int index = 0;
-    private Stack<Integer> indexStack = new Stack<Integer>();
-
     public TransformationState(GlobalScope scope) {
         this.globalScope = scope;
         graph = null;
@@ -179,8 +176,6 @@ public class TransformationState {
     }
 
     public void pushOrigin(Block block) {
-        System.out.println("push" + index + " " + block.getNr());
-        indexStack.push(index++);
         origin.push(block);
     }
 
@@ -203,9 +198,7 @@ public class TransformationState {
     }
 
     public Block popOrigin() {
-        Block block = origin.pop();
-        System.out.println("pop " + indexStack.pop() + " " + block.getNr());
-        return block;
+        return origin.pop();
     }
 
     public void pushHead(Block h) {
