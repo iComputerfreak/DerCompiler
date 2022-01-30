@@ -3,7 +3,6 @@ package de.dercompiler.intermediate.selection;
 import de.dercompiler.generation.CodeGenerationWarningIds;
 import de.dercompiler.intermediate.operand.CondTarget;
 import de.dercompiler.intermediate.operand.LabelOperand;
-import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.rules.CondJmpRule;
@@ -14,7 +13,6 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.GraphUtil;
 import firm.BlockWalker;
-import firm.Mode;
 import firm.nodes.*;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -22,11 +20,10 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
-import org.jgrapht.traverse.ClosestFirstIterator;
-import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.dercompiler.intermediate.selection.Datatype.OTHER;
 
@@ -51,7 +48,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private final Graph<CodeNode, DefaultEdge> codeGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
-    private final HashMap<Integer, FirmBlock> firmBlocks = new HashMap<>();
+    private final HashMap<String, FirmBlock> firmBlocks = new HashMap<>();
     private final Map<Node, String> jmpTargets = new HashMap<>();
     private int nextIntermediateID = -1;
 
@@ -68,8 +65,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     /**
      * Returns the next free ID to be used for the intermediate blocks in the FirmBlock graph
      */
-    private int nextIntermediateID() {
-        return nextIntermediateID--;
+    private String nextIntermediateID() {
+        return Integer.toString(nextIntermediateID--);
     }
 
     /**
@@ -145,7 +142,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         while (nodeAnnotationGraphIterator.hasNext()) {
             NodeAnnotation<?> next = nodeAnnotationGraphIterator.next();
             if (!next.getTransformed()) {
-                int compIdx = firmBlocks.get(next.getRootNode().getBlock().getNr()).newComponent();
+                int compIdx = getFirmBlock(next.getRootNode().getBlock().getNr()).newComponent();
                 next.setComponent(compIdx);
             }
             transformAnnotation(next);
@@ -162,8 +159,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         // Since we already transformed the nodes to code, we don't need the edges anymore
         List<DefaultEdge> removeEdges = codeGraph.edgeSet()
                 .stream()
-                .filter(e -> codeGraph.getEdgeSource(e).getFirmBlock().getNr() !=
-                        codeGraph.getEdgeTarget(e).getFirmBlock().getNr()).toList();
+                .filter(e -> !Objects.equals(codeGraph.getEdgeSource(e).getFirmBlock().getId(),
+                        codeGraph.getEdgeTarget(e).getFirmBlock().getId())).toList();
         removeEdges.forEach(codeGraph::removeEdge);
 
         // Do the linearization of the codeGraph
@@ -173,6 +170,18 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             CodeNode next = codeGraphIterator.next();
             linearizeNode(next);
         }
+
+
+        List<DefaultWeightedEdge> addEdges = new ArrayList<>();
+        // remove, they are not needed anymore
+        List<FirmBlock> removeBlocks = blocksGraph.vertexSet().stream().filter(b -> b.getId().startsWith("-")).toList();
+
+        removeBlocks.forEach(b -> {
+            FirmBlock succ = GraphUtil.getSuccessors(b, blocksGraph).get(0);
+            FirmBlock pred = GraphUtil.getPredecessors(b, blocksGraph).get(0);
+            blocksGraph.removeVertex(b);
+            blocksGraph.addEdge(pred, succ);
+        });
 
         return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
     }
@@ -277,11 +286,24 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
      * @param block The block to transform into a FirmBlock
      */
     private FirmBlock getOrCreateFirmBlock(Block block) {
-        if (!firmBlocks.containsKey(block.getNr())) {
-            firmBlocks.put(block.getNr(), new FirmBlock(block));
+        if (!hasBlock(block.getNr())) {
+            putBlock(block.getNr(), new FirmBlock(block));
         }
-        return firmBlocks.get(block.getNr());
+        return getFirmBlock(block.getNr());
     }
+
+    private void putBlock(int id, FirmBlock fBlock) {
+        firmBlocks.put(Integer.toString(id), fBlock);
+    }
+
+    private boolean hasBlock(int block) {
+        return firmBlocks.containsKey(Integer.toString(block));
+    }
+
+    private FirmBlock getFirmBlock(int block) {
+        return firmBlocks.get(Integer.toString(block));
+    }
+
 
     /**
      * Returns or creates the FirmBlock for the given id and puts it into the global map firmBlocks
@@ -289,10 +311,11 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
      * @param id The id of the new FirmBlock
      */
     FirmBlock getOrCreateFirmBlock(int id) {
-        if (!firmBlocks.containsKey(id)) {
-            firmBlocks.put(id, new FirmBlock(id));
+        if (!hasBlock(id)) {
+            String strId = Integer.toString(id);
+            firmBlocks.put(strId, new FirmBlock(strId));
         }
-        return firmBlocks.get(id);
+        return getFirmBlock(id);
     }
 
     /**
@@ -393,6 +416,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             nodeAnnotationGraph.addVertex(a);
         }
         for (Node pred : a.getRootNode().getPreds()) {
+            if (a.getRootNode().getNr() < pred.getNr() && a.getRootNode().getBlock().equals(pred.getBlock())) {
+                System.out.printf("Achtung Gefahr: %s liegt auf einem in-Block-Zyklus!%n", a.getRootNode());
+                continue;
+            }
             addDependency(a, pred);
         }
         // Maintain the dependencies inside the rule
@@ -524,12 +551,12 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     }
 
     private FirmBlock getOrCreatePhiBlock(FirmBlock target, int idx, FirmBlock oldSuccessorI) {
-        int phiBlockNr = target.getNr() * 100 + idx;
+        String phiBlockNr = target.getIdForPhiNode(idx);
         if (firmBlocks.containsKey(phiBlockNr)) {
             return firmBlocks.get(phiBlockNr);
         }
 
-        FirmBlock phiBlock = new FirmBlock(phiBlockNr);
+        FirmBlock phiBlock = new FirmBlock(""+phiBlockNr);
         firmBlocks.put(phiBlockNr, phiBlock);
         blocksGraph.addVertex(phiBlock);
 

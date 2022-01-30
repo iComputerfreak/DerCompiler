@@ -10,4 +10,13 @@ public class Jg extends JumpOperation {
         super(OperationType.JG, address);
     }
 
+    @Override
+    public Jle invert(LabelOperand otherTarget) {
+        return new Jle(otherTarget);
+    }
+
+    @Override
+    public Jg setTo(LabelOperand labelOperand) {
+        return new Jg(labelOperand);
+    }
 }

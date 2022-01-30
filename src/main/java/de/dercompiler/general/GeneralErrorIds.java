@@ -16,7 +16,7 @@ public enum GeneralErrorIds implements IErrorIds {
     TOO_MANY_ACTIONS(210),
     MISSING_INPUT_FILE(220),
 
-    ;
+    TEST_FAILED(221);
 
     private final int id;
 

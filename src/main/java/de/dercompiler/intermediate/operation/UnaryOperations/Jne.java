@@ -9,5 +9,13 @@ public class Jne extends JumpOperation {
         super(OperationType.JNE, address);
     }
 
+    @Override
+    public Je invert(LabelOperand otherTarget) {
+        return new Je(otherTarget);
+    }
 
+    @Override
+    public Jne setTo(LabelOperand labelOperand) {
+        return new Jne(labelOperand);
+    }
 }
