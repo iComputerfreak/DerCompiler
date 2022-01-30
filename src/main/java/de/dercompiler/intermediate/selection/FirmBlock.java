@@ -232,7 +232,7 @@ public class FirmBlock {
                         Jmp replace = jmp1.setTo(new LabelOperand(newTargetId));
                         setJump(new CodeNode(replace, this));
                     } else {
-                        setJump(null);
+                        setJump(new CodeNode(jmps.get(0), this));
                     }
                 }
             }
