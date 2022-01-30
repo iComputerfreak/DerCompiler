@@ -8,6 +8,8 @@ import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
 
+import javax.xml.crypto.Data;
+
 public sealed abstract class Operation permits BinaryOperation, ConstantOperation, NaryOperation, UnaryOperation {
 
     private Operand definition;
@@ -16,6 +18,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     public abstract Operand[] getArgs();
     public abstract OperationType getOperationType();
     public abstract String getIntelSyntax();
+    public abstract String getAtntSyntax(Datatype datatype);
 
     private int index;
     private final boolean isMemoryOperation;

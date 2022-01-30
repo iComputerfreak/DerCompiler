@@ -25,6 +25,11 @@ public class LabelOperand implements Operand {
         return label;
     }
 
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return getIdentifier();
+    }
+
 
     @Override
     public String toString() {

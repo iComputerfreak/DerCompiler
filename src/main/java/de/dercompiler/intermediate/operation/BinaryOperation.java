@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.selection.Datatype;
 
 
 public abstract non-sealed class BinaryOperation extends Operation {
@@ -37,6 +38,11 @@ public abstract non-sealed class BinaryOperation extends Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax() + " " + target.getIdentifier() + "," + source.getIdentifier();
+    }
+
+    @Override
+    public String getAtntSyntax(Datatype datatype){
+        return operationType.getAtntSyntax(datatype) +  " " + source.getIdentifier(datatype) + "," + target.getIdentifier(datatype);
     }
 
     public abstract BinaryOperation allocate(Operand target, Operand source);

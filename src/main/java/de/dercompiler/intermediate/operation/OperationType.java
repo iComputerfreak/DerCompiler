@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
+import de.dercompiler.intermediate.selection.Datatype;
+
 public enum OperationType {
     //Erst die binary Operations
     MOVSLQ("MOVSLQ"),
@@ -58,5 +60,9 @@ public enum OperationType {
 
     public String getSyntax(){
         return syntax;
+    }
+
+    public String getAtntSyntax(Datatype datatype){
+        return syntax + datatype.toString();
     }
 }

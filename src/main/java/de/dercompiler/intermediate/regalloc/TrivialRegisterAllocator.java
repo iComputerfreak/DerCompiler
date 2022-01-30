@@ -13,6 +13,7 @@ import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.UnaryArithmeticOperation;
+import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
@@ -185,6 +186,6 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
             }
             freeRegisterIndex = 0;
         }
-        ops.forEach(x -> System.out.println(x.getIntelSyntax()));
+        ops.forEach(x -> System.out.println(x.getAtntSyntax(Datatype.WORD)));
     }
 }

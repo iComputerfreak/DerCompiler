@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.selection.Datatype;
 
 public abstract non-sealed class ConstantOperation extends Operation {
 
@@ -24,6 +25,11 @@ public abstract non-sealed class ConstantOperation extends Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax();
+    }
+
+    @Override
+    public String getAtntSyntax(Datatype datatype) {
+        return operationType.getAtntSyntax(datatype);
     }
 
 }

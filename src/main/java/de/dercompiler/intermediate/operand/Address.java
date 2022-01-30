@@ -62,6 +62,11 @@ public class Address implements Operand {
         return format.formatted(offset, base, index, scale);
     }
 
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return getIdentifier();
+    }
+
     public Address offset(int offset) {
         return new Address(this.offset + offset, this.base, this.index, this.scale);
     }

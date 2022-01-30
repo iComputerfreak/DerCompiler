@@ -16,6 +16,11 @@ public class ConstantValue implements Operand {
         return "0x%x".formatted(value);
     }
 
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return "$" + value;
+    }
+
     public int getValue() {
         return value;
     }

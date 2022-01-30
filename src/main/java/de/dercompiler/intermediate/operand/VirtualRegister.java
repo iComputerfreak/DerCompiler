@@ -28,6 +28,11 @@ public class VirtualRegister implements Register {
     }
 
     @Override
+    public String getIdentifier(Datatype datatype) {
+        return getIdentifier();
+    }
+
+    @Override
     public String toString() {
         return getIdentifier();
     }
