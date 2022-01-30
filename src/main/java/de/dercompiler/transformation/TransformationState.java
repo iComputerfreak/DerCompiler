@@ -1,7 +1,8 @@
 package de.dercompiler.transformation;
 
 import de.dercompiler.ast.expression.Expression;
-import de.dercompiler.ast.statement.Statement;
+import de.dercompiler.ast.printer.PrettyPrinter;
+import de.dercompiler.ast.statement.*;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.semantic.GlobalScope;
@@ -44,6 +45,9 @@ public class TransformationState {
     private final Set<Block> returnBlocks;
 
     public boolean isAsignement = false;
+
+    public int index = 0;
+    private Stack<Integer> indexStack = new Stack<Integer>();
 
     public TransformationState(GlobalScope scope) {
         this.globalScope = scope;
@@ -175,11 +179,33 @@ public class TransformationState {
     }
 
     public void pushOrigin(Block block) {
+        System.out.println("push" + index + " " + block.getNr());
+        indexStack.push(index++);
         origin.push(block);
     }
 
+    public void printStatement(Statement statement) {
+        PrettyPrinter printer = new PrettyPrinter(true);
+        if (statement instanceof IfStatement is) {
+            printer.visitIfStatement(is);
+        } else if (statement instanceof WhileStatement ws) {
+            printer.visitWhileStatement(ws);
+        } else if (statement instanceof ExpressionStatement es) {
+            printer.visitExpressionStatement(es);
+        } else if (statement instanceof LocalVariableDeclarationStatement lvds) {
+            printer.visitLocalVariableDeclarationStatement(lvds);
+        }
+        String s = printer.flush();
+        if (s.indexOf('\n') > 0) {
+            s = s.substring(0, s.indexOf('\n'));
+        }
+        System.out.print(s + " ");
+    }
+
     public Block popOrigin() {
-        return origin.pop();
+        Block block = origin.pop();
+        System.out.println("pop " + indexStack.pop() + " " + block.getNr());
+        return block;
     }
 
     public void pushHead(Block h) {
