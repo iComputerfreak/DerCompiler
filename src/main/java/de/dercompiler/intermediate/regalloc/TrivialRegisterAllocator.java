@@ -5,11 +5,15 @@ import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.Add;
+import de.dercompiler.intermediate.operation.BinaryOperations.BinArithOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.NaryOperation;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.operation.UnaryOperation;
+import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
+import de.dercompiler.intermediate.operation.UnaryOperations.UnaryArithmeticOperation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
@@ -134,6 +138,19 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
                     ops.add(new Mov(getParam(i+1), getLocalVar(maxVar+1), true));
                 }
                 maxVar = tempMaxVar;
+            } else if (op instanceof JumpOperation jo){
+                ops.add(jo);
+            } else if (op instanceof UnaryArithmeticOperation uao){
+                Operand operand = uao.getArgs()[0];
+
+                //Operand in Register hohlen
+                ops.add(new Mov(X86Register.R10, getOperand(operand), true));
+
+                //Operation ausführen
+                ops.add(uao.allocate(X86Register.R10));
+
+                //Ergebnis zurückschreiben
+                ops.add(new Mov(getOperand(operand), X86Register.R10, true));
             }
             freeRegisterIndex = 0;
         }

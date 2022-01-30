@@ -7,6 +7,8 @@ import de.dercompiler.intermediate.operation.BinaryOperations.*;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.operation.UnaryOperations.Dec;
+import de.dercompiler.intermediate.operation.UnaryOperations.Jne;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,17 +30,21 @@ public class EasyTest {
 
 
 
-        Operation o4 = new Call(new LabelOperand("haha"),true, v1, v2,v1,v2,v1,v2,v1);
 
-        Add o1 = new Add(new Address(3,v3,v4,8), new Address(2, v1, v2, 4));
-        Operation o2 = new Sub(v3, o1.getDefinition());
+        Add o1 = new Add(v1, v2);
+        Operation o2 = new Sub(new Address(7, p1, v5, 1), o1.getDefinition());
         Operation o3 = new Ret(o2.getDefinition());
+        Operation o4 = new Call(new LabelOperand("haha"),true, v1, v2,v1,v2,v1,v2,v1);
+        Operation o5 = new Jne(new LabelOperand("testziel"));
+        Operation o6 = new Dec(v1, true);
 
         LinkedList<Operation> ops = new LinkedList<Operation>();
         ops.add(o1);
         ops.add(o2);
         ops.add(o3);
         ops.add(o4);
+        ops.add(o5);
+        ops.add(o6);
 
         Function testFunc = new Function("test", ops);
 
