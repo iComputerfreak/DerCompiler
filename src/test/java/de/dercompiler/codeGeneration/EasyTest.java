@@ -39,7 +39,8 @@ public class EasyTest {
         Operation o6 = new Dec(v1, true);
         Operation o7 = new Div(v1, v2);
 
-        LinkedList<Operation> ops = new LinkedList<Operation>();
+
+        LinkedList<Operation> ops = new LinkedList<>();
         ops.add(o1);
         ops.add(o2);
         ops.add(o3);

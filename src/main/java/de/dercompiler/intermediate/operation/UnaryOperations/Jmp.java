@@ -2,14 +2,14 @@ package de.dercompiler.intermediate.operation.UnaryOperations;
 
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operation.OperationType;
-import de.dercompiler.intermediate.selection.IRMode;
+import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.Signedness;
 
 public class Jmp extends JumpOperation {
 
     public Jmp(LabelOperand address) {
         super(OperationType.JMP, address);
-        this.setMode(IRMode.Datatype.NODATA, Signedness.UNSIGNED);
+        this.setMode(Datatype.NODATA, Signedness.UNSIGNED);
     }
 
     public Jmp invert(LabelOperand otherTarget) {
@@ -18,7 +18,6 @@ public class Jmp extends JumpOperation {
 
     @Override
     public Jmp setTo(LabelOperand labelOperand) {
-        Jmp jmp = new Jmp(labelOperand);
-        return jmp;
+        return new Jmp(labelOperand);
     }
 }

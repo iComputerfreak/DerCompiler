@@ -5,6 +5,7 @@ import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.BinArithOperation;
 import de.dercompiler.intermediate.operation.OperationType;
+import de.dercompiler.intermediate.selection.Datatype;
 
 public class Div extends BinArithOperation {
 
@@ -20,5 +21,9 @@ public class Div extends BinArithOperation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax() + " " + target.getIdentifier();
+    }
+
+    public String getAtntSyntax(Datatype datatype){
+        return getIntelSyntax();
     }
 }

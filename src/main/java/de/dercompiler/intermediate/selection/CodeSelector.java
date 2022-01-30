@@ -46,7 +46,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private final Graph<FirmBlock, DefaultWeightedEdge> blocksGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
     private final Map<Integer, CodeNode> codeGraphLookup = new HashMap<>();
     private final HashMap<String, FirmBlock> firmBlocks = new HashMap<>();
-    private final Map<Node, String> jmpTargets = new HashMap<Node, String>();
+    private final Map<Node, String> jmpTargets = new HashMap<>();
     private int nextIntermediateID = -1;
 
     /**
@@ -473,7 +473,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         // Falls Phinode, werden hier mehr CodeNodes im Hintergrund erzeugt
         CodeNode codeNode;
         FirmBlock fBlock = getOrCreateFirmBlock(blockNr);
-        if (a.getRule() instanceof PhiRule phiRule && phiRule.getDatatype() != IRMode.Datatype.OTHER) {
+        if (a.getRule() instanceof PhiRule phiRule && phiRule.getDatatype() != Datatype.OTHER) {
             codeNode = createPhiNode(fBlock, phiRule);
         } else {
             codeNode = new CodeNode(ops, fBlock, rootNode.getNr());

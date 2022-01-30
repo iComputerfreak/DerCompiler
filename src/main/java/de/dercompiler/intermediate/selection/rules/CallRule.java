@@ -3,12 +3,12 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.MethodType;
-import firm.Mode;
 import firm.nodes.Address;
 import firm.nodes.Call;
 import firm.nodes.Node;
@@ -47,7 +47,7 @@ public class CallRule extends SubstitutionRule<Call> {
         if (getMethodType().getNRess() > 0) {
             return IRMode.forMode(getMethodType().getResType(0).getMode());
         }
-        return new IRMode(IRMode.Datatype.NODATA, Signedness.UNSIGNED);
+        return new IRMode(Datatype.NODATA, Signedness.UNSIGNED);
     }
 
     private MethodType getMethodType() {

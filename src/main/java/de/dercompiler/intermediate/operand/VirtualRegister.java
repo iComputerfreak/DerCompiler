@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+
 public class VirtualRegister implements Register {
     
     private static long nextID = 0;
@@ -21,6 +23,11 @@ public class VirtualRegister implements Register {
     @Override
     public String getIdentifier() {
         return "@V" + id;
+    }
+
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return getIdentifier();
     }
 
     @Override

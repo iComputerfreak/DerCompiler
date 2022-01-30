@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+
 public class ConstantValue implements Operand {
     
     private final int value;
@@ -11,6 +13,11 @@ public class ConstantValue implements Operand {
     @Override
     public String getIdentifier() {
         return "0x%X".formatted(value);
+    }
+
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return "$" + value;
     }
 
     public int getValue() {

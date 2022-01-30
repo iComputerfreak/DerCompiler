@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+
 public class CondTarget implements Operand {
 
     private LabelOperand trueTarget;
@@ -31,6 +33,11 @@ public class CondTarget implements Operand {
     @Override
     public String getIdentifier() {
         return "cond ? %s : %s".formatted(trueTarget.getIdentifier(), falseTarget.getIdentifier());
+    }
+
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return getIdentifier();
     }
 
 }

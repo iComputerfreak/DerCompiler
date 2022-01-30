@@ -107,12 +107,12 @@ public abstract class SubstitutionRule<T extends Node> {
         return new VirtualRegister();
     }
 
-    public IRMode.Datatype getDatatype() {
+    public Datatype getDatatype() {
         return mode != null ? mode.type() : null;
     }
 
     public void setMode(Mode mode) {
-        IRMode.Datatype datatype = IRMode.Datatype.forMode(mode);
+        Datatype datatype = Datatype.forMode(mode);
         this.mode = new IRMode(datatype, mode.isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
     }
 
@@ -124,7 +124,7 @@ public abstract class SubstitutionRule<T extends Node> {
         return mode.signedness();
     }
 
-    public void setMode(IRMode.Datatype type, Signedness signedness) {
+    public void setMode(Datatype type, Signedness signedness) {
         this.mode = new IRMode(type, signedness);
     }
 

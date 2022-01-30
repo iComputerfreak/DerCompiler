@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+
 import java.util.Objects;
 
 public class Address implements Operand {
@@ -56,6 +58,11 @@ public class Address implements Operand {
             default -> "???";
         };
         return format.formatted(offset, base, index, scale);
+    }
+
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return getIdentifier();
     }
 
     public Address offset(int offset) {

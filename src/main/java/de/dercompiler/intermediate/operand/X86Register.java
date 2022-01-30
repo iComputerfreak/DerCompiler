@@ -1,6 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
-import de.dercompiler.intermediate.selection.IRMode;
+import de.dercompiler.intermediate.selection.Datatype;
 
 public enum X86Register implements Register {
     RAX("rax", "eax", "ax", "al"),
@@ -49,8 +49,10 @@ public enum X86Register implements Register {
         return id;
     }
 
-    public String getIdentifier(IRMode.Datatype datatype) {
-        return switch (datatype) {
+
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return "%" + switch (datatype) {
             case BYTE -> idb;
             case WORD -> idw;
             case DWORD -> idd;

@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
+import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
@@ -14,6 +15,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     public abstract Operand[] getArgs();
     public abstract OperationType getOperationType();
     public abstract String getIntelSyntax();
+    public abstract String getAtntSyntax(Datatype datatype);
 
     private int index;
     private final boolean isMemoryOperation;
@@ -33,7 +35,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
         this.index = index;
     }
 
-    public void setMode(IRMode.Datatype datatype, Signedness signedness) {
+    public void setMode(Datatype datatype, Signedness signedness) {
         mode = new IRMode(datatype, signedness);
     }
 
@@ -42,11 +44,11 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     }
 
     public void setMode(Mode mode) {
-        IRMode.Datatype datatype = IRMode.Datatype.forMode(mode);
+        Datatype datatype = Datatype.forMode(mode);
         this.mode = new IRMode(datatype, mode.isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
     }
 
-    public IRMode.Datatype getDatatype() {
+    public Datatype getDatatype() {
         return mode.type();
     }
 

@@ -14,6 +14,7 @@ import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.UnaryArithmeticOperation;
+import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
@@ -34,7 +35,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     /*
     parameter 1 bis 6 stehen in den parameter Registern und der Rest steht auf dem Stack
      */
-    private X86Register[] parameterRegister = new X86Register[]{
+    private static final X86Register[] parameterRegister = new X86Register[]{
             X86Register.RDI,
             X86Register.RSI,
             X86Register.RDX,
@@ -45,7 +46,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     /*
     Diese Register werden gebraucht, wenn ein ein binärer Operator aus zwei Adressen besteht die je Base und Index haben
      */
-    private X86Register[] freeRegister = new X86Register[]{
+    private static final X86Register[] freeRegister = new X86Register[]{
             X86Register.R12,
             X86Register.R13,
             X86Register.R14,
@@ -90,7 +91,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     @Override
     public void allocateRegisters(Function function) {
-        ops = new LinkedList<Operation>();
+        ops = new LinkedList<>();
 
         for (Operation op : function.getOperations()) {
             if (op instanceof Div div) {
@@ -199,6 +200,6 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             }
             freeRegisterIndex = 0;
         }
-        ops.forEach(x -> System.out.println(x.getIntelSyntax()));
+        ops.forEach(x -> System.out.println(x.getAtntSyntax(Datatype.WORD)));
     }
 }

@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.FirmBlock;
 
 /**
@@ -15,6 +16,11 @@ public class LabelOperand implements Operand {
 
     @Override
     public String getIdentifier() {
+        return target;
+    }
+
+    @Override
+    public String getIdentifier(Datatype datatype) {
         return target;
     }
 

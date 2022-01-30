@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.*;
+import de.dercompiler.intermediate.operation.BinaryOperations.Lea;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -11,6 +12,7 @@ import firm.Graph;
 import firm.Mode;
 import firm.nodes.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,7 +65,7 @@ public class ArrayAccessShlLRule extends AddRule {
     public List<Operation> substitute() {
         Operand index = getIndex().getTarget();
         Address target;
-        List<Operation> ops;
+        List<Operation> ops = new LinkedList<>();
 
         if (getArray() == null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Node %s has no target yet, so better implement a basic rule for it.".formatted(getLeft().getRootNode().toString()));
@@ -73,21 +75,21 @@ public class ArrayAccessShlLRule extends AddRule {
         if (index instanceof Register idxReg) {
             // index is already a register, so no operation needed
             target = address.setIndex(idxReg, getScale());
-            ops = List.of();
         } else if (index instanceof Address tAddr && tAddr.isRegister()) {
             // index is already a register, so no operation needed
             target = address.setIndex(tAddr.asRegister(), getScale());
-            ops = List.of();
         } else {
             // index needs to be moved to a register so that we can use it as the index register
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
             getIndex().setTarget(target);
-            Mov mov = new Mov(idxReg, index, isMemoryOperation());
-            ops = List.of(mov);
+            Lea lea = new Lea(idxReg, index);
+            ops.add(lea);
         }
 
-        getAnnotation(getRootNode()).setTarget(target);
+        VirtualRegister targetAddr = new VirtualRegister();
+        ops.add(new Lea(target, targetAddr));
+        setTarget(targetAddr);
         return ops;
     }
 

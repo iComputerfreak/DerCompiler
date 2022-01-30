@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.selection.Datatype;
 
 import java.util.Objects;
 
@@ -33,4 +34,8 @@ public abstract non-sealed class UnaryOperation extends Operation {
         return operationType.getSyntax() + (Objects.isNull(operand) ? "" :  " " + operand.getIdentifier());
     }
 
+    @Override
+    public String getAtntSyntax(Datatype datatype) {
+        return operationType.getAtntSyntax(datatype) + (Objects.isNull(operand) ? "" :  " " + operand.getIdentifier(datatype));
+    }
 }

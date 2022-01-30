@@ -6,6 +6,7 @@ import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.Rol;
 import de.dercompiler.intermediate.operation.NaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
+import de.dercompiler.intermediate.selection.Datatype;
 
 public class Call extends NaryOperation {
 
@@ -28,4 +29,8 @@ public class Call extends NaryOperation {
         return new Call((LabelOperand) getArgs()[0], true);
     }
 
+    @Override
+    public String getAtntSyntax(Datatype datatype) {
+        return getIntelSyntax();
+    }
 }

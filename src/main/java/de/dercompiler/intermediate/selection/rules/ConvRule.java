@@ -34,20 +34,20 @@ public class ConvRule extends SubstitutionRule<Conv> {
         }
 
         List<Operation> ops = new ArrayList<>();
-        IRMode.Datatype newType = IRMode.Datatype.forMode(getRootNode().getMode());
-        IRMode.Datatype oldType = IRMode.Datatype.forMode(getRootNode().getOp().getMode());
+        Datatype newType = Datatype.forMode(getRootNode().getMode());
+        Datatype oldType = Datatype.forMode(getRootNode().getOp().getMode());
         while (oldType.compareTo(newType) < 0) {
-            Operation convOp = null;
+            Operation convOp;
             switch (oldType) {
                 case WORD -> {
                     convOp = new Cwtl(getOperand().getTarget(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
-                    oldType = IRMode.Datatype.DWORD;
+                    oldType = Datatype.DWORD;
                 }
                 case DWORD -> {
                     convOp = new Cltq(getOperand().getTarget(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
-                    oldType = IRMode.Datatype.QWORD;
+                    oldType = Datatype.QWORD;
                 }
                 default -> {
                     new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected conversion type");

@@ -1,25 +1,27 @@
 package de.dercompiler.intermediate.operation;
 
+import de.dercompiler.intermediate.selection.Datatype;
+
 public enum OperationType {
     //Erst die binary Operations
-    MOVSLQ("MOVSLQ"),
-    ADD("ADD"),
-    AND("AND"),
+    MOVSLQ("MOVSLQ", false),
+    ADD("ADD", true),
+    AND("AND", true),
     CMP("CMP"),
-    DIV("DIV"),
+    DIV("IDIV", true),
     LEA("LEA"),
-    MOV("MOV"),
-    OR("OR"),
-    ROL("ROL"),
-    ROR("ROR"),
-    SHL("SHL"),
-    SAR("SAR"),
-    SAL("SAL"),
-    SHR("SHR"),
+    MOV("MOV", true),
+    OR("OR", true),
+    ROL("ROL", true),
+    ROR("ROR", true),
+    SHL("SHL", true),
+    SAR("SAR", true),
+    SAL("SAL", true),
+    SHR("SHR", true),
     SHRS("SHRS"), // arithmetic ("signed") right shift
-    SUB("SUB"),
-    XCHG("XCHG"),
-    XOR("XOR"),
+    SUB("SUB", true),
+    XCHG("XCHG", true),
+    XOR("XOR", true),
     LOAD(""),
     STORE(""),
     //Dann die unary Operations
@@ -37,26 +39,39 @@ public enum OperationType {
     JLE("JLE"),
     JMP("JMP"),
     JNE("JNE"),
+    NEG("NEG", true),
+    MOD("MOD", true),
     LBL("LBL"),
-    NEG("NEG"),
-    MOD("MOD"),
     NOT(""),
     POP("POP"),
     PUSH("PUSH"),
-    INC("INC"),
+    INC("INC", true),
     //Dann die constant Operations
     NOP("NOP"),
     RET("RET"),
     CWTL("CWTL"),
     CLTQ("CLTQ");
 
-    private String syntax;
+    private final String syntax;
+    private final boolean appendDatatype;
 
     OperationType(String syntax){
+        this.syntax = syntax; this.appendDatatype = false;
+    }
+
+    OperationType(String syntax, boolean appendDatatype){
         this.syntax = syntax;
+        this.appendDatatype = appendDatatype;
     }
 
     public String getSyntax(){
+        return syntax;
+    }
+
+    public String getAtntSyntax(Datatype datatype){
+        if (appendDatatype){
+            return syntax +  datatype.toString();
+        }
         return syntax;
     }
 }

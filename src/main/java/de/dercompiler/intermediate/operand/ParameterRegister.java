@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.selection.Datatype;
+
 public class ParameterRegister implements Register {
 
     private final long number;
@@ -10,6 +12,11 @@ public class ParameterRegister implements Register {
     @Override
     public String getIdentifier() {
         return "@P%d".formatted(number);
+    }
+
+    @Override
+    public String getIdentifier(Datatype datatype) {
+        return getIdentifier();
     }
 
     public int getId(){
