@@ -29,6 +29,7 @@ public class CommandLineBuilder {
         createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_PRINT_AST, false, DESCRIPTION_PRINT_AST); // --parsetest
         createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_CHECK, false, DESCRIPTION_CHECK); // --check
         createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_COMPILE_FIRM, false, DESCRIPTION_COMPILE_FIRM); //--compile-firm
+        createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_COMPILE, false, DESCRIPTION_COMPILE); //--compile
 
         // options
         createOption(options, COMMAND_NO_SHORT_OPTION, COMMAND_WORKING_DIR, true, DESCRIPTION_WORKING_DIR); // --working-directory

@@ -90,9 +90,14 @@ public class CommandLineOptions {
     public boolean noMain() { return cmd.hasOption(OPTION_NO_MAIN); }
 
     /**
-     *
+     * returns true, if compile-firm is passed as option
      */
     public boolean compileFirm() { return cmd.hasOption(COMMAND_COMPILE_FIRM); }
+
+    /*
+     * returns true, if compile ist passes as option
+     */
+    public boolean compile() { return cmd.hasOption(COMMAND_COMPILE); }
 
     /**
      * @return true if the lexTest printPosition option has been given
