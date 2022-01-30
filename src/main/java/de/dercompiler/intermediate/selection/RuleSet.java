@@ -12,7 +12,7 @@ import static java.util.Map.entry;
 public final class RuleSet {
     
     private static final Map<Class<? extends Node>, List<? extends SubstitutionRule<?>>> rules = Map.ofEntries(
-            entry(Add.class, List.<SubstitutionRule<Add>>of(new AddRule(), new IncLRule(), new IncRRule(), new ArrayAccessRule(), new ArrayAccessShlLRule(),
+            entry(Add.class, List.<SubstitutionRule<Add>>of(new AddRule(), /*new IncLRule(), new IncRRule(),*/ new ArrayAccessRule(), new ArrayAccessShlLRule(),
                     new ArrayAccessShlRRule())),
             entry(And.class, List.<SubstitutionRule<And>>of(new AndRule())),
             entry(Address.class, List.<SubstitutionRule<Address>>of(new AddressRule())),
