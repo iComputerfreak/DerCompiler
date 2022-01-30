@@ -6,8 +6,8 @@ import java.util.Objects;
 
 public abstract non-sealed class UnaryOperation extends Operation {
 
-    private final Operand operand;
-    private final OperationType operationType;
+    protected final Operand operand;
+    protected final OperationType operationType;
 
     public UnaryOperation(OperationType operationType, Operand operand, boolean isMemoryOperation) {
         super(isMemoryOperation);

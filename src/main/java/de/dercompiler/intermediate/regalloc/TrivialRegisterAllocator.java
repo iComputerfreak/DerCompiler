@@ -4,14 +4,13 @@ import de.dercompiler.intermediate.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
-import de.dercompiler.intermediate.operation.BinaryOperations.Add;
-import de.dercompiler.intermediate.operation.BinaryOperations.BinArithOperation;
-import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.BinaryOperations.*;
 import de.dercompiler.intermediate.operation.NaryOperation;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperation;
+import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.UnaryArithmeticOperation;
 import de.dercompiler.io.OutputMessageHandler;
@@ -81,7 +80,39 @@ public class TrivialRegisterAllocator extends RegisterAllocator{
         ops = new LinkedList<Operation>();
 
         for (Operation op : function.getOperations()){
-            if (op instanceof BinaryOperation bo){
+            if (op instanceof Div div){
+                Operand[] operands = div.getArgs();
+                Operand dividend = operands[0];
+                Operand divisor = operands[1];
+
+                //Parameterregister RDX in R11 sichern, weil 128 bit Dividend in RAX:RDX stehen muss
+                ops.add(new Mov(X86Register.RDX, X86Register.R11, true));
+
+                //Dividend hohlen
+                ops.add(new Mov(X86Register.RAX, getOperand(dividend), true));
+
+                //auf 64 bit Breite
+                ops.add(new Movslq(X86Register.RAX, X86Register.RAX, true));
+
+                //auf 128 bit Breite
+                ops.add(new Cltq(X86Register.RAX, true));
+
+                //Divisor hohlen
+                ops.add(new Mov(X86Register.R10, getOperand(divisor), true));
+
+                //auf 64 bit Breite
+                ops.add(new Movslq(X86Register.R10, X86Register.R10, true));
+
+                //Division ausführen
+                ops.add(div.allocate(X86Register.R10, null));
+
+                //Ergebnis zurückschreiben
+                ops.add(new Mov(getOperand(div.getDefinition()), X86Register.RAX, true));
+
+                //RDI wiederherstellen
+                ops.add(new Mov(X86Register.R11, X86Register.RDX, true));
+
+            } else if (op instanceof BinaryOperation bo){
                 Operand[] operands = bo.getArgs();
 
                 //Operand 1 wird geladen

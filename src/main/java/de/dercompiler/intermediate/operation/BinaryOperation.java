@@ -5,10 +5,10 @@ import de.dercompiler.intermediate.operand.Operand;
 
 public abstract non-sealed class BinaryOperation extends Operation {
 
-    private final Operand target;
-    private final Operand source;
+    protected final Operand target;
+    protected final Operand source;
 
-    private final OperationType operationType;
+    protected final OperationType operationType;
 
     public BinaryOperation(OperationType operationType, Operand target, Operand source, boolean isMemoryOperation) {
         super(isMemoryOperation);

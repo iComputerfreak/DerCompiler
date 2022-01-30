@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.operation;
 
 public enum OperationType {
     //Erst die binary Operations
+    MOVSLQ("MOVSLQ"),
     ADD("ADD"),
     AND("AND"),
     CMP("CMP"),

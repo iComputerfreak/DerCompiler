@@ -19,7 +19,7 @@ import java.util.LinkedList;
 
 public class EasyTest {
 
-    //@Test
+    @Test
     void test(){
         VirtualRegister v1 = new VirtualRegister();
         VirtualRegister v2 = new VirtualRegister();
@@ -37,6 +37,7 @@ public class EasyTest {
         Operation o4 = new Call(new LabelOperand("haha"),true, v1, v2,v1,v2,v1,v2,v1);
         Operation o5 = new Jne(new LabelOperand("testziel"));
         Operation o6 = new Dec(v1, true);
+        Operation o7 = new Div(v1, v2);
 
         LinkedList<Operation> ops = new LinkedList<Operation>();
         ops.add(o1);
@@ -45,6 +46,7 @@ public class EasyTest {
         ops.add(o4);
         ops.add(o5);
         ops.add(o6);
+        ops.add(o7);
 
         Function testFunc = new Function("test", ops);
 

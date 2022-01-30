@@ -16,4 +16,9 @@ public class Div extends BinArithOperation {
     public BinaryOperation allocate(Operand target, Operand source){
         return new Div(target, source);
     }
+
+    @Override
+    public String getIntelSyntax() {
+        return operationType.getSyntax() + " " + target.getIdentifier();
+    }
 }

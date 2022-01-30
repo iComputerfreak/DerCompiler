@@ -10,4 +10,8 @@ public final class Cltq extends UnaryOperation {
         super(OperationType.CLTQ, operand, isMemoryOperation);
     }
 
+    @Override
+    public String getIntelSyntax() {
+        return operationType.getSyntax();
+    }
 }
