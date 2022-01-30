@@ -22,6 +22,7 @@ public class CommandLineStrings {
     public static final String COMMAND_PRINT_AST = "print-ast";
     public static final String COMMAND_CHECK = "check";
     public static final String COMMAND_COMPILE_FIRM = "compile-firm";
+    public static final String COMMAND_COMPILE = "compile";
 
     public static final String COMMAND_WORKING_DIR = "working-directory";
 
@@ -70,6 +71,7 @@ public class CommandLineStrings {
     public static final String DESCRIPTION_PRINT_AST = "Pretty-prints the generated AST to the console.";
     public static final String DESCRIPTION_CHECK = "Checks the code for semantics.";
     public static final String DESCRIPTION_COMPILE_FIRM = "compile with firm backend";
+    public static final String DESCRIPTION_COMPILE = "compile with custom backend";
 
     public static final String DESCRIPTION_WORKING_DIR = "Overrides the working directory of the compiler";
 

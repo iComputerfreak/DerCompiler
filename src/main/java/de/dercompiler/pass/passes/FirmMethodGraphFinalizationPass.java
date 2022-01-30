@@ -78,7 +78,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
             if (trueBlock) {
                 state.exchangeTrueBlock(state.construction.getCurrentBlock());
             } else if (falseBlock) {
-                state.exchangeTrueBlock(state.construction.getCurrentBlock());
+                state.exchangeFalseBlock(state.construction.getCurrentBlock());
             } else {
                 new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("we are in a other Block, but we have no Branch, that's odd");
             }
