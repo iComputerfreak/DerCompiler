@@ -13,8 +13,10 @@ import firm.nodes.Block;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class FirmBlock {
 
@@ -251,6 +253,12 @@ public class FirmBlock {
 
     public boolean hasReturn() {
         return Objects.nonNull(jumps) && jumps.getOperations().get(0) instanceof Ret;
+    }
+
+    public Stream<LabelOperand> getJumpTargets() {
+        return jumps == null ? Stream.<LabelOperand>builder().build() :
+                jumps.getOperations().stream()
+                .filter(op -> op instanceof JumpOperation).map(op -> (LabelOperand) op.getArgs()[0]);
     }
 
     record Component(List<Operation> operations) {

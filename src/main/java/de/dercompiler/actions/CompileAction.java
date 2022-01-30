@@ -1,6 +1,7 @@
 package de.dercompiler.actions;
 
 import de.dercompiler.ast.Program;
+import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
@@ -18,9 +19,7 @@ import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
-import de.dercompiler.util.GraphUtil;
 
-import java.io.PrintStream;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -79,9 +78,11 @@ public class CompileAction extends Action {
 
             MyBlockSorter sorter = new MyBlockSorter();
             List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
+            List<LabelOperand> jmpTargets = firmBlocks.stream().flatMap(FirmBlock::getJumpTargets).collect(Collectors.toList());
+
             StringJoiner joiner = new StringJoiner("\n");
             for (FirmBlock firmBlock : firmBlocks) {
-                if (blocksGraph.getGraph().inDegreeOf(firmBlock) > 1) {
+                if (jmpTargets.stream().anyMatch(lbl -> lbl.getIdentifier().equals(firmBlock.getId()))) {
                     joiner.add("L%s:".formatted(firmBlock.getId()));
                 }
                 String operations = firmBlock.getOperations();
