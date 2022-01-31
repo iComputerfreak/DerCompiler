@@ -2,6 +2,8 @@ package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.selection.Datatype;
 
+import java.util.Locale;
+
 public enum OperationType {
     //Erst die binary Operations
     MOVSLQ("MOVSLQ", false),
@@ -56,11 +58,11 @@ public enum OperationType {
     private final boolean appendDatatype;
 
     OperationType(String syntax){
-        this.syntax = syntax; this.appendDatatype = false;
+        this.syntax = syntax.toLowerCase(); this.appendDatatype = false;
     }
 
     OperationType(String syntax, boolean appendDatatype){
-        this.syntax = syntax;
+        this.syntax = syntax.toLowerCase();
         this.appendDatatype = appendDatatype;
     }
 
@@ -70,7 +72,7 @@ public enum OperationType {
 
     public String getAtntSyntax(Datatype datatype){
         if (appendDatatype){
-            return syntax +  datatype.toString();
+            return syntax +  datatype.toString().toLowerCase();
         }
         return syntax;
     }
