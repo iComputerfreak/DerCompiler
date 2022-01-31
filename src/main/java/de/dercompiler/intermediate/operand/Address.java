@@ -57,7 +57,7 @@ public class Address implements Operand {
             case 15 -> "%1$d(%2$s,%3$s,%4$d)";  // constant + base + index * scale
             default -> "???";
         };
-        return format.formatted(offset, base, index, scale);
+        return format.formatted(offset, base != null ? base.getIdentifier() : null, index != null? index.getIdentifier() : null, scale);
     }
 
     @Override

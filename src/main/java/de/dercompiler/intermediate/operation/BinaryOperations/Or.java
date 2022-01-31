@@ -12,6 +12,8 @@ public class Or extends BinArithOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Or(target, source, true);
+        Or or = new Or(target, source, true);
+        or.setMode(getMode());
+        return or;
     }
 }

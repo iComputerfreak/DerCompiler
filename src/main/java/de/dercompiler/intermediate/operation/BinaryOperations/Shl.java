@@ -16,6 +16,8 @@ public class Shl extends ShiftOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Shl(target, source);
+        Shl shl = new Shl(target, source);
+        shl.setMode(getMode());
+        return shl;
     }
 }

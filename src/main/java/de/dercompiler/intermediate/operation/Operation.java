@@ -82,7 +82,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
                 getIntelSyntax(),
                 mode,
                 isMemoryOperation()? "/M" : "",
-                needsDefinition() ? " ⇒ " + getDefinition() : ""
+                needsDefinition() ? " --> " + getDefinition() : ""
         );
     }
 }

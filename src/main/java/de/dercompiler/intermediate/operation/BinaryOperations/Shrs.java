@@ -17,6 +17,8 @@ public class Shrs extends BinaryOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Shrs(target, source);
+        Shrs shrs = new Shrs(target, source);
+        shrs.setMode(getMode());
+        return shrs;
     }
 }

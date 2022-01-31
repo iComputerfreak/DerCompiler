@@ -55,7 +55,7 @@ public class MyBlockSorter implements BlockSorter {
     private boolean isJmpTarget(FirmBlock block) {
         return graph.vertexSet().stream()
                 .flatMap(FirmBlock::getJumpTargets)
-                .map(LabelOperand::getIdentifier).anyMatch(b -> b.equals(block.getId()));
+                .map(LabelOperand::getTarget).anyMatch(b -> b.equals(block.getId()));
     }
 
     private List<FirmBlock> chainsToList(List<ArrayList<FirmBlock>> chains) {

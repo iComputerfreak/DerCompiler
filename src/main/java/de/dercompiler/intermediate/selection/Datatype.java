@@ -3,7 +3,7 @@ package de.dercompiler.intermediate.selection;
 import firm.Mode;
 
 public enum Datatype implements Comparable<Datatype> {
-    BYTE("B"), WORD("W"), DWORD("D"), QWORD("Q"), OTHER("?"), NODATA("");
+    BYTE("B"), WORD("W"), DWORD("L"), QWORD("Q"), OTHER("?"), NODATA("");
 
     private final String repr;
 

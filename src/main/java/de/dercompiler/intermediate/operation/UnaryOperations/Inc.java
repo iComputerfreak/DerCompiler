@@ -12,6 +12,8 @@ public class Inc extends UnaryArithmeticOperation {
 
     @Override
     public UnaryArithmeticOperation allocate(Operand operand) {
-        return new Inc(operand, true);
+        Inc inc = new Inc(operand, true);
+        inc.setMode(getMode());
+        return inc;
     }
 }

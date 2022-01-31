@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation.NaryOperations;
 
 import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.operand.MethodReference;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.Rol;
@@ -10,23 +11,25 @@ import de.dercompiler.intermediate.selection.Datatype;
 
 public class Call extends NaryOperation {
 
-    public Call(LabelOperand address, boolean isMemoryOperation) {
+    public Call(MethodReference address, boolean isMemoryOperation) {
         super(OperationType.CALL, isMemoryOperation, address);
     }
 
-    public Call(LabelOperand method, boolean isMemoryOperation, Operand... args) {
+    public Call(MethodReference method, boolean isMemoryOperation, Operand... args) {
         super(OperationType.CALL, isMemoryOperation, convertArgs(method, args));
     }
 
-    private static Operand[] convertArgs(LabelOperand method, Operand... args) {
+    private static Operand[] convertArgs(MethodReference method, Operand... args) {
         Operand[] allArgs = new Operand[args.length + 1];
         allArgs[0] = method;
         System.arraycopy(args, 0, allArgs, 1, args.length);
         return allArgs;
     }
 
-    public NaryOperation allocate(){
-        return new Call((LabelOperand) getArgs()[0], true);
+    public Call allocate(){
+        Call call = new Call((MethodReference) getArgs()[0], true);
+        call.setMode(getMode());
+        return call;
     }
 
     @Override

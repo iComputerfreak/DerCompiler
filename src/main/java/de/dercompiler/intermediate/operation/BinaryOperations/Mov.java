@@ -4,6 +4,8 @@ import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
+import de.dercompiler.intermediate.selection.Datatype;
+import de.dercompiler.intermediate.selection.Signedness;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
@@ -14,6 +16,7 @@ public class Mov extends BinaryOperation {
         if (target instanceof ConstantValue) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Incompatible operands for operation " + getIntelSyntax());
         }
+        setMode(Datatype.QWORD, Signedness.UNSIGNED);
     }
 
     @Override

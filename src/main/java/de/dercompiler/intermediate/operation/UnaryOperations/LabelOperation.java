@@ -19,7 +19,7 @@ public class LabelOperation extends UnaryOperation {
 
     @Override
     public String getIntelSyntax() {
-        return "L%s:".formatted(getArg());
+        return "%s:".formatted(getArg());
     }
 
     @Override

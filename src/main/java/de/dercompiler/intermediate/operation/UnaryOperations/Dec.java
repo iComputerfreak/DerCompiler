@@ -14,6 +14,8 @@ public class Dec extends UnaryArithmeticOperation {
 
     @Override
     public UnaryArithmeticOperation allocate(Operand operand) {
-        return new Dec(operand, true);
+        Dec dec = new Dec(operand, true);
+        dec.setMode(getMode());
+        return dec;
     }
 }

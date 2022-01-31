@@ -13,6 +13,8 @@ public class And extends BinaryOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new And(target, source);
+        And and = new And(target, source);
+        and.setMode(getMode());
+        return and;
     }
 }

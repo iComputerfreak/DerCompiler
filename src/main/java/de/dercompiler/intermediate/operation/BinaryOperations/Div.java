@@ -15,7 +15,9 @@ public class Div extends BinArithOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Div(target, source);
+        Div div = new Div(target, source);
+        div.setMode(getMode());
+        return div;
     }
 
     @Override

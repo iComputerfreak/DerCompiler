@@ -13,6 +13,8 @@ public class Mod extends BinArithOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Mod(target, source);
+        Mod mod = new Mod(target, source);
+        mod.setMode(getMode());
+        return mod;
     }
 }

@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.operand.MethodReference;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.Datatype;
@@ -60,9 +61,9 @@ public class CallRule extends SubstitutionRule<Call> {
         return IntStream.range(2, getCall().getPredCount()).mapToObj(idx -> getAnnotation(getCall().getPred(idx)).getTarget()).toArray(Operand[]::new);
     }
 
-    private LabelOperand getMethod() {
+    private MethodReference getMethod() {
         Address methodNode = (Address) getCall().getPtr();
-        return new LabelOperand(methodNode.getEntity().getName());
+        return new MethodReference(methodNode.getEntity().getName());
     }
 
     private Call getCall() {

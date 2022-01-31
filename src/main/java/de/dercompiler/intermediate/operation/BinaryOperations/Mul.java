@@ -16,6 +16,8 @@ public class Mul extends BinArithOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Mul(target, source);
+        Mul mul = new Mul(target, source);
+        mul.setMode(getMode());
+        return mul;
     }
 }
