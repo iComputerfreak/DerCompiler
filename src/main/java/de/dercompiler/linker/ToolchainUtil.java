@@ -1,14 +1,12 @@
 package de.dercompiler.linker;
 
-import de.dercompiler.generation.CodeGenerationErrorIds;
-import de.dercompiler.io.FileResolver;
+import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.TargetTriple;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 
 public class ToolchainUtil {
 

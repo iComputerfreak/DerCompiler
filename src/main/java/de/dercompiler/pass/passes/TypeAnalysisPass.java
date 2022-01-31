@@ -1,5 +1,6 @@
 package de.dercompiler.pass.passes;
 
+import de.dercompiler.Program;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.visitor.ASTExpressionVisitor;
@@ -9,7 +10,6 @@ import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.visitor.ASTLazyStatementVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.lexer.SourcePosition;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.GlobalScope;
 import de.dercompiler.semantic.MethodDefinition;

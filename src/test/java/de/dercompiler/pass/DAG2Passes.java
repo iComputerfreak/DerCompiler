@@ -1,7 +1,7 @@
 package de.dercompiler.pass;
 
 import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 
 public class DAG2Passes {
 

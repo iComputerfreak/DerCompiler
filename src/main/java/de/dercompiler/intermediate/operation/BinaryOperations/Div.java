@@ -23,7 +23,8 @@ public class Div extends BinArithOperation {
         return operationType.getSyntax() + " " + target.getIdentifier();
     }
 
-    public String getAtntSyntax(Datatype datatype){
+    @Override
+    public String getAtntSyntax(){
         return getIntelSyntax();
     }
 }

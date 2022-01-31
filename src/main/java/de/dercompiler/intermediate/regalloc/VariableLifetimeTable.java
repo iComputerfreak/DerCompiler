@@ -1,10 +1,8 @@
 package de.dercompiler.intermediate.regalloc;
 
-import de.dercompiler.ast.Program;
-import de.dercompiler.intermediate.Function;
+import de.dercompiler.Function;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class VariableLifetimeTable {
 

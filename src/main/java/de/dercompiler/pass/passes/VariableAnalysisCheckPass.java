@@ -1,5 +1,6 @@
 package de.dercompiler.pass.passes;
 
+import de.dercompiler.Program;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.*;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;

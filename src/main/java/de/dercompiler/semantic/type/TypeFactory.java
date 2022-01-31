@@ -1,15 +1,12 @@
 package de.dercompiler.semantic.type;
 
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.ast.type.CustomType;
 import de.dercompiler.ast.type.IntType;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import de.dercompiler.pass.Pass;
 import de.dercompiler.pass.PassErrorIds;
-import de.dercompiler.pass.PassManager;
-import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.pass.passes.TypeAnalysisPass;
 import de.dercompiler.semantic.GlobalScope;
 

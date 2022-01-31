@@ -1,11 +1,8 @@
 package de.dercompiler.linker;
 
-import de.dercompiler.generation.CodeGenerationErrorIds;
-import de.dercompiler.generation.CodeGenerationWarningIds;
+import de.dercompiler.intermediate.CodeGenerationWarningIds;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-
-import java.io.File;
 
 public class CompilerLinkerFactory {
 

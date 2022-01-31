@@ -1,4 +1,4 @@
-package de.dercompiler.generation;
+package de.dercompiler.intermediate;
 
 import de.dercompiler.io.message.IErrorIds;
 

@@ -1,18 +1,24 @@
-package de.dercompiler.intermediate;
+package de.dercompiler;
 
 import de.dercompiler.intermediate.operation.Operation;
+import firm.Graph;
 
 import java.util.*;
 
 public class Function {
 
-    private final List<Operation> operations;
-    private final int num;
-    private final String functionName;
+    private List<Operation> operations;
+    private int num;
 
-    public Function(String functionName, List<Operation> ops) {
-        this.functionName = functionName;
+    private final firm.Graph graph;
 
+    public Function(firm.Graph graph) {
+        operations = null;
+        this.graph = graph;
+        num = 0;
+    }
+
+    public void setOperations(List<Operation> ops) {
         int i = 0;
         Iterator<Operation> it = ops.iterator();
         while (it.hasNext()) {
@@ -21,12 +27,17 @@ public class Function {
         operations = ops;
         num = i;
     }
-
     public List<Operation> getOperations() {
         return operations;
     }
 
+    public String getName() { return graph.getEntity().getName(); }
+
     public int getNumVirtualRegisters() {
         return num;
+    }
+
+    public Graph getFirmGraph() {
+        return graph;
     }
 }

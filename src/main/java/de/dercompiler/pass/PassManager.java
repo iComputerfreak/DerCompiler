@@ -2,7 +2,7 @@ package de.dercompiler.pass;
 
 import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
@@ -10,11 +10,8 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 
-import javax.print.PrintService;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedList;

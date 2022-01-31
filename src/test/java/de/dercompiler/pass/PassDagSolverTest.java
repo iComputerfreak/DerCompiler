@@ -1,12 +1,10 @@
 package de.dercompiler.pass;
 
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.parser.Parser;
 import org.junit.jupiter.api.*;
-
-import javax.print.attribute.standard.DocumentName;
 
 import static org.junit.jupiter.api.Assertions.*;
 

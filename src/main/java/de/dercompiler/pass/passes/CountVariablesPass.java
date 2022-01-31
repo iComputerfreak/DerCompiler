@@ -2,8 +2,7 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.Method;
 import de.dercompiler.ast.Parameter;
-import de.dercompiler.ast.Program;
-import de.dercompiler.ast.expression.Expression;
+import de.dercompiler.Program;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
 import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.io.OutputMessageHandler;

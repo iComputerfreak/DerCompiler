@@ -2,7 +2,7 @@ package de.dercompiler.pass.passes;
 
 import de.dercompiler.ast.ASTDefinition;
 import de.dercompiler.ast.ClassDeclaration;
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.expression.GlobalConstant;
 import de.dercompiler.pass.*;
 import de.dercompiler.semantic.*;

@@ -1,11 +1,8 @@
 package de.dercompiler.pass.passes;
 
-import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.visitor.ASTStatementVisitor;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.pass.*;
 
 import java.util.Stack;

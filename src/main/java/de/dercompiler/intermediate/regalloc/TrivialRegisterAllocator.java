@@ -1,15 +1,13 @@
 package de.dercompiler.intermediate.regalloc;
 
-import de.dercompiler.intermediate.Function;
+import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.*;
-import de.dercompiler.intermediate.operation.NaryOperation;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;

@@ -1,6 +1,6 @@
 package de.dercompiler.parser;
 
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.printer.PrettyPrinter;
 import de.dercompiler.io.DebugEvent;
 import de.dercompiler.io.OutputMessageHandler;

@@ -28,8 +28,8 @@ public abstract non-sealed class ConstantOperation extends Operation {
     }
 
     @Override
-    public String getAtntSyntax(Datatype datatype) {
-        return operationType.getAtntSyntax(datatype);
+    public String getAtntSyntax() {
+        return operationType.getAtntSyntax(getDatatype());
     }
 
 }

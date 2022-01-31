@@ -1,8 +1,7 @@
 package de.dercompiler.pass.passes;
 
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.statement.BasicBlock;
-import de.dercompiler.ast.statement.Statement;
 import de.dercompiler.pass.*;
 
 public class ASTReferencePullPass implements BasicBlockPass {

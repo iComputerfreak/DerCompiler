@@ -1,7 +1,8 @@
 package de.dercompiler.pass.passes;
 
+import de.dercompiler.Function;
 import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.expression.UninitializedValue;
 import de.dercompiler.ast.statement.LocalVariableDeclarationStatement;
@@ -18,7 +19,6 @@ import de.dercompiler.transformation.TransformationHelper;
 import de.dercompiler.transformation.TransformationState;
 import firm.nodes.Block;
 
-import java.util.List;
 import java.util.Objects;
 
 public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPass, StatementPass, ExpressionPass, ASTStatementVisitor {
@@ -39,7 +39,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         state.construction.finish();
         //Graph als .vcg datei erzeugen
         GraphDumper.dumpGraphFinal(state);
-        program.getGraphs().add(state.graph);
+        program.getFunctions().add(new Function(state.graph));
         state.clear();
         return false;
     }
@@ -238,7 +238,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
     }
 
     @Override
-    public void doInitialization(de.dercompiler.ast.Program program) {
+    public void doInitialization(Program program) {
         System.out.println("Initializing");
         if (Objects.isNull(startUp)) new OutputMessageHandler(MessageOrigin.PASSES).internalError("FirmMethodgraphFinalizationPass needs FirmMethodgraphStartupPass, gut it is not in the PassManager");
         state = startUp.getState();

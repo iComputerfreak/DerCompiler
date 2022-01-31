@@ -40,5 +40,6 @@ public abstract non-sealed class NaryOperation extends Operation {
         return operationType.getSyntax() + " " + Arrays.stream(operands).map(Operand::getIdentifier).collect(Collectors.joining(" "));
     }
 
+    //we use for all syntaxes the same implementations, so no other overload needed
 }
 

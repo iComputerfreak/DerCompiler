@@ -41,8 +41,8 @@ public abstract non-sealed class BinaryOperation extends Operation {
     }
 
     @Override
-    public String getAtntSyntax(Datatype datatype){
-        return operationType.getAtntSyntax(datatype) +  " " + source.getIdentifier(datatype) + "," + target.getIdentifier(datatype);
+    public String getAtntSyntax(){
+        return operationType.getAtntSyntax(getDatatype()) +  " " + source.getIdentifier(getDatatype()) + "," + target.getIdentifier(getDatatype());
     }
 
     public abstract BinaryOperation allocate(Operand target, Operand source);

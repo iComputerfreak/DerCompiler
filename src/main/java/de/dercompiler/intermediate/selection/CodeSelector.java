@@ -1,6 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
-import de.dercompiler.generation.CodeGenerationWarningIds;
+import de.dercompiler.intermediate.CodeGenerationWarningIds;
 import de.dercompiler.intermediate.operand.CondTarget;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.VirtualRegister;

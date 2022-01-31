@@ -2,7 +2,7 @@ package de.dercompiler.pass;
 
 import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.Statement;
 

@@ -1,6 +1,6 @@
 package de.dercompiler.intermediate.regalloc;
 
-import de.dercompiler.intermediate.Function;
+import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
 
 public abstract class RegisterAllocator {

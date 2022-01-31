@@ -2,12 +2,11 @@ package de.dercompiler.pass;
 
 import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.Method;
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.ast.expression.Expression;
 import de.dercompiler.ast.statement.BasicBlock;
 import de.dercompiler.ast.statement.Statement;
 
-import java.util.List;
 import java.util.function.Function;
 
 public class PassMockFactory {

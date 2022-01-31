@@ -21,4 +21,9 @@ public class LabelOperation extends UnaryOperation {
     public String getIntelSyntax() {
         return "L%s:".formatted(getArg());
     }
+
+    @Override
+    public String getAtntSyntax(Datatype datatype) {
+        return ".L%s:".formatted(getArg());
+    }
 }

@@ -1,6 +1,6 @@
 package de.dercompiler.actions;
 
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
