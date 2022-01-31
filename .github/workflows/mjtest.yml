@@ -19,7 +19,7 @@ jobs:
         run: ./build
       - run: "git clone --recursive https://git.scc.kit.edu/IPDSnelting/mjtest mjtest"
       - run: "git -C mjtest/tests reset --hard origin/master"
-      - run: "./mjtest/mjt.py lexer syntax ast semantic ./run"
+      - run: "MJ_TIMEOUT=60 ./mjtest/mjt.py lexer syntax ast semantic ./run"
 
   mjtest-firm:
     name: "Run firm compile"
@@ -34,7 +34,7 @@ jobs:
         run: ./build
       - run: "git clone --recursive https://git.scc.kit.edu/IPDSnelting/mjtest mjtest"
       - run: "git -C mjtest/tests reset --hard origin/master"
-      - run: "./mjtest/mjt.py compile-firm-only compile-firm ./run"
+      - run: "MJ_TIMEOUT=60 ./mjtest/mjt.py compile-firm-only compile-firm ./run"
 
   mjtest-djungelskog:
     name: "Run Djungelskog compile"
@@ -50,4 +50,4 @@ jobs:
       - run: "git clone --recursive https://git.scc.kit.edu/IPDSnelting/mjtest mjtest"
       - run: "git -C mjtest/tests reset --hard origin/master"
       - run: "rm mjtest/tests/exec/ReallyEfficientFactorization.java"
-      - run: "./mjtest/mjt.py compile-only compile ./run"
+      - run: "MJ_TIMEOUT=60 ./mjtest/mjt.py compile-only compile ./run"
