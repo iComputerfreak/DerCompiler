@@ -163,21 +163,23 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         boolean falseBlock = origin.equals(state.falseBlock());
         boolean trueBlock = origin.equals(state.trueBlock());
 
-        if (falseBlock) { //after
-            state.exchangeFalseBlock(after);
-        } else if (trueBlock) { //true
-            state.exchangeTrueBlock(after);
-        } else if (ifStatement.getSurroundingStatement() == ifStatement.getSurroundingMethod().getBlock()) {
-            //do nothing
-        } else {
-            if (ifStatement.hasElse()) {
-                if (ifStatement.getSurroundingStatement() instanceof IfStatement sur && ifStatement == sur.getElseStatement()) {
-                    state.exchangeFalseBlock(after);
-                } else if (ifStatement.getElseStatement() instanceof IfStatement) {
-                    //do nothing
-                }
+        if (state.isCondition()) {
+            if (falseBlock) { //after
+                state.exchangeFalseBlock(after);
+            } else if (trueBlock) { //true
+                state.exchangeTrueBlock(after);
+            } else if (ifStatement.getSurroundingStatement() == ifStatement.getSurroundingMethod().getBlock()) {
+                //do nothing
             } else {
-                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
+                if (ifStatement.hasElse()) {
+                    if (ifStatement.getSurroundingStatement() instanceof IfStatement sur && ifStatement == sur.getElseStatement()) {
+                        state.exchangeFalseBlock(after);
+                    } else if (ifStatement.getElseStatement() instanceof IfStatement) {
+                        //do nothing
+                    }
+                } else {
+                    new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
+                }
             }
         }
     }
@@ -201,14 +203,16 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         boolean falseBlock = origin.equals(state.falseBlock());
         boolean trueBlock = origin.equals(state.trueBlock());
 
-        if (falseBlock) { //false
-            state.exchangeFalseBlock(after);
-        } else if (trueBlock) { //while and then
-            state.exchangeTrueBlock(after);
-        } else if (whileStatement.getSurroundingStatement() == whileStatement.getSurroundingMethod().getBlock()) {
-            //do nothing
-        } else {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
+        if (state.isCondition()) {
+            if (falseBlock) { //false
+                state.exchangeFalseBlock(after);
+            } else if (trueBlock) { //while and then
+                state.exchangeTrueBlock(after);
+            } else if (whileStatement.getSurroundingStatement() == whileStatement.getSurroundingMethod().getBlock()) {
+                //do nothing
+            } else {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("unknown control-flow");
+            }
         }
     }
 
