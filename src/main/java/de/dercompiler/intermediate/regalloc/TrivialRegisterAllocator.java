@@ -66,7 +66,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     private Map<Integer, Operand> vrMap = new HashMap<>();
 
     private Operand getParam(int n) {
-        if (n < 7) {
+        if (n == 0) {
+            return manager.getThis();
+        } else if (n < 7) {
             return parameterRegister[n - 1];
         } else {
             return manager.getArgument(n - 6);

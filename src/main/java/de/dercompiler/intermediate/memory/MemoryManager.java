@@ -87,4 +87,5 @@ public interface MemoryManager {
 
     void setRegisterMgmt(RegisterAllocator registerAllocator);
 
+    Operand getThis();
 }

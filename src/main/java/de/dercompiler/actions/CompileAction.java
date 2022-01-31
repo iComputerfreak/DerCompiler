@@ -5,7 +5,9 @@ import de.dercompiler.Function;
 import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.generation.AtntCodeGenerator;
 import de.dercompiler.intermediate.generation.CodeGenerator;
+import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
+import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.intermediate.selection.FirmBlock;
@@ -88,7 +90,7 @@ public class CompileAction extends Action {
             List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
             function.setOperations(firmBlocks.stream().flatMap(b -> b.getOperations().stream()).toList());
 
-            //new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(f);
+            new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(function);
         }
 
         ErrorStatus.exitProgramIfError();

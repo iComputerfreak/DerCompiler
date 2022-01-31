@@ -106,4 +106,9 @@ public class BasicMemoryManager implements MemoryManager {
     public void setRegisterMgmt(RegisterAllocator registerAllocator) {
         this.registerMgmt = registerAllocator;
     }
+
+    @Override
+    public Operand getThis() {
+        return getArgument(0);
+    }
 }
