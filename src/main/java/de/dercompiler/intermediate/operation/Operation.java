@@ -80,7 +80,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     @Override
     public String toString() {
         return "%s (%s%s)%s".formatted(
-                getIntelSyntax(),
+                getAtntSyntax(),
                 mode,
                 isMemoryOperation()? "/M" : "",
                 needsDefinition() ? " --> " + getDefinition() : ""

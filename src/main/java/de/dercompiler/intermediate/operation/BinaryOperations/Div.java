@@ -1,11 +1,8 @@
 package de.dercompiler.intermediate.operation.BinaryOperations;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperation;
-import de.dercompiler.intermediate.operation.BinaryOperations.BinArithOperation;
 import de.dercompiler.intermediate.operation.OperationType;
-import de.dercompiler.intermediate.selection.Datatype;
 
 public class Div extends BinArithOperation {
 

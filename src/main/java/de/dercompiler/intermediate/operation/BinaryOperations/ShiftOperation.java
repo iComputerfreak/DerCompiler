@@ -14,7 +14,7 @@ public abstract class ShiftOperation extends BinaryOperation {
         super(operationType, target, source, isMemoryOperation);
         if (!(target instanceof Register || target instanceof Address)
         || !(source instanceof Register || source instanceof ConstantValue c)) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Incompatible operand types: " + this.getIntelSyntax());
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Incompatible operand types: " + this.getAtntSyntax());
         }
     }
 }

@@ -16,10 +16,7 @@ import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class TrivialRegisterAllocator extends RegisterAllocator {
@@ -47,6 +44,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      * The number of parameters of the current Function.
      */
     private int paramCount;
+    private boolean skipNext;
 
     public TrivialRegisterAllocator(MemoryManager manager) {
         super(manager);
@@ -70,73 +68,19 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      */
     private Map<Integer, Operand> vrMap = new HashMap<>();
 
-    private Operand getParamReg(int n) {
-        if (n == 0) {
-            return manager.getThis();
-        } else if (n < 7) {
-            return parameterRegister[n - 1];
-        } else {
-            return manager.getArgument(n - 6);
-        }
-    }
-
-    private Operand getOperand(Operand operand) {
-        if (operand instanceof VirtualRegister vr) {
-            return loadVirtualRegister((int) vr.getId());
-        } else if (operand instanceof ParameterRegister pr) {
-            return getParamReg(pr.getId());
-        } else if (operand instanceof Address address) {
-            Operand base = getOperand(address.getBase());
-            X86Register x86RegisterBase;
-            if (base instanceof X86Register baseReg) {
-                x86RegisterBase = baseReg;
-            } else {
-                x86RegisterBase = freeRegister[freeRegisterIndex++];
-                ops.add(new Mov(x86RegisterBase, base));
-            }
-            X86Register x86RegisterIndex = null;
-            Register indexRegister = address.getIndex();
-            if (indexRegister != null) {
-                x86RegisterIndex = freeRegister[freeRegisterIndex++];
-                ops.add(new Mov(x86RegisterIndex, getOperand(indexRegister), true));
-            }
-            return address.allocate(x86RegisterBase, x86RegisterIndex);
-        } else {
-            return operand;
-        }
-    }
-
-    private Operand loadVirtualRegister(int id) {
-        return vrMap.computeIfAbsent(id, id_ -> storeLocalVar());
-    }
-
-    private Operand getLocalVar(int n) {
-        return manager.getVar(n);
-    }
-
-    public Operand popLocalVar() {
-        return manager.getVar(--varCount);
-    }
-
-    public Operand storeLocalVar() {
-        return manager.getVar(varCount++);
-    }
-
-    private void saveState() {
-        saveStates.push(varCount);
-    }
-
-    private void restoreState() {
-        varCount = saveStates.pop();
-    }
-
     List<Operation> ops;
+    Function function;
 
     @Override
     public void allocateRegisters(Function function) {
+        this.function = function;
         ops = new LinkedList<>();
         paramCount = function.getParamCount();
         for (Operation op : function.getOperations()) {
+            if (skipNext) {
+                skipNext = false;
+                continue;
+            }
             if (op instanceof Div div) {
                 handleDiv(div);
             } else if (op instanceof BinaryOperation bo) {
@@ -241,22 +185,78 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             }
 
         } else {
+            /*
+                BINARY OPERATION MODES IN GENERAL: (not idiv or imul)
+                op src, target
+                where
+                         src = const or reg or (addr)
+                    and dest = reg or (addr)
 
-            //Operand 1 wird geladen
-            ops.add(new Mov(X86Register.R10, opTgt));
+                    but not src = (addr) and dest = (addr) at the same time
 
-            //Operand 2 wird geladen
-            ops.add(new Mov(X86Register.R11, opSrc));
+             */
 
-            //Operation durchführen
-            ops.add(bo.allocate(X86Register.R10, X86Register.R11));
+            /*
+                if next operation writes result back to target of this operation
+                   and destination of this operation dies after next operation
+                then destination is throwaway register
+                -> we can operate on target directly!
+            */
+            boolean throwaway = tryThrowaway(bo.getTarget(), bo.getDefinition(), bo.getIndex());
 
+            Operand destReg = null;
+            if (throwaway) {
+                skipNext = true;
+                if (opTgt instanceof X86Register) {
+                    destReg = opTgt;
+                } else if (!opSrc.equals(opTgt)) {
+                    // load address of target register
+                    ops.add(new Lea(X86Register.R10, opTgt));
+                    destReg = Address.ofOperand(X86Register.R10);
+                }
+            }
+            if (destReg == null) {
+                // copy value of target register
+                ops.add(new Mov(X86Register.R10, opTgt));
+                destReg = X86Register.R10;
+            }
 
-            //Ergebnis wieder auf den Stack schreiben
-            if (bo.needsDefinition()) {
+            // load source register, if necessary
+            Operand srcReg = null;
+            if (bo instanceof BinArithOperation) {
+                if (opSrc instanceof ConstantValue) {
+                    srcReg = opSrc;
+                } else if (destReg instanceof Register && opSrc.equals(opTgt)) {
+                    srcReg = destReg;
+                }
+            }
+
+            if (srcReg == null) {
+                ops.add(new Mov(X86Register.R11, opSrc));
+                srcReg = X86Register.R11;
+            }
+
+            // add operation code
+            ops.add(bo.allocate(destReg, srcReg));
+
+            // push result onto stack
+            if (bo.needsDefinition() && !throwaway) {
+                // if it were not R10, it would have been directly stored at the target location
                 ops.add(new Mov(getOperand(bo.getDefinition()), X86Register.R10));
             }
         }
+    }
+
+    private boolean tryThrowaway(Operand target, Operand definition, int index) {
+        Operation writeBack = function.getOperations().get(index + 1);
+        if (writeBack instanceof Mov mov
+                && mov.getSource().equals(definition)
+                && mov.getTarget().equals(target)) {
+            return function.getOperations().stream()
+                    .skip(index + 2)
+                    .noneMatch(op -> Arrays.asList(op.getArgs()).contains(definition));
+        }
+        return false;
     }
 
     private void handleDiv(Div div) {
@@ -290,5 +290,66 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         //RDI wiederherstellen
         ops.add(new Mov(X86Register.R11, X86Register.RDX));
+    }
+
+    private Operand getParamReg(int n) {
+        if (n == 0) {
+            return manager.getThis();
+        } else if (n < 7) {
+            return parameterRegister[n - 1];
+        } else {
+            return manager.getArgument(n - 6);
+        }
+    }
+
+    private Operand getOperand(Operand operand) {
+        if (operand instanceof VirtualRegister vr) {
+            return loadVirtualRegister((int) vr.getId());
+        } else if (operand instanceof ParameterRegister pr) {
+            return getParamReg(pr.getId());
+        } else if (operand instanceof Address address) {
+            Operand base = getOperand(address.getBase());
+            X86Register x86RegisterBase;
+            if (base instanceof X86Register baseReg) {
+                x86RegisterBase = baseReg;
+            } else {
+                x86RegisterBase = freeRegister[freeRegisterIndex++];
+                ops.add(new Mov(x86RegisterBase, base));
+            }
+            X86Register x86RegisterIndex = null;
+            Register indexRegister = address.getIndex();
+            if (indexRegister != null) {
+                x86RegisterIndex = freeRegister[freeRegisterIndex++];
+                ops.add(new Mov(x86RegisterIndex, getOperand(indexRegister), true));
+            }
+            return address.allocate(x86RegisterBase, x86RegisterIndex);
+        } else {
+            return operand;
+        }
+    }
+
+
+    private Operand loadVirtualRegister(int id) {
+        return vrMap.computeIfAbsent(id, id_ -> storeLocalVar());
+    }
+
+    private Operand getLocalVar(int n) {
+        return manager.getVar(n);
+    }
+
+    public Operand popLocalVar() {
+        return manager.getVar(--varCount);
+    }
+
+    public Operand storeLocalVar() {
+        return manager.getVar(varCount++);
+    }
+
+    private void saveState() {
+        saveStates.push(varCount);
+    }
+
+    private void restoreState() {
+        varCount = saveStates.pop();
     }
 }

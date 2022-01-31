@@ -25,7 +25,7 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
         if (getProj().getPred() instanceof Load load) {
             return load;
         }
-        ;
+
         // we never return
         throw new RuntimeException();
     }
@@ -37,14 +37,18 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
+        // Loaded value must be stored away!
         Operand operandTarget = getAnnotation(getLoad()).getTarget();
         if (operandTarget instanceof Address addr && addr.isRegister()) {
             setTarget(addr);
             return List.of();
         } else {
-            Operand target = new VirtualRegister();
-            setTarget(target);
-            Operation mov = new Mov(operandTarget, target, true );
+            Operand target = getAnnotation(node).getTarget();
+            if (target == null) {
+                target = new VirtualRegister();
+                setTarget(target);
+            }
+            Operation mov = new Mov(target, operandTarget, true );
             mov.setMode(getRootNode().getMode());
             return List.of(mov);
         }
