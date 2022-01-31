@@ -6,5 +6,8 @@ class EscapingArray {
         /*t[2][5] = 3;*/
         /*System.out.println(t[1][5]);*/
         System.out.println(t[2][5]);
+        if (null == null) {
+            System.out.println(1);
+        }
     }
 }
