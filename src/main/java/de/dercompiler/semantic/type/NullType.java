@@ -27,7 +27,11 @@ public class NullType implements Type {
     }
 
     public void setExpectedType(Type expType) {
-        this.expectedType = expType;
+        if (expType == null) {
+            this.expectedType = this;
+        } else{
+            this.expectedType = expType;
+        }
     }
 
     public Type getExpectedType() {
