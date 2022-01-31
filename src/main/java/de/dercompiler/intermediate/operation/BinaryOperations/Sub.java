@@ -12,6 +12,8 @@ public class Sub extends BinArithOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Sub(target, source);
+        Sub sub = new Sub(target, source);
+        sub.setMode(getMode());
+        return sub;
     }
 }

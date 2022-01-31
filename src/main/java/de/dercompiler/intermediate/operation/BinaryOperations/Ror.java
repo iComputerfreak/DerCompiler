@@ -6,6 +6,8 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.Register;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
+import firm.Mode;
+
 /*
 Rotate right
 
@@ -19,6 +21,8 @@ public class Ror extends ShiftOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Ror(target, source, true);
+        Ror ror = new Ror(target, source, true);
+        ror.setMode(getMode());
+        return ror;
     }
 }

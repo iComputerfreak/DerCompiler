@@ -16,6 +16,6 @@ public class Lea extends BinaryOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source) {
-        return null;
+        return new Lea(target, source);
     }
 }

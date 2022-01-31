@@ -19,6 +19,8 @@ public class Sal extends ShiftOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Sal(target, source, false);
+        Sal sal = new Sal(target, source, false);
+        sal.setMode(getMode());
+        return sal;
     }
 }

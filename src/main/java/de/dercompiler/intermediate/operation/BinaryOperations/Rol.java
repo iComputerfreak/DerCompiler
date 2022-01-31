@@ -19,6 +19,8 @@ public class Rol extends ShiftOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Rol(target, source, true);
+        Rol rol = new Rol(target, source, true);
+        rol.setMode(getMode());
+        return rol;
     }
 }

@@ -11,6 +11,8 @@ public class Neg extends UnaryArithmeticOperation {
 
     @Override
     public UnaryArithmeticOperation allocate(Operand operand) {
-        return new Neg(operand, true);
+        Neg neg = new Neg(operand, true);
+        neg.setMode(getMode());
+        return neg;
     }
 }

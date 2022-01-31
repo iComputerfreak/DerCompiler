@@ -12,6 +12,8 @@ public class Not extends UnaryArithmeticOperation {
 
     @Override
     public UnaryArithmeticOperation allocate(Operand operand) {
-        return new Not(operand, true);
+        Not not = new Not(operand, true);
+        not.setMode(getMode());
+        return not;
     }
 }

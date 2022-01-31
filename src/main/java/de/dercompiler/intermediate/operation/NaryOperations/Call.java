@@ -27,7 +27,9 @@ public class Call extends NaryOperation {
     }
 
     public Call allocate(){
-        return new Call((MethodReference) getArgs()[0], true);
+        Call call = new Call((MethodReference) getArgs()[0], true);
+        call.setMode(getMode());
+        return call;
     }
 
     @Override

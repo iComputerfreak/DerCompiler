@@ -154,7 +154,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             }
             freeRegisterIndex = 0;
         }
-        //ops.forEach(x -> System.out.println(x.getAtntSyntax()));
+        function.setOperations(ops);
     }
 
     private void handleCall(Call call) {

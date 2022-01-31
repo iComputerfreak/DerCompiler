@@ -12,7 +12,9 @@ public class Movslq extends BinArithOperation{
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source) {
-        return new Movslq(target, source, true);
+        Movslq movslq = new Movslq(target, source, true);
+        movslq.setMode(getMode());
+        return movslq;
     }
 
     @Override

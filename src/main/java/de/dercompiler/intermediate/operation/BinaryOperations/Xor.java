@@ -12,6 +12,8 @@ public class Xor extends BinArithOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Xor(target, source);
+        Xor xor = new Xor(target, source);
+        xor.setMode(getMode());
+        return xor;
     }
 }

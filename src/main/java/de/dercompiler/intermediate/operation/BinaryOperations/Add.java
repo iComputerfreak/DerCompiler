@@ -11,7 +11,9 @@ public class Add extends BinArithOperation {
     }
 
     @Override
-    public BinaryOperation allocate(Operand target, Operand source){
-        return new Add(target, source);
+    public BinaryOperation allocate(Operand target, Operand source) {
+        Add add = new Add(target, source);
+        add.setMode(getMode());
+        return add;
     }
 }
