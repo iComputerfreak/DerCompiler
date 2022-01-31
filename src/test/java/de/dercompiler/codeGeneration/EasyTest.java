@@ -47,7 +47,8 @@ public class EasyTest {
         ops.add(o6);
         ops.add(o7);
 
-        Function testFunc = new Function("test", ops);
+        Function testFunc = new Function(null);
+        testFunc.setOperations(ops);
 
         TrivialRegisterAllocator regAlloc = new TrivialRegisterAllocator(new BasicMemoryManager());
         regAlloc.allocateRegisters(testFunc);

@@ -53,7 +53,7 @@ public class AtntCodeGenerator implements CodeGenerator {
     }
 
     private void createLabel(BufferedWriter bw, LabelOperation labelOp) throws IOException {
-        writeLine(bw, labelOp.getAtntSyntax(Datatype.NODATA));
+        writeLine(bw, labelOp.getAtntSyntax());
     }
 
     private void createInstructions(BufferedWriter bw, Function func) throws IOException {

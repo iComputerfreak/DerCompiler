@@ -23,7 +23,7 @@ public class LabelOperation extends UnaryOperation {
     }
 
     @Override
-    public String getAtntSyntax(Datatype datatype) {
+    public String getAtntSyntax() {
         return ".L%s:".formatted(getArg());
     }
 }
