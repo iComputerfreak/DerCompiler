@@ -3,11 +3,13 @@ class EscapingArray {
         int[][] t = new int[4][];
         t[2] = new int[6];
         t[1] = t[2];
-        /*t[2][5] = 3;*/
-        /*System.out.println(t[1][5]);*/
+        t[2][5] = 3;
+        System.out.println(t[1][5]);
         System.out.println(t[2][5]);
-        if (null == null) {
+        if (null != null) {
             System.out.println(1);
+        } else {
+            System.out.println(5);
         }
     }
 }

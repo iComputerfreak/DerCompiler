@@ -1,0 +1,17 @@
+class B {
+    public C c;
+}
+
+class C {
+    public boolean bool;
+}
+
+class test {
+    public static void main(String[] args) {
+        B b = new B();
+
+        if (b.c.bool) {
+            System.out.println(1);
+        }
+    }
+}
