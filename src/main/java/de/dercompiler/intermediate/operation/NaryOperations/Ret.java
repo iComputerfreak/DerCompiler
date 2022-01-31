@@ -20,7 +20,7 @@ public class Ret extends NaryOperation {
     }
 
     @Override
-    public String getAtntSyntax(Datatype datatype) {
+    public String getAtntSyntax() {
         return getIntelSyntax();
     }
 

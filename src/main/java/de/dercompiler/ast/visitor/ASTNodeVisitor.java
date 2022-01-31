@@ -1,8 +1,8 @@
 package de.dercompiler.ast.visitor;
 
+import de.dercompiler.Program;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.*;
-import de.dercompiler.ast.statement.*;
 import de.dercompiler.ast.type.BasicType;
 import de.dercompiler.ast.type.Type;
 

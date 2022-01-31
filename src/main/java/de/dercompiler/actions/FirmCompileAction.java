@@ -1,15 +1,13 @@
 package de.dercompiler.actions;
 
-import de.dercompiler.Compiler;
-import de.dercompiler.ast.Program;
-import de.dercompiler.generation.CodeGenerationErrorIds;
+import de.dercompiler.Program;
+import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
 import de.dercompiler.linker.Gcc;
-import de.dercompiler.linker.Runner;
 import de.dercompiler.linker.ToolchainUtil;
 import de.dercompiler.optimization.ArithmeticOptimization;
 import de.dercompiler.optimization.GraphOptimization;
@@ -19,10 +17,8 @@ import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.util.ErrorStatus;
 import firm.Backend;
-import firm.Dump;
 import firm.Graph;
 import firm.Util;
-import firm.nodes.Phi;
 
 import java.io.IOException;
 import java.util.List;

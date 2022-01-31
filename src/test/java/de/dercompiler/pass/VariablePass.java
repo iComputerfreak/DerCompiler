@@ -1,12 +1,8 @@
 package de.dercompiler.pass;
 
 import de.dercompiler.actions.CheckAction;
-import de.dercompiler.ast.Program;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
-import de.dercompiler.lexer.Lexer;
-import de.dercompiler.parser.Parser;
-import de.dercompiler.pass.passes.*;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

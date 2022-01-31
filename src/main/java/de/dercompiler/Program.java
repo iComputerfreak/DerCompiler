@@ -1,5 +1,7 @@
-package de.dercompiler.ast;
+package de.dercompiler;
 
+import de.dercompiler.ast.ASTNode;
+import de.dercompiler.ast.ClassDeclaration;
 import de.dercompiler.ast.visitor.ASTNodeVisitor;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
@@ -35,7 +37,7 @@ public final class Program extends ASTNode {
     private boolean isIndexed;
     private final SymbolTable symbolTable;
     private final GlobalScope globalScope;
-    private final List<firm.Graph> firmGraphs;
+    private final List<Function> functions;
     private final StringTable stringTable;
 
 
@@ -50,7 +52,7 @@ public final class Program extends ASTNode {
         this.symbolTable = new SymbolTable();
         this.stringTable = new StringTable();
         this.globalScope = new GlobalScope();
-        this.firmGraphs = new LinkedList<>();
+        this.functions = new LinkedList<>();
         isIndexed = false;
     }
 
@@ -95,8 +97,8 @@ public final class Program extends ASTNode {
         return globalScope;
     }
     
-    public List<firm.Graph> getGraphs() {
-        return firmGraphs;
+    public List<Function> getFunctions() {
+        return functions;
     }
 
     public StringTable getStringTable() {

@@ -1,5 +1,6 @@
 package de.dercompiler.parser;
 
+import de.dercompiler.Program;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.expression.IntegerValue;
 import de.dercompiler.ast.statement.BasicBlock;

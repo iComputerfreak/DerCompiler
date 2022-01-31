@@ -1,7 +1,8 @@
 package de.dercompiler.actions;
 
-import de.dercompiler.ast.Program;
-import de.dercompiler.generation.CodeGenerationErrorIds;
+import de.dercompiler.Function;
+import de.dercompiler.Program;
+import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.io.CommandLineBuilder;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
@@ -47,8 +48,8 @@ public class FirmCompileOptimizeAction extends Action {
         PassManagerBuilder.buildTransformationPipeline(manager);
         manager.run(program);
         ErrorStatus.exitProgramIfError();
-        for (firm.Graph graph : program.getGraphs()) {
-            new Worklist(null, graph);
+        for (Function func : program.getFunctions()) {
+            new Worklist(null, func.getFirmGraph());
         }
         ErrorStatus.exitProgramIfError();
 

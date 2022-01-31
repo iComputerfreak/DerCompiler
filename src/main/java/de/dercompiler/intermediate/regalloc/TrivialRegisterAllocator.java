@@ -1,6 +1,6 @@
 package de.dercompiler.intermediate.regalloc;
 
-import de.dercompiler.intermediate.Function;
+import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
@@ -152,7 +152,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             }
             freeRegisterIndex = 0;
         }
-        ops.forEach(x -> System.out.println(x.getAtntSyntax(Datatype.WORD)));
+        //ops.forEach(x -> System.out.println(x.getAtntSyntax()));
     }
 
     private void handleCall(Call call) {

@@ -1,7 +1,6 @@
 package de.dercompiler.linker;
 
-import de.dercompiler.general.GeneralErrorIds;
-import de.dercompiler.generation.CodeGenerationErrorIds;
+import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.TargetTriple;

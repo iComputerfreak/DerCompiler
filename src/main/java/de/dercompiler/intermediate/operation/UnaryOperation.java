@@ -35,7 +35,7 @@ public abstract non-sealed class UnaryOperation extends Operation {
     }
 
     @Override
-    public String getAtntSyntax(Datatype datatype) {
-        return operationType.getAtntSyntax(datatype) + (Objects.isNull(operand) ? "" :  " " + operand.getIdentifier(datatype));
+    public String getAtntSyntax() {
+        return operationType.getAtntSyntax(getDatatype()) + (Objects.isNull(getDatatype()) ? "" :  " " + operand.getIdentifier(getDatatype()));
     }
 }

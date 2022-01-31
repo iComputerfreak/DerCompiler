@@ -1,6 +1,6 @@
 package de.dercompiler.pass;
 
-import de.dercompiler.ast.Program;
+import de.dercompiler.Program;
 
 public sealed interface Pass permits AnalysisPass, BasicBlockPass, ClassPass, ExpressionPass, MethodPass, StatementPass {
 

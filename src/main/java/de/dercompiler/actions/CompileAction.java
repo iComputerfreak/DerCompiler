@@ -1,19 +1,21 @@
 package de.dercompiler.actions;
 
-import de.dercompiler.ast.Program;
-import de.dercompiler.intermediate.Function;
-import de.dercompiler.intermediate.memory.BasicMemoryManager;
-import de.dercompiler.intermediate.operand.LabelOperand;
-import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.Program;
+import de.dercompiler.Function;
+import de.dercompiler.intermediate.CodeGenerationErrorIds;
+import de.dercompiler.intermediate.generation.AtntCodeGenerator;
+import de.dercompiler.intermediate.generation.CodeGenerator;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
-import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.io.CommandLineBuilder;
+import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.linker.Gcc;
+import de.dercompiler.linker.ToolchainUtil;
 import de.dercompiler.optimization.ArithmeticOptimization;
 import de.dercompiler.optimization.ConstantPropagation.TransferFunction;
 import de.dercompiler.optimization.ConstantPropagation.Worklist;
@@ -27,7 +29,6 @@ import de.dercompiler.util.ErrorStatus;
 
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Represents the action to compile the given source code
@@ -70,10 +71,12 @@ public class CompileAction extends Action {
 
 
         List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
-        for (firm.Graph graph : program.getGraphs()) {
+        MyBlockSorter sorter = new MyBlockSorter();
+        for (Function function : program.getFunctions()) {
+            firm.Graph graph = function.getFirmGraph();
             if (basicOptimizationsActive) {
                 opts.forEach(opt -> opt.runOnGraph(graph));
-                Worklist.run(new TransferFunction(),graph);
+                Worklist.run(new TransferFunction(), graph);
             }
 
             CodeSelector selector = new CodeSelector(graph);
@@ -82,32 +85,34 @@ public class CompileAction extends Action {
 
             //Step 4: Block ordering
 
-            MyBlockSorter sorter = new MyBlockSorter();
             List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
-            Function f = new Function(graph.toString(), firmBlocks.stream().flatMap(b -> b.getOperations().stream()).toList());
+            function.setOperations(firmBlocks.stream().flatMap(b -> b.getOperations().stream()).toList());
 
-
-            System.out.println("\n\nchained IR firm blocks:\n");
-
-
-            StringJoiner joiner = new StringJoiner("\n");
-            for (FirmBlock firmBlock : firmBlocks) {
-                String operations = firmBlock.getText();
-                joiner.add(operations);
-            }
-            System.out.println(joiner);
-
-            System.out.println("\n\nx64 code:\n");
-            new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(f);
+            //new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(f);
         }
-        
+
         ErrorStatus.exitProgramIfError();
 
+        CodeGenerator gen = new AtntCodeGenerator();
+
+        String base = ToolchainUtil.getBaseName(source.filename());
+        gen.createAssembler(program, ToolchainUtil.appendAssemblerExtension(base));
+
+        Gcc gcc = new Gcc("gcc");
+        if (!gcc.checkCompiler()) {
+            compilerError();
+            return; //we never return
+        }
+        gcc.compileFirm(base);
     }
 
     public void help() {
         CommandLineBuilder.printHelp(compilerName);
 
+    }
+
+    private void compilerError() {
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.COMPILER_ERROR, "Error while try to run gcc");
     }
 
     public void setBasicOptimizationActive(boolean active) {

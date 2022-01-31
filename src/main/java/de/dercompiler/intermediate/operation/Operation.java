@@ -15,7 +15,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     public abstract Operand[] getArgs();
     public abstract OperationType getOperationType();
     public abstract String getIntelSyntax();
-    public abstract String getAtntSyntax(Datatype datatype);
+    public abstract String getAtntSyntax();
 
     private int index;
     private final boolean isMemoryOperation;

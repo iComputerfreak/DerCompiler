@@ -1,6 +1,6 @@
 package de.dercompiler.codeGeneration;
 
-import de.dercompiler.intermediate.Function;
+import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperations.*;
@@ -10,8 +10,6 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Dec;
 import de.dercompiler.intermediate.operation.UnaryOperations.Jne;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
@@ -49,7 +47,8 @@ public class EasyTest {
         ops.add(o6);
         ops.add(o7);
 
-        Function testFunc = new Function("test", ops);
+        Function testFunc = new Function(null);
+        testFunc.setOperations(ops);
 
         TrivialRegisterAllocator regAlloc = new TrivialRegisterAllocator(new BasicMemoryManager());
         regAlloc.allocateRegisters(testFunc);

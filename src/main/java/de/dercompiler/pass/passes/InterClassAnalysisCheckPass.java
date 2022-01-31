@@ -1,5 +1,6 @@
 package de.dercompiler.pass.passes;
 
+import de.dercompiler.Program;
 import de.dercompiler.ast.*;
 import de.dercompiler.ast.type.VoidType;
 import de.dercompiler.io.OutputMessageHandler;
