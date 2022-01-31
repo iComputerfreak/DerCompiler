@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.intermediate.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
+import de.dercompiler.intermediate.operand.Operand;
 
 public abstract class RegisterAllocator {
 
@@ -12,4 +13,6 @@ public abstract class RegisterAllocator {
     }
 
     public abstract void allocateRegisters(Function function);
+
+    public abstract Operand popLocalVar();
 }

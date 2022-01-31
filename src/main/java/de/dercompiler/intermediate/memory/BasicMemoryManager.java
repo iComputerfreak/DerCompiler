@@ -4,6 +4,7 @@ import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Push;
+import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import firm.Entity;
 
 import java.util.Map;
@@ -48,6 +49,7 @@ public class BasicMemoryManager implements MemoryManager {
      *  Accepts the operations resulting from memory operations
      */
     private Consumer<Operation> output;
+    private RegisterAllocator registerMgmt;
 
     @Override
     public Operand getVar(int n) {
@@ -78,7 +80,7 @@ public class BasicMemoryManager implements MemoryManager {
 
     @Override
     public Operand getReturnValue() {
-        return basePointer.offset(16);
+        return registerMgmt.popLocalVar();
     }
 
     @Override
@@ -98,5 +100,10 @@ public class BasicMemoryManager implements MemoryManager {
     @Override
     public void setOutput(Consumer<Operation> output) {
         this.output = output;
+    }
+
+    @Override
+    public void setRegisterMgmt(RegisterAllocator registerAllocator) {
+        this.registerMgmt = registerAllocator;
     }
 }

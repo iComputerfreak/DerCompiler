@@ -86,7 +86,8 @@ public class CompileAction extends Action {
             List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
             Function f = new Function(graph.toString(), firmBlocks.stream().flatMap(b -> b.getOperations().stream()).toList());
 
-            //new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(f);
+
+            System.out.println("\n\nchained IR firm blocks:\n");
 
 
             StringJoiner joiner = new StringJoiner("\n");
@@ -96,6 +97,8 @@ public class CompileAction extends Action {
             }
             System.out.println(joiner);
 
+            System.out.println("\n\nx64 code:\n");
+            new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(f);
         }
         
         ErrorStatus.exitProgramIfError();

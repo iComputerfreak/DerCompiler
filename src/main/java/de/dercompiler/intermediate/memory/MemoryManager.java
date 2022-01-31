@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import firm.Entity;
 
 import java.util.function.Consumer;
@@ -83,4 +84,7 @@ public interface MemoryManager {
      */
 
     void setOutput(Consumer<Operation> output);
+
+    void setRegisterMgmt(RegisterAllocator registerAllocator);
+
 }

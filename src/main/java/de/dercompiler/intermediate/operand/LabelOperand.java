@@ -16,11 +16,15 @@ public class LabelOperand implements Operand {
 
     @Override
     public String getIdentifier() {
-        return target;
+        return "L" + target;
     }
 
     @Override
     public String getIdentifier(Datatype datatype) {
+        return "L" + target;
+    }
+
+    public String getTarget() {
         return target;
     }
 
