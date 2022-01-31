@@ -17,7 +17,7 @@ import java.util.LinkedList;
 
 public class EasyTest {
 
-    @Test
+    /*@Test*/
     void test(){
         VirtualRegister v1 = new VirtualRegister();
         VirtualRegister v2 = new VirtualRegister();
