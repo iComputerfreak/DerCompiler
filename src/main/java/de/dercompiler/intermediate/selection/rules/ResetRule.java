@@ -36,6 +36,7 @@ public class ResetRule extends SubstitutionRule<Store> {
         setTarget(targetReg);
         eor.setDefinition(targetReg);
         setMode(getValue().getMode());
+        eor.setMode(getValue().getMode());
         return List.of(eor);
     }
 
