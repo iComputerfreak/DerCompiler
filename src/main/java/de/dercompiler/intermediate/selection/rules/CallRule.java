@@ -35,12 +35,16 @@ public class CallRule extends SubstitutionRule<Call> {
                 true,
                 getArgRegister());
         Operand target = getAnnotation(node).getTarget();
-        if (target != null) {
+        call.setMode(getResultMode());
+        if (call.getMode().type() == Datatype.NODATA) {
+            call.setDefinition(null);
+            setTarget(null);
+        } else if (target != null) {
             call.setDefinition(target);
         } else {
             setTarget(call.getDefinition());
         }
-        call.setMode(getResultMode());
+
         return List.of(call);
     }
 

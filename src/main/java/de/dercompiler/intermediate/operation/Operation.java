@@ -11,6 +11,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
 
     private Operand definition;
     protected IRMode mode;
+    private String comment;
 
     public abstract Operand[] getArgs();
     public abstract OperationType getOperationType();
@@ -84,5 +85,13 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
                 isMemoryOperation()? "/M" : "",
                 needsDefinition() ? " --> " + getDefinition() : ""
         );
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

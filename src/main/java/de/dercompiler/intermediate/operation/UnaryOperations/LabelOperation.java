@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operation.UnaryOperations;
 
 import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.selection.Datatype;
@@ -19,11 +20,15 @@ public class LabelOperation extends UnaryOperation {
 
     @Override
     public String getIntelSyntax() {
-        return "%s:".formatted(getArg());
+        return "%s:".formatted(getLabel());
+    }
+
+    private LabelOperand getLabel() {
+        return (LabelOperand) getArg();
     }
 
     @Override
     public String getAtntSyntax() {
-        return ".L%s:".formatted(getArg());
+        return ".%s:".formatted(getLabel().getIdentifier());
     }
 }

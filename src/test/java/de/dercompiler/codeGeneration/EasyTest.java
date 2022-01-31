@@ -10,7 +10,6 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Dec;
 import de.dercompiler.intermediate.operation.UnaryOperations.Jne;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
-import org.junit.jupiter.api.Test;
 
 
 import java.util.LinkedList;
@@ -47,7 +46,7 @@ public class EasyTest {
         ops.add(o6);
         ops.add(o7);
 
-        Function testFunc = new Function(null);
+        Function testFunc = new Function(null, null);
         testFunc.setOperations(ops);
 
         TrivialRegisterAllocator regAlloc = new TrivialRegisterAllocator(new BasicMemoryManager());

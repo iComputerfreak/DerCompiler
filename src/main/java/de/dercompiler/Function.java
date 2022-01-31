@@ -1,31 +1,32 @@
 package de.dercompiler;
 
+import de.dercompiler.ast.MainMethod;
+import de.dercompiler.ast.Method;
 import de.dercompiler.intermediate.operation.Operation;
 import firm.Graph;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Function {
 
+    private final Method method;
     private List<Operation> operations;
-    private int num;
+    private int opCount;
 
     private final firm.Graph graph;
 
-    public Function(firm.Graph graph) {
-        operations = null;
+    public Function(Graph graph, Method method) {
+        this.operations = null;
         this.graph = graph;
-        num = 0;
+        this.opCount = 0;
+        this.method = method;
     }
 
     public void setOperations(List<Operation> ops) {
-        int i = 0;
-        Iterator<Operation> it = ops.iterator();
-        while (it.hasNext()) {
-            it.next().setIndex(i++);
-        }
+        opCount = ops.size();
+        IntStream.range(0, opCount).forEach(i -> ops.get(i).setIndex(i));
         operations = ops;
-        num = i;
     }
     public List<Operation> getOperations() {
         return operations;
@@ -34,7 +35,12 @@ public class Function {
     public String getName() { return graph.getEntity().getName(); }
 
     public int getNumVirtualRegisters() {
-        return num;
+        return opCount;
+    }
+
+    public int getParamCount() {
+        // one more for this, one less for String[] args
+        return method.getParameters().size() + (method instanceof MainMethod ? -1 : 1);
     }
 
     public Graph getFirmGraph() {

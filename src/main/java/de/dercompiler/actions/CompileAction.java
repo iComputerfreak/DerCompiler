@@ -6,6 +6,7 @@ import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.generation.AtntCodeGenerator;
 import de.dercompiler.intermediate.generation.CodeGenerator;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
+import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
@@ -29,6 +30,7 @@ import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -88,7 +90,9 @@ public class CompileAction extends Action {
             //Step 4: Block ordering
 
             List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
-            function.setOperations(firmBlocks.stream().flatMap(b -> b.getOperations().stream()).toList());
+            // with flatMap, firmBlocks went missing - strange.
+            List<Operation> operations = firmBlocks.stream().flatMap((FirmBlock firmBlock) -> firmBlock.getOperations().stream()).toList();
+            function.setOperations(operations);
 
             new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(function);
         }

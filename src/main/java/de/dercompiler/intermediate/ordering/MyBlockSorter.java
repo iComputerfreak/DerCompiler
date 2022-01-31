@@ -132,6 +132,8 @@ public class MyBlockSorter implements BlockSorter {
         if (!hard) {
             // implement fallthrough
             chainFrom.get(chainFrom.size() - 1).replaceJumpTarget(to.getId(), null);
+        } else {
+            to = chainTo.get(0);
         }
 
         chainFrom.addAll(chainTo);
@@ -295,7 +297,7 @@ public class MyBlockSorter implements BlockSorter {
         for (int i = 0; i < targets.size(); i++) {
             LabelOperand t = targets.get(i);
 
-            if (!blocks.containsKey(t) && t.isPhiNode()) {
+            if (!blocks.containsKey(t.getTarget()) && t.isPhiNode()) {
                 // empty phi block that has not been realized
                 jumps = new ArrayList<>(jumps);
                 JumpOperation jmp = (JumpOperation) jumps.get(i);
@@ -369,7 +371,7 @@ public class MyBlockSorter implements BlockSorter {
         }
     }
 
-    private class GraphData {
+    private static class GraphData {
         private FirmBlock start;
         private FirmBlock end;
 

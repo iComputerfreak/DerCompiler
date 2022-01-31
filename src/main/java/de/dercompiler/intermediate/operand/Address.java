@@ -123,4 +123,16 @@ public class Address implements Operand {
     public String toString() {
         return getIdentifier();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Address address = (Address) o;
+        return scale == address.scale
+                && offset == address.offset
+                && Objects.equals(getBase(), address.getBase())
+                && Objects.equals(getIndex(), address.getIndex());
+    }
+
 }

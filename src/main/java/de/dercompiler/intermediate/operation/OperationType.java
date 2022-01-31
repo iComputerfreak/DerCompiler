@@ -11,7 +11,7 @@ public enum OperationType {
     AND("AND", true),
     CMP("CMP"),
     DIV("IDIV", true),
-    LEA("LEA"),
+    LEA("LEA", true),
     MOV("MOV", true),
     OR("OR", true),
     ROL("ROL", true),

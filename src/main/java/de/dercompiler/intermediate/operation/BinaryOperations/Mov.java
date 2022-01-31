@@ -19,6 +19,10 @@ public class Mov extends BinaryOperation {
         setMode(Datatype.QWORD, Signedness.UNSIGNED);
     }
 
+    public Mov(Operand target, Operand source) {
+        this(target, source, true);
+    }
+
     @Override
     public boolean needsDefinition() {
         return false;

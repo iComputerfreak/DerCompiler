@@ -39,7 +39,7 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
         state.construction.finish();
         //Graph als .vcg datei erzeugen
         GraphDumper.dumpGraphFinal(state);
-        program.getFunctions().add(new Function(state.graph));
+        program.getFunctions().add(new Function(state.graph, method));
         state.clear();
         return false;
     }

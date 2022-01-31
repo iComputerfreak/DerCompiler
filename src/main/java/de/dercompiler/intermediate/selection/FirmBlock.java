@@ -221,7 +221,7 @@ public class FirmBlock {
         List<String> targets = jmps.stream()
                 .filter(jmp -> jmp instanceof JumpOperation)
                 .map(jmp -> (LabelOperand) jmp.getArgs()[0])
-                .map(LabelOperand::getIdentifier).toList();
+                .map(LabelOperand::getTarget).toList();
 
         if (targets.isEmpty()) return;
 
