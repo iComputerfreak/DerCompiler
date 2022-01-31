@@ -215,7 +215,15 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         Operand opSrc = getOperand(operands[1]);
 
         if (bo instanceof Mov || bo instanceof Lea) {
+            if (!(opSrc instanceof Register || opTgt instanceof Register)) {
+                Operand temp = storeLocalVar();
+                ops.add(new Lea(temp, opSrc));
+                ops.add(bo.allocate(opTgt, temp));
+                popLocalVar();
+            } else {
             ops.add(bo.allocate(opTgt, opSrc));
+            }
+
         } else {
 
             //Operand 1 wird geladen
