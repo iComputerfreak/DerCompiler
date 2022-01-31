@@ -32,7 +32,7 @@ public class EasyTest {
         Add o1 = new Add(v1, new ConstantValue(10));
         Operation o2 = new Sub(new Address(7, p1, v5, 1), o1.getDefinition());
         Operation o3 = new Ret(o2.getDefinition());
-        Operation o4 = new Call(new LabelOperand("haha"),true, v1, v2,v1,v2,v1,v2,v1);
+        Operation o4 = new Call(new MethodReference("haha"),true, v1, v2,v1,v2,v1,v2,v1);
         Operation o5 = new Jne(new LabelOperand("testziel"));
         Operation o6 = new Dec(v1, true);
         Operation o7 = new Div(v1, v2);
