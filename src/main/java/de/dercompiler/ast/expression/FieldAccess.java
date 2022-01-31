@@ -47,7 +47,9 @@ public final class FieldAccess extends PostfixExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
+        state.pushExpectValue();
         ReferenceNode objRef = encapsulated.createNode(state);
+        state.popExpect();
         if (state.expectValue()) {
             return objRef.accessField(state, fieldName);
         } else {

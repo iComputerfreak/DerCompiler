@@ -239,7 +239,6 @@ public class FirmMethodGraphFinalizationPass implements MethodPass, BasicBlockPa
 
     @Override
     public void doInitialization(Program program) {
-        System.out.println("Initializing");
         if (Objects.isNull(startUp)) new OutputMessageHandler(MessageOrigin.PASSES).internalError("FirmMethodgraphFinalizationPass needs FirmMethodgraphStartupPass, gut it is not in the PassManager");
         state = startUp.getState();
         if (Objects.isNull(state)) state = new TransformationState(program.getGlobalScope());
