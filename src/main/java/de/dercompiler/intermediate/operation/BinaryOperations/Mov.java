@@ -16,6 +16,7 @@ public class Mov extends BinaryOperation {
         if (target instanceof ConstantValue) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Incompatible operands for operation " + getAtntSyntax());
         }
+        // should be overwritten for writing int fields etc
         setMode(Datatype.QWORD, Signedness.UNSIGNED);
     }
 
@@ -30,6 +31,9 @@ public class Mov extends BinaryOperation {
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        return new Mov(target, source, true);
+        Mov mov = new Mov(target, source, true);
+        mov.setComment(getComment());
+        mov.setMode(getMode());
+        return mov;
     }
 }

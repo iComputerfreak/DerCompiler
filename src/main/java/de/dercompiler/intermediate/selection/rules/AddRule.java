@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -20,7 +21,7 @@ public class AddRule extends SubstitutionRule<Add> {
     Add getAdd() {
         return getRootNode();
     }
-    
+
     NodeAnnotation<?> getLeft() {
         return getAnnotation(getAdd().getLeft());
     }
@@ -34,7 +35,13 @@ public class AddRule extends SubstitutionRule<Add> {
         Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(getLeft().getTarget(), getRight().getTarget());
         add.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
-        setTarget(add.getDefinition());
+        Operand target = getAnnotation(node).getTarget();
+        if (target != null) {
+            add.setDefinition(target);
+        } else {
+            target = add.getDefinition();
+            setTarget(target);
+        }
         return List.of(add);
     }
 

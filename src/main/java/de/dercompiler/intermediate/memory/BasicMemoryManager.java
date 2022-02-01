@@ -52,7 +52,7 @@ public class BasicMemoryManager implements MemoryManager {
     private RegisterAllocator registerMgmt;
 
     @Override
-    public Operand getVar(int n) {
+    public Address getVar(int n) {
         return new Address(-(n + 1) * 8, getBasePointer());
     }
 

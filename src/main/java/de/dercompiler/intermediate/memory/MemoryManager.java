@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.memory;
 
+import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
@@ -38,7 +39,7 @@ public interface MemoryManager {
     Operand getValue(int id);
 
 
-    Operand getVar(int n);
+    Address getVar(int n);
     /**
      * Registers a new temporary value.
      * @return The location of the new variable
