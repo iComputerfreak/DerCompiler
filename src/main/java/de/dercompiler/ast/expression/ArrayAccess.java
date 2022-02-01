@@ -43,7 +43,9 @@ public final class ArrayAccess extends PostfixExpression {
 
     @Override
     public ReferenceNode createNode(TransformationState state) {
+        state.pushExpectValue();
         ReferenceNode base_ptr = getEncapsulated().createNode(state);
+        state.popExpect();
         if (!(base_ptr.getType() instanceof ArrayType at)) {
             new OutputMessageHandler(MessageOrigin.TRANSFORM).internalError("NewArrayExpression has no ArrayType");
             return null; //we never return

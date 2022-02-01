@@ -51,7 +51,7 @@ public class AtntCodeGenerator implements CodeGenerator {
     }
 
     private void assemblerInit(BufferedWriter bw) throws IOException {
-        writeLine(bw, TEXT);
+        writeLine(bw, SPACING, TEXT);
     }
 
     private void createFunctionHead(BufferedWriter bw, Function func) throws IOException {

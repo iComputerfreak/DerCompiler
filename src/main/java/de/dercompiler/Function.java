@@ -40,7 +40,7 @@ public class Function {
 
     public int getParamCount() {
         // one more for this, one less for String[] args
-        return method.getParameters().size() + (method instanceof MainMethod ? -1 : 1);
+        return method.getParameters().size() + (method.isStatic() ? -1 : 1);
     }
 
     public Graph getFirmGraph() {

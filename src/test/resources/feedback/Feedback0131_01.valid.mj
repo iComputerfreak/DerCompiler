@@ -1,0 +1,11 @@
+class test {
+  public static void main(String[] args) {
+      boolean[][] bla = new boolean[1][];
+      bla[0] = new boolean[1];
+      bla[0][0] = true;
+
+      if (bla[0][0]) {
+          System.out.println(1);
+      }
+  }
+}
