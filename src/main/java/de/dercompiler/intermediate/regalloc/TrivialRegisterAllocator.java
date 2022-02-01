@@ -1,10 +1,12 @@
 package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.Function;
+import de.dercompiler.ast.Parameter;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.*;
+import de.dercompiler.intermediate.operation.ConstantOperations.Cqto;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
@@ -24,7 +26,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private final OutputMessageHandler outputMessageHandler = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
 
-    //maxVar gibt an welche die Variable im Stack mit der niedrigsten Adresse ist
+    /**
+     * Number of entries on the stack. (%rbp, -%rsp, 8)
+     */
     private int varCount = 0;
 
     private LinkedList<Integer> saveStates = new LinkedList<>();
@@ -74,6 +78,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     @Override
     public void allocateRegisters(Function function) {
         this.function = function;
+        varCount = 0;
         ops = new LinkedList<>();
         paramCount = function.getParamCount();
         for (Operation op : function.getOperations()) {
@@ -162,7 +167,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     private void handleReturn(Ret ret) {
         if (ret.getArgs().length != 0) {
             Operand operand = ret.getArgs()[0];
-            handleBinaryOperation(new Mov(storeLocalVar(), operand));
+            handleBinaryOperation(new Mov(manager.getReturnValue(), operand));
         }
         ops.add(new Ret());
     }
@@ -264,19 +269,19 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         Operand dividend = operands[0];
         Operand divisor = operands[1];
 
-        //Parameterregister RDX in R11 sichern, weil 128 bit Dividend in RAX:RDX stehen muss
+        // save %rdx as it is overwritten by idiv
         ops.add(new Mov(X86Register.RDX, X86Register.R11));
 
-        //Dividend hohlen
+        // load dividend
         ops.add(new Mov(X86Register.RAX, getOperand(dividend)));
 
-        //auf 64 bit Breite
+        // convert to 64 bit
         ops.add(new Movslq(X86Register.RAX, X86Register.RAX));
 
-        //auf 128 bit Breite
-        ops.add(new Cltq(X86Register.RAX, true));
+        // convert to 128 bit
+        ops.add(new Cqto());
 
-        //Divisor hohlen
+        // load divisor
         ops.add(new Mov(X86Register.R10, getOperand(divisor)));
 
         //auf 64 bit Breite
@@ -312,7 +317,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             X86Register x86RegisterBase;
             if (base instanceof X86Register baseReg) {
                 x86RegisterBase = baseReg;
-            } else {
+            } /*else if (base instanceof ParameterRegister param) {
+                x86RegisterBase = getParamReg(param.getId());
+            } */else {
                 x86RegisterBase = freeRegister[freeRegisterIndex++];
                 ops.add(new Mov(x86RegisterBase, base));
             }

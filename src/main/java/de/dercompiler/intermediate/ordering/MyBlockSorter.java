@@ -167,7 +167,7 @@ public class MyBlockSorter implements BlockSorter {
         } else {
             bProps = new BlockProperties(block);
         }
-
+        checkJmpTargets(block);
         boolean whileHead = bProps.isSeen();
 
         int succs = graph.inDegreeOf(block);
@@ -196,7 +196,7 @@ public class MyBlockSorter implements BlockSorter {
                 classify(pred);
 
                 BlockProperties props = getProps(pred);
-                checkJmpTargets(pred);
+
                 if (props.getBlockClass() == BlockClass.WHILE_HEAD) {
                     handleWhileCondition(block, pred);
                 } else if (props.getBlockClass() == BlockClass.STRING) {
@@ -303,8 +303,8 @@ public class MyBlockSorter implements BlockSorter {
                 JumpOperation jmp = (JumpOperation) jumps.get(i);
 
                 jumps.set(i, jmp.setTo(t.getMainNode()));
+                success = true;
             }
-            success = true;
         }
         if (success) pred.setJump(new CodeNode(jumps, pred));
     }

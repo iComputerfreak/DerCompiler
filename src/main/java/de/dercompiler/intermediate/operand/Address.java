@@ -135,4 +135,8 @@ public class Address implements Operand {
                 && Objects.equals(getIndex(), address.getIndex());
     }
 
+    public int getOffset() {
+        return offset;
+    }
+
 }

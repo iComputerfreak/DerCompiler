@@ -80,7 +80,7 @@ public class BasicMemoryManager implements MemoryManager {
 
     @Override
     public Operand getReturnValue() {
-        return registerMgmt.popLocalVar();
+        return X86Register.RAX;
     }
 
     @Override

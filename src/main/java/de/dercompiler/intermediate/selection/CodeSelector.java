@@ -186,7 +186,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private void setPhiRules() {
         graph.walk(new LazyNodeWalker() {
             @Override
-            void visitAny(Node node) {
+            protected void visitAny(Node node) {
                 if (node instanceof Phi phi && !Objects.equals(phi.getMode(), firm.Mode.getM())) {
                     boolean inRow = false;
                     for (int i = 0; i < phi.getPredCount(); i++) {
@@ -592,7 +592,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         }
     }
 
-    void visitAny(Node node) {
+    protected void visitAny(Node node) {
         // Do for any node
         switch (mode) {
             case ANNOTATION -> annotateNode(node);

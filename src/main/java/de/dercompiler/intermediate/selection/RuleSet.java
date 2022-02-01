@@ -40,7 +40,7 @@ public final class RuleSet {
             entry(Shr.class, List.<SubstitutionRule<Shr>>of(new ShrRule())),
             entry(Shrs.class, List.<SubstitutionRule<Shrs>>of(new ShrsRule())),
             entry(Start.class, List.<SubstitutionRule<Start>>of(new StartRule())),
-            entry(Store.class, List.<SubstitutionRule<Store>>of(new StoreRule(), new IncLMemberRule(), new IncRMemberRule(), new ResetRule())),
+            entry(Store.class, List.<SubstitutionRule<Store>>of(new StoreRule(), new IncLMemberRule(), new IncRMemberRule()/*, new ResetRule()*/)),
             entry(Sub.class, List.<SubstitutionRule<Sub>>of(new SubRule())),
             entry(Unknown.class, List.<SubstitutionRule<Unknown>>of(new UnknownRule()))
     );

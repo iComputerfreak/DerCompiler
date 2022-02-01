@@ -4,9 +4,10 @@ import firm.TargetValue;
 import firm.nodes.*;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public interface ITransferFunction {
-    public void setTargetValues(HashMap<Node, TargetValue> targetValues);
+    void setTargetValues(Map<Integer, TargetValue> targetValues);
 
     TargetValue getTargetValue(Add node);
 
@@ -15,6 +16,8 @@ public interface ITransferFunction {
     TargetValue getTargetValue(Cmp node);
 
     TargetValue getTargetValue(Const node);
+
+    TargetValue getTargetValue(Conv node);
 
     TargetValue getTargetValue(Div node);
 
@@ -45,4 +48,8 @@ public interface ITransferFunction {
     TargetValue getTargetValue(Shrs node);
 
     TargetValue getTargetValue(Sub node);
+
+    TargetValue getTargetValue(Proj node);
+
+    TargetValue getTargetValue(Load node);
 }

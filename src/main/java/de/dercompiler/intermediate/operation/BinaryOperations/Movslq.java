@@ -24,6 +24,6 @@ public class Movslq extends BinArithOperation{
 
     @Override
     public String getAtntSyntax(){
-        return operationType.getAtntSyntax(getDatatype()) +  " " + source.getIdentifier(Datatype.WORD) + "," + target.getIdentifier(Datatype.DWORD);
+        return operationType.getAtntSyntax(Datatype.DWORD) +  " " + source.getIdentifier(Datatype.WORD) + "," + target.getIdentifier(Datatype.DWORD);
     }
 }

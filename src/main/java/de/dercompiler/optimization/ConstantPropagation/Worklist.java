@@ -1,9 +1,7 @@
 package de.dercompiler.optimization.ConstantPropagation;
 
-import firm.BackEdges;
-import firm.Graph;
-import firm.Mode;
-import firm.TargetValue;
+import de.dercompiler.intermediate.selection.LazyNodeWalker;
+import firm.*;
 import firm.nodes.*;
 
 import java.util.HashMap;
@@ -19,297 +17,93 @@ public class Worklist {
     private TransferFunctionVisitor transferFunctionVisitor;
     private Queue<Node> nodeQueue;
     private HashMap<Node, List<Node>> successorsMap;
-    private HashMap<Node, TargetValue> targetValueMap;
+    private HashMap<Integer, TargetValue> targetValueMap;
     private Graph graph;
 
-    public Worklist(ITransferFunction transferFunction, Graph graph){
-        nodeQueue = new LinkedList<Node>();
-        successorsMap = new HashMap<Node, List<Node>>();
-        targetValueMap = new HashMap<Node, TargetValue>();
+    public Worklist(ITransferFunction transferFunction, Graph graph) {
+        nodeQueue = new LinkedList<>();
+        successorsMap = new HashMap<>();
+        targetValueMap = new HashMap<>();
         transferFunction.setTargetValues(targetValueMap);
         transferFunctionVisitor = new TransferFunctionVisitor(transferFunction, nodeQueue, successorsMap, targetValueMap);
         this.graph = graph;
     }
 
-    public static void run(ITransferFunction transferFunction, Graph graph){
+    public static void run(ITransferFunction transferFunction, Graph graph) {
         Worklist worklist = new Worklist(transferFunction, graph);
         worklist.work();
     }
 
-    private void work(){
+    private void work() {
 
-        graph.walkTopological(new NodeVisitor() {
-            private void doAlways(Node node){
-                for (Node pred: node.getPreds()){
-                    List<Node> list;
-                    if (successorsMap.containsKey(pred)){
-                        list = successorsMap.get(pred);
-                    } else {
-                        list = new LinkedList<Node>();
-                        successorsMap.put(pred, list);
-                    }
-                    list.add(node);
-                }
-                targetValueMap.put(node, UNKNOWN);
-                nodeQueue.add(node);
+        graph.walkTopological(new WorklistAnalysisWalker());
 
-            }
-
-            @Override
-            public void visit(Add node) {doAlways(node);}
-            @Override
-            public void visit(Address node) {doAlways(node);}
-            @Override
-            public void visit(Align node)  {doAlways(node);}
-            @Override
-            public void visit(Alloc node) {doAlways(node);}
-            @Override
-            public void visit(Anchor node) {doAlways(node);}
-            @Override
-            public void visit(And node) {doAlways(node);}
-            @Override
-            public void visit(Bad node) {doAlways(node);}
-            @Override
-            public void visit(Bitcast node) {doAlways(node);}
-            @Override
-            public void visit(Block node) {doAlways(node);}
-            @Override
-            public void visit(Builtin node) {doAlways(node);}
-            @Override
-            public void visit(Call node) {doAlways(node);}
-            @Override
-            public void visit(Cmp node) {doAlways(node);}
-            @Override
-            public void visit(Cond node) {doAlways(node);}
-            @Override
-            public void visit(Confirm node) {doAlways(node);}
-            @Override
-            public void visit(Const node) {doAlways(node);}
-            @Override
-            public void visit(Conv node) {doAlways(node);}
-            @Override
-            public void visit(CopyB node) {doAlways(node);}
-            @Override
-            public void visit(Deleted node)  {doAlways(node);}
-            @Override
-            public void visit(Div node) {doAlways(node);}
-            @Override
-            public void visit(Dummy node) {doAlways(node);}
-            @Override
-            public void visit(End node) {doAlways(node);}
-            @Override
-            public void visit(Eor node) {doAlways(node);}
-            @Override
-            public void visit(Free node) {doAlways(node);}
-            @Override
-            public void visit(IJmp node) {doAlways(node);}
-            @Override
-            public void visit(Id node) {doAlways(node);}
-            @Override
-            public void visit(Jmp node)  {doAlways(node);}
-            @Override
-            public void visit(Load node) {doAlways(node);}
-            @Override
-            public void visit(Member node) {doAlways(node);}
-            @Override
-            public void visit(Minus node) {doAlways(node);}
-            @Override
-            public void visit(Mod node)  {doAlways(node);}
-            @Override
-            public void visit(Mul node)  {doAlways(node);}
-            @Override
-            public void visit(Mulh node) {doAlways(node);}
-            @Override
-            public void visit(Mux node) {doAlways(node);}
-            @Override
-            public void visit(NoMem node) {doAlways(node);}
-            @Override
-            public void visit(Not node) {doAlways(node);}
-            @Override
-            public void visit(Offset node) {doAlways(node);}
-            @Override
-            public void visit(Or node) {doAlways(node);}
-            @Override
-            public void visit(Phi node) {doAlways(node);}
-            @Override
-            public void visit(Pin node) {doAlways(node);}
-            @Override
-            public void visit(Proj node) {doAlways(node);}
-            @Override
-            public void visit(Raise node) {doAlways(node);}
-            @Override
-            public void visit(Return node) {doAlways(node);}
-            @Override
-            public void visit(Sel node) {doAlways(node);}
-            @Override
-            public void visit(Shl node) {doAlways(node);}
-            @Override
-            public void visit(Shr node) {doAlways(node);}
-            @Override
-            public void visit(Shrs node) {doAlways(node);}
-            @Override
-            public void visit(Size node) {doAlways(node);}
-            @Override
-            public void visit(Start node) {doAlways(node);}
-            @Override
-            public void visit(Store node) {doAlways(node);}
-            @Override
-            public void visit(Sub node) {doAlways(node);}
-            @Override
-            public void visit(Switch node) {doAlways(node);}
-            @Override
-            public void visit(Sync node) {doAlways(node);}
-            @Override
-            public void visit(Tuple node) {doAlways(node);}
-            @Override
-            public void visit(Unknown node) {doAlways(node);}
-            @Override
-            public void visitUnknown(Node node) {doAlways(node);}
-        });
-
-        while (!nodeQueue.isEmpty()){
+        while (!nodeQueue.isEmpty()) {
             Node node = nodeQueue.poll();
             node.accept(transferFunctionVisitor);
         }
 
-        graph.walkTopological(new NodeVisitor() {
-            private void replaceDivOrMod(Node node, Node previousMemory, Node replacement) {
-                if (!BackEdges.enabled(graph)){
-                    BackEdges.enable(graph);
-                }
-                for (BackEdges.Edge out : BackEdges.getOuts(node)) {
-                    if (out.node.getMode().equals(Mode.getM())) {
-                        Graph.exchange(out.node, previousMemory);
-                    } else {
-                        Graph.exchange(out.node, replacement);
-                    }
-                }
-            }
-
-            private void doAlways(Node node){
-                TargetValue value = targetValueMap.get(node);
-
-                if (value != null && !(value.equals(BAD) || value.equals(UNKNOWN))){
-                    if (node instanceof Div div){
-                        replaceDivOrMod(div, div.getMem(), graph.newConst(value));
-                    } else {
-                        Graph.exchange(node, graph.newConst(value));
-                    }
-                }
-
-            }
-
-            @Override
-            public void visit(Add node) {doAlways(node);}
-            @Override
-            public void visit(Address node) {doAlways(node);}
-            @Override
-            public void visit(Align node)  {doAlways(node);}
-            @Override
-            public void visit(Alloc node) {doAlways(node);}
-            @Override
-            public void visit(Anchor node) {doAlways(node);}
-            @Override
-            public void visit(And node) {doAlways(node);}
-            @Override
-            public void visit(Bad node) {doAlways(node);}
-            @Override
-            public void visit(Bitcast node) {doAlways(node);}
-            @Override
-            public void visit(Block node) {doAlways(node);}
-            @Override
-            public void visit(Builtin node) {doAlways(node);}
-            @Override
-            public void visit(Call node) {doAlways(node);}
-            @Override
-            public void visit(Cmp node) {doAlways(node);}
-            @Override
-            public void visit(Cond node) {doAlways(node);}
-            @Override
-            public void visit(Confirm node) {doAlways(node);}
-            @Override
-            public void visit(Const node) {doAlways(node);}
-            @Override
-            public void visit(Conv node) {doAlways(node);}
-            @Override
-            public void visit(CopyB node) {doAlways(node);}
-            @Override
-            public void visit(Deleted node)  {doAlways(node);}
-            @Override
-            public void visit(Div node) {doAlways(node);}
-            @Override
-            public void visit(Dummy node) {doAlways(node);}
-            @Override
-            public void visit(End node) {doAlways(node);}
-            @Override
-            public void visit(Eor node) {doAlways(node);}
-            @Override
-            public void visit(Free node) {doAlways(node);}
-            @Override
-            public void visit(IJmp node) {doAlways(node);}
-            @Override
-            public void visit(Id node) {doAlways(node);}
-            @Override
-            public void visit(Jmp node)  {doAlways(node);}
-            @Override
-            public void visit(Load node) {doAlways(node);}
-            @Override
-            public void visit(Member node) {doAlways(node);}
-            @Override
-            public void visit(Minus node) {doAlways(node);}
-            @Override
-            public void visit(Mod node)  {doAlways(node);}
-            @Override
-            public void visit(Mul node)  {doAlways(node);}
-            @Override
-            public void visit(Mulh node) {doAlways(node);}
-            @Override
-            public void visit(Mux node) {doAlways(node);}
-            @Override
-            public void visit(NoMem node) {doAlways(node);}
-            @Override
-            public void visit(Not node) {doAlways(node);}
-            @Override
-            public void visit(Offset node) {doAlways(node);}
-            @Override
-            public void visit(Or node) {doAlways(node);}
-            @Override
-            public void visit(Phi node) {doAlways(node);}
-            @Override
-            public void visit(Pin node) {doAlways(node);}
-            @Override
-            public void visit(Proj node) {doAlways(node);}
-            @Override
-            public void visit(Raise node) {doAlways(node);}
-            @Override
-            public void visit(Return node) {doAlways(node);}
-            @Override
-            public void visit(Sel node) {doAlways(node);}
-            @Override
-            public void visit(Shl node) {doAlways(node);}
-            @Override
-            public void visit(Shr node) {doAlways(node);}
-            @Override
-            public void visit(Shrs node) {doAlways(node);}
-            @Override
-            public void visit(Size node) {doAlways(node);}
-            @Override
-            public void visit(Start node) {doAlways(node);}
-            @Override
-            public void visit(Store node) {doAlways(node);}
-            @Override
-            public void visit(Sub node) {doAlways(node);}
-            @Override
-            public void visit(Switch node) {doAlways(node);}
-            @Override
-            public void visit(Sync node) {doAlways(node);}
-            @Override
-            public void visit(Tuple node) {doAlways(node);}
-            @Override
-            public void visit(Unknown node) {doAlways(node);}
-            @Override
-            public void visitUnknown(Node node) {doAlways(node);}
-        });
+        graph.walkTopological(new WorklistReplaceWalker());
         BackEdges.disable(graph);
     }
+
+    private class WorklistReplaceWalker extends LazyNodeWalker {
+
+        private void replaceDivOrMod(Node node, Node previousMemory, Node replacement) {
+            if (!BackEdges.enabled(graph)) {
+                BackEdges.enable(graph);
+            }
+            for (BackEdges.Edge out : BackEdges.getOuts(node)) {
+                if (out.node.getMode().equals(Mode.getM())) {
+                    Graph.exchange(out.node, previousMemory);
+                } else {
+                    Graph.exchange(out.node, replacement);
+                }
+            }
+        }
+
+        protected void visitAny(Node node) {
+            TargetValue value = targetValueMap.get(node.getNr());
+
+            if (value != null && !(value.equals(BAD) || value.equals(UNKNOWN))) {
+                if (node instanceof Div div) {
+                    replaceDivOrMod(div, div.getMem(), graph.newConst(value));
+                } else if (node instanceof Cmp cmp) {
+                    Relation oldRel = cmp.getRelation();
+                    if (oldRel.equals(Relation.True) || oldRel.equals(Relation.False)) return;
+                    Relation newRel = value.asInt() == 1 ? Relation.True : Relation.False;
+                    Graph.exchange(node, graph.newCmp(node.getBlock(), cmp.getLeft(), cmp.getLeft(), newRel));
+                } else if (!(node instanceof Const)) {
+                    Graph.exchange(node, graph.newConst(value));
+                }
+            }
+
+        }
+
+    }
+
+    private class WorklistAnalysisWalker extends LazyNodeWalker {
+
+            protected void visitAny(Node node) {
+                for (Node pred : node.getPreds()) {
+                    List<Node> list;
+                    if (successorsMap.containsKey(pred)) {
+                        list = successorsMap.get(pred);
+                    } else {
+                        list = new LinkedList<>();
+                        successorsMap.put(pred, list);
+                    }
+                    list.add(node);
+                }
+                targetValueMap.put(node.getNr(), UNKNOWN);
+                nodeQueue.add(node);
+
+            }
+
+
+        }
+
 }
+
+
+

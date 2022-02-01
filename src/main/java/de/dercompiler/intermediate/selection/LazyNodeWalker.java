@@ -23,7 +23,7 @@ public abstract class LazyNodeWalker implements NodeVisitor {
         visitAny(anchor);
     }
 
-    abstract void visitAny(Node node);
+    protected abstract void visitAny(Node node);
 
     public void visit(And and) {
         visitAny(and);

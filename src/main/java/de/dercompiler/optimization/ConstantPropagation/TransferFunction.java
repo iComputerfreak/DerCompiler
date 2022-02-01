@@ -5,7 +5,7 @@ import firm.Relation;
 import firm.TargetValue;
 import firm.nodes.*;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class TransferFunction implements ITransferFunction {
@@ -13,9 +13,9 @@ public class TransferFunction implements ITransferFunction {
     private static final TargetValue UNKNOWN = Worklist.UNKNOWN; // Bottom
     private static final TargetValue BAD = Worklist.BAD;         // Top
 
-    private HashMap<Node, TargetValue> targetValues;
+    private Map<Integer, TargetValue> targetValues;
 
-    public void setTargetValues(HashMap<Node, TargetValue> targetValues){
+    public void setTargetValues(Map<Integer, TargetValue> targetValues){
         this.targetValues = targetValues;
     }
 
@@ -26,7 +26,7 @@ public class TransferFunction implements ITransferFunction {
      * @return The TargetValue that the worklist algorithm has calculated so far
      */
     private TargetValue getInternal(Node node) {
-        return targetValues.getOrDefault(node, TargetValue.getUnknown());
+        return targetValues.getOrDefault(node.getNr(), UNKNOWN);
     }
 
     /**
@@ -37,10 +37,10 @@ public class TransferFunction implements ITransferFunction {
      * or null if both sides are neither bad nor unknown
      */
     private TargetValue checkBinOp(TargetValue left, TargetValue right) {
-        if (left == UNKNOWN || right == UNKNOWN) {
+        if (left.equals(UNKNOWN) || right.equals(UNKNOWN)) {
             return UNKNOWN;
         }
-        if (left == BAD || right == BAD) {
+        if (left.equals(BAD) || right.equals(BAD)) {
             return BAD;
         }
         return null;
@@ -58,8 +58,8 @@ public class TransferFunction implements ITransferFunction {
     }
 
     private boolean areEqual(TargetValue t1, TargetValue t2) {
-        if (t1.equals(TargetValue.getUnknown())) {
-            return t2.equals(TargetValue.getUnknown());
+        if (t1.equals(UNKNOWN)) {
+            return t2.equals(UNKNOWN);
         }
         if (t1.equals(TargetValue.getBad())) {
             return t2.equals(TargetValue.getBad());
@@ -72,7 +72,7 @@ public class TransferFunction implements ITransferFunction {
     }
 
     private boolean isTopOrBottom(TargetValue t){
-        return t.equals(TargetValue.getBad()) || t.equals(TargetValue.getUnknown());
+        return t.equals(BAD) || t.equals(UNKNOWN);
     }
 
     @Override
@@ -101,8 +101,8 @@ public class TransferFunction implements ITransferFunction {
         }
         // Check what the relation is and calculate its result
         Relation relation = left.compare(right);
-        boolean result = relationResult(left.asInt(), right.asInt(), relation);
-        return new TargetValue(result ? 1 : 0, Mode.getBu());
+        boolean result = node.getRelation().contains(relation);
+        return result ? TargetValue.getBTrue() : TargetValue.getBFalse();
     }
     
     private boolean relationResult(int left, int right, Relation relation) {
@@ -136,6 +136,12 @@ public class TransferFunction implements ITransferFunction {
     }
 
     @Override
+    public TargetValue getTargetValue(Conv node) {
+        return getInternal(node.getOp());
+    }
+
+
+    @Override
     public TargetValue getTargetValue(Div node) {
         TargetValue left = getInternal(node.getLeft());
         TargetValue right = getInternal(node.getRight());
@@ -155,8 +161,7 @@ public class TransferFunction implements ITransferFunction {
 
     @Override
     public TargetValue getTargetValue(Phi node) {
-        TargetValue actual = UNKNOWN;
-
+        TargetValue actual = getInternal(node);
 
         for (Node pred : node.getPreds()){
             if (areEqual(actual, UNKNOWN)){
@@ -275,5 +280,15 @@ public class TransferFunction implements ITransferFunction {
         TargetValue right = getInternal(node.getRight());
         return Objects.requireNonNullElse(checkBinOp(left, right),
                 left.sub(right));
+    }
+
+    @Override
+    public TargetValue getTargetValue(Proj node) {
+        return Objects.equals(node.getMode(), Mode.getM()) ? BAD : getInternal(node.getPred());
+    }
+
+    @Override
+    public TargetValue getTargetValue(Load node) {
+        return BAD;
     }
 }

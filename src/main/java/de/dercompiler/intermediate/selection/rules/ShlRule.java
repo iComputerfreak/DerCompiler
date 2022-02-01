@@ -32,6 +32,7 @@ public class ShlRule extends SubstitutionRule<Shl> {
     public List<Operation> substitute() {
         Operation shl = new de.dercompiler.intermediate.operation.BinaryOperations.Shl(getLeft().getTarget(), getRight().getTarget());
         setMode(getLeft().getRootNode().getMode());
+        shl.setMode(getMode());
         setTarget(shl.getDefinition());
         return List.of(shl);
     }

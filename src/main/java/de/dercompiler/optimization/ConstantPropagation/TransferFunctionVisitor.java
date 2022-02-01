@@ -3,18 +3,18 @@ package de.dercompiler.optimization.ConstantPropagation;
 import firm.TargetValue;
 import firm.nodes.*;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 public class TransferFunctionVisitor implements NodeVisitor {
     private ITransferFunction transferFunction;
 
     private Queue<Node> nodeQueue;
-    private HashMap<Node, List<Node>> successorsMap;
-    private HashMap<Node, TargetValue> targetValueMap;
+    private Map<Node, List<Node>> successorsMap;
+    private Map<Integer, TargetValue> targetValueMap;
 
-    public TransferFunctionVisitor(ITransferFunction transferFunction, Queue<Node> nodeQueue, HashMap<Node, List<Node>> successorsMap, HashMap<Node, TargetValue> targetValueMap){
+    public TransferFunctionVisitor(ITransferFunction transferFunction, Queue<Node> nodeQueue, Map<Node, List<Node>> successorsMap, Map<Integer, TargetValue> targetValueMap) {
         this.transferFunction = transferFunction;
         this.nodeQueue = nodeQueue;
         this.successorsMap = successorsMap;
@@ -23,6 +23,7 @@ public class TransferFunctionVisitor implements NodeVisitor {
 
     /**
      * Compares two {@link TargetValue}s
+     *
      * @param t1 The first TargetValue
      * @param t2 The second TargetValue
      * @return Whether both values are equal
@@ -37,178 +38,257 @@ public class TransferFunctionVisitor implements NodeVisitor {
         return t1.asInt() == t2.asInt();
     }
 
-    private void doAlways(Node node, TargetValue newValue){
-        TargetValue oldValue = targetValueMap.get(node);
-        
-        if (!areEqual(oldValue, newValue)){
-            targetValueMap.put(node, newValue);
-            
+    private void doAlways(Node node, TargetValue newValue) {
+        TargetValue oldValue = targetValueMap.get(node.getNr());
+
+        if (!areEqual(oldValue, newValue)) {
+            targetValueMap.put(node.getNr(), newValue);
+
             nodeQueue.addAll(successorsMap.get(node));
         }
     }
 
     @Override
-    public void visit(Add node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Add node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Address node) {}
+    public void visit(Address node) {
+    }
 
     @Override
-    public void visit(Align node) {}
+    public void visit(Align node) {
+    }
 
     @Override
-    public void visit(Alloc node) {}
+    public void visit(Alloc node) {
+    }
 
     @Override
-    public void visit(Anchor node) {}
+    public void visit(Anchor node) {
+    }
 
     @Override
-    public void visit(And node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(And node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Bad node) {}
+    public void visit(Bad node) {
+    }
 
     @Override
-    public void visit(Bitcast node) {}
+    public void visit(Bitcast node) {
+    }
 
     @Override
-    public void visit(Block node) {}
+    public void visit(Block node) {
+    }
 
     @Override
-    public void visit(Builtin node) {}
+    public void visit(Builtin node) {
+    }
 
     @Override
-    public void visit(Call node) {}
+    public void visit(Call node) {
+    }
 
     @Override
-    public void visit(Cmp node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Cmp node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Cond node) {}
+    public void visit(Cond node) {
+    }
 
     @Override
-    public void visit(Confirm node) {}
+    public void visit(Confirm node) {
+    }
 
     @Override
-    public void visit(Const node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Const node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Conv node) {}
+    public void visit(Conv node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(CopyB node) {}
+    public void visit(CopyB node) {
+    }
 
     @Override
-    public void visit(Deleted node) {}
+    public void visit(Deleted node) {
+    }
 
     @Override
-    public void visit(Div node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Div node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Dummy node) {}
+    public void visit(Dummy node) {
+    }
 
     @Override
-    public void visit(End node) {}
+    public void visit(End node) {
+    }
 
     @Override
-    public void visit(Eor node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Eor node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Free node) {}
+    public void visit(Free node) {
+    }
 
     @Override
-    public void visit(IJmp node) {}
+    public void visit(IJmp node) {
+    }
 
     @Override
-    public void visit(Id node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Id node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Jmp node) {}
+    public void visit(Jmp node) {
+    }
 
     @Override
-    public void visit(Load node) {}
+    public void visit(Load node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Member node) {}
+    public void visit(Member node) {
+    }
 
     @Override
-    public void visit(Minus node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Minus node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Mod node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Mod node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Mul node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Mul node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Mulh node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Mulh node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Mux node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Mux node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(NoMem node){}
+    public void visit(NoMem node) {
+    }
 
     @Override
-    public void visit(Not node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Not node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Offset node) {}
+    public void visit(Offset node) {
+    }
 
     @Override
-    public void visit(Or node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Or node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Phi node) {doAlways(node, transferFunction.getTargetValue(node));}
+    public void visit(Phi node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Pin node) {}
+    public void visit(Pin node) {
+    }
 
     @Override
-    public void visit(Proj node) {}
+    public void visit(Proj node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Raise node) {}
+    public void visit(Raise node) {
+    }
 
     @Override
-    public void visit(Return node) {}
+    public void visit(Return node) {
+    }
 
     @Override
-    public void visit(Sel node) {}
+    public void visit(Sel node) {
+    }
 
     @Override
-    public void visit(Shl node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Shl node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Shr node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Shr node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Shrs node) {doAlways(node, transferFunction.getTargetValue(node));};
+    public void visit(Shrs node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Size node) {}
-    @Override
-
-    public void visit(Start node) {}
-    @Override
-
-    public void visit(Store node) {}
+    public void visit(Size node) {
+    }
 
     @Override
-    public void visit(Sub node) {doAlways(node, transferFunction.getTargetValue(node));};
+
+    public void visit(Start node) {
+    }
 
     @Override
-    public void visit(Switch node) {}
+
+    public void visit(Store node) {
+    }
 
     @Override
-    public void visit(Sync node) {}
+    public void visit(Sub node) {
+        doAlways(node, transferFunction.getTargetValue(node));
+    }
 
     @Override
-    public void visit(Tuple node) {}
+    public void visit(Switch node) {
+    }
 
     @Override
-    public void visit(Unknown node) {}
+    public void visit(Sync node) {
+    }
 
     @Override
-    public void visitUnknown(Node node) {}
+    public void visit(Tuple node) {
+    }
+
+    @Override
+    public void visit(Unknown node) {
+    }
+
+    @Override
+    public void visitUnknown(Node node) {
+    }
 }

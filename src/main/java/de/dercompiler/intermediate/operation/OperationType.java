@@ -52,7 +52,8 @@ public enum OperationType {
     NOP("NOP"),
     RET("RET"),
     CWTL("CWTL"),
-    CLTQ("CLTQ");
+    CLTQ("CLTQ"),
+    CQTO("CQTO");
 
     private final String syntax;
     private final boolean appendDatatype;
