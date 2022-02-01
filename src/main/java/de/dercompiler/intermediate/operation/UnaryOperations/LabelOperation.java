@@ -29,6 +29,6 @@ public class LabelOperation extends UnaryOperation {
 
     @Override
     public String getAtntSyntax() {
-        return ".%s:".formatted(getLabel().getIdentifier());
+        return "%s:".formatted(getLabel().getIdentifier());
     }
 }

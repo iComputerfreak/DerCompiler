@@ -7,10 +7,12 @@ import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeNode;
 import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.util.GraphUtil;
+import firm.Firm;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -129,6 +131,18 @@ public class MyBlockSorter implements BlockSorter {
             return false;
         }
 
+        // The first block should be the actual start block
+        if (hard && chainTo.contains(getGraphData().getStart())) {
+            FirmBlock temp = to;
+            to = from;
+            from = temp;
+
+            ArrayList<FirmBlock> chainTemp = chainTo;
+            chainTo = chainFrom;
+            chainFrom = chainTemp;
+
+        }
+
         if (!hard) {
             // implement fallthrough
             chainFrom.get(chainFrom.size() - 1).replaceJumpTarget(to.getId(), null);
@@ -175,7 +189,7 @@ public class MyBlockSorter implements BlockSorter {
 
         BlockClass bClass = BlockClass.UNKNOWN;
         if (preds == 0) getGraphData().setStart(block);
-        else if (succs == 1 && preds <= 1) bClass = BlockClass.STRING;
+        if (succs == 1 && preds <= 1) bClass = BlockClass.STRING;
         else if (succs > 1 && preds > 1)
             bClass = whileHead ? BlockClass.WHILE_HEAD : BlockClass.IF_HEAD_AND_SINK;
         else if (succs > 1) bClass = BlockClass.IF_HEAD;
@@ -196,27 +210,46 @@ public class MyBlockSorter implements BlockSorter {
                 classify(pred);
 
                 BlockProperties props = getProps(pred);
-
                 if (props.getBlockClass() == BlockClass.WHILE_HEAD) {
                     handleWhileCondition(block, pred);
                 } else if (props.getBlockClass() == BlockClass.STRING) {
                     handleString(block, pred);
                 }
+                else if (props.getBlockClass().isBranchHead()) {
+                    handleIfSimple(pred);
+                }
+                if (props.getBlockClass().isSink()) {
+                    handleSinkSimple(pred);
+                }
             }
         }
-        if (bProps.getBlockClass().isBranchHead()) {
-            //handleIf(block);
-        }
 
-        if (bProps.getBlockClass().isSink()) {
-            for (int i = 0; i < preds - 1; i++)
-                ifSinks.add(block);
-        }
         bProps.setVisited(true);
     }
 
+    private void handleIfSimple(FirmBlock block) {
+        // Desired order: Cond (cj True) False (j EndIf) True EndIf
+        if (checkWhileConditionExtension(block)) return;
+
+        FirmBlock startOfTrueBranch = GraphUtil.getPredecessors(block, graph).get(0);
+
+        unify(block, startOfTrueBranch);
+    }
+
+    private void handleSinkSimple(FirmBlock block) {
+        FirmBlock endOfFalseBranch = GraphUtil.getSuccessors(block, graph).get(0);
+        // cannot have been visited yet
+        if (endOfFalseBranch.getVisited()) return;
+        unify(endOfFalseBranch, block);
+    }
+
+
     private void handleIf(FirmBlock block) {
         // Desired order: Cond (cj True) False (j EndIf) True EndIf
+
+        /*
+            Sinks need to be pushed n-1 times for n successors!
+         */
 
         // This happens if this block is an if head and sink as well: gets visited twice
         if (block == ifSinks.peek()) return;
@@ -244,7 +277,6 @@ public class MyBlockSorter implements BlockSorter {
         unify(endOfFalseBranch, sink);
 
         //System.out.printf("unify %s -> %s ../.. %s -> %s%n", block, startOfTrueBranch, endOfFalseBranch, sink);
-
 
     }
 
