@@ -139,4 +139,8 @@ public class Address implements Operand {
         return offset;
     }
 
+    public int getScale() {
+        return scale;
+    }
+
 }

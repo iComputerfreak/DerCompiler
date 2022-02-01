@@ -32,7 +32,7 @@ public class BasicMemoryManager implements MemoryManager {
     /**
      *  Pointer to the return address of the current Activation Record.
      */
-    private X86Register basePointer = X86Register.RBP;
+    private final X86Register basePointer = X86Register.RBP;
 
     /**
      * Pointer to the lowest entry of the current stack.
@@ -73,7 +73,7 @@ public class BasicMemoryManager implements MemoryManager {
 
      @Override
     public Operand pushValue(Operand source) {
-        output.accept(new Push((Register) source, true));
+        output.accept(new Push(source));
         stackPointer = stackPointer.offset(-8);
         return stackPointer.copy();
     }

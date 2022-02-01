@@ -2,7 +2,7 @@ package de.dercompiler.intermediate.operand;
 
 import de.dercompiler.intermediate.selection.Datatype;
 
-public class ParameterRegister implements Register {
+public class ParameterRegister implements IRRegister {
 
     private final long number;
     public ParameterRegister(int number) {

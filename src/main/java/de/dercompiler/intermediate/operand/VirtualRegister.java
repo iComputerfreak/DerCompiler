@@ -2,7 +2,7 @@ package de.dercompiler.intermediate.operand;
 
 import de.dercompiler.intermediate.selection.Datatype;
 
-public class VirtualRegister implements Register {
+public class VirtualRegister implements IRRegister {
     
     private static long nextID = 0;
     

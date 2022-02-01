@@ -30,13 +30,9 @@ public class PhiRule extends SubstitutionRule<Phi> {
             }
         }
 
-
         if (root.getMode().equals(Mode.getM())) {
             // not represented in memory
             setTarget(null);
-
-
-
             return List.of();
         }
 
@@ -44,7 +40,11 @@ public class PhiRule extends SubstitutionRule<Phi> {
         setMode(root.getPred(0).getMode());
         Operand target = getAnnotation(node).getTarget();
         if (target == null) {
-            setTarget(new VirtualRegister());
+            target = new VirtualRegister();
+            setTarget(target);
+        }
+        for (Node pred : node.getPreds()) {
+            getAnnotation(pred).setTarget(target);
         }
 
         return List.of();
