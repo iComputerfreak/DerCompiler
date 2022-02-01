@@ -182,8 +182,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             if (opTgt.equals(opSrc)) return;
             if (opSrc instanceof Address && opTgt instanceof Address) {
                 Operand temp = freeRegister[freeRegisterIndex++];
-                ops.add(new Lea(temp, opSrc));
-                ops.add(bo.allocate(opTgt, temp));
+                ops.add(new Mov(temp, opTgt));
+                ops.add(bo.allocate(temp, opSrc));
                 freeRegisterIndex--;
             } else {
                 ops.add(bo.allocate(opTgt, opSrc));
