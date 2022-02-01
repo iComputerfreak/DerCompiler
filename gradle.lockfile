@@ -1,0 +1,22 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+com.diogonunes:JColor:5.2.0=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+com.github.Firmwehr:jFirm:5b0164832e9c2fe71fd62c607e1ab2e2c7a69f64=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+commons-cli:commons-cli:1.5.0=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+net.java.dev.jna:jna-platform:5.8.0=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+net.java.dev.jna:jna:4.5.2=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.antlr:antlr4-runtime:4.8-1=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.apache.commons:commons-lang3:3.9=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.apache.commons:commons-text:1.8=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.apiguardian:apiguardian-api:1.1.0=testCompileClasspath,testRuntimeClasspath
+org.jgrapht:jgrapht-core:1.5.1=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.jgrapht:jgrapht-io:1.5.1=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.jheaps:jheaps:0.13=compileClasspath,default,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.junit.jupiter:junit-jupiter-api:5.7.0=testCompileClasspath,testRuntimeClasspath
+org.junit.jupiter:junit-jupiter-engine:5.7.0=testRuntimeClasspath
+org.junit.platform:junit-platform-commons:1.7.0=testCompileClasspath,testRuntimeClasspath
+org.junit.platform:junit-platform-engine:1.7.0=testRuntimeClasspath
+org.junit:junit-bom:5.7.0=testCompileClasspath,testRuntimeClasspath
+org.opentest4j:opentest4j:1.2.0=testCompileClasspath,testRuntimeClasspath
+empty=annotationProcessor,archives,testAnnotationProcessor

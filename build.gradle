@@ -10,13 +10,30 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+// Lock all dependencies for reproducible builds
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+tasks.register('resolveAndLockAll') {
+    doFirst {
+        assert gradle.startParameter.writeDependencyLocks
+    }
+    doLast {
+        configurations.findAll {
+            // Add any custom filtering on the configurations to be resolved
+            it.canBeResolved
+        }.each { it.resolve() }
+    }
+}
+
 dependencies {
 
     implementation 'commons-cli:commons-cli:1.5.0'
     // https://mvnrepository.com/artifact/com.diogonunes/JColor
     implementation 'com.diogonunes:JColor:5.2.0'
 
-    implementation 'com.github.Firmwehr:jFirm:master-SNAPSHOT'
+    implementation 'com.github.Firmwehr:jFirm:5b0164832e9c2fe71fd62c607e1ab2e2c7a69f64'
     implementation 'net.java.dev.jna:jna:4.5.2!!'
 
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
