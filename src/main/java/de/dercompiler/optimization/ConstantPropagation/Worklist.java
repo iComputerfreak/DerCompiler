@@ -68,7 +68,10 @@ public class Worklist {
             if (value != null && !(value.equals(BAD) || value.equals(UNKNOWN))) {
                 if (node instanceof Div div) {
                     replaceDivOrMod(div, div.getMem(), graph.newConst(value));
-                } else if (node instanceof Cmp cmp) {
+                } else if (node instanceof Mod mod){
+                    replaceDivOrMod(mod, mod.getMem(), graph.newConst(value));
+                }
+                else if (node instanceof Cmp cmp) {
                     Relation oldRel = cmp.getRelation();
                     if (oldRel.equals(Relation.True) || oldRel.equals(Relation.False)) return;
                     Relation newRel = value.asInt() == 1 ? Relation.True : Relation.False;
