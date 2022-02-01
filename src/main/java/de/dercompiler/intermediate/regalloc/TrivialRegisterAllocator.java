@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.Function;
-import de.dercompiler.ast.Parameter;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
@@ -10,7 +9,6 @@ import de.dercompiler.intermediate.operation.ConstantOperations.Cqto;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.UnaryArithmeticOperation;
@@ -86,7 +84,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 skipNext = false;
                 continue;
             }
-            if (op instanceof Div div) {
+            if (op instanceof IDiv div) {
                 handleDiv(div);
             } else if (op instanceof BinaryOperation bo) {
                 handleBinaryOperation(bo);
@@ -264,13 +262,15 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         return false;
     }
 
-    private void handleDiv(Div div) {
+    private void handleDiv(IDiv div) {
         Operand[] operands = div.getArgs();
         Operand dividend = operands[0];
         Operand divisor = operands[1];
 
-        // save %rdx as it is overwritten by idiv
-        ops.add(new Mov(X86Register.RDX, X86Register.R11));
+        if (paramCount > 4) {
+            // save %rdx as it is overwritten by idiv
+            ops.add(new Mov(X86Register.RDX, X86Register.R11));
+        }
 
         // load dividend
         ops.add(new Mov(X86Register.RAX, getOperand(dividend)));
@@ -284,17 +284,19 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         // load divisor
         ops.add(new Mov(X86Register.R10, getOperand(divisor)));
 
-        //auf 64 bit Breite
+        // convert to 64 bit
         ops.add(new Movslq(X86Register.R10, X86Register.R10));
 
-        //Division ausführen
+        // instruction call
         ops.add(div.allocate(X86Register.R10, null));
 
-        //Ergebnis zurückschreiben
+        // save result
         ops.add(new Mov(getOperand(div.getDefinition()), X86Register.RAX));
 
-        //RDI wiederherstellen
-        ops.add(new Mov(X86Register.R11, X86Register.RDX));
+        if (paramCount > 4) {
+            // restore %rdx
+            ops.add(new Mov(X86Register.R11, X86Register.RDX));
+        }
     }
 
     private Operand getParamReg(int n) {
@@ -319,7 +321,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 x86RegisterBase = baseReg;
             } /*else if (base instanceof ParameterRegister param) {
                 x86RegisterBase = getParamReg(param.getId());
-            } */else {
+            } */ else {
                 x86RegisterBase = freeRegister[freeRegisterIndex++];
                 ops.add(new Mov(x86RegisterBase, base));
             }

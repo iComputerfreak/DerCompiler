@@ -4,15 +4,15 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 
-public class Div extends BinArithOperation {
+public class IDiv extends BinArithOperation {
 
-    public Div(Operand target, Operand source) {
-        super(OperationType.DIV, target, source, true);
+    public IDiv(Operand target, Operand source) {
+        super(OperationType.IDIV, target, source, true);
     }
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source){
-        Div div = new Div(target, source);
+        IDiv div = new IDiv(target, source);
         div.setMode(getMode());
         return div;
     }

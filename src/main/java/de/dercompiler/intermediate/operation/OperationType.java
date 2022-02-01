@@ -2,15 +2,14 @@ package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.selection.Datatype;
 
-import java.util.Locale;
-
 public enum OperationType {
     //Erst die binary Operations
     MOVSLQ("MOVSLQ", false),
     ADD("ADD", true),
     AND("AND", true),
     CMP("CMP"),
-    DIV("IDIV", true),
+    IDIV("IDIV", true),
+    IMUL("IMUL", true),
     LEA("LEA", true),
     MOV("MOV", true),
     OR("OR", true),
@@ -29,7 +28,6 @@ public enum OperationType {
     //Dann die unary Operations
     CALL("CALL"),
     DEC("DEC"),
-    MUL("MUL"),
     JA("JA"),
     JAE("JAE"),
     JB("JB"),
