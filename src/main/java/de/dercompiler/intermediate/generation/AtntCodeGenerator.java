@@ -29,7 +29,7 @@ public class AtntCodeGenerator implements CodeGenerator {
 
     private static final String COMMENT_FUNC_START = "# -- Begin";
     private static final String COMMENT_FUNC_END = "# -- End  ";
-    private static final String COMMENT_SYMBOL = "#";
+    private static final String COMMENT_SYMBOL = ";";
 
     private static final int COMMENT_OFFSET = 40;
 
