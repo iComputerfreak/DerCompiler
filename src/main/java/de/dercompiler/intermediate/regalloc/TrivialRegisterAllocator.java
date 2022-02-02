@@ -205,8 +205,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         Operand opSrc;
         Operand opTgt; //= getOperand(operands[0], true);
 
-        if (bo instanceof Div div) {
-            handleDiv(div);
+        if (bo instanceof DivModOperation dmo) {
+            handleDivMod(dmo);
         } else if (bo instanceof IMul mul) {
             handleMul(mul);
         } else if (bo instanceof Mov || bo instanceof Lea) {
@@ -304,55 +304,69 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     }
 
     private void handleMul(IMul mul) {
-        Operand factor1 = getOperand(mul.getTarget(), mul.getDatatype(), true, false);
-        Operand factor2 = getOperand(mul.getSource(), mul.getDatatype(), true, true);
+        Operand fctTarget = getOperand(mul.getTarget(), mul.getDatatype(), true, false);
+        Operand fctSource = getOperand(mul.getSource(), mul.getDatatype(), true, true);
         Operand dest = getOperand(mul.getDefinition(), mul.getDatatype(), true, true);
 
-        int configuration = evalMul(factor1, factor2, dest);
+        int configuration = evalMul(fctTarget, fctSource, dest);
 
         loop:
-        while (true)
+        while (true) {
+
             switch (configuration) {
-                case 6, 21 -> {
-                    // imul const, addr -> reg/addr
-                    Operand temp = factor2;
-                    factor2 = factor1;
-                    factor1 = temp;
-                    configuration = evalMul(factor1, factor2, dest);
+                case 5, 10, 21, 26, 30, 31 -> {
+                    // 5/21:  imul const, const -> addr/reg
+                    // 10/26: imul  addr,  addr -> addr/reg
+                    // 30:    imul   reg,   mem -> reg
+                    // 31:    imul   reg,   reg -> reg
+                    ops.add(new Mov(dest, fctTarget));
+                    ops.add(mul.allocate(dest, fctSource));
+                    break loop;
+                }
+                case 6, 7, 11, 22, 23, 27 -> {
+                    // 6/22: imul const, addr -> addr/reg
+                    // 7/23: imul const, reg  -> addr/reg
+                    // 11:   imul  addr, reg  -> addr
+                    // 27:   imul  addr, reg  -> reg
+                    // Handle symmetric case instead
+                    Operand temp = fctSource;
+                    fctSource = fctTarget;
+                    fctTarget = temp;
+                    configuration = evalMul(fctTarget, fctSource, dest);
                     continue loop;
                 }
-                case 9 -> {
-                    // imul addr, const -> addr
+                case 9, 13 -> {
+                    // imul addr/reg, const -> addr
                     X86Register target = allocateRegister();
-                    ops.add(mul.allocateIMul3((ConstantValue) factor2, factor1, target));
+                    ops.add(mul.allocateIMul3((ConstantValue) fctSource, fctTarget, target));
                     ops.add(new Mov(getOperand(mul.getDefinition(), mul.getDatatype(), true, true), target));
                     freeRegister(target);
                     break loop;
                 }
+                case 14 -> {
+                    // imul reg, addr -> addr
+                    ops.add(new Mov(dest, fctSource));
+                    ops.add(mul.allocate(dest, fctTarget));
+                    break loop;
+                }
                 case 15 -> {
                     // imul reg, reg -> addr
-                    X86Register temp = storeInRegister(factor2, mul.getDatatype());
-                    ops.add(mul.allocate(temp, factor1));
+                    X86Register temp = storeInRegister(fctSource, mul.getDatatype());
+                    ops.add(mul.allocate(temp, fctTarget));
                     ops.add(new Mov(dest, temp));
                     freeRegister(temp);
                     break loop;
                 }
-
-                case 27, 29 -> {
-                    // imul addr/reg, const -> reg
-                    ops.add(mul.allocateIMul3((ConstantValue) factor2, factor1, dest));
-                    break loop;
-                }
-                case 31 -> {
-                    // imul reg, reg -> reg
-                    ops.add(new Mov(dest, factor2));
-                    ops.add(mul.allocate(dest, factor1));
+                case 25, 29 -> {
+                    // 25/29: imul addr/reg, const -> reg
+                    ops.add(mul.allocateIMul3((ConstantValue) fctSource, fctTarget, dest));
                     break loop;
                 }
 
-                default -> new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.UNDEFINED_OPERAND_CONFIGURATION, "Could not handle the kind of operands for imul. Better set up more cases! (Case %d)".formatted(configuration));
-
+                default -> new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.UNDEFINED_OPERAND_CONFIGURATION,
+                        "Could not handle the kind of operands for imul. Better set up more cases! (Case %d -- %s)".formatted(configuration, mul.getAtntSyntax()));
             }
+        }
 
 
     }
@@ -379,45 +393,10 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         return false;
     }
 
-    private void handleMod(Mod mod) {
-        Operand[] operands = mod.getArgs();
-        Operand dividend = operands[0];
-        Operand divisor = operands[1];
 
-        if (paramCount >= 3) {
-            // save %rdx as it is overwritten by idiv
-            ops.add(new Mov(X86Register.R11, X86Register.RDX));
-        }
+    private void handleDivMod(DivModOperation op) {
+        Operand[] operands = op.getArgs();
 
-        // load dividend
-        storeInRegister(X86Register.RAX, getOperand(dividend, Datatype.QWORD, true), Datatype.QWORD);
-
-        // load divisor
-        Operand dsrAddr = getOperand(divisor, Datatype.DWORD, true);
-        if (dsrAddr.equals(X86Register.RDX)) {
-            dsrAddr = X86Register.R11;
-        } else if (dsrAddr instanceof ConstantValue) {
-            dsrAddr = storeInRegister(dsrAddr, Datatype.QWORD);
-        }
-
-        // convert to 128 bit
-        ops.add(new Cqto());
-
-
-        // instruction call
-        ops.add(new IDiv(dsrAddr));
-
-        // save result
-        storeInVirtualRegister(((VirtualRegister) mod.getDefinition()).getId(), X86Register.RDX);
-
-        if (paramCount >=3) {
-            // restore %rdx
-            ops.add(new Mov(X86Register.RDX, X86Register.R11));
-        }
-    }
-
-    private void handleDiv(Div div) {
-        Operand[] operands = div.getArgs();
         Operand dividend = operands[0];
         Operand divisor = operands[1];
 
@@ -440,12 +419,12 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         // convert to 128 bit
         ops.add(new Cqto());
 
-
         // instruction call
         ops.add(new IDiv(dsrAddr));
 
         // save result
-        storeInVirtualRegister(((VirtualRegister) div.getDefinition()).getId(), X86Register.RAX);
+        X86Register result = op instanceof Div ? X86Register.RAX : X86Register.RDX;
+        storeInVirtualRegister(((VirtualRegister) op.getDefinition()).getId(), result);
 
         if (paramCount >= 3) {
             // restore %rdx
@@ -468,7 +447,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      * @param operand       IR or x86 operand
      * @param datatype      datatype of the operation, in case any value must be loaded
      * @param allowAddress  if operand is an address and !allowAddress, the address is stored in a register.
-     * @param allowTopStack set this to false if it is obvious that the stack will be written shortly which would invalidate the current top stack address.
+     * @param allowTopStack
      * @return the x86 operand
      */
     private Operand getOperand(Operand operand, Datatype datatype, boolean allowAddress, boolean allowTopStack) {

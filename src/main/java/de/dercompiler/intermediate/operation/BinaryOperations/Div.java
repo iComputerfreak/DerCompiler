@@ -4,10 +4,10 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 
-public class Div extends BinaryOperation {
+public final class Div extends DivModOperation {
 
     public Div(Operand dividend, Operand divisor) {
-        super(OperationType.DIV, dividend, divisor, true);
+        super(OperationType.DIV, dividend, divisor);
     }
 
     public Div allocate(Operand dividend, Operand divisor){
