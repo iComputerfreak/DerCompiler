@@ -20,7 +20,7 @@ public class IDiv extends UnaryOperation {
     }
 
     public Operand getDivisor() {
-        return super.getArg();
+        return super.getTarget();
     }
 
     @Override

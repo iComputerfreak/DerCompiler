@@ -68,7 +68,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     /**
      * Maps virtual registers to their location on the stack.
      */
-    private final Map<Long, Address> vrMap = new HashMap<>();
+    private final Map<Integer, Address> vrMap = new HashMap<>();
 
     List<Operation> ops;
     Function function;
@@ -167,7 +167,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             ops.add(p);
         } else if (uop instanceof Pop p) {
             varCount--;
-            if (p.getArg() == null) {
+            if (p.getTarget() == null) {
                 // free stack entry w/o saving the value
                 Add add = new Add(X86Register.RSP, new ConstantValue(8));
                 add.setMode(Datatype.QWORD, Signedness.UNSIGNED);
@@ -508,7 +508,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     }
 
 
-    private Operand loadVirtualRegister(long id) {
+    private Operand loadVirtualRegister(int id) {
         return vrMap.computeIfAbsent(id, id_ -> {
             handleUnaryOperation(new Push(new ConstantValue(0)));
             return getLocalVar(varCount - 1);
@@ -516,7 +516,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     }
 
     //TODO Where to use?
-    private Address storeInVirtualRegister(long id, Operand value) {
+    private Address storeInVirtualRegister(int id, Operand value) {
         return vrMap.computeIfAbsent(id, id_ -> {
             handleUnaryOperation(new Push(value));
             return getLocalVar(varCount - 1);

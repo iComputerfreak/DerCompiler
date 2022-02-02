@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 public class Function {
 
     private final Method method;
-    private List<Operation> operations;
+    private LinkedList<Operation> operations;
     private int opCount;
 
     private final firm.Graph graph;
@@ -26,9 +26,9 @@ public class Function {
     public void setOperations(List<Operation> ops) {
         opCount = ops.size();
         IntStream.range(0, opCount).forEach(i -> ops.get(i).setIndex(i));
-        operations = ops;
+        operations = new LinkedList<>(ops);
     }
-    public List<Operation> getOperations() {
+    public LinkedList<Operation> getOperations() {
         return operations;
     }
 
