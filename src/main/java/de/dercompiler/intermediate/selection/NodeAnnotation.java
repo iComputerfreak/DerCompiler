@@ -1,16 +1,20 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import firm.nodes.Node;
 
 /**
  * Represents an annotation of a {@link Node}
  */
 public class NodeAnnotation<T extends Node> {
-    
+
     private final int cost;
     private final T rootNode;
     private final SubstitutionRule<T> rule;
+    /**
+     * A VirtualRegister, or a LabelOperand that acts as the target for the root Node.
+     */
     private Operand target = null;
     private boolean visited;
     private boolean transformed;
@@ -18,10 +22,11 @@ public class NodeAnnotation<T extends Node> {
 
     /**
      * Creates a new node annotation with the given cost, root node and substitution rule
-     * @param cost The cost of applying the given rule and the cheapest rules of all remaining predecessors
+     *
+     * @param cost     The cost of applying the given rule and the cheapest rules of all remaining predecessors
      * @param rootNode The bottom-most node which will be replaced
-     * @param rule The substitution rule used to calculate the given cost
-     * @param visited Whether the node has been visited already
+     * @param rule     The substitution rule used to calculate the given cost
+     * @param visited  Whether the node has been visited already
      */
     public NodeAnnotation(int cost, T rootNode, SubstitutionRule<T> rule, boolean visited, boolean transformed) {
         this.cost = cost;
@@ -33,9 +38,10 @@ public class NodeAnnotation<T extends Node> {
 
     /**
      * Creates a new node annotation with the given cost, root node and substitution rule
-     * @param cost The cost of applying the given rule and the cheapest rules of all remaining predecessors
+     *
+     * @param cost     The cost of applying the given rule and the cheapest rules of all remaining predecessors
      * @param rootNode The bottom-most node which will be replaced
-     * @param rule The substitution rule used to calculate the given cost
+     * @param rule     The substitution rule used to calculate the given cost
      */
     public NodeAnnotation(int cost, T rootNode, SubstitutionRule<T> rule) {
         this(cost, rootNode, rule, false, false);
@@ -72,6 +78,7 @@ public class NodeAnnotation<T extends Node> {
 
     /**
      * Sets the target operand (e.g. register, virtual register, ...) of this node
+     *
      * @param target The operand
      */
     public void setTarget(Operand target) {

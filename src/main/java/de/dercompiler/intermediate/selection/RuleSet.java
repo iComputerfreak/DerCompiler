@@ -38,7 +38,7 @@ public final class RuleSet {
             entry(Proj.class, List.<SubstitutionRule<Proj>>of(new ProjRule(), new ProjLoadRule(), new ParamRule(), new CondJmpRule(), new NewRule(), new ProjDivRule())),
             entry(Shl.class, List.<SubstitutionRule<Shl>>of(new ShlRule())),
             entry(Shr.class, List.<SubstitutionRule<Shr>>of(new ShrRule())),
-            entry(Shrs.class, List.<SubstitutionRule<Shrs>>of(new ShrsRule())),
+            entry(Shrs.class, List.<SubstitutionRule<Shrs>>of(new SarRule())),
             entry(Start.class, List.<SubstitutionRule<Start>>of(new StartRule())),
             entry(Store.class, List.<SubstitutionRule<Store>>of(new StoreRule(), new IncLMemberRule(), new IncRMemberRule()/*, new ResetRule()*/)),
             entry(Sub.class, List.<SubstitutionRule<Sub>>of(new SubRule())),

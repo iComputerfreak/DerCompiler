@@ -34,7 +34,7 @@ public class EasyTest {
         Operation o4 = new Call(new MethodReference("haha"),true, v1, v2,v1,v2,v1,v2,v1);
         Operation o5 = new Jne(new LabelOperand("testziel"));
         Operation o6 = new Dec(v1, true);
-        Operation o7 = new IDiv(v1, v2);
+        Operation o7 = new Div(v1, v2);
 
 
         LinkedList<Operation> ops = new LinkedList<>();

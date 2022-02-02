@@ -88,7 +88,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 skipNext = false;
                 continue;
             }
-            if (op instanceof IDiv div) {
+            if (op instanceof Div div) {
                 handleDiv(div);
             } else if (op instanceof BinaryOperation bo) {
                 handleBinaryOperation(bo);
@@ -244,7 +244,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             opTgt = getOperand(operands[0], bo.getDatatype(), true);
             /*
                 if next operation writes result back to target of this operation
-                   and destination of this operation dies after next operation
+                   <and> destination of this operation dies after next operation
                 then destination is throwaway register
                 -> we can operate on target directly!
             */
@@ -261,28 +261,22 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                     ops.add(new Lea(X86Register.R10, opTgt));
                     destReg = Address.ofOperand(X86Register.R10);
                 }
+            } else if (bo.needsDefinition()) {
+                // load target value into destination location
+                VirtualRegister targetVR = (VirtualRegister) bo.getDefinition();
+                Address stackLocation = storeInVirtualRegister(targetVR.getId(), getOperand(operands[0], bo.getDatatype(), true));
+                destReg = isTopStack(stackLocation) ? getTopStack() : stackLocation;
+            } else {
+                // target register will not be overwritten (cmp, jmp). mov and lea are handled above, they too do not need definitions.
+                // -> no need to save target register
+                destReg = opTgt;
             }
-            if (destReg == null) {
 
-                if (bo.needsDefinition() && !throwaway) {
-                    // load target value into destination location
-                    VirtualRegister targetVR = (VirtualRegister) bo.getDefinition();
-                    Address stackLocation = storeInVirtualRegister(targetVR.getId(), getOperand(operands[0], bo.getDatatype(), true));
-                    destReg = isTopStack(stackLocation) ? getTopStack() : stackLocation;
-                } else {
-                    // copy value of target register
-                    Mov loadDest = new Mov(X86Register.R10, opTgt);
-                    loadDest.setMode(bo.getMode());
-                    loadDest.setComment("safe binop destination register -- cannot overwrite");
-                    ops.add(loadDest);
-                    destReg = X86Register.R10;
-                }
-            }
 
             opSrc = getOperand(operands[1], bo.getDatatype(), true);
             // load source register, if necessary
             Operand srcReg = null;
-            if (bo instanceof BinArithOperation) {
+            if (bo instanceof BinArithOperation || bo instanceof ShiftOperation) {
                 if (opSrc instanceof ConstantValue) {
                     srcReg = opSrc;
                 } else if (destReg instanceof Register && opSrc.equals(opTgt)) {
@@ -315,7 +309,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         return false;
     }
 
-    private void handleDiv(IDiv div) {
+    private void handleDiv(Div div) {
         Operand[] operands = div.getArgs();
         Operand dividend = operands[0];
         Operand divisor = operands[1];
@@ -326,31 +320,34 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         }
 
         // load dividend
-        ops.add(new Mov(X86Register.RAX, getOperand(dividend, Datatype.DWORD, true)));
+        storeInRegister(X86Register.RAX, getOperand(dividend, Datatype.QWORD, true), Datatype.QWORD);
 
         // convert to 64 bit
-        ops.add(new Movslq(X86Register.RAX, X86Register.RAX));
+        //ops.add(new Movslq(X86Register.RAX, X86Register.RAX));
 
         // convert to 128 bit
         ops.add(new Cqto());
 
         // load divisor
-        ops.add(new Mov(X86Register.R10, getOperand(divisor, Datatype.DWORD, true)));
+        Operand dsrAddr = getOperand(divisor, Datatype.DWORD, true);
 
         // convert to 64 bit
-        ops.add(new Movslq(X86Register.R10, X86Register.R10));
+        // ops.add(new Movslq(X86Register.R10, X86Register.R10));
 
         // instruction call
-        ops.add(div.allocate(X86Register.R10, null));
+        ops.add(new IDiv(dsrAddr));
 
         // save result
-        ops.add(new Mov(getOperand(div.getDefinition(), Datatype.QWORD, true), X86Register.RAX));
+        storeInVirtualRegister(((VirtualRegister) div.getDefinition()).getId(), X86Register.RAX);
 
         if (paramCount > 4) {
             // restore %rdx
             ops.add(new Mov(X86Register.R11, X86Register.RDX));
         }
     }
+
+
+
 
     private Operand getParamReg(int n) {
         if (n < 7) {
@@ -371,6 +368,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     private Operand getOperand(Operand operand, Datatype datatype, boolean allowAddress) {
         if (operand == null) {
             return null;
+        } else if (operand instanceof ConstantValue constant) {
+            return constant;
         } else if (operand instanceof VirtualRegister vr) {
             return getOperand(loadVirtualRegister(vr.getId()), datatype, allowAddress);
         } else if (operand instanceof ParameterRegister pr) {
@@ -400,8 +399,13 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         mov.setMode(datatype, datatype == Datatype.BYTE ? Signedness.UNSIGNED : Signedness.SIGNED);
         ops.add(mov);
 
-
         return reg;
+    }
+
+    private void storeInRegister(X86Register reg, Operand address, Datatype datatype) {
+        Mov mov = new Mov(reg, address);
+        mov.setMode(datatype, datatype == Datatype.BYTE ? Signedness.UNSIGNED : Signedness.SIGNED);
+        ops.add(mov);
     }
 
     private boolean isTopStack(Address addr) {

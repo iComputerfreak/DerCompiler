@@ -11,12 +11,10 @@ import firm.nodes.*;
 import java.util.HashMap;
 import java.util.function.BiFunction;
 
-import static java.lang.Integer.MIN_VALUE;
-
 public class ArithmeticOptimization extends GraphOptimization {
 
     private final HashMap<Integer, ReplaceDivNode> divNodesData;
-    private OutputMessageHandler logger;
+    private final OutputMessageHandler logger;
 
     public ArithmeticOptimization() {
         this.divNodesData = new HashMap<>();
@@ -26,7 +24,7 @@ public class ArithmeticOptimization extends GraphOptimization {
     public void visit(Conv node) {
         Node op = node.getOp();
         if (op instanceof Const constant) {
-            replaceNode(node, getConstruction().newConst(constant.getTarval().asInt(), node.getMode()));
+            replaceNode(node, getConstruction().newConst(constant.getTarval().asInt(), node.getMode()), true);
             logger.printInfo("Apply arith/ConvConst to %s and %s".formatted(node.toString(), op.toString()));
         }
     }
@@ -39,20 +37,20 @@ public class ArithmeticOptimization extends GraphOptimization {
             if (a instanceof Const constA) {
                 // 0 + x -> x
                 if (constA.getTarval().asInt() == 0) {
-                    replaceNode(node, b);
+                    replaceNode(node, b, true);
                     logger.printInfo("Apply arith/AddId to %s and %s".formatted(a.toString(), b.toString()));
                     return true;
                 }
                 // c1 + c2 -> (c1 + c2)
                 else if (b instanceof Const constB) {
-                    replaceNode(node, getConstruction().newConst(constA.getTarval().add(constB.getTarval())));
+                    replaceNode(node, getConstruction().newConst(constA.getTarval().add(constB.getTarval())), true);
                     logger.printInfo("Apply arith/Add2Consts to %s and %s".formatted(a.toString(), b.toString()));
                     return true;
                 }
             }
             // -x + b -> b - x
             else if (a instanceof Minus negativeNode) {
-                replaceNode(node, getConstruction().newSub(b, negativeNode.getPred(0)));
+                replaceNode(node, getConstruction().newSub(b, negativeNode.getPred(0)), true);
                 logger.printInfo("Apply arith/AddToSub to %s and %s".formatted(a.toString(), b.toString()));
                 return true;
             }
@@ -64,7 +62,7 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (summand1.equals(summand2)) {
             // x + x -> x << 1
             Construction construction = getConstruction();
-            replaceNode(node, construction.newShl(summand1, construction.newConst(1, Mode.getIu())));
+            replaceNode(node, construction.newShl(summand1, construction.newConst(1, Mode.getIu())), true);
             logger.printInfo("Apply arith/AddSameArg to %s and %s".formatted(summand1.toString(), summand2.toString()));
             return;
         }
@@ -79,31 +77,31 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (minuend instanceof Const mndConst) {
             if (mndConst.getTarval().asInt() == 0) {
                 // 0 - x -> -x
-                replaceNode(node, constr.newMinus(subtrahend));
+                replaceNode(node, constr.newMinus(subtrahend), true);
                 logger.printInfo("Apply arith/SubToNeg to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
             } else if (subtrahend instanceof Const sbtConst) {
                 // c1 - c2 -> (c1 - c2)
-                replaceNode(node, constr.newConst(((Const) minuend).getTarval().sub(sbtConst.getTarval())));
+                replaceNode(node, constr.newConst(((Const) minuend).getTarval().sub(sbtConst.getTarval())), true);
                 logger.printInfo("Apply arith/Sub2Consts to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
             }
         } else if (subtrahend instanceof Const sbtConst && sbtConst.getTarval().asInt() == 0) {
             // x - 0 -> x
-            replaceNode(node, minuend);
+            replaceNode(node, minuend, true);
             logger.printInfo("Apply arith/SubId to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
         } else if (minuend == subtrahend) {
             // x - x -> 0
-            replaceNode(node, constr.newConst(0, Mode.getIs()));
+            replaceNode(node, constr.newConst(0, Mode.getIs()), true);
             logger.printInfo("Apply arith/SubSameArg to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
         } else if (subtrahend instanceof Minus negativeNode) {
             // x - -y -> x + y
-            replaceNode(node, constr.newAdd(minuend, negativeNode.getPred(0)));
+            replaceNode(node, constr.newAdd(minuend, negativeNode.getPred(0)), true);
             logger.printInfo("Apply arith/SubToAdd to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
         } else if (minuend instanceof Minus negativeNode) {
             // -x - y -> -(x + y)
             Node add = constr.newAdd(negativeNode.getPred(0), subtrahend);
             logger.printInfo("Apply arith/SubFirstNeg to %s and %s".formatted(minuend.toString(), subtrahend.toString()));
             add.accept(this);
-            replaceNode(node, constr.newMinus(add));
+            replaceNode(node, constr.newMinus(add), true);
         }
     }
 
@@ -116,14 +114,14 @@ public class ArithmeticOptimization extends GraphOptimization {
                 boolean success_ = switch (aValue) {
                     // 0 * x -> 0
                     case 0 -> {
-                        replaceNode(node, a);
+                        replaceNode(node, a, true);
                         logger.printInfo("Apply arith/MulWithZero to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 1 * x -> x
                     case 1 -> {
-                        replaceNode(node, b);
+                        replaceNode(node, b, true);
                         logger.printInfo("Apply arith/MulId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
@@ -133,7 +131,7 @@ public class ArithmeticOptimization extends GraphOptimization {
 
                         // (2 ** exp) * x -> x << exp
                         if (exponent > 0) {
-                            replaceNode(node, getConstruction().newShl(b, getConstruction().newConst(exponent, Mode.getIu())));
+                            replaceNode(node, getConstruction().newShl(b, getConstruction().newConst(exponent, node.getMode())), true);
                             logger.printInfo("Apply arith/MulToLsh to %s and %s".formatted(a.toString(), b.toString()));
                             yield true;
                         }
@@ -144,7 +142,7 @@ public class ArithmeticOptimization extends GraphOptimization {
             } else return false;
         });
         if (!success && node.getLeft() instanceof Const fctr1 && node.getRight() instanceof Const fctr2) {
-            replaceNode(node, getConstruction().newConst(fctr1.getTarval().mul(fctr2.getTarval())));
+            replaceNode(node, getConstruction().newConst(fctr1.getTarval().mul(fctr2.getTarval())), true);
         }
     }
 
@@ -176,7 +174,7 @@ public class ArithmeticOptimization extends GraphOptimization {
 
                     // x / (2 ** exp) -> x >> exp
                     if (exponent > 0) {
-                        replaceDiv(node, getConstruction().newShrs(dividend, getConstruction().newConst(exponent, Mode.getIu())));
+                        replaceDiv(node, getConstruction().newShrs(dividend, getConstruction().newConst(exponent, dividend.getMode())));
                         logger.printInfo("Apply arith/DivToRshs to %s and %s".formatted(dividend.toString(), divisor.toString()));
                     } else if (dividend instanceof Const dvdConst) {
                         replaceDiv(node, getConstruction().newConst(dvdConst.getTarval().div(dsrConst.getTarval())));
@@ -190,11 +188,13 @@ public class ArithmeticOptimization extends GraphOptimization {
 
     private void replaceDiv(Div divNode, Node newNode) {
         // Must replace by hand, or else the Proj nodes' predecessors will have invalid types.
+        newNode.setBlock(divNode.getBlock());
         this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem()));
     }
 
     private void replaceMod(Mod divNode, Node newNode) {
         // Must replace by hand, or else the Proj nodes' predecessors will have invalid types.
+        newNode.setBlock(divNode.getBlock());
         this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem()));
     }
 
@@ -222,21 +222,21 @@ public class ArithmeticOptimization extends GraphOptimization {
                 boolean success = switch (constA.getTarval().asInt()) {
                     // -1 || x -> -1
                     case -1 -> {
-                        replaceNode(node, a);
+                        replaceNode(node, a, true);
                         logger.printInfo("Apply arith/OrMinusOne to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 0 || x -> x
                     case 0 -> {
-                        replaceNode(node, b);
+                        replaceNode(node, b, true);
                         logger.printInfo("Apply arith/OrId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
                     default -> false;
                 };
                 if (!success && b instanceof Const constB) {
-                    replaceNode(node, getConstruction().newConst(constA.getTarval().or(constB.getTarval())));
+                    replaceNode(node, getConstruction().newConst(constA.getTarval().or(constB.getTarval())), true);
                     logger.printInfo("Apply arith/Or2Consts to %s and %s".formatted(a.toString(), b.toString()));
                     success = true;
                 }
@@ -301,21 +301,21 @@ public class ArithmeticOptimization extends GraphOptimization {
                 boolean success = switch (constA.getTarval().asInt()) {
                     // -1 && x -> x
                     case -1 -> {
-                        replaceNode(node, b);
+                        replaceNode(node, b, true);
                         logger.printInfo("Apply arith/AndId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 0 && x -> 0
                     case 0 -> {
-                        replaceNode(node, a);
+                        replaceNode(node, a, true);
                         logger.printInfo("Apply arith/AndZero to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
                     default -> false;
                 };
                 if (!success && b instanceof Const constB) {
-                    replaceNode(node, getConstruction().newConst(constA.getTarval().and(constB.getTarval())));
+                    replaceNode(node, getConstruction().newConst(constA.getTarval().and(constB.getTarval())), true);
                     logger.printInfo("Apply arith/And2Consts to %s and %s".formatted(a.toString(), b.toString()));
                     success = true;
                 }
@@ -331,21 +331,21 @@ public class ArithmeticOptimization extends GraphOptimization {
                 boolean success = switch (constA.getTarval().asInt()) {
                     // -1 ^ x -> ~x
                     case -1 -> {
-                        replaceNode(node, getConstruction().newNot(b));
+                        replaceNode(node, getConstruction().newNot(b), true);
                         logger.printInfo("Apply arith/XorMinusOne to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
 
                     // 0 ^ x -> x
                     case 0 -> {
-                        replaceNode(node, b);
+                        replaceNode(node, b, true);
                         logger.printInfo("Apply arith/XorId to %s and %s".formatted(a.toString(), b.toString()));
                         yield true;
                     }
                     default -> false;
                 };
                 if (!success && b instanceof Const constB) {
-                    replaceNode(node, getConstruction().newConst(constA.getTarval().eor(constB.getTarval())));
+                    replaceNode(node, getConstruction().newConst(constA.getTarval().eor(constB.getTarval())), true);
                     logger.printInfo("Apply arith/Eor2Consts to %s and %s".formatted(a.toString(), b.toString()));
                     success = true;
                 }
@@ -362,11 +362,11 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (shift instanceof Const shConst) {
             if (shConst.getTarval().asInt() == 0) {
                 // x << 0 -> x
-                replaceNode(node, base);
+                replaceNode(node, base, true);
                 logger.printInfo("Apply arith/LshId to %s and %s".formatted(base.toString(), shift.toString()));
             } else if (base instanceof Const bsConst) {
                 // c1 << c2 -> (c1 << c2)
-                replaceNode(node, getConstruction().newConst(bsConst.getTarval().shl(shConst.getTarval())));
+                replaceNode(node, getConstruction().newConst(bsConst.getTarval().shl(shConst.getTarval())), true);
                 logger.printInfo("Apply arith/Lsh2Consts to %s and %s".formatted(base.toString(), shift.toString()));
             }
         }
@@ -380,11 +380,11 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (shift instanceof Const shConst) {
             if (shConst.getTarval().asInt() == 0) {
                 // x >>> 0 -> x
-                replaceNode(node, base);
+                replaceNode(node, base, true);
                 logger.printInfo("Apply arith/RshId to %s and %s".formatted(base.toString(), shift.toString()));
             } else if (base instanceof Const bsConst) {
                 // c1 >>> c2 -> (c1 >>> c2)
-                replaceNode(node, getConstruction().newConst(bsConst.getTarval().shr(shConst.getTarval())));
+                replaceNode(node, getConstruction().newConst(bsConst.getTarval().shr(shConst.getTarval())), true);
                 logger.printInfo("Apply arith/Rsh2Consts to %s and %s".formatted(base.toString(), shift.toString()));
             }
         }
@@ -398,11 +398,11 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (shift instanceof Const shConst) {
             if (shConst.getTarval().asInt() == 0) {
                 // x >> 0 -> x
-                replaceNode(node, base);
+                replaceNode(node, base, true);
                 logger.printInfo("Apply arith/RshsId to %s and %s".formatted(base.toString(), shift.toString()));
             } else if (base instanceof Const bsConst) {
                 // c1 >> c2 -> (c1 >> c2)
-                replaceNode(node, getConstruction().newConst(bsConst.getTarval().shl(shConst.getTarval())));
+                replaceNode(node, getConstruction().newConst(bsConst.getTarval().shl(shConst.getTarval())), true);
                 logger.printInfo("Apply arith/Rshs2Consts to %s and %s".formatted(base.toString(), shift.toString()));
             }
         }
@@ -413,11 +413,11 @@ public class ArithmeticOptimization extends GraphOptimization {
         Node op = node.getOp();
         if (op instanceof Minus innerNegNode) {
             // -(-x) -> x
-            replaceNode(node, innerNegNode.getOp());
+            replaceNode(node, innerNegNode.getOp(), true);
             logger.printInfo("Apply arith/MinusMinus to %s and %s".formatted(node.toString(), op.toString()));
         } else if (op instanceof Const opConst) {
             // -(c) -> (-c)
-            replaceNode(node, getConstruction().newConst(opConst.getTarval().neg()));
+            replaceNode(node, getConstruction().newConst(opConst.getTarval().neg()), true);
             logger.printInfo("Apply arith/MinusConst to %s and %s".formatted(node.toString(), op.toString()));
         }
     }
@@ -427,14 +427,15 @@ public class ArithmeticOptimization extends GraphOptimization {
         if (node.getPred() instanceof Div divNode && divNodesData.containsKey(divNode.getNr())) {
             final ReplaceDivNode data = divNodesData.get(divNode.getNr());
             switch (node.getMode().getName()) {
-                case "M" -> replaceNode(node, data.memory);
-                case "Is", "Ls" -> replaceNode(node, data.replaceValue);
+                case "M" -> replaceNode(node, data.memory, false);
+                case "Is", "Ls" -> replaceNode(node, data.replaceValue, false);
                 default -> logger.internalError("A Proj node with a Mode different from M, Ls or Is seems to have pointed to an Integer Div node. How is that supposed to happen?");
             }
         }
     }
 
-    private void replaceNode(Node node, Node b) {
+    private void replaceNode(Node node, Node b, boolean b1) {
+        b.setBlock(node.getBlock());
         Graph.exchange(node, b);
         b.accept(this);
     }
@@ -461,10 +462,7 @@ public class ArithmeticOptimization extends GraphOptimization {
     }
 
     record ReplaceDivNode(Node replaceValue, Node memory) {
-
+        // no methods, just data c:
     }
-
-    ;
-
 
 }

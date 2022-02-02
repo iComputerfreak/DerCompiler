@@ -4,7 +4,7 @@ import de.dercompiler.intermediate.selection.Datatype;
 
 public enum X86Register implements Register {
     RAX("rax", "eax", "ax", "al"),
-    RCX("rcx", "ecx", "cx", "al"),
+    RCX("rcx", "ecx", "cx", "cl"),
     RDX("rdx", "edx", "dx", "dl"),
     RBX("rbx", "ebx", "bx", "bl"),
     RSI("rsi", "esi", "si", "sil"),

@@ -3,6 +3,7 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.MethodReference;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;

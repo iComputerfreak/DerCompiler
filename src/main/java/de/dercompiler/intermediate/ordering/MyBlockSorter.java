@@ -231,9 +231,12 @@ public class MyBlockSorter implements BlockSorter {
         // Desired order: Cond (cj True) False (j EndIf) True EndIf
         if (checkWhileConditionExtension(block)) return;
 
-        FirmBlock startOfTrueBranch = GraphUtil.getPredecessors(block, graph).get(0);
+        List<FirmBlock> predecessors = GraphUtil.getPredecessors(block, graph);
+        FirmBlock startOfTrueBranch = predecessors.get(1);
+        FirmBlock startOfFalseBranch = predecessors.get(0);
 
         unify(block, startOfTrueBranch);
+        unify(startOfTrueBranch, startOfFalseBranch, true);
     }
 
     private void handleSinkSimple(FirmBlock block) {

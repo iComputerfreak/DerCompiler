@@ -19,7 +19,6 @@ public enum OperationType {
     SAR("SAR", true),
     SAL("SAL", true),
     SHR("SHR", true),
-    SHRS("SHRS"), // arithmetic ("signed") right shift
     SUB("SUB", true),
     XCHG("XCHG", true),
     XOR("XOR", true),
@@ -27,6 +26,7 @@ public enum OperationType {
     STORE(""),
     //Dann die unary Operations
     CALL("CALL"),
+    DIV("DIV"),
     DEC("DEC"),
     JA("JA"),
     JAE("JAE"),

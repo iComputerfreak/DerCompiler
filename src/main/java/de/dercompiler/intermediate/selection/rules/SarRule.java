@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operation.BinaryOperations.Sar;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -9,7 +10,7 @@ import firm.nodes.Shrs;
 
 import java.util.List;
 
-public class ShrsRule extends SubstitutionRule<Shrs> {
+public class SarRule extends SubstitutionRule<Shrs> {
 
     @Override
     public int getCost() {
@@ -30,10 +31,10 @@ public class ShrsRule extends SubstitutionRule<Shrs> {
 
     @Override
     public List<Operation> substitute() {
-        Operation shrs = new de.dercompiler.intermediate.operation.BinaryOperations.Shrs(getLeft().getTarget(), getRight().getTarget());
-        shrs.setMode(getLeft().getRootNode().getMode());
-        setTarget(shrs.getDefinition());
-        return List.of(shrs);
+        Operation sar = new Sar(getLeft().getTarget(), getRight().getTarget());
+        sar.setMode(getLeft().getRootNode().getMode());
+        setTarget(sar.getDefinition());
+        return List.of(sar);
     }
 
     @Override

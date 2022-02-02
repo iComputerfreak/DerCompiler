@@ -11,11 +11,15 @@ public class Lea extends BinaryOperation {
     public Lea(Operand target, Operand addr) {
         super(OperationType.LEA, target, addr, true);
         setMode(Datatype.QWORD, Signedness.UNSIGNED);
-        setDefinition(target);
     }
 
     @Override
     public BinaryOperation allocate(Operand target, Operand source) {
         return new Lea(target, source);
+    }
+
+    @Override
+    public boolean needsDefinition() {
+        return false;
     }
 }
