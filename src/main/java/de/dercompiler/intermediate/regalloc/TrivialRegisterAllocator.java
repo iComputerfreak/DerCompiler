@@ -267,6 +267,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 Address stackLocation = storeInVirtualRegister(targetVR.getId(), getOperand(operands[0], bo.getDatatype(), true));
                 destReg = isTopStack(stackLocation) ? getTopStack() : stackLocation;
             } else {
+                if (bo instanceof Cmp cmp && operands[0] instanceof ConstantValue c1 && operands[1] instanceof ConstantValue c2) {
+                    /* TODO Cmp instructions with two constants are not allowed. If optimization is active, we can just omit this instruction. */
+                }
                 // target register will not be overwritten (cmp, jmp). mov and lea are handled above, they too do not need definitions.
                 // -> no need to save target register
                 destReg = opTgt;
@@ -314,25 +317,25 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         Operand dividend = operands[0];
         Operand divisor = operands[1];
 
-        if (paramCount > 4) {
+        if (paramCount >= 3) {
             // save %rdx as it is overwritten by idiv
-            ops.add(new Mov(X86Register.RDX, X86Register.R11));
+            ops.add(new Mov(X86Register.R11, X86Register.RDX));
         }
 
         // load dividend
         storeInRegister(X86Register.RAX, getOperand(dividend, Datatype.QWORD, true), Datatype.QWORD);
 
-        // convert to 64 bit
-        //ops.add(new Movslq(X86Register.RAX, X86Register.RAX));
+        // load divisor
+        Operand dsrAddr = getOperand(divisor, Datatype.DWORD, true);
+        if (dsrAddr.equals(X86Register.RDX)) {
+            dsrAddr = X86Register.R11;
+        } else if (dsrAddr instanceof ConstantValue) {
+            dsrAddr = storeInRegister(dsrAddr, Datatype.QWORD);
+        }
 
         // convert to 128 bit
         ops.add(new Cqto());
 
-        // load divisor
-        Operand dsrAddr = getOperand(divisor, Datatype.DWORD, true);
-
-        // convert to 64 bit
-        // ops.add(new Movslq(X86Register.R10, X86Register.R10));
 
         // instruction call
         ops.add(new IDiv(dsrAddr));
@@ -340,9 +343,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         // save result
         storeInVirtualRegister(((VirtualRegister) div.getDefinition()).getId(), X86Register.RAX);
 
-        if (paramCount > 4) {
+        if (paramCount >=3) {
             // restore %rdx
-            ops.add(new Mov(X86Register.R11, X86Register.RDX));
+            ops.add(new Mov(X86Register.RDX, X86Register.R11));
         }
     }
 
@@ -393,9 +396,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         }
     }
 
-    private X86Register storeInRegister(Address address, Datatype datatype) {
+    private X86Register storeInRegister(Operand operand, Datatype datatype) {
         X86Register reg = freeRegister[freeRegisterIndex++];
-        Mov mov = new Mov(reg, address);
+        Mov mov = new Mov(reg, operand);
         mov.setMode(datatype, datatype == Datatype.BYTE ? Signedness.UNSIGNED : Signedness.SIGNED);
         ops.add(mov);
 

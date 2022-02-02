@@ -55,11 +55,10 @@ public class ConvRule extends SubstitutionRule<Conv> {
                 }
             }
             convOp.setDefinition(getOperand().getTarget());
-            ops.add(convOp);
+            /* ops.add(convOp);   TODO: Are conversions necessary? */
         }
 
-        Address target = Address.ofOperand(op);
-        setTarget(target);
+        setTarget(op);
 
         return ops;
     }

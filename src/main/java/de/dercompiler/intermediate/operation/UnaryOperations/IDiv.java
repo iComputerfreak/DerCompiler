@@ -30,6 +30,6 @@ public class IDiv extends UnaryOperation {
 
     @Override
     public String getAtntSyntax(){
-        return getIntelSyntax();
+        return operationType.getAtntSyntax(getDatatype()) + " " + getDivisor().getIdentifier();
     }
 }
