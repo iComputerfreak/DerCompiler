@@ -50,4 +50,5 @@ jobs:
       - run: "git clone --recursive https://git.scc.kit.edu/IPDSnelting/mjtest mjtest"
       - run: "git -C mjtest/tests reset --hard origin/master"
       - run: "if [[ -f mjtest/tests/exec/ReallyEfficientFactorization.java ]]; then rm mjtest/tests/exec/ReallyEfficientFactorization.java; fi"
+      - run: "if [[ -f mjtest/tests/exec/NestedLoops.java ]]; then rm mjtest/tests/exec/NestedLoops.java; fi"
       - run: "MJ_TIMEOUT=60 ./mjtest/mjt.py compile-only compile ./run"
