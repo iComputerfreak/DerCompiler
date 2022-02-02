@@ -50,7 +50,7 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     }
 
     public Datatype getDatatype() {
-        return mode.type();
+        return mode != null ? mode.type() : null;
     }
 
     public boolean isSigned() {

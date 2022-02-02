@@ -7,6 +7,7 @@ public class VirtualRegister implements IRRegister {
     private static long nextID = 0;
     
     private final long id;
+    private boolean phiVariable;
 
     public VirtualRegister() {
         this.id = nextID++;
@@ -19,6 +20,8 @@ public class VirtualRegister implements IRRegister {
     public long getId(){
         return id;
     }
+
+
 
     @Override
     public String getIdentifier() {
@@ -33,5 +36,13 @@ public class VirtualRegister implements IRRegister {
     @Override
     public String toString() {
         return getIdentifier();
+    }
+
+    public boolean isPhiVariable() {
+        return phiVariable;
+    }
+
+    public void setPhiVariable(boolean phiVariable) {
+        this.phiVariable = phiVariable;
     }
 }

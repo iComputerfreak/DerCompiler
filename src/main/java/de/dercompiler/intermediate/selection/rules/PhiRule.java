@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
@@ -11,7 +12,6 @@ import firm.nodes.Node;
 import firm.nodes.Phi;
 
 import java.util.List;
-import java.util.Objects;
 
 public class PhiRule extends SubstitutionRule<Phi> {
     @Override
@@ -44,7 +44,9 @@ public class PhiRule extends SubstitutionRule<Phi> {
             setTarget(target);
         }
         for (Node pred : node.getPreds()) {
-            getAnnotation(pred).setTarget(target);
+            if (!(getAnnotation(pred).getTarget() instanceof ConstantValue)) {
+                getAnnotation(pred).setTarget(target);
+            }
         }
 
         return List.of();
@@ -64,6 +66,12 @@ public class PhiRule extends SubstitutionRule<Phi> {
         return getRootNode().getPredCount();
     }
 
+    /**
+     * Creates a node that copies the modified value of the i-th successor back to the phi variable.
+     *
+     * @param i index of the successor
+     * @return an operation to do the copying
+     */
     public Operation getCodeForSucc(int i) {
         Phi root = getRootNode();
         Operand target = getAnnotation(root).getTarget();

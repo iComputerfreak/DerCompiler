@@ -1,13 +1,9 @@
 package de.dercompiler.intermediate.operation.NaryOperations;
 
-import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.MethodReference;
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operation.BinaryOperation;
-import de.dercompiler.intermediate.operation.BinaryOperations.Rol;
 import de.dercompiler.intermediate.operation.NaryOperation;
 import de.dercompiler.intermediate.operation.OperationType;
-import de.dercompiler.intermediate.selection.Datatype;
 
 public class Call extends NaryOperation {
 
@@ -34,8 +30,5 @@ public class Call extends NaryOperation {
         return call;
     }
 
-    @Override
-    public String getAtntSyntax() {
-        return getIntelSyntax();
-    }
+
 }

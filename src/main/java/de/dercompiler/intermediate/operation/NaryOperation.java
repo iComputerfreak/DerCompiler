@@ -4,6 +4,7 @@ import de.dercompiler.intermediate.operand.Operand;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 public abstract non-sealed class NaryOperation extends Operation {
@@ -37,9 +38,15 @@ public abstract non-sealed class NaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + Arrays.stream(operands).map(Operand::getIdentifier).collect(Collectors.joining(" "));
+        return operationType.getSyntax() + " "
+                + Arrays.stream(operands).map(Operand::getIdentifier).collect(Collectors.joining(","));
     }
 
-    //we use for all syntaxes the same implementations, so no other overload needed
+    @Override
+    public String getAtntSyntax() {
+        return operationType.getAtntSyntax(getDatatype()) + " "
+                + Arrays.stream(operands).map(operand -> operand.getIdentifier(getDatatype())).collect(Collectors.joining(","));
+    }
+
 }
 
