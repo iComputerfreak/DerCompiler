@@ -223,12 +223,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             if (opTgt.equals(opSrc)) return;
             // if both ops are relative addresses, load the source value.
             if (opSrc instanceof Address && opTgt instanceof Address) {
-                Operand temp = freeRegister[freeRegisterIndex++];
-                Mov mov = new Mov(temp, opSrc);
-                mov.setMode(bo.getMode());
-                ops.add(mov);
+                X86Register temp = storeInRegister(opSrc, bo.getDatatype());
                 ops.add(bo.allocate(opTgt, temp));
-                freeRegisterIndex--;
+                freeRegister(temp);
             } else {
                 ops.add(bo.allocate(opTgt, opSrc));
             }
@@ -306,7 +303,13 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     private void handleMul(IMul mul) {
         Operand fctTarget = getOperand(mul.getTarget(), mul.getDatatype(), true, false);
         Operand fctSource = getOperand(mul.getSource(), mul.getDatatype(), true, true);
-        Operand dest = getOperand(mul.getDefinition(), mul.getDatatype(), true, true);
+        Operand definition = mul.getDefinition();
+        Operand dest = null;
+        if (definition instanceof VirtualRegister vreg && !vrMap.containsKey(vreg.getId())) {
+            dest = definition; // gets allocated by handleBinaryOperation
+        } else {
+            dest = getOperand(definition, mul.getDatatype(), true, true);
+        }
 
         int configuration = evalMul(fctTarget, fctSource, dest);
 
@@ -314,12 +317,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         while (true) {
 
             switch (configuration) {
-                case 5, 10, 21, 26, 30, 31 -> {
+                case 5, 21, 30, 31 -> {
                     // 5/21:  imul const, const -> addr/reg
-                    // 10/26: imul  addr,  addr -> addr/reg
                     // 30:    imul   reg,   mem -> reg
                     // 31:    imul   reg,   reg -> reg
-                    ops.add(new Mov(dest, fctTarget));
+                    handleBinaryOperation(new Mov(dest, fctTarget));
                     ops.add(mul.allocate(dest, fctSource));
                     break loop;
                 }
@@ -339,21 +341,23 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                     // imul addr/reg, const -> addr
                     X86Register target = allocateRegister();
                     ops.add(mul.allocateIMul3((ConstantValue) fctSource, fctTarget, target));
-                    ops.add(new Mov(getOperand(mul.getDefinition(), mul.getDatatype(), true, true), target));
+                    handleBinaryOperation(new Mov(dest, target));
                     freeRegister(target);
                     break loop;
                 }
                 case 14 -> {
                     // imul reg, addr -> addr
-                    ops.add(new Mov(dest, fctSource));
-                    ops.add(mul.allocate(dest, fctTarget));
-                    break loop;
-                }
-                case 15 -> {
-                    // imul reg, reg -> addr
                     X86Register temp = storeInRegister(fctSource, mul.getDatatype());
                     ops.add(mul.allocate(temp, fctTarget));
-                    ops.add(new Mov(dest, temp));
+                    handleBinaryOperation(new Mov(dest, temp));
+                    break loop;
+                }
+                case 10, 15, 26 -> {
+                    // 15:    imul  reg,  reg -> addr
+                    // 10/26: imul addr, addr -> addr/reg
+                    X86Register temp = storeInRegister(fctSource, mul.getDatatype());
+                    ops.add(mul.allocate(temp, fctTarget));
+                    handleBinaryOperation(new Mov(dest, temp));
                     freeRegister(temp);
                     break loop;
                 }
@@ -373,8 +377,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private int evalMul(Operand factor1, Operand factor2, Operand dest) {
         int configuration = 0;
-        configuration += dest instanceof X86Register ? 1 : 0; // else: Address
-        configuration <<= 1;
+        configuration += Objects.isNull(dest) || dest instanceof X86Register ? 1 : 0; // else: Address
+        configuration <<= 2;
         configuration += factor1 instanceof X86Register ? 3 : factor1 instanceof Address ? 2 : factor1 instanceof ConstantValue ? 1 : 0;
         configuration <<= 2;
         configuration += factor2 instanceof X86Register ? 3 : factor2 instanceof Address ? 2 : factor2 instanceof ConstantValue ? 1 : 0;
