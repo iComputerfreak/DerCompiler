@@ -312,6 +312,43 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         return false;
     }
 
+    private void handleMod(Mod mod) {
+        Operand[] operands = mod.getArgs();
+        Operand dividend = operands[0];
+        Operand divisor = operands[1];
+
+        if (paramCount >= 3) {
+            // save %rdx as it is overwritten by idiv
+            ops.add(new Mov(X86Register.R11, X86Register.RDX));
+        }
+
+        // load dividend
+        storeInRegister(X86Register.RAX, getOperand(dividend, Datatype.QWORD, true), Datatype.QWORD);
+
+        // load divisor
+        Operand dsrAddr = getOperand(divisor, Datatype.DWORD, true);
+        if (dsrAddr.equals(X86Register.RDX)) {
+            dsrAddr = X86Register.R11;
+        } else if (dsrAddr instanceof ConstantValue) {
+            dsrAddr = storeInRegister(dsrAddr, Datatype.QWORD);
+        }
+
+        // convert to 128 bit
+        ops.add(new Cqto());
+
+
+        // instruction call
+        ops.add(new IDiv(dsrAddr));
+
+        // save result
+        storeInVirtualRegister(((VirtualRegister) mod.getDefinition()).getId(), X86Register.RDX);
+
+        if (paramCount >=3) {
+            // restore %rdx
+            ops.add(new Mov(X86Register.RDX, X86Register.R11));
+        }
+    }
+
     private void handleDiv(Div div) {
         Operand[] operands = div.getArgs();
         Operand dividend = operands[0];
