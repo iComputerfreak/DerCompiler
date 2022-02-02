@@ -143,27 +143,27 @@ public class VariableAnalysisCheckPass implements ClassPass, MethodPass, Stateme
                 Type refObj = call.getReferenceObject().getType();
 
                 if (refObj instanceof ClassType objType) {
+                    if (objType instanceof DummyClassType dummy && !dummy.hasRealClass()) {
+                        failVariableAnalysis(PassErrorIds.UNKNOWN_TYPE, "Type '%s' is unknown".formatted(objType.getIdentifier()), call.getSourcePosition());
+                        continue;
+                    }
                     if (!objType.hasMethod(call.getFunctionName())) {
                         failVariableAnalysis(PassErrorIds.UNKNOWN_METHOD, "Unknown method '%s' of %s object".formatted(call.getFunctionName(), objType.getIdentifier()), call.getSourcePosition());
                         continue;
                     }
                     call.setType(objType.getMethod(call.getFunctionName()).getType().getReturnType());
-
                 } else {
                     failVariableAnalysis(PassErrorIds.ILLEGAL_METHOD_CALL, "Cannot invoke method on %s object".formatted(call.getReferenceObject().getType()), ex.getSourcePosition());
-                    continue;
                 }
             } else if (ex instanceof FieldAccess field) {
                 Type refType = field.getEncapsulated().getType();
                 if (refType instanceof ClassType cObj) {
                     if (!cObj.hasField(field.getFieldName())) {
                         failVariableAnalysis(PassErrorIds.UNKNOWN_FIELD, "Unknown field '%s' of %s object".formatted(field.getFieldName(), cObj.getIdentifier()), field.getSourcePosition());
-                        continue;
                     }
                     field.setType(cObj.getField(field.getFieldName()).getType());
                 } else {
                     failVariableAnalysis(PassErrorIds.ILLEGAL_FIELD_REFERENCE, "Cannot access field on %s object".formatted(field.getFieldName()), field.getSourcePosition());
-                    continue;
                 }
             } else if (ex instanceof ArrayAccess arrayAccess) {
                 Type innerType = arrayAccess.getEncapsulated().getType();
