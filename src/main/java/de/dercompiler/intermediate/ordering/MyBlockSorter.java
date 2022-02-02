@@ -7,12 +7,10 @@ import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeNode;
 import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.util.GraphUtil;
-import firm.Firm;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.*;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;

@@ -197,7 +197,9 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                         }
                     }
                     NodeAnnotation<Phi> a = new NodeAnnotation<>(1, phi, new PhiRule(), !inRow, false);
-                    a.setTarget(new VirtualRegister());
+                    VirtualRegister target = new VirtualRegister();
+                    target.setPhiVariable(true);
+                    a.setTarget(target);
                     annotations.put(phi.getNr(), a);
 
                 }
@@ -271,8 +273,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 blocksGraph.setEdgeWeight(intermediate2, predBlock, i);
             } else {
 
-            DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
-            blocksGraph.setEdgeWeight(e, i);
+                DefaultWeightedEdge e = blocksGraph.addEdge(fBlock, predBlock);
+                blocksGraph.setEdgeWeight(e, i);
             }
         }
     }
@@ -541,7 +543,6 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             node.setCodeForPred(succCode, i);
             codeGraph.addVertex(succCode);
             codeGraph.addEdge(node, succCode);
-            //codeGraph.addEdge(succCode, codeGraphLookup.get(phiRule.node.getPred(i).getNr()));
         }
 
         return node;

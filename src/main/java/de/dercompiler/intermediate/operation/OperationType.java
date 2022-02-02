@@ -3,7 +3,10 @@ package de.dercompiler.intermediate.operation;
 import de.dercompiler.intermediate.selection.Datatype;
 
 public enum OperationType {
-    //Erst die binary Operations
+    // Ternary operations
+    IMUL3("IMUL"),
+
+    // Binary operations
     MOVSLQ("MOVSLQ", false),
     ADD("ADD", true),
     AND("AND", true),
@@ -24,7 +27,8 @@ public enum OperationType {
     XOR("XOR", true),
     LOAD(""),
     STORE(""),
-    //Dann die unary Operations
+
+    // Unary operations
     CALL("CALL"),
     DIV("DIV"),
     DEC("DEC"),
@@ -46,12 +50,14 @@ public enum OperationType {
     POP("POP"),
     PUSH("PUSH"),
     INC("INC", true),
-    //Dann die constant Operations
+
+    // Constant operations
     NOP("NOP"),
     RET("RET"),
     CWTL("CWTL"),
     CLTQ("CLTQ"),
-    CQTO("CQTO");
+    CQTO("CQTO"),
+    ;
 
     private final String syntax;
     private final boolean appendDatatype;

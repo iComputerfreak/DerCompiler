@@ -20,11 +20,6 @@ public class Ret extends NaryOperation {
     }
 
     @Override
-    public String getAtntSyntax() {
-        return getIntelSyntax();
-    }
-
-    @Override
     public boolean needsDefinition() {
         return getArgsCount() > 0;
     }
