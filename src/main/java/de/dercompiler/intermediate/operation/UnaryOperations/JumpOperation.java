@@ -6,7 +6,6 @@ import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.Signedness;
-import jdk.jfr.Label;
 
 public abstract class JumpOperation extends UnaryOperation {
     public JumpOperation(OperationType operationType, Operand operand) {
@@ -23,7 +22,8 @@ public abstract class JumpOperation extends UnaryOperation {
 
     public abstract JumpOperation setTo(LabelOperand labelOperand);
 
+    @Override
     public LabelOperand getTarget() {
-        return (LabelOperand) this.getArgs()[0];
+        return (LabelOperand) super.getTarget();
     }
 }

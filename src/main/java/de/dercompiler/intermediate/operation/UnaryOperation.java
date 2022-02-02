@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.operation;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.selection.Datatype;
 
 import java.util.Objects;
 
@@ -16,7 +15,7 @@ public abstract non-sealed class UnaryOperation extends Operation {
         this.operand = operand;
     }
 
-    public Operand getArg() {
+    public Operand getTarget() {
         return operand;
     }
 

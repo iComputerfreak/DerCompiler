@@ -4,9 +4,9 @@ import de.dercompiler.intermediate.selection.Datatype;
 
 public class VirtualRegister implements IRRegister {
     
-    private static long nextID = 0;
+    private static int nextID = 0;
     
-    private final long id;
+    private final int id;
     private boolean phiVariable;
 
     public VirtualRegister() {
@@ -17,11 +17,9 @@ public class VirtualRegister implements IRRegister {
         nextID = 0;
     }
 
-    public long getId(){
+    public int getId(){
         return id;
     }
-
-
 
     @Override
     public String getIdentifier() {

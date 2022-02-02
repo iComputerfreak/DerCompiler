@@ -29,21 +29,31 @@ public class VariableLifetimeTable {
 
     private final RegisterLifetime[] rlt;
 
-    public VariableLifetimeTable(Function func) {
+    private final int CALL_ABI_NUM_ARGUMENTS;
+
+    public VariableLifetimeTable(Function func, int CallAbiNumArguments) {
         rlt = new RegisterLifetime[func.getNumVirtualRegisters()];
         Arrays.fill(rlt, null);
+        CALL_ABI_NUM_ARGUMENTS = CallAbiNumArguments;
     }
 
-    public void updateOperand(int index, int operation) {
-        updateTarget(index, operation - 1);
+    private void update(int index, int operation) {
+        if (rlt[index] == null) {
+            rlt[index] = new RegisterLifetime(operation);
+        } else {
+            rlt[index].update(operation);
+        }
     }
 
     public void updateTarget(int index, int operation) {
-        rlt[index].update(operation);
+        update(index,operation - 1);
+    }
+
+    public void updateDefinition(int index, int operation) {
+        update(index, operation);
     }
 
     public VariableLifetimeTable generate() {
-
 
         return this;
     }
