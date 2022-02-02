@@ -13,6 +13,4 @@ public abstract class RegisterAllocator {
     }
 
     public abstract void allocateRegisters(Function function);
-
-    public abstract Operand popLocalVar();
 }
