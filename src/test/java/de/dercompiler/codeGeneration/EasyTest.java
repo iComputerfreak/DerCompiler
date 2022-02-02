@@ -10,6 +10,7 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Dec;
 import de.dercompiler.intermediate.operation.UnaryOperations.Jne;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
+import de.dercompiler.intermediate.regalloc.calling.AMDSystemVCallingConvention;
 
 
 import java.util.LinkedList;
@@ -49,7 +50,7 @@ public class EasyTest {
         Function testFunc = new Function(null, null);
         testFunc.setOperations(ops);
 
-        TrivialRegisterAllocator regAlloc = new TrivialRegisterAllocator(new BasicMemoryManager());
+        TrivialRegisterAllocator regAlloc = new TrivialRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention());
         regAlloc.allocateRegisters(testFunc);
     }
 }

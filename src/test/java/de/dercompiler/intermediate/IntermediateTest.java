@@ -6,6 +6,7 @@ import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.LexerTest;
 import de.dercompiler.transformation.FirmSetup;
+import de.dercompiler.transformation.TargetTriple;
 import firm.Firm;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,6 +40,11 @@ public class IntermediateTest {
     }
 
     private static void checkFile(File file) {
+        if (TargetTriple.isWindows()) {
+            //skip test
+            assertTrue(true);
+            return;
+        }
         String filename = file.getName();
         // Skip output files for now (and any other files that are not test cases)
 
