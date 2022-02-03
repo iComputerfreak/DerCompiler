@@ -8,6 +8,7 @@ import de.dercompiler.intermediate.generation.CodeGenerator;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
+import de.dercompiler.intermediate.regalloc.LifetimeOptimizedRegisterAllocator;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import de.dercompiler.intermediate.regalloc.calling.AMDSystemVCallingConvention;
@@ -31,6 +32,7 @@ import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
+import firm.Graph;
 
 import java.util.List;
 
@@ -43,7 +45,8 @@ public class CompileAction extends Action {
     
     // The input file containing the source code to compile
     private final Source source;
-    private boolean basicOptimizationsActive = true;
+    private boolean basicOptimizationsActive;
+    private boolean optimizationActive;
 
     /**
      * Creates a new CompileAction with the given source code file
@@ -76,9 +79,11 @@ public class CompileAction extends Action {
 
         List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
         MyBlockSorter sorter = new MyBlockSorter();
-        RegisterAllocator allocator = new TrivialRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention());
+        RegisterAllocator allocator = optimizationActive ?
+                new LifetimeOptimizedRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention()) :
+                new TrivialRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention());
         for (Function function : program.getFunctions()) {
-            firm.Graph graph = function.getFirmGraph();
+            Graph graph = function.getFirmGraph();
             if (basicOptimizationsActive) {
                 opts.forEach(opt -> opt.runOnGraph(graph));
                 Worklist.run(new TransferFunction(), graph);
@@ -128,5 +133,13 @@ public class CompileAction extends Action {
 
     public String actionId() {
         return "compile";
+    }
+
+    public void setOptimizationActive(boolean optimizationActive) {
+        this.optimizationActive = optimizationActive;
+    }
+
+    public boolean getOptimizationActive() {
+        return optimizationActive;
     }
 }

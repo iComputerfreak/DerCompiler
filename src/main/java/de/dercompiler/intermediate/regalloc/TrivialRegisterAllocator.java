@@ -37,10 +37,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private LinkedList<Integer> saveStates = new LinkedList<>();
 
-    private static final X86Register[] parameterRegister = new X86Register[]{
-            RDI, RSI, RDX,
-            RCX, R8, R9
-    };
+    private  X86Register[] parameterRegister;
 
     /**
      * The number of parameters of the current Function.
@@ -58,6 +55,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         super(manager, callingConvention);
         manager.setRegisterMgmt(this);
         manager.setCallingConvention(callingConvention);
+        parameterRegister = callingConvention.getArgumentRegisters();
     }
 
     /**
