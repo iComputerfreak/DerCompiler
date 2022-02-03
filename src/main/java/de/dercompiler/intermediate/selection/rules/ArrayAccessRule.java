@@ -3,7 +3,6 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperations.Lea;
-import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.io.OutputMessageHandler;
@@ -76,9 +75,9 @@ public class ArrayAccessRule extends AddRule {
         if (index instanceof Register idxReg) {
             // index is already a register, so no operation needed
             target = address.setIndex(idxReg, getScale());
-        } else if (index instanceof Address tAddr && tAddr.isRegister()) {
-            // index is already a register, so no operation needed
-            target = address.setIndex(tAddr.asRegister(), getScale());
+        } else if (index instanceof ConstantValue c && c.getValue() == 0) {
+            // Yay! We access the zeroth member.
+            target = null;
         } else {
             // Load effective address of index
             VirtualRegister idxReg = new VirtualRegister();

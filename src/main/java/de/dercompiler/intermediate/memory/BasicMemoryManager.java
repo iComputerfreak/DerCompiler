@@ -52,7 +52,13 @@ public class BasicMemoryManager implements MemoryManager {
 
     @Override
     public Address getVar(int n) {
+        int varCount = registerMgmt.getVarCount();
         return new Address(-(n + 1) * 8, getBasePointer());
+    }
+
+    public Address getVar2(int n) {
+        int varCount = registerMgmt.getVarCount();
+        return new Address((varCount - n - 1) * 8, X86Register.RSP);
     }
 
     @Override

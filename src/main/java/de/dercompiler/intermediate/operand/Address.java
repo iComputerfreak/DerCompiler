@@ -93,17 +93,6 @@ public class Address implements Operand {
         return offset;
     }
 
-    public boolean isRegister() {
-        return switch (components) {
-            case 2, 4, 5 -> true;
-            default -> false;
-        };
-    }
-
-    public Operand asRegister() {
-        return !Objects.isNull(base) ? this.base : this.index;
-    }
-
     public static Address loadWithOffset(Operand base, int offset) {
         if (base instanceof Address addr) {
             return new Address(offset, addr);

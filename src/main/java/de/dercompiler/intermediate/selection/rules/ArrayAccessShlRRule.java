@@ -62,7 +62,7 @@ public class ArrayAccessShlRRule extends AddRule {
     @Override
     public List<Operation> substitute() {
         Operand index = getIndex().getTarget();
-        Address target;
+        Address target = null;
         List<Operation> ops;
 
         if (getArray() == null) {
@@ -74,17 +74,15 @@ public class ArrayAccessShlRRule extends AddRule {
             // index is already a register, so no operation needed
             target = address.setIndex(idxReg, getScale());
             ops = List.of();
-        } else if (index instanceof Address tAddr && tAddr.isRegister()) {
-            // index is already a register, so no operation needed
-            target = address.setIndex(tAddr.asRegister(), getScale());
-            ops = List.of();
-        } else {
+        } else if (index instanceof Address tAddr) {
             // index needs to be moved to a register so that we can use it as the index register
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
             getIndex().setTarget(target);
             Mov mov = new Mov(idxReg, index, isMemoryOperation() );
             ops = List.of(mov);
+        } else {
+            throw new RuntimeException("Index register must be address or register");
         }
 
         getAnnotation(getRootNode()).setTarget(target);

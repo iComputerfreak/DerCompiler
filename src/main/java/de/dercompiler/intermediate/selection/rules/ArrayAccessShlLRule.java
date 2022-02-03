@@ -75,9 +75,6 @@ public class ArrayAccessShlLRule extends AddRule {
         if (index instanceof Register idxReg) {
             // index is already a register, so no operation needed
             target = address.setIndex(idxReg, getScale());
-        } else if (index instanceof Address tAddr && tAddr.isRegister()) {
-            // index is already a register, so no operation needed
-            target = address.setIndex(tAddr.asRegister(), getScale());
         } else {
             // index needs to be moved to a register so that we can use it as the index register
             VirtualRegister idxReg = new VirtualRegister();

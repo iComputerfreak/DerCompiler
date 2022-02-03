@@ -17,4 +17,9 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
     public void allocateRegisters(Function function) {
 
     }
+
+    @Override
+    public int getVarCount() {
+        return 0;
+    }
 }

@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.Function;
+import de.dercompiler.ast.Parameter;
 import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
@@ -113,21 +114,30 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         function.setOperations(ops);
     }
 
+    @Override
+    public int getVarCount() {
+        return varCount;
+    }
+
     private void handleCall(Call call) {
         //args[0] ist LabelOperand
         Operand[] args = call.getArgs();
 
         // save current parameters
         for (int i = 0; i < paramCount; i++) {
+            if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Push push = new Push(getParamReg(i));
             handleUnaryOperation(push);
             push.setComment(push.getComment() + " - save " + (i == 0 ? "this ptr" : "parameter register #" + i));
-
         }
+
+
 
         // write call parameters - arg[0] is method label
         for (int i = 1; i < args.length && i <= 6; i++) {
-            handleBinaryOperation(new Mov(getParamReg(i - 1), getOperand(args[i], Datatype.QWORD, true, true), true));
+            if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+            Operand param = getOperand(args[i], Datatype.QWORD, true, true);
+            handleBinaryOperation(new Mov(getParamReg(i - 1), param, true));
 
         }
         // write even more parameters!
@@ -142,6 +152,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // restore parameters
         for (int i = paramCount - 1; i >= 0; i--) {
+            if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Pop uop = new Pop(getParamReg(i));
             uop.setComment("restore " + (i == 0 ? "this ptr" : ("parameter register #" + i)));
             handleUnaryOperation(uop);
@@ -513,23 +524,26 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     }
 
     private boolean isTopStack(Address addr) {
-        return addr.getBase().equals(X86Register.RBP) && (addr.getOffset() == 8 * -varCount);
+        return addr.getBase().equals(X86Register.RSP) && addr.getOffset() == 0|| addr.getBase().equals(X86Register.RBP) && (addr.getOffset() == 8 * -varCount);
     }
 
 
-    private Operand loadVirtualRegister(int id) {
-        return vrMap.computeIfAbsent(id, id_ -> {
+    private Address loadVirtualRegister(int id) {
+        if (!vrMap.containsKey(id)) {
             handleUnaryOperation(new Push(new ConstantValue(0)));
-            return getLocalVar(varCount - 1);
-        });
+            vrMap.put(id, getLocalVar(varCount - 1));
+        }
+        Address addr = vrMap.get(id);
+        return addr.getBase().equals(X86Register.RSP)? addr : new Address((8*varCount) + addr.getOffset(), X86Register.RSP);
     }
 
     //TODO Where to use?
     private Address storeInVirtualRegister(int id, Operand value) {
-        return vrMap.computeIfAbsent(id, id_ -> {
+         vrMap.computeIfAbsent(id, id_ -> {
             handleUnaryOperation(new Push(value));
             return getLocalVar(varCount - 1);
         });
+         return loadVirtualRegister(id);
     }
 
     private Operand getTopStack() {
