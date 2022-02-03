@@ -116,11 +116,6 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         //args[0] ist LabelOperand
         Operand[] args = call.getArgs();
 
-        // allocate stack entry for result
-        if (call.getDatatype() != Datatype.NODATA) {
-            getOperand(call.getDefinition(), call.getDatatype(), true, true);
-        }
-
         // save current parameters
         for (int i = 0; i < paramCount; i++) {
             Push push = new Push(getParamReg(i));
@@ -144,13 +139,6 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         allocate.setComment(call.toString());
         ops.add(allocate);
 
-        // write return value to designated stack entry
-        if (call.getDatatype() != Datatype.NODATA) {
-            Mov mov = new Mov(getOperand(call.getDefinition(), call.getDatatype(), true, true), manager.getReturnValue());
-            mov.setComment("store call result");
-            handleBinaryOperation(mov);
-        }
-
         // restore parameters
         for (int i = paramCount - 1; i >= 0; i--) {
             Pop uop = new Pop(getParamReg(i));
@@ -158,12 +146,19 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             handleUnaryOperation(uop);
         }
 
+        // write return value to designated stack entry
+        if (call.getDatatype() != Datatype.NODATA) {
+            Mov mov = new Mov(call.getDefinition(), manager.getReturnValue());
+            mov.setMode(call.getMode());
+            mov.setComment("store call result");
+            handleBinaryOperation(mov);
+        }
     }
 
     private void handleUnaryOperation(UnaryOperation uop) {
         if (uop instanceof Push p) {
             varCount++;
-            p.setComment("= %d(%%rsp)".formatted(-8 * (varCount)));
+            p.addComment("= %d(%%rbp)".formatted(-8 * (varCount)));
             ops.add(p);
         } else if (uop instanceof Pop p) {
             varCount--;
@@ -210,26 +205,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         } else if (bo instanceof IMul mul) {
             handleMul(mul);
         } else if (bo instanceof Mov || bo instanceof Lea) {
-            Operand dest = operands[0];
-            opSrc = getOperand(operands[1], bo.getDatatype(), true, true);
-            if (dest instanceof VirtualRegister vrDest && !vrMap.containsKey(vrDest.getId())) {
-                handleUnaryOperation(new Push(opSrc));
-                vrMap.put(vrDest.getId(), getLocalVar(varCount - 1));
-                return;
-            }
-
-            opTgt = getOperand(dest, bo.getDatatype(), true, true);
-
-            if (opTgt.equals(opSrc)) return;
-            // if both ops are relative addresses, load the source value.
-            if (opSrc instanceof Address && opTgt instanceof Address) {
-                X86Register temp = storeInRegister(opSrc, bo.getDatatype());
-                ops.add(bo.allocate(opTgt, temp));
-                freeRegister(temp);
-            } else {
-                ops.add(bo.allocate(opTgt, opSrc));
-            }
-
+            handleMovLea(bo, operands);
         } else {
             /*
                 BINARY OPERATION MODES IN GENERAL: (not idiv or imul)
@@ -297,6 +273,32 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
             // add operation code
             ops.add(bo.allocate(destReg, srcReg));
+        }
+    }
+
+    private void handleMovLea(BinaryOperation bo, Operand[] operands) {
+        Operand opTgt;
+        Operand opSrc;
+        Operand dest = operands[0];
+        opSrc = getOperand(operands[1], bo.getDatatype(), true, true);
+        if (dest instanceof VirtualRegister vrDest && !vrMap.containsKey(vrDest.getId())) {
+            Push uop = new Push(opSrc);
+            uop.addComment(bo.getComment());
+            handleUnaryOperation(uop);
+            vrMap.put(vrDest.getId(), getLocalVar(varCount - 1));
+            return;
+        }
+
+        opTgt = getOperand(dest, bo.getDatatype(), true, true);
+
+        if (opTgt.equals(opSrc)) return;
+        // if both ops are relative addresses, load the source value.
+        if (opSrc instanceof Address && opTgt instanceof Address) {
+            X86Register temp = storeInRegister(opSrc, bo.getDatatype());
+            ops.add(bo.allocate(opTgt, temp));
+            freeRegister(temp);
+        } else {
+            ops.add(bo.allocate(opTgt, opSrc));
         }
     }
 
@@ -462,7 +464,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         } else if (operand instanceof ParameterRegister pr) {
             return getOperand(getParamReg(pr.getId()), datatype, allowAddress, true);
         } else if (operand instanceof Address address) {
-            if (address.getBase() instanceof IRRegister reg) {
+            if (address.getBase() instanceof IRRegister || address.getBase() instanceof Address) {
                 Operand base = getOperand(address.getBase(), Datatype.QWORD, false, false);
                 Operand index = getOperand(address.getIndex(), Datatype.DWORD, false, true);
                 if (allowAddress && index == null && address.getOffset() == 0) return Address.ofOperand(base);

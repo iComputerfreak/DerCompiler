@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.*;
-import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Push;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
@@ -74,7 +73,7 @@ public class BasicMemoryManager implements MemoryManager {
      @Override
     public Operand pushValue(Operand source) {
         output.accept(new Push(source));
-        stackPointer = stackPointer.offset(-8);
+        stackPointer = stackPointer.loadWithOffset(-8);
         return stackPointer.copy();
     }
 
@@ -88,7 +87,7 @@ public class BasicMemoryManager implements MemoryManager {
         for (int idx = arguments.length - 1; idx >= 0; idx--) {
             pushValue(arguments[idx]);
         }
-        stackPointer = stackPointer.offset(-1);
+        stackPointer = stackPointer.loadWithOffset(-1);
         pushValue(basePointer);
     }
 
