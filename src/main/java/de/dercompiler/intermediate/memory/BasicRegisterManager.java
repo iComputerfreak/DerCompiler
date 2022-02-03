@@ -3,20 +3,18 @@ package de.dercompiler.intermediate.memory;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.Operation;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class BasicRegisterManager {
 
-    private EnumMap<X86Register, RegisterState> registerStates;
-    private List<X86Register> freeList;
+    private final EnumMap<X86Register, RegisterState> registerStates;
+    private final List<X86Register> freeList;
 
-    public BasicRegisterManager() {
+    public BasicRegisterManager(EnumSet<X86Register> available) {
         registerStates = new EnumMap<X86Register, RegisterState>(X86Register.class);
-        for (X86Register reg : X86Register.values()) {
+        freeList = new LinkedList<>();
+        for (X86Register reg : available) {
             registerStates.put(reg, RegisterState.FREE);
             freeList.add(reg);
         }

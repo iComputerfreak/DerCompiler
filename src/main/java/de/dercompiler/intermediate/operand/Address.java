@@ -4,7 +4,7 @@ import de.dercompiler.intermediate.selection.Datatype;
 
 import java.util.Objects;
 
-public class Address implements Operand {
+public class Address implements IRLocation {
 
     // %bp or heap/object pointer
     private final Register base;

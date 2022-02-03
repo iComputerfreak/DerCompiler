@@ -47,7 +47,9 @@ public class LifetimeAnalysis {
             for (Operand operand : op.getArgs()) {
                 updateOperand(operand, (irr -> vlt.updateTarget(irr, ref.i)));
             }
-            updateOperand(op.getDefinition(), (irr -> vlt.updateDefinition(irr, ref.i)));
+            if (op.hasDefinition()) {
+                updateOperand(op.getDefinition(), (irr -> vlt.updateDefinition(irr, ref.i)));
+            }
             if (revIt.hasNext()) {
                 op = revIt.next();
             } else break;

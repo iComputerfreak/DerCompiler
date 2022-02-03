@@ -32,7 +32,15 @@ public class BasicMemoryManager implements MemoryManager {
     /**
      *  Pointer to the return address of the current Activation Record.
      */
-    private final X86Register basePointer = X86Register.RBP;
+    private final X86Register basePointer;
+
+    public BasicMemoryManager(X86Register basePointer) {
+        this.basePointer = basePointer;
+    }
+
+    public BasicMemoryManager() {
+        this(X86Register.RBP);
+    }
 
     /**
      * Pointer to the lowest entry of the current stack.

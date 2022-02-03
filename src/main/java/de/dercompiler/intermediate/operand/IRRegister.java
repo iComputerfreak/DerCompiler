@@ -1,6 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
-public interface IRRegister extends Register {
+public interface IRRegister extends Register, IRLocation {
 
     int getId();
 }

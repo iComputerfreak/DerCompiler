@@ -87,6 +87,18 @@ public class CallingConvention {
         return saveRegisters[idx];
     }
 
+    public X86Register[] getArgumentRegisters() {
+        return argumentRegister;
+    }
+
+    public X86Register[] getScratchRegisters() {
+        return scratchRegisters;
+    }
+
+    public X86Register[] getSaveRegisters() {
+        return saveRegisters;
+    }
+
     private void validateAccess(int idx, int maxIndex, String registerType) {
         if (idx < 0 || maxIndex <= idx) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Accessed " + registerType + " is only valid in range index 0 <= x < " + maxIndex + ", but index was: " + idx +"!");
