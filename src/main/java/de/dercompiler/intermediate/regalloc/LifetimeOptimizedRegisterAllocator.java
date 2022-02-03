@@ -7,14 +7,16 @@ import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 
 public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
 
-    private static final LifetimeAnalysis la = new LifetimeAnalysis(6);
+    private final LifetimeAnalysis la;
 
     public LifetimeOptimizedRegisterAllocator(MemoryManager manager, CallingConvention convention) {
         super(manager, convention);
+        la = new LifetimeAnalysis(convention.getNumberOfArgumentsRegisters());
     }
 
     @Override
     public void allocateRegisters(Function function) {
+        VariableLifetimeTable vlt = la.analyze(function);
 
     }
 }

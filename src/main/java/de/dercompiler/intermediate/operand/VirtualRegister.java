@@ -17,6 +17,7 @@ public class VirtualRegister implements IRRegister {
         nextID = 0;
     }
 
+    @Override
     public int getId(){
         return id;
     }

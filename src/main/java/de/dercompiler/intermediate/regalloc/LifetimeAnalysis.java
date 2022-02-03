@@ -9,10 +9,10 @@ import java.util.function.Consumer;
 
 public class LifetimeAnalysis {
 
-    public void updateOperand(Operand operand, Consumer<Integer> applyFunc) {
+    public void updateOperand(Operand operand, Consumer<IRRegister> applyFunc) {
         if (operand instanceof VirtualRegister vr) {
             //we scip the first numbers because of parameters
-            applyFunc.accept(CALL_ABI_NUM_ARGUMENTS + vr.getId());
+            applyFunc.accept(vr);
         } else if (operand instanceof Address address) {
             //we call recursive
             if (Objects.nonNull(address.getBase())) {
@@ -22,7 +22,7 @@ public class LifetimeAnalysis {
                 updateOperand(address.getIndex(), applyFunc);
             }
         } else if (operand instanceof ParameterRegister pr) {
-            applyFunc.accept(pr.getId());
+            applyFunc.accept(pr);
         } else {
             //ignore
         }
@@ -45,9 +45,9 @@ public class LifetimeAnalysis {
             int i = 0;
         }; ref.i < numberOfOperations; ref.i++) {
             for (Operand operand : op.getArgs()) {
-                updateOperand(operand, (id -> vlt.updateTarget(id, ref.i)));
+                updateOperand(operand, (irr -> vlt.updateTarget(irr, ref.i)));
             }
-            updateOperand(op.getDefinition(), (id -> vlt.updateDefinition(id, ref.i)));
+            updateOperand(op.getDefinition(), (irr -> vlt.updateDefinition(irr, ref.i)));
             if (revIt.hasNext()) {
                 op = revIt.next();
             } else break;
