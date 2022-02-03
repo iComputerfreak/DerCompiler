@@ -11,6 +11,8 @@ import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
 import de.dercompiler.intermediate.regalloc.analysis.VariableLifetimeTable;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.regalloc.location.Location;
+import de.dercompiler.intermediate.regalloc.location.RegisterLocation;
+import de.dercompiler.intermediate.regalloc.location.StackLocation;
 
 import java.util.List;
 import java.util.EnumSet;
@@ -40,9 +42,9 @@ public class IRLocationOrganizer {
         for (ParameterRegister p : params) {
             //bind register
             if (p.getId() < convention.getNumberOfArgumentsRegisters()) {
-
+                locationMap.put(p, new RegisterLocation(callingConvention.getArgumentRegister(p.getId())));
             } else { //bind stack
-
+                locationMap.put(p, new StackLocation(stack.get));
             }
         }
     }

@@ -3,6 +3,7 @@ package de.dercompiler.intermediate.regalloc;
 import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.X86Register;
+import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
 import de.dercompiler.intermediate.regalloc.analysis.LifetimeAnalysis;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.regalloc.analysis.VariableLifetimeTable;
@@ -32,13 +33,15 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
         if (!(vlt.getNumRegistersMaximallyActive() < callingConvention.getNumberOfScratchRegisters() + EXCEED_NUMBER_OF_SPILL_REGISTERS)) {
             avalableRegs.addAll(List.of(callingConvention.getSaveRegisters()));
         }
-        return new RegisterAllocationContext(avalableRegs, EnumSet.noneOf(X86Register.class), vlt);
+        FunctionSplitView fsv = new FunctionSplitView(func);
+        fsv.calculateInformation();
+        return new RegisterAllocationContext(avalableRegs, EnumSet.noneOf(X86Register.class), vlt, fsv);
     }
 
     @Override
     public void allocateRegisters(Function function) {
         RegisterAllocationContext context = createContext(function);
-
+        IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, null, context.vlt(), context)
 
 
     }

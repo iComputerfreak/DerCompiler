@@ -1,4 +1,7 @@
 package de.dercompiler.intermediate.regalloc.location;
 
-public class RegisterLocation  implements Location{
+import de.dercompiler.intermediate.operand.X86Register;
+
+public record RegisterLocation(X86Register register) implements Location {
+
 }

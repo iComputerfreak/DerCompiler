@@ -22,7 +22,7 @@ public class CallingConvention {
     private X86Register[] saveRegisters;
     private X86Register[] scratchRegisters;
 
-    public CallingConvention(X86Register returnRegister, X86Register[] argumentRegister, X86Register[] saveRegisters, X86Register[] scratchRegister) {
+    public CallingConvention(X86Register returnRegister, X86Register[] argumentRegister, X86Register[] scratchRegister, X86Register[] saveRegisters) {
         this.returnRegister = returnRegister;
         this.argumentRegister = argumentRegister;
         this.saveRegisters = saveRegisters;
