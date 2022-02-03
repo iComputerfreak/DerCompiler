@@ -125,7 +125,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // save current parameters
         for (int i = 0; i < paramCount; i++) {
-            if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+           // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Push push = new Push(getParamReg(i));
             handleUnaryOperation(push);
             push.setComment(push.getComment() + " - save " + (i == 0 ? "this ptr" : "parameter register #" + i));
@@ -135,7 +135,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // write call parameters - arg[0] is method label
         for (int i = 1; i < args.length && i <= 6; i++) {
-            if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+           // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Operand param = getOperand(args[i], Datatype.QWORD, true, true);
             handleBinaryOperation(new Mov(getParamReg(i - 1), param, true));
 
@@ -152,7 +152,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // restore parameters
         for (int i = paramCount - 1; i >= 0; i--) {
-            if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+         //   if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Pop uop = new Pop(getParamReg(i));
             uop.setComment("restore " + (i == 0 ? "this ptr" : ("parameter register #" + i)));
             handleUnaryOperation(uop);

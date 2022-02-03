@@ -77,7 +77,7 @@ public class ArrayAccessRule extends AddRule {
             target = address.setIndex(idxReg, getScale());
         } else if (index instanceof ConstantValue c && c.getValue() == 0) {
             // Yay! We access the zeroth member.
-            target = null;
+            target = address;
         } else {
             // Load effective address of index
             VirtualRegister idxReg = new VirtualRegister();
