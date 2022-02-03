@@ -1,8 +1,7 @@
-package de.dercompiler.intermediate.regalloc;
+package de.dercompiler.intermediate.regalloc.analysis;
 
 import de.dercompiler.Function;
 import de.dercompiler.intermediate.operand.IRRegister;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 
 import java.util.ArrayList;
 import java.util.Arrays;

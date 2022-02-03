@@ -1,4 +1,4 @@
-package de.dercompiler.intermediate.regalloc;
+package de.dercompiler.intermediate.regalloc.analysis;
 
 import de.dercompiler.Function;
 import de.dercompiler.intermediate.operand.*;

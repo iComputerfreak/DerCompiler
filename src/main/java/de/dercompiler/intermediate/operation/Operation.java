@@ -7,9 +7,11 @@ import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
 import firm.Mode;
 
+import java.util.Objects;
+
 public sealed abstract class Operation permits BinaryOperation, ConstantOperation, NaryOperation, UnaryOperation {
 
-    private Operand definition;
+    private Operand definition = null;
     protected IRMode mode;
     private String comment;
 
@@ -63,6 +65,10 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
 
     public IRMode getMode() {
         return mode;
+    }
+
+    public boolean hasDefinition() {
+        return Objects.nonNull(definition);
     }
 
     public Operand getDefinition() {
