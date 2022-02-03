@@ -256,23 +256,25 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else {
                 if (bo instanceof Cmp cmp && operands[0] instanceof ConstantValue c1 && operands[1] instanceof ConstantValue c2) {
                     /* TODO Cmp instructions with two constants are not allowed. If optimization is active, we can just omit this instruction. */
-                    if (function.getOperations().get(bo.getIndex()+1) instanceof Jmp) {
-                        // No cmp necessary, jump is already determined.
+                    Operation next = function.getOperations().get(bo.getIndex() + 1);
+                    if (next instanceof Jmp || !(next instanceof JumpOperation)) {
+                        // No cmp necessary, jump is already unconditional / optimized away.
                         return;
                     } else {
+                        ConstantValue zero = new ConstantValue(0);
+                        storeInRegister(X86Register.R11, new ConstantValue(1), bo.getDatatype());
+                        Register one = X86Register.R11;
+                        ConstantValue two = new ConstantValue(2);
                         bo = switch (Integer.compare(c1.getValue(), c2.getValue())) {
-                            case -1 -> bo.allocate(new ConstantValue(0), X86Register.RSP);
-                            case 0  -> bo.allocate(X86Register.RSP, X86Register.RSP);
-                            default -> bo.allocate(X86Register.RSP, new ConstantValue(0));
+                            case -1 -> bo.allocate(one, two);
+                            case 0 -> bo.allocate(one, one);
+                            default -> bo.allocate(one, zero);
                         };
                         bo.addComment("dummy cmp to replace cmp /w two constants");
                         ops.add(bo);
                         return;
                     }
                 }
-                // target register will not be overwritten (cmp, jmp). mov and lea are handled above, they too do not need definitions.
-                // -> no need to save target register
-                destReg = opTgt;
             }
 
 
@@ -330,7 +332,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         Operand fctTarget = getOperand(mul.getTarget(), mul.getDatatype(), true, false);
         Operand fctSource = getOperand(mul.getSource(), mul.getDatatype(), true, true);
         Operand definition = mul.getDefinition();
-        Operand dest = null;
+        Operand dest;
         if (definition instanceof VirtualRegister vreg && !vrMap.containsKey(vreg.getId())) {
             dest = definition; // gets allocated by handleBinaryOperation
         } else {
@@ -477,7 +479,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      * @param operand       IR or x86 operand
      * @param datatype      datatype of the operation, in case any value must be loaded
      * @param allowAddress  if operand is an address and !allowAddress, the address is stored in a register.
-     * @param allowTopStack
+     * @param allowTopStack Set this to true if you dont want to invalidate the returned address by pushing something onto the stack.
      * @return the x86 operand
      */
     private Operand getOperand(Operand operand, Datatype datatype, boolean allowAddress, boolean allowTopStack) {
@@ -536,7 +538,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     }
 
     private boolean isTopStack(Address addr) {
-        return addr.getBase().equals(X86Register.RSP) && addr.getOffset() == 0|| addr.getBase().equals(X86Register.RBP) && (addr.getOffset() == 8 * -varCount);
+        return addr.getBase().equals(X86Register.RSP) && addr.getOffset() == 0 || addr.getBase().equals(X86Register.RBP) && (addr.getOffset() == 8 * -varCount);
     }
 
 
@@ -546,7 +548,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             vrMap.put(id, getLocalVar(varCount - 1));
         }
         Address addr = vrMap.get(id);
-        return addr.getBase().equals(X86Register.RSP)? addr : new Address((8*varCount) + addr.getOffset(), X86Register.RSP);
+        return addr.getBase().equals(X86Register.RSP) ? addr : new Address((8 * varCount) + addr.getOffset(), X86Register.RSP);
     }
 
     //TODO Where to use?
