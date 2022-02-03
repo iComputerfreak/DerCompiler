@@ -113,26 +113,30 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         function.setOperations(ops);
     }
 
+    @Override
+    public int getVarCount() {
+        return varCount;
+    }
+
     private void handleCall(Call call) {
         //args[0] ist LabelOperand
         Operand[] args = call.getArgs();
 
-        // allocate stack entry for result
-        if (call.getDatatype() != Datatype.NODATA) {
-            getOperand(call.getDefinition(), call.getDatatype(), true, true);
-        }
-
         // save current parameters
         for (int i = 0; i < paramCount; i++) {
+            // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Push push = new Push(getParamReg(i));
             handleUnaryOperation(push);
             push.setComment(push.getComment() + " - save " + (i == 0 ? "this ptr" : "parameter register #" + i));
-
         }
+
+
 
         // write call parameters - arg[0] is method label
         for (int i = 1; i < args.length && i <= 6; i++) {
-            handleBinaryOperation(new Mov(getParamReg(i - 1), getOperand(args[i], Datatype.QWORD, true, true), true));
+            // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+            Operand param = getOperand(args[i], Datatype.QWORD, true, true);
+            handleBinaryOperation(new Mov(getParamReg(i - 1), param, true));
 
         }
         // write even more parameters!
@@ -145,26 +149,27 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         allocate.setComment(call.toString());
         ops.add(allocate);
 
-        // write return value to designated stack entry
-        if (call.getDatatype() != Datatype.NODATA) {
-            Mov mov = new Mov(getOperand(call.getDefinition(), call.getDatatype(), true, true), manager.getReturnValue());
-            mov.setComment("store call result");
-            handleBinaryOperation(mov);
-        }
-
         // restore parameters
         for (int i = paramCount - 1; i >= 0; i--) {
+            //   if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Pop uop = new Pop(getParamReg(i));
             uop.setComment("restore " + (i == 0 ? "this ptr" : ("parameter register #" + i)));
             handleUnaryOperation(uop);
         }
 
+        // write return value to designated stack entry
+        if (call.getDatatype() != Datatype.NODATA) {
+            Mov mov = new Mov(call.getDefinition(), manager.getReturnValue());
+            mov.setMode(call.getMode());
+            mov.setComment("store call result");
+            handleBinaryOperation(mov);
+        }
     }
 
     private void handleUnaryOperation(UnaryOperation uop) {
         if (uop instanceof Push p) {
             varCount++;
-            p.setComment("= %d(%%rsp)".formatted(-8 * (varCount)));
+            p.addComment("= %d(%%rbp)".formatted(-8 * (varCount)));
             ops.add(p);
         } else if (uop instanceof Pop p) {
             varCount--;
@@ -211,26 +216,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         } else if (bo instanceof IMul mul) {
             handleMul(mul);
         } else if (bo instanceof Mov || bo instanceof Lea) {
-            Operand dest = operands[0];
-            opSrc = getOperand(operands[1], bo.getDatatype(), true, true);
-            if (dest instanceof VirtualRegister vrDest && !vrMap.containsKey(vrDest.getId())) {
-                handleUnaryOperation(new Push(opSrc));
-                vrMap.put(vrDest.getId(), getLocalVar(varCount - 1));
-                return;
-            }
-
-            opTgt = getOperand(dest, bo.getDatatype(), true, true);
-
-            if (opTgt.equals(opSrc)) return;
-            // if both ops are relative addresses, load the source value.
-            if (opSrc instanceof Address && opTgt instanceof Address) {
-                X86Register temp = storeInRegister(opSrc, bo.getDatatype());
-                ops.add(bo.allocate(opTgt, temp));
-                freeRegister(temp);
-            } else {
-                ops.add(bo.allocate(opTgt, opSrc));
-            }
-
+            handleMovLea(bo, operands);
         } else {
             /*
                 BINARY OPERATION MODES IN GENERAL: (not idiv or imul)
@@ -265,15 +251,30 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (bo.needsDefinition()) {
                 // load target value into destination location
                 VirtualRegister targetVR = (VirtualRegister) bo.getDefinition();
-                Address stackLocation = storeInVirtualRegister(targetVR.getId(), getOperand(operands[0], bo.getDatatype(), true, true));
+                Address stackLocation = storeInVirtualRegister(targetVR.getId(), opTgt);
                 destReg = isTopStack(stackLocation) ? getTopStack() : stackLocation;
             } else {
                 if (bo instanceof Cmp cmp && operands[0] instanceof ConstantValue c1 && operands[1] instanceof ConstantValue c2) {
                     /* TODO Cmp instructions with two constants are not allowed. If optimization is active, we can just omit this instruction. */
+                    Operation next = function.getOperations().get(bo.getIndex() + 1);
+                    if (next instanceof Jmp || !(next instanceof JumpOperation)) {
+                        // No cmp necessary, jump is already unconditional / optimized away.
+                        return;
+                    } else {
+                        ConstantValue zero = new ConstantValue(0);
+                        storeInRegister(X86Register.R11, new ConstantValue(1), bo.getDatatype());
+                        Register one = X86Register.R11;
+                        ConstantValue two = new ConstantValue(2);
+                        bo = switch (Integer.compare(c1.getValue(), c2.getValue())) {
+                            case -1 -> bo.allocate(one, two);
+                            case 0 -> bo.allocate(one, one);
+                            default -> bo.allocate(one, zero);
+                        };
+                        bo.addComment("dummy cmp to replace cmp /w two constants");
+                        ops.add(bo);
+                        return;
+                    }
                 }
-                // target register will not be overwritten (cmp, jmp). mov and lea are handled above, they too do not need definitions.
-                // -> no need to save target register
-                destReg = opTgt;
             }
 
 
@@ -301,11 +302,37 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         }
     }
 
+    private void handleMovLea(BinaryOperation bo, Operand[] operands) {
+        Operand opTgt;
+        Operand opSrc;
+        Operand dest = operands[0];
+        opSrc = getOperand(operands[1], bo.getDatatype(), true, true);
+        if (dest instanceof VirtualRegister vrDest && !vrMap.containsKey(vrDest.getId())) {
+            Push uop = new Push(opSrc);
+            uop.addComment(bo.getComment());
+            handleUnaryOperation(uop);
+            vrMap.put(vrDest.getId(), getLocalVar(varCount - 1));
+            return;
+        }
+
+        opTgt = getOperand(dest, bo.getDatatype(), true, true);
+
+        if (opTgt.equals(opSrc)) return;
+        // if both ops are relative addresses, load the source value.
+        if (opSrc instanceof Address && opTgt instanceof Address) {
+            X86Register temp = storeInRegister(opSrc, bo.getDatatype());
+            ops.add(bo.allocate(opTgt, temp));
+            freeRegister(temp);
+        } else {
+            ops.add(bo.allocate(opTgt, opSrc));
+        }
+    }
+
     private void handleMul(IMul mul) {
         Operand fctTarget = getOperand(mul.getTarget(), mul.getDatatype(), true, false);
         Operand fctSource = getOperand(mul.getSource(), mul.getDatatype(), true, true);
         Operand definition = mul.getDefinition();
-        Operand dest = null;
+        Operand dest;
         if (definition instanceof VirtualRegister vreg && !vrMap.containsKey(vreg.getId())) {
             dest = definition; // gets allocated by handleBinaryOperation
         } else {
@@ -398,8 +425,10 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         return false;
     }
 
+
     private void handleDivMod(DivModOperation op) {
         Operand[] operands = op.getArgs();
+
         Operand dividend = operands[0];
         Operand divisor = operands[1];
 
@@ -450,7 +479,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      * @param operand       IR or x86 operand
      * @param datatype      datatype of the operation, in case any value must be loaded
      * @param allowAddress  if operand is an address and !allowAddress, the address is stored in a register.
-     * @param allowTopStack
+     * @param allowTopStack Set this to true if you dont want to invalidate the returned address by pushing something onto the stack.
      * @return the x86 operand
      */
     private Operand getOperand(Operand operand, Datatype datatype, boolean allowAddress, boolean allowTopStack) {
@@ -463,7 +492,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         } else if (operand instanceof ParameterRegister pr) {
             return getOperand(getParamReg(pr.getId()), datatype, allowAddress, true);
         } else if (operand instanceof Address address) {
-            if (address.getBase() instanceof IRRegister reg) {
+            if (address.getBase() instanceof IRRegister || address.getBase() instanceof Address) {
                 Operand base = getOperand(address.getBase(), Datatype.QWORD, false, false);
                 Operand index = getOperand(address.getIndex(), Datatype.DWORD, false, true);
                 if (allowAddress && index == null && address.getOffset() == 0) return Address.ofOperand(base);
@@ -509,23 +538,26 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     }
 
     private boolean isTopStack(Address addr) {
-        return addr.getBase().equals(X86Register.RBP) && (addr.getOffset() == 8 * -varCount);
+        return addr.getBase().equals(X86Register.RSP) && addr.getOffset() == 0 || addr.getBase().equals(X86Register.RBP) && (addr.getOffset() == 8 * -varCount);
     }
 
 
-    private Operand loadVirtualRegister(int id) {
-        return vrMap.computeIfAbsent(id, id_ -> {
+    private Address loadVirtualRegister(int id) {
+        if (!vrMap.containsKey(id)) {
             handleUnaryOperation(new Push(new ConstantValue(0)));
-            return getLocalVar(varCount - 1);
-        });
+            vrMap.put(id, getLocalVar(varCount - 1));
+        }
+        Address addr = vrMap.get(id);
+        return addr.getBase().equals(X86Register.RSP) ? addr : new Address((8 * varCount) + addr.getOffset(), X86Register.RSP);
     }
 
     //TODO Where to use?
     private Address storeInVirtualRegister(int id, Operand value) {
-        return vrMap.computeIfAbsent(id, id_ -> {
+        vrMap.computeIfAbsent(id, id_ -> {
             handleUnaryOperation(new Push(value));
             return getLocalVar(varCount - 1);
         });
+        return loadVirtualRegister(id);
     }
 
     private Operand getTopStack() {

@@ -7,13 +7,13 @@ import java.util.Objects;
 public class Address implements IRLocation {
 
     // %bp or heap/object pointer
-    private final Register base;
-    private final Register index;
+    private final Operand base;
+    private final Operand index;
     private final int scale;
     private final int offset;
     private int components;
 
-    public Address(int offset, Register base, Register index, int scale) {
+    public Address(int offset, Operand base, Operand index, int scale) {
         this.offset = offset;
         this.base = base;
         this.index = index;
@@ -26,15 +26,15 @@ public class Address implements IRLocation {
         components = (components << 1) + (this.scale > 1 ? 1 : 0);
     }
 
-    public Address(int offset, Register base) {
+    public Address(int offset, Operand base) {
         this(offset, base, null, 1);
     }
 
-    public Register getBase(){
+    public Operand getBase(){
         return base;
     }
 
-    public Register getIndex(){
+    public Operand getIndex(){
         return index;
     }
 
@@ -65,15 +65,15 @@ public class Address implements IRLocation {
         return getIdentifier();
     }
 
-    public Address offset(int offset) {
+    public Address loadWithOffset(int offset) {
         return new Address(this.offset + offset, this.base, this.index, this.scale);
     }
 
     public Address copy() {
-        return this.offset(0);
+        return this.loadWithOffset(0);
     }
 
-    public Address setIndex(Register index, int scale) {
+    public Address setIndex(Operand index, int scale) {
         // index and scale better not be set
         if ((components & 3) == 0) {
             return new Address(offset, base, index, scale);
@@ -93,30 +93,19 @@ public class Address implements IRLocation {
         return offset;
     }
 
-    public boolean isRegister() {
-        return switch (components) {
-            case 2, 4, 5 -> true;
-            default -> false;
-        };
-    }
-
-    public Register asRegister() {
-        return !Objects.isNull(base) ? this.base : this.index;
-    }
-
-    public static Address offset(Operand target, int offset) {
-        if (target instanceof Address addr) {
-            return addr.offset(offset);
-        } else if (target instanceof ConstantValue constant) {
+    public static Address loadWithOffset(Operand base, int offset) {
+        if (base instanceof Address addr) {
+            return new Address(offset, addr);
+        } else if (base instanceof ConstantValue constant) {
             return new Address(offset + constant.getValue(), null);
-        } else if (target instanceof Register reg) {
+        } else if (base instanceof Register reg) {
             return new Address(offset, reg);
         }
         else throw new RuntimeException("Whoops, this operand is not supposed to be able to be offset");
     }
 
     public static Address ofOperand(Operand target) {
-        return offset(target, 0);
+        return loadWithOffset(target, 0);
     }
 
     @Override

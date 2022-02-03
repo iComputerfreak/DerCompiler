@@ -9,6 +9,7 @@ import firm.Relation;
 import firm.nodes.*;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public class ArithmeticOptimization extends GraphOptimization {
@@ -126,6 +127,10 @@ public class ArithmeticOptimization extends GraphOptimization {
                         yield true;
                     }
                     default -> {
+                        if (Objects.equals(node.getMode(), Mode.getLs())) {
+                            //Long multiplication, so it is probably for Array access. Abort!
+                            yield false;
+                        }
                         // if non-negative, aValue is exactly a power of two
                         int exponent = getHighestOneBit(aValue);
 

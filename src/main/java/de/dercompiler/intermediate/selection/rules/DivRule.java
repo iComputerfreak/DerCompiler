@@ -31,10 +31,10 @@ public class DivRule extends SubstitutionRule<Div> {
 
     @Override
     public List<Operation> substitute() {
-        Operation div = new de.dercompiler.intermediate.operation.BinaryOperations.Div(getLeft().getTarget(), getRight().getTarget());
+        Operation div = new de.dercompiler.intermediate.operation.BinaryOperations.Div(getLeft().getDefinition(), getRight().getDefinition());
         div.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
-        Operand target = getAnnotation(getRootNode()).getTarget();
+        Operand target = getAnnotation(getRootNode()).getDefinition();
         if (target != null) {
             div.setDefinition(target);
         } else {

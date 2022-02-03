@@ -100,4 +100,8 @@ public sealed abstract class Operation permits BinaryOperation, ConstantOperatio
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    public void addComment(String comment) {
+        this.comment = (this.comment == null) ? comment : (this.comment + "  --  " + comment);
+    }
 }

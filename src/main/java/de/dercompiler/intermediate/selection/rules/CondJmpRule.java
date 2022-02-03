@@ -8,7 +8,6 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 import firm.Graph;
 import firm.Mode;
-import firm.nodes.Jmp;
 import firm.nodes.Node;
 import firm.nodes.Proj;
 
@@ -23,7 +22,7 @@ public class CondJmpRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
-        Operand target = getAnnotation(getRootNode()).getTarget();
+        Operand target = getAnnotation(getRootNode()).getDefinition();
         if (!Objects.isNull(target) && target instanceof LabelOperand lbl) {
             return List.of();
         }

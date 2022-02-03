@@ -38,14 +38,14 @@ public class PhiRule extends SubstitutionRule<Phi> {
 
         /* The code for the different Phi blocks is supposed to be created in getCodeForPred(int) */
         setMode(root.getPred(0).getMode());
-        Operand target = getAnnotation(node).getTarget();
+        Operand target = getAnnotation(node).getDefinition();
         if (target == null) {
             target = new VirtualRegister();
             setTarget(target);
         }
         for (Node pred : node.getPreds()) {
-            if (!(getAnnotation(pred).getTarget() instanceof ConstantValue)) {
-                getAnnotation(pred).setTarget(target);
+            if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue || pred instanceof Phi)) {
+                getAnnotation(pred).setDefinition(target);
             }
         }
 
@@ -74,8 +74,8 @@ public class PhiRule extends SubstitutionRule<Phi> {
      */
     public Operation getCodeForSucc(int i) {
         Phi root = getRootNode();
-        Operand target = getAnnotation(root).getTarget();
-        Operand source = getAnnotation(root.getPred(i)).getTarget();
+        Operand target = getAnnotation(root).getDefinition();
+        Operand source = getAnnotation(root.getPred(i)).getDefinition();
         Mov mov = new Mov(target, source, isMemoryOperation());
         mov.setMode(getAnnotation(root.getPred(i)).getRootNode().getMode());
         return mov;

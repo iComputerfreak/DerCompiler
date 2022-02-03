@@ -42,4 +42,9 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
 
 
     }
+
+    @Override
+    public int getVarCount() {
+        return 0;
+    }
 }

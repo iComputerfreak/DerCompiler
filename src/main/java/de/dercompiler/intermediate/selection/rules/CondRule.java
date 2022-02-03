@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.CondTarget;
-import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.*;
 import de.dercompiler.intermediate.selection.IRMode;
@@ -82,7 +81,7 @@ public class CondRule extends SubstitutionRule<Cond> {
     }
 
     private CondTarget getTarget() {
-        if (getAnnotation(getRootNode()).getTarget() instanceof CondTarget ct) {
+        if (getAnnotation(getRootNode()).getDefinition() instanceof CondTarget ct) {
             return ct;
         }
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Conditional jump target not set correctly at node " + getRootNode().toString());

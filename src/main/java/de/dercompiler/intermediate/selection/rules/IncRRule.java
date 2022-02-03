@@ -24,7 +24,7 @@ public class IncRRule extends AddRule {
 
     @Override
     public List<Operation> substitute() {
-        Operand target = getOperator().getTarget();
+        Operand target = getOperator().getDefinition();
         setTarget(target);
         setMode(getOperator().getRootNode().getMode());
 

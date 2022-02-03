@@ -27,7 +27,7 @@ public class ArrayAccessShlRRule extends AddRule {
 
 
     private Operand getArray() {
-        return getLeft().getTarget();
+        return getLeft().getDefinition();
     }
 
     private NodeAnnotation<Node> getIndex() {
@@ -50,7 +50,7 @@ public class ArrayAccessShlRRule extends AddRule {
 
     private int getScale() {
         Shl offset = getOffset();
-        Operand target = getTypedAnnotation(offset.getRight()).getTarget();
+        Operand target = getTypedAnnotation(offset.getRight()).getDefinition();
         if (target instanceof ConstantValue scale) {
             return 2 << scale.getValue();
         }
@@ -61,8 +61,10 @@ public class ArrayAccessShlRRule extends AddRule {
 
     @Override
     public List<Operation> substitute() {
-        Operand index = getIndex().getTarget();
-        Address target;
+        if (true) throw new RuntimeException("If this rule is chosen, fix ArithmeticOptimization!");
+
+        Operand index = getIndex().getDefinition();
+        Address target = null;
         List<Operation> ops;
 
         if (getArray() == null) {
@@ -74,20 +76,18 @@ public class ArrayAccessShlRRule extends AddRule {
             // index is already a register, so no operation needed
             target = address.setIndex(idxReg, getScale());
             ops = List.of();
-        } else if (index instanceof Address tAddr && tAddr.isRegister()) {
-            // index is already a register, so no operation needed
-            target = address.setIndex(tAddr.asRegister(), getScale());
-            ops = List.of();
-        } else {
+        } else if (index instanceof Address tAddr) {
             // index needs to be moved to a register so that we can use it as the index register
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
-            getIndex().setTarget(target);
+            getIndex().setDefinition(target);
             Mov mov = new Mov(idxReg, index, isMemoryOperation() );
             ops = List.of(mov);
+        } else {
+            throw new RuntimeException("Index register must be address or register");
         }
 
-        getAnnotation(getRootNode()).setTarget(target);
+        getAnnotation(getRootNode()).setDefinition(target);
         return ops;
     }
 

@@ -6,8 +6,8 @@ import de.dercompiler.intermediate.operation.OperationType;
 
 public class Cmp extends BinArithOperation {
 
-    public Cmp(Operand target, Operand source) {
-        super(OperationType.CMP, target, source, false);
+    public Cmp(Operand left, Operand right) {
+        super(OperationType.CMP, left, right, false);
     }
 
     @Override
@@ -16,9 +16,10 @@ public class Cmp extends BinArithOperation {
     }
 
     @Override
-    public BinaryOperation allocate(Operand target, Operand source){
-        Cmp cmp = new Cmp(target, source);
+    public BinaryOperation allocate(Operand left, Operand right){
+        Cmp cmp = new Cmp(left, right);
         cmp.setMode(getMode());
         return cmp;
     }
+
 }

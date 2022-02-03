@@ -31,7 +31,7 @@ public class ResetRule extends SubstitutionRule<Store> {
 
     @Override
     public List<Operation> substitute() {
-        Operand targetReg = getAnnotation(getTarget()).getTarget();
+        Operand targetReg = getAnnotation(getTarget()).getDefinition();
         Operation eor = new Xor(targetReg, targetReg);
         setTarget(targetReg);
         eor.setDefinition(targetReg);

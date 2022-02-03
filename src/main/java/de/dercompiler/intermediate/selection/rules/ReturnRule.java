@@ -23,7 +23,7 @@ public class ReturnRule extends SubstitutionRule<Return> {
         if (Objects.isNull(getRetVal())) {
             ret = new Ret();
         } else {
-            ret = new Ret(getRetVal().getTarget());
+            ret = new Ret(getRetVal().getDefinition());
             ret.setMode(getRetVal().getRootNode().getMode());
         }
         this.setTarget(null);

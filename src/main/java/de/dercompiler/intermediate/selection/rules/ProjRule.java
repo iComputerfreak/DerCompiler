@@ -1,8 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operation.BinaryOperations.Add;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -31,7 +29,7 @@ public class ProjRule extends SubstitutionRule<Proj> {
             // not represented in memory
             case "M", "X" -> this.setTarget(null);
             default -> {
-                Operand predTarget = getAnnotation(getOperand()).getTarget();
+                Operand predTarget = getAnnotation(getOperand()).getDefinition();
                 //if (predTarget instanceof Address addr && addr.isRegister()) {
                 //    setTarget(addr.asRegister());
                 //}

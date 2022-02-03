@@ -26,7 +26,7 @@ public class NotRule extends SubstitutionRule<Not> {
 
     @Override
     public List<Operation> substitute() {
-        Operation not = new de.dercompiler.intermediate.operation.UnaryOperations.Not(getOperator().getTarget(), isMemoryOperation());
+        Operation not = new de.dercompiler.intermediate.operation.UnaryOperations.Not(getOperator().getDefinition(), isMemoryOperation());
         not.setMode(getOperator().getRootNode().getMode());
         setTarget(not.getDefinition());
         return List.of(not);
