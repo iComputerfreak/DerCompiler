@@ -12,6 +12,7 @@ import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.*;
+import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.Signedness;
 import de.dercompiler.io.OutputMessageHandler;
@@ -49,8 +50,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      */
     private int tempRegister = 0;
 
-    public TrivialRegisterAllocator(MemoryManager manager) {
-        super(manager);
+    public TrivialRegisterAllocator(MemoryManager manager, CallingConvention callingConvention) {
+        super(manager, callingConvention);
         manager.setRegisterMgmt(this);
     }
 
@@ -399,8 +400,10 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         return false;
     }
 
+
     private void handleDivMod(DivModOperation op) {
         Operand[] operands = op.getArgs();
+
         Operand dividend = operands[0];
         Operand divisor = operands[1];
 

@@ -8,7 +8,10 @@ import de.dercompiler.intermediate.generation.CodeGenerator;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
+import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
+import de.dercompiler.intermediate.regalloc.calling.AMDSystemVCallingConvention;
+import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.intermediate.selection.FirmBlock;
@@ -76,6 +79,7 @@ public class CompileAction extends Action {
 
         List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
         MyBlockSorter sorter = new MyBlockSorter();
+        RegisterAllocator allocator = new TrivialRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention());
         for (Function function : program.getFunctions()) {
             firm.Graph graph = function.getFirmGraph();
             if (basicOptimizationsActive) {
@@ -94,7 +98,7 @@ public class CompileAction extends Action {
             List<Operation> operations = firmBlocks.stream().flatMap((FirmBlock firmBlock) -> firmBlock.getOperations().stream()).toList();
             function.setOperations(operations);
 
-            new TrivialRegisterAllocator(new BasicMemoryManager()).allocateRegisters(function);
+            allocator.allocateRegisters(function);
         }
 
         ErrorStatus.exitProgramIfError();
