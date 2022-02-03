@@ -44,7 +44,8 @@ public class IRLocationOrganizer {
             if (p.getId() < convention.getNumberOfArgumentsRegisters()) {
                 locationMap.put(p, new RegisterLocation(callingConvention.getArgumentRegister(p.getId())));
             } else { //bind stack
-                locationMap.put(p, new StackLocation(stack.get));
+                //TODO fix:
+                locationMap.put(p, new StackLocation());
             }
         }
     }

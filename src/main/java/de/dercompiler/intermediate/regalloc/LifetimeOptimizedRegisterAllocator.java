@@ -41,7 +41,7 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
     @Override
     public void allocateRegisters(Function function) {
         RegisterAllocationContext context = createContext(function);
-        IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, null, context.vlt(), context)
+        IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, null, context.vlt(), context.splitview());
 
 
     }
