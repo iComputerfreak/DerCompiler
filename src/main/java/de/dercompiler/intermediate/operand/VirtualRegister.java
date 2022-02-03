@@ -2,6 +2,8 @@ package de.dercompiler.intermediate.operand;
 
 import de.dercompiler.intermediate.selection.Datatype;
 
+import java.util.Objects;
+
 public class VirtualRegister implements IRRegister {
     
     private static int nextID = 0;
@@ -43,5 +45,17 @@ public class VirtualRegister implements IRRegister {
 
     public void setPhiVariable(boolean phiVariable) {
         this.phiVariable = phiVariable;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (Objects.isNull(obj)) return false;
+        if (!(obj instanceof VirtualRegister vr)) return false;
+        return id == vr.id;
     }
 }

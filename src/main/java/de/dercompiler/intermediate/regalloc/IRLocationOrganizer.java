@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.memory.BasicRegisterManager;
+import de.dercompiler.intermediate.memory.SimpleMemoryManager;
 import de.dercompiler.intermediate.operand.IRLocation;
 import de.dercompiler.intermediate.operand.IRRegister;
 import de.dercompiler.intermediate.operand.ParameterRegister;
@@ -11,8 +12,6 @@ import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
 import de.dercompiler.intermediate.regalloc.analysis.VariableLifetimeTable;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.regalloc.location.Location;
-import de.dercompiler.intermediate.regalloc.location.RegisterLocation;
-import de.dercompiler.intermediate.regalloc.location.StackLocation;
 
 import java.util.List;
 import java.util.EnumSet;
@@ -21,37 +20,47 @@ import java.util.Map;
 
 public class IRLocationOrganizer {
 
+    //list of operations of spill code, register the result is stored
     public record AccessOperations(List<Operation> operations, X86Register register) {
 
     }
 
-    private final BasicMemoryManager stack;
-    private final BasicRegisterManager register;
+    private final SimpleMemoryManager stack;
+    private final BasicRegisterManager registers;
     private final CallingConvention convention;
-    private final Map<IRLocation, Location> locationMap;
+    private final Map<IRRegister, Location> locationMap;
     private final VariableLifetimeTable vlt;
     private final FunctionSplitView fsv;
+    private int shardID;
 
     public IRLocationOrganizer(EnumSet<X86Register> avalable, CallingConvention callingConvention, ParameterRegister[] params, VariableLifetimeTable varTimes, FunctionSplitView splitView) {
-        stack = new BasicMemoryManager();
-        register = new BasicRegisterManager(avalable);
+        stack = new SimpleMemoryManager(callingConvention);
+        registers = new BasicRegisterManager(avalable);
         convention = callingConvention;
         locationMap = new HashMap<>();
         vlt = varTimes;
         fsv = splitView;
         for (ParameterRegister p : params) {
             //bind register
-            if (p.getId() < convention.getNumberOfArgumentsRegisters()) {
-                locationMap.put(p, new RegisterLocation(callingConvention.getArgumentRegister(p.getId())));
-            } else { //bind stack
-                //TODO fix:
-                locationMap.put(p, new StackLocation());
-            }
+            locationMap.put(p, stack.getArgumentLocation(p));
         }
+        shardID = 0;
     }
 
-    public void nextSection() {
+    public boolean nextSection() {
+        if (!(shardID < fsv.getNumShards())) return false;
+        //1. scratch registers
 
+        for (X86Register reg : convention.getArgumentRegisters()) {
+            registers.freeRegister(reg);
+        }
+        for (X86Register reg : convention.getScratchRegisters()) {
+            registers.freeRegister(reg);
+        }
+        //2. set to next shard
+        shardID++;
+        //3. bindNeeded values to registers
+        return true;
     }
 
     public AccessOperations makeAvailable(IRRegister register) {

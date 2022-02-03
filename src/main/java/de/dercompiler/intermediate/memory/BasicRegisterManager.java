@@ -38,6 +38,10 @@ public class BasicRegisterManager {
         registerStates.put(register, RegisterState.FREE);
     }
 
+    public boolean hasFreeRegister() {
+        return freeList.size() != 0;
+    }
+
     public boolean checkIfRegisterIsFree(X86Register reg) {
         return registerStates.get(reg) == RegisterState.FREE;
     }

@@ -1,4 +1,7 @@
 package de.dercompiler.intermediate.regalloc.location;
 
-public class StackLocation  implements Location {
+import de.dercompiler.intermediate.operand.Address;
+
+//always RBP as base
+public record StackLocation(Address address) implements Location {
 }

@@ -2,9 +2,11 @@ package de.dercompiler.intermediate.operand;
 
 import de.dercompiler.intermediate.selection.Datatype;
 
+import java.util.Objects;
+
 public class ParameterRegister implements IRRegister {
 
-    private final long number;
+    private final int number;
     public ParameterRegister(int number) {
         this.number = number;
     }
@@ -21,11 +23,23 @@ public class ParameterRegister implements IRRegister {
 
     @Override
     public int getId(){
-        return (int) number;
+        return number;
     }
 
     @Override
     public String toString() {
         return getIdentifier();
+    }
+
+    @Override
+    public int hashCode() {
+        return number;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (Objects.isNull(obj)) return false;
+        if (!(obj instanceof ParameterRegister pr)) return false;
+        return number == pr.number;
     }
 }

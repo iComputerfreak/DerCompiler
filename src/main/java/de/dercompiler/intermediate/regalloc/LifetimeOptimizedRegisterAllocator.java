@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
+import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
 import de.dercompiler.intermediate.regalloc.analysis.LifetimeAnalysis;
@@ -41,7 +42,12 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
     @Override
     public void allocateRegisters(Function function) {
         RegisterAllocationContext context = createContext(function);
-        IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, null, context.vlt(), context.splitview());
+        context.splitview().print();
+        ParameterRegister[] paramRegs = new ParameterRegister[function.getParamCount()];
+        for (int i = 0; i < function.getParamCount(); i++) {
+            paramRegs[i] = new ParameterRegister(i);
+        }
+        IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, paramRegs, context.vlt(), context.splitview());
 
 
     }

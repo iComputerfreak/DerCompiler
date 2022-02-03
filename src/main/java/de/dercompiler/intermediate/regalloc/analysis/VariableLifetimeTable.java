@@ -119,6 +119,16 @@ public class VariableLifetimeTable {
         return getLastUsage(id, false);
     }
 
+    public List<IRRegister> getDyingRegisters(int min, int max) {
+        List<IRRegister> registers = new LinkedList<>();
+        for (RegisterLifetime rl : rlt) {
+            if (min <= rl.max && rl.max < max) {
+                registers.add(rl.irr);
+            }
+        }
+        return registers;
+    }
+
     public int getLastUsage(int id, boolean parameter) {
         int effectiveID = id;
         if (parameter) effectiveID += CALL_ABI_NUM_ARGUMENTS;

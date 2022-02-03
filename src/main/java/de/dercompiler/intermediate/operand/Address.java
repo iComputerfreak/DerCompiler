@@ -132,4 +132,8 @@ public class Address implements IRLocation {
         return scale;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(base, index, scale, offset);
+    }
 }

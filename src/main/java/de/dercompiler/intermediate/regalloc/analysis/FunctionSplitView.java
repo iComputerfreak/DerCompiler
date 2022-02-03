@@ -5,6 +5,8 @@ import de.dercompiler.intermediate.operand.IRRegister;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.RegAllocUtil;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -19,6 +21,8 @@ public class FunctionSplitView  {
         private List<IRRegister> relevant;
         private List<IRRegister> used;
 
+
+
         public FunctionShard(int min, int max) {
             this(min, max, new LinkedList<>());
         }
@@ -31,7 +35,7 @@ public class FunctionSplitView  {
         }
 
         public FunctionShard split(int index) {
-            if (index < start && end <= index) return null;
+            if (index <= start && end < index) return null;
             int end = this.end;
             this.end = index;
             List<IRRegister> rel = relevant;
@@ -45,6 +49,9 @@ public class FunctionSplitView  {
 
     public FunctionSplitView(Function func) {
         int start = func.getOperations().getFirst().getIndex();
+
+        start--; //we remove index by -1, because of boundChecks
+
         int end = func.getOperations().getLast().getIndex();
         shards = new LinkedList<>();
         if (func.getOperations().getLast() instanceof Ret ret) {
@@ -58,7 +65,7 @@ public class FunctionSplitView  {
     public void split(int idx) {
         //reverse order, since we search top down
         for (int i = shards.size() - 1; i >= 0 ; i--) {
-            if (shards.get(i).start < idx) {
+            if (shards.get(i).start < idx && idx <= shards.get(i).end) {
                 FunctionShard tmp = shards.get(i).split(idx);
                 if (tmp == null) return; //this should never happen
                 shards.add(i + 1, tmp);
@@ -85,5 +92,22 @@ public class FunctionSplitView  {
                 shard.used.addAll(RegAllocUtil.collectIRRegisters(op.getDefinition()));
             }
         }
+    }
+
+    public void print() {
+        OutputMessageHandler out = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
+        int k = 0;
+        List<Operation> ops = func.getOperations();
+        out.printInfo(" --- StartShard ---");
+        for (FunctionShard shard : shards) {
+            for (int i = shard.start + 1; i <= shard.end; i++) {
+                Operation op = ops.get(i);
+                out.printInfo(op.getIndex() + " " + op.getAtntSyntax());
+            }
+            if (k < shards.size()) {
+                out.printInfo(" --- ShardNum " + k++ + " --- ");
+            }
+        }
+        out.printInfo(" --- EndShard ---");
     }
 }
