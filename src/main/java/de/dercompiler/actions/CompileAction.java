@@ -46,7 +46,7 @@ public class CompileAction extends Action {
     
     // The input file containing the source code to compile
     private final Source source;
-    private boolean basicOptimizationsActive;
+    private boolean basicOptimizationsActive = true;
 
     /**
      * Creates a new CompileAction with the given source code file
