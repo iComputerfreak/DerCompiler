@@ -26,7 +26,7 @@ public class ReturnRule extends SubstitutionRule<Return> {
             ret = new Ret(getRetVal().getDefinition());
             ret.setMode(getRetVal().getRootNode().getMode());
         }
-        this.setTarget(null);
+        this.setDefinition(null);
         return List.of(ret);
     }
 

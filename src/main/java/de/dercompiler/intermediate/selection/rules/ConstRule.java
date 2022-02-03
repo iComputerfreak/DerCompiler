@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -19,7 +18,7 @@ public class ConstRule extends SubstitutionRule<Const> {
     @Override
     public List<Operation> substitute() {
         ConstantValue target = new ConstantValue(getConst().getTarval().asInt());
-        setTarget(target);
+        setDefinition(target);
         // Const nodes are not useful, so we omit them
         getAnnotation(node).setTransformed(true);
         setMode(getConst().getMode());

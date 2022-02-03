@@ -33,11 +33,11 @@ public class SubRule extends SubstitutionRule<Sub> {
     public List<Operation> substitute() {
         Operation sub = new de.dercompiler.intermediate.operation.BinaryOperations.Sub(getLeft().getDefinition(), getRight().getDefinition());
         sub.setMode(getRootNode().getMode());
-        Operand target = getAnnotation(node).getDefinition();
+        Operand target = getDefinition();
         if (target != null) {
             sub.setDefinition(target);
         } else {
-            setTarget(sub.getDefinition());
+            setDefinition(sub.getDefinition());
         }
         return List.of(sub);
     }

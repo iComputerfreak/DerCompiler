@@ -63,10 +63,10 @@ public class ArrayAccessRule extends AddRule {
         Address target;
 
         // Load eff. address into vReg
-        Operand targetAddr = getAnnotation(node).getDefinition();
+        Operand targetAddr = getDefinition();
         if (targetAddr == null) {
            targetAddr = new VirtualRegister();
-           setTarget(targetAddr);
+           setDefinition(targetAddr);
         }
 
         List<Operation> ops;

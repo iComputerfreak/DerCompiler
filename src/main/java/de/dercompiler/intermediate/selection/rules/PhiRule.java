@@ -32,16 +32,16 @@ public class PhiRule extends SubstitutionRule<Phi> {
 
         if (root.getMode().equals(Mode.getM())) {
             // not represented in memory
-            setTarget(null);
+            setDefinition(null);
             return List.of();
         }
 
         /* The code for the different Phi blocks is supposed to be created in getCodeForPred(int) */
         setMode(root.getPred(0).getMode());
-        Operand target = getAnnotation(node).getDefinition();
+        Operand target = getDefinition();
         if (target == null) {
             target = new VirtualRegister();
-            setTarget(target);
+            setDefinition(target);
         }
         for (Node pred : node.getPreds()) {
             if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue || pred instanceof Phi)) {

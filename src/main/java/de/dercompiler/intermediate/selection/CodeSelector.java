@@ -415,7 +415,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             nodeAnnotationGraph.addVertex(a);
         }
         for (Node pred : a.getRootNode().getPreds()) {
-            if (a.getRootNode().getNr() < pred.getNr() && a.getRootNode().getBlock().equals(pred.getBlock())) {
+            if (a.getRootNode() instanceof Phi && a.getRootNode().getNr() < pred.getNr() && a.getRootNode().getBlock().equals(pred.getBlock())) {
                 System.out.printf("Achtung Gefahr: %s liegt auf einem in-Block-Zyklus!%n", a.getRootNode());
                 continue;
             }

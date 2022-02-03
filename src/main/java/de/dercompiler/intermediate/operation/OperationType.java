@@ -10,7 +10,7 @@ public enum OperationType {
     MOVSLQ("MOVSLQ", false),
     ADD("ADD", true),
     AND("AND", true),
-    CMP("CMP"),
+    CMP("CMP", true),
     IDIV("IDIV", true),
     IMUL("IMUL", true),
     LEA("LEA", true),

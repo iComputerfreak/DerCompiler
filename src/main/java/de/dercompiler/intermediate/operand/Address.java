@@ -132,4 +132,7 @@ public class Address implements IRLocation {
         return scale;
     }
 
+    public Address offsetPtr(int offset) {
+        return new Address(this.offset + offset, this.base, this.index, this.scale);
+    }
 }

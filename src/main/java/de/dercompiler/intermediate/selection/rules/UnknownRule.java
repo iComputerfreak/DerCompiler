@@ -4,7 +4,6 @@ import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
-import firm.nodes.Const;
 import firm.nodes.Node;
 import firm.nodes.Unknown;
 
@@ -25,7 +24,7 @@ public class UnknownRule extends SubstitutionRule<Unknown> {
     public List<Operation> substitute() {
         ConstantValue target = new ConstantValue(-1);
         setMode(node.getMode());
-        setTarget(target);
+        setDefinition(target);
         return List.of();
     }
 

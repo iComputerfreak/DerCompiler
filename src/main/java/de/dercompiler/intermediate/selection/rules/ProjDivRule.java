@@ -23,7 +23,7 @@ public class ProjDivRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
-        setTarget(getDiv().getDefinition());
+        setDefinition(getDiv().getDefinition());
         setMode(getDiv().getRootNode().getMode());
         return List.of();
     }

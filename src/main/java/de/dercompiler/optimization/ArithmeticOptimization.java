@@ -180,7 +180,7 @@ public class ArithmeticOptimization extends GraphOptimization {
                     // x / (2 ** exp) -> x >> exp
                     if (exponent > 0) {
                         replaceDiv(node, getConstruction().newShrs(dividend, getConstruction().newConst(exponent, dividend.getMode())));
-                        logger.printInfo("Apply arith/DivToRshs to %s and %s".formatted(dividend.toString(), divisor.toString()));
+                        logger.printInfo("Apply arith/DivToSar to %s and %s".formatted(dividend.toString(), divisor.toString()));
                     } else if (dividend instanceof Const dvdConst) {
                         replaceDiv(node, getConstruction().newConst(dvdConst.getTarval().div(dsrConst.getTarval())));
                         logger.printInfo("Apply arith/Div2Consts to %s and %s".formatted(dividend.toString(), divisor.toString()));
@@ -194,13 +194,13 @@ public class ArithmeticOptimization extends GraphOptimization {
     private void replaceDiv(Div divNode, Node newNode) {
         // Must replace by hand, or else the Proj nodes' predecessors will have invalid types.
         newNode.setBlock(divNode.getBlock());
-        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem()));
+        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem(), divNode.getLeft(), divNode.getRight()));
     }
 
     private void replaceMod(Mod divNode, Node newNode) {
         // Must replace by hand, or else the Proj nodes' predecessors will have invalid types.
         newNode.setBlock(divNode.getBlock());
-        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem()));
+        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem(), divNode.getLeft(), divNode.getRight()));
     }
 
     @Override
@@ -431,17 +431,34 @@ public class ArithmeticOptimization extends GraphOptimization {
     public void visit(Proj node) {
         if (node.getPred() instanceof Div divNode && divNodesData.containsKey(divNode.getNr())) {
             final ReplaceDivNode data = divNodesData.get(divNode.getNr());
+            boolean replace = false;
+            Node predecessor;
             switch (node.getMode().getName()) {
-                case "M" -> replaceNode(node, data.memory, false);
-                case "Is", "Ls" -> replaceNode(node, data.replaceValue, false);
-                default -> logger.internalError("A Proj node with a Mode different from M, Ls or Is seems to have pointed to an Integer Div node. How is that supposed to happen?");
+                case "M" -> {
+                    predecessor = data.memory;
+                    for (int i = 0; i < node.getPredCount(); i++) {
+                        if (node.getPred(i).equals(divNode)) {
+                            System.out.println("Replace %d-th predecessor %s of %s by %s".formatted(i, node.getPred(i), node, predecessor));
+                            node.setPred(i, predecessor);
+                        }
+                    }
+                }
+                case "Is", "Ls" -> {
+                    predecessor = data.replaceValue;
+                    replaceNode(node, predecessor, true);
+                }
+                default -> {
+                    logger.internalError("A Proj node with a Mode different from M, Ls or Is seems to have pointed to an Integer Div node. How is that supposed to happen?");
+                    throw new RuntimeException();
+                }
             }
+
         }
     }
 
-    private void replaceNode(Node node, Node b, boolean b1) {
-        b.setBlock(node.getBlock());
+    private void replaceNode(Node node, Node b, boolean newlyCreated) {
         Graph.exchange(node, b);
+        if (newlyCreated) b.setBlock(node.getBlock());
         b.accept(this);
     }
 
@@ -466,7 +483,7 @@ public class ArithmeticOptimization extends GraphOptimization {
         return success;
     }
 
-    record ReplaceDivNode(Node replaceValue, Node memory) {
+    record ReplaceDivNode(Node replaceValue, Node memory, Node left, Node right) {
         // no methods, just data c:
     }
 

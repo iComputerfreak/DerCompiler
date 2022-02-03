@@ -5,7 +5,6 @@ import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.nodes.End;
 import firm.nodes.Node;
-import firm.nodes.Start;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class EndRule extends SubstitutionRule<End> {
 
     @Override
     public List<Operation> substitute() {
-        this.setTarget(null);
+        this.setDefinition(null);
         return List.of();
     }
 

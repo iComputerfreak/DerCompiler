@@ -70,6 +70,10 @@ public abstract class SubstitutionRule<T extends Node> {
     // e.g. new BinaryOperation(ADD, graph.XXX.getLeft(), graph.XXX.getRight())
     public abstract List<Operation> substitute();
 
+    protected Operand getDefinition() {
+        return getAnnotation(node).getDefinition();
+    }
+
     /**
      * Returns all nodes other than the rootNode that are part of this rule, i.e. the root node's predecessors that this
      * rule uses
@@ -95,7 +99,7 @@ public abstract class SubstitutionRule<T extends Node> {
         return annotationSupplier.apply(node);
     }
 
-    protected void setTarget(Operand target) {
+    protected void setDefinition(Operand target) {
         getAnnotation(getRootNode()).setDefinition(target);
     }
 

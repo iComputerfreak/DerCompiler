@@ -3,6 +3,7 @@ package de.dercompiler;
 import de.dercompiler.ast.MainMethod;
 import de.dercompiler.ast.Method;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.selection.Datatype;
 import firm.Graph;
 
 import java.util.*;
@@ -14,7 +15,7 @@ public class Function {
     private LinkedList<Operation> operations;
     private int opCount;
 
-    private final firm.Graph graph;
+    private final Graph graph;
 
     public Function(Graph graph, Method method) {
         this.operations = null;
@@ -46,4 +47,9 @@ public class Function {
     public Graph getFirmGraph() {
         return graph;
     }
+
+    public boolean isStatic() {
+        return method.isStatic();
+    }
+
 }

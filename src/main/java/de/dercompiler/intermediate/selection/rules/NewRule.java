@@ -21,7 +21,7 @@ public class NewRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
-        setTarget(getConstructorCall().getDefinition());
+        setDefinition(getConstructorCall().getDefinition());
         return List.of();
     }
 

@@ -28,7 +28,7 @@ public class MemberRule extends SubstitutionRule<Member> {
         int offset = getMember().getEntity().getOffset();
         Operand object = getAnnotation(getObject()).getDefinition();
         Address target = Address.loadWithOffset(object, offset);
-        setTarget(target);
+        setDefinition(target);
         return List.of();
     }
 

@@ -1,7 +1,7 @@
 package de.dercompiler.actions;
 
-import de.dercompiler.Program;
 import de.dercompiler.Function;
+import de.dercompiler.Program;
 import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.generation.AtntCodeGenerator;
 import de.dercompiler.intermediate.generation.CodeGenerator;
@@ -11,7 +11,6 @@ import de.dercompiler.intermediate.ordering.MyBlockSorter;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import de.dercompiler.intermediate.regalloc.calling.AMDSystemVCallingConvention;
-import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.intermediate.selection.FirmBlock;
@@ -33,9 +32,7 @@ import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.ErrorStatus;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.StringJoiner;
 
 /**
  * Represents the action to compile the given source code

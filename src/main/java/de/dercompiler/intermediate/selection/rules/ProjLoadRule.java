@@ -40,13 +40,13 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
         // Loaded value must be stored away!
         Operand operandTarget = getAnnotation(getLoad()).getDefinition();
         if (operandTarget instanceof Address addr) {
-            setTarget(addr);
+            setDefinition(addr);
             return List.of();
         } else {
-            Operand target = getAnnotation(node).getDefinition();
+            Operand target = getDefinition();
             if (target == null) {
                 target = new VirtualRegister();
-                setTarget(target);
+                setDefinition(target);
             }
             Operation mov = new Mov(target, operandTarget, true );
             mov.setMode(getRootNode().getMode());

@@ -2,8 +2,10 @@ package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
+import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import firm.Entity;
 
 import java.util.function.Consumer;
@@ -29,7 +31,7 @@ public interface MemoryManager {
      * @param n the index of the argument
      * @return the location of the n-th argument
      */
-    Operand getArgument(int n);
+    X86Register getArgument(int n);
 
     /**
      * Returns the memory location of the local value given by its id.
@@ -40,10 +42,7 @@ public interface MemoryManager {
 
 
     Address getVar(int n);
-    /**
-     * Registers a new temporary value.
-     * @return The location of the new variable
-     */
+
     Operand pushValue(Operand source);
 
     /**
@@ -89,4 +88,12 @@ public interface MemoryManager {
     void setRegisterMgmt(RegisterAllocator registerAllocator);
 
     Operand getThis();
+
+    void setCallingConvention(CallingConvention callingConvention);
+
+    Operand pushValue(Operand value, String comment);
+
+    Address getStackEnd();
+
+    int getStackSize();
 }

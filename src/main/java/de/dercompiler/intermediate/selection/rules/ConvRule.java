@@ -57,7 +57,7 @@ public class ConvRule extends SubstitutionRule<Conv> {
             /* ops.add(convOp);   TODO: Are conversions necessary? */
         }
 
-        setTarget(op);
+        setDefinition(op);
 
         return ops;
     }

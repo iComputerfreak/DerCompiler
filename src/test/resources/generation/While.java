@@ -8,7 +8,7 @@ class While {
             if ((i / 2) * 2 == i) {
                 even = even + i;
             } else {
-                odd = odd + 1;
+                odd = odd + i;
             }
 
             i = i + 1;

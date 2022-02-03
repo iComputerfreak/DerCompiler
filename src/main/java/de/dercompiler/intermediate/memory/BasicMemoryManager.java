@@ -1,11 +1,13 @@
 package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.*;
+import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.operation.UnaryOperations.Push;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
+import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import firm.Entity;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -35,6 +37,8 @@ public class BasicMemoryManager implements MemoryManager {
 
     public BasicMemoryManager(X86Register basePointer) {
         this.basePointer = basePointer;
+        stackSize = 0;
+        variables = new HashMap<>();
     }
 
     public BasicMemoryManager() {
@@ -50,28 +54,26 @@ public class BasicMemoryManager implements MemoryManager {
     /**
      *  Maps node ids to the offset in the variable stack
      */
-    private Map<Integer, Integer> variables;
+    private Map<Operand, Integer> variables;
 
     /**
      *  Accepts the operations resulting from memory operations
      */
     private Consumer<Operation> output;
-    private RegisterAllocator registerMgmt;
+
+    private CallingConvention callingConvention;
+
+    private int stackSize;
+
 
     @Override
     public Address getVar(int n) {
-        int varCount = registerMgmt.getVarCount();
         return new Address(-(n + 1) * 8, getBasePointer());
     }
 
-    public Address getVar2(int n) {
-        int varCount = registerMgmt.getVarCount();
-        return new Address((varCount - n - 1) * 8, X86Register.RSP);
-    }
-
     @Override
-    public Operand getArgument(int n) {
-        return new Address((n + 3) * 8, getBasePointer());
+    public X86Register getArgument(int n) {
+        return callingConvention.getArgumentRegister(n);
     }
 
     private X86Register getBasePointer() {
@@ -84,11 +86,9 @@ public class BasicMemoryManager implements MemoryManager {
         return basePointer.offset(offset);
     }
 
-     @Override
+    @Override
     public Operand pushValue(Operand source) {
-        output.accept(new Push(source));
-        stackPointer = stackPointer.loadWithOffset(-8);
-        return stackPointer.copy();
+       return pushValue(source, null);
     }
 
     @Override
@@ -98,11 +98,7 @@ public class BasicMemoryManager implements MemoryManager {
 
     @Override
     public void enterMethod(Entity methodEntity, Operand target, Operand... arguments) {
-        for (int idx = arguments.length - 1; idx >= 0; idx--) {
-            pushValue(arguments[idx]);
-        }
-        stackPointer = stackPointer.loadWithOffset(-1);
-        pushValue(basePointer);
+
     }
 
     @Override
@@ -117,11 +113,49 @@ public class BasicMemoryManager implements MemoryManager {
 
     @Override
     public void setRegisterMgmt(RegisterAllocator registerAllocator) {
-        this.registerMgmt = registerAllocator;
     }
 
     @Override
     public Operand getThis() {
         return getArgument(0);
+    }
+
+    @Override
+    public void setCallingConvention(CallingConvention callingConvention) {
+        this.callingConvention = callingConvention;
+    }
+
+    @Override
+    public Operand pushValue(Operand value, String comment) {
+        Address newTopStack = getVar(stackSize++);
+        if (value == null) {
+            return newTopStack;
+        }
+        else if (value instanceof Address) {
+            X86Register temp = callingConvention.getScratchRegister(0);
+            Mov push = new Mov(temp, value);
+            if (comment != null) push.setComment(comment);
+            output.accept(push);
+            value = temp;
+        }
+        variables.put(value, stackSize);
+        Mov mov = new Mov(newTopStack, value);
+        mov.setComment("stack entry #" + stackSize);
+        output.accept(mov);
+        return newTopStack;
+    }
+
+    public CallingConvention getCallingConvention() {
+        return callingConvention;
+    }
+
+    @Override
+    public Address getStackEnd() {
+        return basePointer.offset(-stackSize * 8);
+    }
+
+    @Override
+    public int getStackSize() {
+        return stackSize;
     }
 }

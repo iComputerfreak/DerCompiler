@@ -35,7 +35,7 @@ public class StoreRule extends SubstitutionRule<Store> {
                 targetReg,
                 getAnnotation(getValue()).getDefinition(), true
         );
-        setTarget(targetReg);
+        setDefinition(targetReg);
         setMode(getValue().getMode());
         mov.setMode(getMode());
         return List.of(mov);
