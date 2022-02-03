@@ -21,7 +21,7 @@ public class ParamRule extends SubstitutionRule<Proj> {
     @Override
     public List<Operation> substitute() {
         ParameterRegister target = new ParameterRegister(getRootNode().getNum());
-        setTarget(target);
+        setDefinition(target);
 
         return List.of();
     }

@@ -59,7 +59,8 @@ public class FirmBlock {
     public List<Operation> getOperations() {
         List<Operation> operations = new LinkedList<>();
 
-        if (isJumpTarget()) operations.add(new LabelOperation(this.getId()));
+        if (isJumpTarget())
+            operations.add(new LabelOperation(this.getId()));
 
         operations.addAll(components.values().stream().filter(component -> !component.isEmpty()).flatMap(cmp ->
                 cmp.getOperations().stream()).toList());

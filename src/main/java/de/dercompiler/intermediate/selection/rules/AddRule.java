@@ -34,12 +34,12 @@ public class AddRule extends SubstitutionRule<Add> {
         Operation add = new de.dercompiler.intermediate.operation.BinaryOperations.Add(getLeft().getDefinition(), getRight().getDefinition());
         add.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
-        Operand target = getAnnotation(node).getDefinition();
+        Operand target = getDefinition();
         if (target != null) {
             add.setDefinition(target);
         } else {
             target = add.getDefinition();
-            setTarget(target);
+            setDefinition(target);
         }
         return List.of(add);
     }

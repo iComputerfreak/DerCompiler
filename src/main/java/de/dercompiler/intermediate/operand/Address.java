@@ -136,4 +136,8 @@ public class Address implements IRLocation {
     public int hashCode() {
         return Objects.hash(base, index, scale, offset);
     }
+        
+    public Address offsetPtr(int offset) {
+        return new Address(this.offset + offset, this.base, this.index, this.scale);
+    }
 }

@@ -38,7 +38,7 @@ public class DivRule extends SubstitutionRule<Div> {
         if (target != null) {
             div.setDefinition(target);
         } else {
-            setTarget(div.getDefinition());
+            setDefinition(div.getDefinition());
         }
         return List.of(div);
     }

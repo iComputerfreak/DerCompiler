@@ -39,7 +39,7 @@ public enum X86Register implements Register {
         this.idb = id1;
     }
 
-    public Operand offset(int offset) {
+    public Address offset(int offset) {
         return new Address(offset, this);
     }
 

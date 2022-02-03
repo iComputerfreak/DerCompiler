@@ -34,7 +34,7 @@ public class CmpRule extends SubstitutionRule<Cmp> {
         cmp.setMode(getLeft().getRootNode().getMode());
 
         // result of cmp is found in flag register
-        setTarget(null);
+        setDefinition(null);
 
         return List.of(cmp);
     }

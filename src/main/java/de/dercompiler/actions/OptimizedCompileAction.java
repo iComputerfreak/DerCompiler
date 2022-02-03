@@ -113,7 +113,6 @@ public class OptimizedCompileAction extends Action {
 
     public void help() {
         CommandLineBuilder.printHelp(compilerName);
-
     }
 
     private void compilerError() {

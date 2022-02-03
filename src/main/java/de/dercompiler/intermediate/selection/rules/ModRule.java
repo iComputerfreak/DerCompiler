@@ -33,9 +33,9 @@ public class ModRule extends SubstitutionRule<Mod> {
     public List<Operation> substitute() {
         Operation mod = new de.dercompiler.intermediate.operation.BinaryOperations.Mod(getLeft().getDefinition(), getRight().getDefinition());
         mod.setMode(getRootNode().getMode());
-        Operand target = getAnnotation(node).getDefinition();
+        Operand target = getDefinition();
         if (target == null) {
-            setTarget(mod.getDefinition());
+            setDefinition(mod.getDefinition());
         } else {
             mod.setDefinition(target);
         }

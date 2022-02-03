@@ -1,10 +1,8 @@
 package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
-import firm.nodes.Add;
 import firm.nodes.Address;
 import firm.nodes.Node;
 
@@ -20,7 +18,7 @@ public class AddressRule extends SubstitutionRule<Address> {
 
     @Override
     public List<Operation> substitute() {
-        setTarget(null);
+        setDefinition(null);
         setMode(getRootNode().getMode());
         getAnnotation(node).setTransformed(true); // Address nodes are not useful, so we omit them
         return List.of();

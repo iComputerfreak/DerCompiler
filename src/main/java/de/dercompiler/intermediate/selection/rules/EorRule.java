@@ -34,7 +34,7 @@ public class EorRule extends SubstitutionRule<Eor> {
         Operation eor = new Xor(getLeft().getDefinition(), getRight().getDefinition());
         eor.setMode(node.getMode());
 
-        setTarget(eor.getDefinition());
+        setDefinition(eor.getDefinition());
 
         return List.of(eor);
     }

@@ -127,7 +127,8 @@ public class CompilerSetup {
         if (Objects.isNull(action)) {
             Source src = getSourceFromArgs(options);
             CompileAction action = new CompileAction(src);
-            if (options.basicOptimization()) action.setBasicOptimizationActive(true);
+            action.setBasicOptimizationActive(true);
+            action.setOptimizationActive(options.optimizationsActive());
             setAction(action);
         }
 

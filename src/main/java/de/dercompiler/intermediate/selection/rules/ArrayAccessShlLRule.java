@@ -87,7 +87,7 @@ public class ArrayAccessShlLRule extends AddRule {
 
         VirtualRegister targetAddr = new VirtualRegister();
         ops.add(new Lea(target, targetAddr));
-        setTarget(targetAddr);
+        setDefinition(targetAddr);
         return ops;
     }
 
