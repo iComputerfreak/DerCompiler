@@ -297,6 +297,10 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 srcReg = X86Register.R11;
             }
 
+            if (bo instanceof Cmp cmp && destReg == null){
+                destReg = opTgt;
+            }
+
             // add operation code
             ops.add(bo.allocate(destReg, srcReg));
         }
