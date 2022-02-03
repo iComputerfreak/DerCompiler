@@ -38,12 +38,12 @@ public class ProjLoadRule extends SubstitutionRule<Proj> {
     @Override
     public List<Operation> substitute() {
         // Loaded value must be stored away!
-        Operand operandTarget = getAnnotation(getLoad()).getTarget();
+        Operand operandTarget = getAnnotation(getLoad()).getDefinition();
         if (operandTarget instanceof Address addr) {
             setTarget(addr);
             return List.of();
         } else {
-            Operand target = getAnnotation(node).getTarget();
+            Operand target = getAnnotation(node).getDefinition();
             if (target == null) {
                 target = new VirtualRegister();
                 setTarget(target);

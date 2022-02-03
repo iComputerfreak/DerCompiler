@@ -25,7 +25,7 @@ public class ArrayAccessRule extends AddRule {
 
 
     private Operand getArray() {
-        return getLeft().getTarget();
+        return getLeft().getDefinition();
     }
 
     private NodeAnnotation<Node> getIndex() {
@@ -48,7 +48,7 @@ public class ArrayAccessRule extends AddRule {
 
     private int getScale() {
         Mul offset = getOffset();
-        Operand target = getTypedAnnotation(offset.getLeft()).getTarget();
+        Operand target = getTypedAnnotation(offset.getLeft()).getDefinition();
         if (target instanceof ConstantValue scale) {
             return scale.getValue();
         }
@@ -59,36 +59,50 @@ public class ArrayAccessRule extends AddRule {
 
     @Override
     public List<Operation> substitute() {
-        Operand index = getIndex().getTarget();
+        Operand index = getIndex().getDefinition();
         Address target;
+
         // Load eff. address into vReg
-        VirtualRegister targetAddr = new VirtualRegister();
+        Operand targetAddr = getAnnotation(node).getDefinition();
+        if (targetAddr == null) {
+           targetAddr = new VirtualRegister();
+           setTarget(targetAddr);
+        }
 
         List<Operation> ops;
 
         if (getArray() == null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Node %s has no target yet, so better implement a basic rule for it.".formatted(getLeft().getRootNode().toString()));
         }
-        Address address = Address.ofOperand(getArray());
+        Address arrayAddr = Address.ofOperand(getArray());
+
+        // There is nowhere to save the relative address, so calculate it again
 
         ops = new LinkedList<>();
         if (index instanceof Register idxReg) {
             // index is already a register, so no operation needed
-            target = address.setIndex(idxReg, getScale());
+            target = arrayAddr.setIndex(idxReg, getScale());
         } else if (index instanceof ConstantValue c && c.getValue() == 0) {
             // Yay! We access the zeroth member.
-            target = address;
+            target = arrayAddr;
         } else {
             // Load effective address of index
-            VirtualRegister idxReg = new VirtualRegister();
-            target = address.setIndex(idxReg, getScale());
-            getIndex().setTarget(target);
-            ops.add(new Lea(idxReg, index));
+
+            // Hack: save index register in Mul node
+            Operand indexAddr = getAnnotation(getOffset()).getDefinition();
+            if (indexAddr == null) {
+                indexAddr = new VirtualRegister();
+                getAnnotation(getOffset()).setDefinition(indexAddr);
+            }
+
+            target = arrayAddr.setIndex(index, getScale());
+
+
         }
 
         ops.add(new Lea(targetAddr, target));
 
-        setTarget(target);
+
         return ops;
     }
 
@@ -108,6 +122,6 @@ public class ArrayAccessRule extends AddRule {
                 && Objects.equals(add.getMode(), Mode.getP())
                 && add.getLeft() instanceof Proj array
                 && add.getRight() instanceof Mul offset
-                && (offset.getLeft() instanceof Conv conv || getOffset().getLeft() instanceof Const constant);
+                && (offset.getLeft() instanceof Conv conv || offset.getLeft() instanceof Const constant);
     }
 }

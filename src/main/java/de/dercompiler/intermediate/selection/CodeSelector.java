@@ -199,7 +199,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                     NodeAnnotation<Phi> a = new NodeAnnotation<>(1, phi, new PhiRule(), !inRow, false);
                     VirtualRegister target = new VirtualRegister();
                     target.setPhiVariable(true);
-                    a.setTarget(target);
+                    a.setDefinition(target);
                     annotations.put(phi.getNr(), a);
 
                 }
@@ -211,15 +211,15 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         annotations.values().stream().filter(a -> a.getRule().needsJmpTarget()).forEach(a -> {
             String targetBlockId = jmpTargets.get(a.getRootNode());
             LabelOperand target = new LabelOperand(targetBlockId);
-            a.setTarget(target);
+            a.setDefinition(target);
 
             if (a.getRule() instanceof CondJmpRule) {
                 Proj projNode = (Proj) a.getRootNode();
                 Cond cond = (Cond) projNode.getPred(0);
-                CondTarget cndJmpTargets = (CondTarget) annotations.get(cond.getNr()).getTarget();
+                CondTarget cndJmpTargets = (CondTarget) annotations.get(cond.getNr()).getDefinition();
                 if (Objects.isNull(cndJmpTargets)) {
                     cndJmpTargets = new CondTarget();
-                    annotations.get(cond.getNr()).setTarget(cndJmpTargets);
+                    annotations.get(cond.getNr()).setDefinition(cndJmpTargets);
                 }
                 switch (projNode.getNum()) {
                     case 0 -> cndJmpTargets.setFalseTarget(target);

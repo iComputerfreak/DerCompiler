@@ -3,7 +3,6 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperations.Lea;
-import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.io.OutputMessageHandler;
@@ -29,7 +28,7 @@ public class ArrayAccessShlLRule extends AddRule {
 
 
     private Operand getArray() {
-        return getLeft().getTarget();
+        return getLeft().getDefinition();
     }
 
     private NodeAnnotation<Node> getIndex() {
@@ -52,7 +51,7 @@ public class ArrayAccessShlLRule extends AddRule {
 
     private int getScale() {
         Shl offset = getOffset();
-        Operand target = getTypedAnnotation(offset.getLeft()).getTarget();
+        Operand target = getTypedAnnotation(offset.getLeft()).getDefinition();
         if (target instanceof ConstantValue scale) {
             return 2 << scale.getValue();
         }
@@ -63,7 +62,9 @@ public class ArrayAccessShlLRule extends AddRule {
 
     @Override
     public List<Operation> substitute() {
-        Operand index = getIndex().getTarget();
+        if (true) throw new RuntimeException("If this rule is chosen, fix ArithmeticOptimization!");
+
+        Operand index = getIndex().getDefinition();
         Address target;
         List<Operation> ops = new LinkedList<>();
 
@@ -79,7 +80,7 @@ public class ArrayAccessShlLRule extends AddRule {
             // index needs to be moved to a register so that we can use it as the index register
             VirtualRegister idxReg = new VirtualRegister();
             target = address.setIndex(idxReg, getScale());
-            getIndex().setTarget(target);
+            getIndex().setDefinition(target);
             Lea lea = new Lea(idxReg, index);
             ops.add(lea);
         }

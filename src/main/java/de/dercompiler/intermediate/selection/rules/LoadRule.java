@@ -26,7 +26,7 @@ public class LoadRule extends SubstitutionRule<Load> {
 
     @Override
     public List<Operation> substitute() {
-        setTarget(getOperand().getTarget());
+        setTarget(getOperand().getDefinition());
         return List.of();
     }
 

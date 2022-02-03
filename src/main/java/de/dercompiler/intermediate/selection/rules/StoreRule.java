@@ -30,10 +30,10 @@ public class StoreRule extends SubstitutionRule<Store> {
 
     @Override
     public List<Operation> substitute() {
-        Operand targetReg = getAnnotation(getTarget()).getTarget();
+        Operand targetReg = getAnnotation(getTarget()).getDefinition();
         Operation mov = new Mov(
                 targetReg,
-                getAnnotation(getValue()).getTarget(), true
+                getAnnotation(getValue()).getDefinition(), true
         );
         setTarget(targetReg);
         setMode(getValue().getMode());

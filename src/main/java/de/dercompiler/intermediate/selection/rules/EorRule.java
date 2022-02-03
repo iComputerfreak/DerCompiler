@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Xor;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -32,7 +31,7 @@ public class EorRule extends SubstitutionRule<Eor> {
 
     @Override
     public List<Operation> substitute() {
-        Operation eor = new Xor(getLeft().getTarget(), getRight().getTarget());
+        Operation eor = new Xor(getLeft().getDefinition(), getRight().getDefinition());
         eor.setMode(node.getMode());
 
         setTarget(eor.getDefinition());

@@ -96,7 +96,7 @@ public abstract class SubstitutionRule<T extends Node> {
     }
 
     protected void setTarget(Operand target) {
-        getAnnotation(getRootNode()).setTarget(target);
+        getAnnotation(getRootNode()).setDefinition(target);
     }
 
     public boolean needsJmpTarget() {

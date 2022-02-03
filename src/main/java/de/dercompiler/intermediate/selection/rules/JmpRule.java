@@ -21,7 +21,7 @@ public class JmpRule extends SubstitutionRule<Jmp> {
 
     @Override
     public List<Operation> substitute() {
-        Operand target = getAnnotation(getRootNode()).getTarget();
+        Operand target = getAnnotation(getRootNode()).getDefinition();
         if (!Objects.isNull(target) && target instanceof LabelOperand lbl) {
             de.dercompiler.intermediate.operation.UnaryOperations.Jmp jmp = new de.dercompiler.intermediate.operation.UnaryOperations.Jmp(lbl);
             jmp.setMode(getRootNode().getMode());

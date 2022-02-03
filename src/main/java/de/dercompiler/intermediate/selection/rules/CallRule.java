@@ -1,9 +1,7 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operand.MethodReference;
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
@@ -35,7 +33,7 @@ public class CallRule extends SubstitutionRule<Call> {
                 getMethod(),
                 true,
                 getArgRegister());
-        Operand target = getAnnotation(node).getTarget();
+        Operand target = getAnnotation(node).getDefinition();
         call.setMode(getResultMode());
         if (call.getMode().type() == Datatype.NODATA) {
             call.setDefinition(null);
@@ -63,7 +61,7 @@ public class CallRule extends SubstitutionRule<Call> {
     }
 
     private Operand[] getArgRegister() {
-        return IntStream.range(2, getCall().getPredCount()).mapToObj(idx -> getAnnotation(getCall().getPred(idx)).getTarget()).toArray(Operand[]::new);
+        return IntStream.range(2, getCall().getPredCount()).mapToObj(idx -> getAnnotation(getCall().getPred(idx)).getDefinition()).toArray(Operand[]::new);
     }
 
     private MethodReference getMethod() {

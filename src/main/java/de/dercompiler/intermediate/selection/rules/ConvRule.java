@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Cltq;
@@ -28,7 +27,7 @@ public class ConvRule extends SubstitutionRule<Conv> {
     @Override
     public List<Operation> substitute() {
 
-        Operand op = getOperand().getTarget();
+        Operand op = getOperand().getDefinition();
         if (op == null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Node %s has no target yet, so better implement a basic rule for it.".formatted(getOperand().getRootNode().toString()));
         }
@@ -40,12 +39,12 @@ public class ConvRule extends SubstitutionRule<Conv> {
             Operation convOp;
             switch (oldType) {
                 case WORD -> {
-                    convOp = new Cwtl(getOperand().getTarget(), isMemoryOperation());
+                    convOp = new Cwtl(getOperand().getDefinition(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
                     oldType = Datatype.DWORD;
                 }
                 case DWORD -> {
-                    convOp = new Cltq(getOperand().getTarget(), isMemoryOperation());
+                    convOp = new Cltq(getOperand().getDefinition(), isMemoryOperation());
                     convOp.setMode(oldType, getRootNode().getMode().isSigned() ? Signedness.SIGNED : Signedness.UNSIGNED);
                     oldType = Datatype.QWORD;
                 }
@@ -54,7 +53,7 @@ public class ConvRule extends SubstitutionRule<Conv> {
                     throw new RuntimeException();
                 }
             }
-            convOp.setDefinition(getOperand().getTarget());
+            convOp.setDefinition(getOperand().getDefinition());
             /* ops.add(convOp);   TODO: Are conversions necessary? */
         }
 

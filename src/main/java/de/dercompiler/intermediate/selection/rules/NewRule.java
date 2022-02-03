@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -22,7 +21,7 @@ public class NewRule extends SubstitutionRule<Proj> {
 
     @Override
     public List<Operation> substitute() {
-        setTarget(getConstructorCall().getTarget());
+        setTarget(getConstructorCall().getDefinition());
         return List.of();
     }
 

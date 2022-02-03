@@ -30,7 +30,7 @@ public class AndRule extends SubstitutionRule<And> {
 
     @Override
     public List<Operation> substitute() {
-        Operation and = new de.dercompiler.intermediate.operation.BinaryOperations.And(getLeft().getTarget(), getRight().getTarget());
+        Operation and = new de.dercompiler.intermediate.operation.BinaryOperations.And(getLeft().getDefinition(), getRight().getDefinition());
         and.setMode(getRootNode().getMode());
         setTarget(and.getDefinition());
         return List.of(and);

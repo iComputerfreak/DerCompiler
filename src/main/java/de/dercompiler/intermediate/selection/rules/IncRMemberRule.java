@@ -16,7 +16,7 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
     }
 
     private Operand getTarget() {
-        return getAnnotation(getAdd().getLeft()).getTarget();
+        return getAnnotation(getAdd().getLeft()).getDefinition();
     }
 
     private Add getAdd() {

@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.Function;
-import de.dercompiler.ast.Parameter;
 import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
@@ -125,7 +124,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // save current parameters
         for (int i = 0; i < paramCount; i++) {
-           // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+            // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Push push = new Push(getParamReg(i));
             handleUnaryOperation(push);
             push.setComment(push.getComment() + " - save " + (i == 0 ? "this ptr" : "parameter register #" + i));
@@ -135,7 +134,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // write call parameters - arg[0] is method label
         for (int i = 1; i < args.length && i <= 6; i++) {
-           // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+            // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Operand param = getOperand(args[i], Datatype.QWORD, true, true);
             handleBinaryOperation(new Mov(getParamReg(i - 1), param, true));
 
@@ -152,7 +151,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // restore parameters
         for (int i = paramCount - 1; i >= 0; i--) {
-         //   if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
+            //   if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             Pop uop = new Pop(getParamReg(i));
             uop.setComment("restore " + (i == 0 ? "this ptr" : ("parameter register #" + i)));
             handleUnaryOperation(uop);
@@ -252,11 +251,24 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (bo.needsDefinition()) {
                 // load target value into destination location
                 VirtualRegister targetVR = (VirtualRegister) bo.getDefinition();
-                Address stackLocation = storeInVirtualRegister(targetVR.getId(), getOperand(operands[0], bo.getDatatype(), true, true));
+                Address stackLocation = storeInVirtualRegister(targetVR.getId(), opTgt);
                 destReg = isTopStack(stackLocation) ? getTopStack() : stackLocation;
             } else {
                 if (bo instanceof Cmp cmp && operands[0] instanceof ConstantValue c1 && operands[1] instanceof ConstantValue c2) {
                     /* TODO Cmp instructions with two constants are not allowed. If optimization is active, we can just omit this instruction. */
+                    if (function.getOperations().get(bo.getIndex()+1) instanceof Jmp) {
+                        // No cmp necessary, jump is already determined.
+                        return;
+                    } else {
+                        bo = switch (Integer.compare(c1.getValue(), c2.getValue())) {
+                            case -1 -> bo.allocate(new ConstantValue(0), X86Register.RSP);
+                            case 0  -> bo.allocate(X86Register.RSP, X86Register.RSP);
+                            default -> bo.allocate(X86Register.RSP, new ConstantValue(0));
+                        };
+                        bo.addComment("dummy cmp to replace cmp /w two constants");
+                        ops.add(bo);
+                        return;
+                    }
                 }
                 // target register will not be overwritten (cmp, jmp). mov and lea are handled above, they too do not need definitions.
                 // -> no need to save target register
@@ -539,11 +551,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     //TODO Where to use?
     private Address storeInVirtualRegister(int id, Operand value) {
-         vrMap.computeIfAbsent(id, id_ -> {
+        vrMap.computeIfAbsent(id, id_ -> {
             handleUnaryOperation(new Push(value));
             return getLocalVar(varCount - 1);
         });
-         return loadVirtualRegister(id);
+        return loadVirtualRegister(id);
     }
 
     private Operand getTopStack() {

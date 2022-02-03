@@ -32,9 +32,9 @@ public class MulRule extends SubstitutionRule<Mul> {
 
     @Override
     public List<Operation> substitute() {
-        Operation mul = new IMul(getLeft().getTarget(), getRight().getTarget());
+        Operation mul = new IMul(getLeft().getDefinition(), getRight().getDefinition());
         mul.setMode(getRootNode().getMode());
-        Operand target = getAnnotation(node).getTarget();
+        Operand target = getAnnotation(node).getDefinition();
         if (target != null) {mul.setDefinition(target);} else {
             setTarget(mul.getDefinition());
         }

@@ -1,7 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.VirtualRegister;
 import firm.nodes.Node;
 
 /**
@@ -72,7 +71,7 @@ public class NodeAnnotation<T extends Node> {
     /**
      * Returns the target operand (e.g. register, virtual register, ...) of this node
      */
-    public Operand getTarget() {
+    public Operand getDefinition() {
         return target;
     }
 
@@ -81,7 +80,7 @@ public class NodeAnnotation<T extends Node> {
      *
      * @param target The operand
      */
-    public void setTarget(Operand target) {
+    public void setDefinition(Operand target) {
         this.target = target;
     }
 

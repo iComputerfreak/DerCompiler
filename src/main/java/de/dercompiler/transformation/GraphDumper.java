@@ -118,7 +118,7 @@ public class GraphDumper {
                 v.getRootNode().toString() +
                 "\n-----\n" +
                 opStrings
-                + (v.getTarget() != null ? "\n ==> " + v.getTarget() : "");
+                + (v.getDefinition() != null ? "\n ==> " + v.getDefinition() : "");
 
         return Map.of(
                 "label", DefaultAttribute.createAttribute(label),
