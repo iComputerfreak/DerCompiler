@@ -329,6 +329,14 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
             if (bo instanceof Cmp cmp && destReg == null) {
                 destReg = opTgt;
+
+                //der rechte Operand in der Atnt syntax darf kein constantvalue sein
+                if (destReg instanceof ConstantValue cv){
+                    X86Register register = allocateRegister();
+                    ops.add(new Mov(register, cv));
+                    destReg = register;
+                    freeRegister(register);
+                }
             }
 
             // add operation code
