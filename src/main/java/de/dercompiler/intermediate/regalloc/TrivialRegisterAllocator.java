@@ -28,6 +28,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private final OutputMessageHandler outputMessageHandler = new OutputMessageHandler(MessageOrigin.CODE_GENERATION);
 
+    private final MemoryManager manager;
+
     /**
      * Number of entries on the stack.
      */
@@ -50,7 +52,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     private int tempRegister = 0;
 
     public TrivialRegisterAllocator(MemoryManager manager, CallingConvention callingConvention) {
-        super(manager, callingConvention);
+        super(callingConvention);
+        this.manager = manager;
         manager.setRegisterMgmt(this);
         manager.setCallingConvention(callingConvention);
         parameterRegister = callingConvention.getArgumentRegisters();
@@ -144,8 +147,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         }
         freeScratchRegisters = list;
     }
-
-    @Override
+    
     public int getVarCount() {
         return varCount;
     }

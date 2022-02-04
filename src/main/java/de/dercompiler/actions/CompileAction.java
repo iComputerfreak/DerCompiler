@@ -6,6 +6,7 @@ import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.generation.AtntCodeGenerator;
 import de.dercompiler.intermediate.generation.CodeGenerator;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
+import de.dercompiler.intermediate.memory.SimpleMemoryManager;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
@@ -13,6 +14,8 @@ import de.dercompiler.intermediate.regalloc.LifetimeOptimizedRegisterAllocator;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
 import de.dercompiler.intermediate.regalloc.calling.AMDSystemVCallingConvention;
+import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
+import de.dercompiler.intermediate.regalloc.calling.MicrosoftX86CallingConvention;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
 import de.dercompiler.intermediate.selection.FirmBlock;
@@ -32,6 +35,7 @@ import de.dercompiler.parser.Parser;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.PassManagerBuilder;
 import de.dercompiler.transformation.GraphDumper;
+import de.dercompiler.transformation.TargetTriple;
 import de.dercompiler.util.ErrorStatus;
 import firm.Graph;
 
@@ -74,13 +78,19 @@ public class CompileAction extends Action {
         ErrorStatus.exitProgramIfError();
 
         //Step 3: Code Selection
+        CallingConvention convention;
+        if (TargetTriple.isWindows()) {
+          convention = new MicrosoftX86CallingConvention();
+        } else {
+            convention = new AMDSystemVCallingConvention();
+        }
 
 
         List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
         MyBlockSorter sorter = new MyBlockSorter();
         RegisterAllocator allocator = optimizationActive ?
-                new LifetimeOptimizedRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention()) :
-                new TrivialRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention());
+                new LifetimeOptimizedRegisterAllocator(convention) :
+                new TrivialRegisterAllocator(new BasicMemoryManager(), convention);
         for (Function function : program.getFunctions()) {
             VirtualRegister.resetNextID();
             Graph graph = function.getFirmGraph();

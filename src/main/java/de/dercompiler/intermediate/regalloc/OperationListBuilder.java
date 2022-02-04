@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.regalloc;
 
+import de.dercompiler.intermediate.operation.Leave;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.io.OutputMessageHandler;
@@ -78,7 +79,7 @@ public class OperationListBuilder {
         while (it.hasNext()) {
             Operation op = it.next();
             //TODO change to Leave (currently not implemented)
-            if (op instanceof Ret) {
+            if (op instanceof Leave) {
                 append(result, stackToRegister);
             }
             result.addLast(op);

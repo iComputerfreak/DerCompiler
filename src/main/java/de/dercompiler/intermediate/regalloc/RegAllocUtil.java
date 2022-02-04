@@ -1,15 +1,16 @@
 package de.dercompiler.intermediate.regalloc;
 
-import de.dercompiler.intermediate.operand.Address;
-import de.dercompiler.intermediate.operand.IRRegister;
-import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.X86Register;
+import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.BinaryOperations.Sub;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.operation.UnaryOperations.Push;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionShard;
 import de.dercompiler.intermediate.regalloc.analysis.VariableLifetimeTable;
+import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.regalloc.location.StackLocation;
 
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -51,11 +52,29 @@ public class RegAllocUtil {
         return new Mov(to, from);
     }
 
-    public IRRegister findBestSpillRegister(IRRegister needed, FunctionShard shard, VariableLifetimeTable vlt) {
+    public static IRRegister findBestSpillRegister(IRRegister needed, FunctionShard shard, VariableLifetimeTable vlt) {
         int startNeeded = vlt.getDefinition(needed);
         int endNeeded = vlt.getLastUsage(needed);
 
         //TODO implement
         return null;
+    }
+
+    public static EnumSet<X86Register> findMoveRegisters(EnumSet<X86Register> used, CallingConvention convention) {
+        EnumSet<X86Register> move = EnumSet.noneOf(X86Register.class);
+        for (X86Register reg : convention.getSaveRegisters()) {
+            if (used.contains(reg)) {
+                move.add(reg);
+            }
+        }
+        return move;
+    }
+
+    public static LinkedList<Operation> createFunctionHead(int stackSize) {
+        LinkedList<Operation> head = new LinkedList<>();
+        head.addLast(new Push(X86Register.RBP));
+        head.addLast(new Mov(X86Register.RBP, X86Register.RSP));
+        head.addLast(new Sub(new ConstantValue(stackSize), X86Register.RSP));
+        return head;
     }
 }

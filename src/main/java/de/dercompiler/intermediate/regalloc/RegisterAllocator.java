@@ -7,15 +7,11 @@ import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 
 public abstract class RegisterAllocator {
 
-    protected final MemoryManager manager;
     protected final CallingConvention callingConvention;
 
-    public RegisterAllocator(MemoryManager manager, CallingConvention callingConvention) {
-        this.manager = manager;
+    public RegisterAllocator(CallingConvention callingConvention) {
         this.callingConvention = callingConvention;
     }
 
     public abstract void allocateRegisters(Function function);
-
-    public abstract int getVarCount();
 }

@@ -74,7 +74,7 @@ public class OptimizedCompileAction extends Action {
 
         List<GraphOptimization> opts = List.of(new ArithmeticOptimization(), new PhiOptimization());
         MyBlockSorter sorter = new MyBlockSorter();
-        RegisterAllocator allocator = new LifetimeOptimizedRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention());
+        RegisterAllocator allocator = new LifetimeOptimizedRegisterAllocator(new AMDSystemVCallingConvention());
         for (Function function : program.getFunctions()) {
             firm.Graph graph = function.getFirmGraph();
             if (basicOptimizationsActive) {

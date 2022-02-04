@@ -12,17 +12,13 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionShard;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
 import de.dercompiler.intermediate.regalloc.analysis.ShardLocationChanges;
-import de.dercompiler.intermediate.regalloc.analysis.VariableLifetimeTable;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.regalloc.location.Location;
 import de.dercompiler.intermediate.regalloc.location.StackLocation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
-import java.util.List;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class IRLocationOrganizer {
 
@@ -76,7 +72,7 @@ public class IRLocationOrganizer {
 
         //2. set to next shard
         shardID++;
-        context.spillRegisters().addAll(slc.getPossibleSpillRegisters());
+        context.usedRegisters().addAll(slc.getPossibleSpillRegisters());
         slc.apply(locationMap);
         shard = fsv.getShard(shardID);
         slc = new ShardLocationChanges(shard.getStart(), shard.getNumOperations(), locationMap, context);
@@ -106,7 +102,7 @@ public class IRLocationOrganizer {
         if (register instanceof ParameterRegister pr && pr.getId() >= convention.getNumberOfArgumentsRegisters()) {
             Location loc = stack.getArgumentLocation(pr);
             if (loc instanceof StackLocation location) {
-                return new AccessOperations(List.of(new Mov(realRegister, location.address())), AccessOperations.AccessTiming.END_OF_SHARD);
+                return new AccessOperations(new LinkedList<>(List.of(new Mov(realRegister, location.address()))), AccessOperations.AccessTiming.END_OF_SHARD);
             } else {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Invalid Location for StackParameter!");
                 return null; //we never return

@@ -2,13 +2,16 @@ package de.dercompiler.intermediate.regalloc;
 
 import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
+import de.dercompiler.intermediate.memory.SimpleMemoryManager;
+import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.analysis.*;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
+import de.dercompiler.intermediate.regalloc.location.Location;
+import de.dercompiler.intermediate.regalloc.location.StackLocation;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,11 +22,13 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
     private final FunctionDensityOptimizer fdo;
     private static final int EXCEED_NUMBER_OF_SPILL_REGISTERS = 2;
     private static final int NUM_SHARDS_TO_USE_SAVE_REGISTERS = 5;
+    private SimpleMemoryManager manager;
 
-    public LifetimeOptimizedRegisterAllocator(MemoryManager manager, CallingConvention convention) {
-        super(manager, convention);
+    public LifetimeOptimizedRegisterAllocator(CallingConvention convention) {
+        super(convention);
         la = new LifetimeAnalysis(convention.getNumberOfArgumentsRegisters());
         fdo = new FunctionDensityOptimizer();
+        manager = new SimpleMemoryManager(convention);
     }
 
     public RegisterAllocationContext createContext(Function func) {
@@ -56,7 +61,6 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
             paramRegs[i] = new ParameterRegister(i);
         }
         IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, paramRegs, context.splitview(),context);
-
         OperationListBuilder olb = new OperationListBuilder();
 
         do {
@@ -72,11 +76,23 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
             olb.finishShard();
         } while(irloc.nextSection());
 
-        List<Operation> ops = olb.finalizeFunction();
-    }
+        LinkedList<Operation> rToS = new LinkedList<>();
+        LinkedList<Operation> sToR = new LinkedList<>();
 
-    @Override
-    public int getVarCount() {
-        return 0;
+        EnumSet<X86Register> moveRegisters = RegAllocUtil.findMoveRegisters(context.usedRegisters(), callingConvention);
+        for (X86Register reg : moveRegisters) {
+            int num = manager.getNextStackLocation();
+            Address loc = manager.getStackLocation(num);
+            rToS.addLast(RegAllocUtil.createMoveFromRegisterToStack(new StackLocation(null, loc), reg));
+            sToR.addFirst(RegAllocUtil.createMoveFromStackToRegister(reg, new StackLocation(null, loc)));
+        }
+
+        int stacksize = manager.getStackSize();
+        List<Operation> ops = olb.finalizeFunction(
+            RegAllocUtil.createFunctionHead(stacksize),
+            rToS,
+            sToR
+        );
+        function.setOperations(ops);
     }
 }
