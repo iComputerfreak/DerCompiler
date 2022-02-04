@@ -57,7 +57,7 @@ public enum OperationType {
     CWTL("CWTL"),
     CLTQ("CLTQ"),
     CQTO("CQTO"),
-    ;
+    LEAVE("LEAVE");
 
     private final String syntax;
     private final boolean appendDatatype;
