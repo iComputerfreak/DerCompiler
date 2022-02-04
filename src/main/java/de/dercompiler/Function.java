@@ -1,9 +1,7 @@
 package de.dercompiler;
 
-import de.dercompiler.ast.MainMethod;
 import de.dercompiler.ast.Method;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.selection.Datatype;
 import firm.Graph;
 
 import java.util.*;
@@ -16,6 +14,7 @@ public class Function {
     private int opCount;
 
     private final Graph graph;
+    private int vrCount;
 
     public Function(Graph graph, Method method) {
         this.operations = null;
@@ -36,7 +35,7 @@ public class Function {
     public String getName() { return graph.getEntity().getName(); }
 
     public int getNumVirtualRegisters() {
-        return opCount;
+        return vrCount;
     }
 
     public int getParamCount() {
@@ -50,6 +49,10 @@ public class Function {
 
     public boolean isStatic() {
         return method.isStatic();
+    }
+
+    public void setVrCount(int vrCount) {
+        this.vrCount = vrCount;
     }
 
 }
