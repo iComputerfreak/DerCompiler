@@ -147,7 +147,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         }
         freeScratchRegisters = list;
     }
-    
+
     public int getVarCount() {
         return varCount;
     }

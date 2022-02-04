@@ -86,7 +86,7 @@ public class ShardLocationChanges {
         }
         Location loc = states.get(effectiveOpNum).findLocation(irr);
         if(loc instanceof StackLocation sl) {
-            return new AccessOperations(List.of(RegAllocUtil.createMoveFromStackToRegister(rr, sl)), AccessOperations.AccessTiming.END_OF_SHARD);
+            return new AccessOperations(new LinkedList<>(List.of(RegAllocUtil.createMoveFromStackToRegister(rr, sl))), AccessOperations.AccessTiming.END_OF_SHARD);
         } else if (loc instanceof RegisterLocation rl) {
             if (context.vlt().getLastUsage(rl.irr()) <= OFFSET + NUM_OPERATIONS) {
                 freeRegister(rl.irr(), opNum + 1);
@@ -94,7 +94,7 @@ public class ShardLocationChanges {
             } else {
                 allocRegister(new RegisterLocation(rl.irr(), rr), opNum + 1, end);
             }
-            return new AccessOperations(List.of(RegAllocUtil.createMoveFromRegisterToRegister(rr, rl.rr())), AccessOperations.AccessTiming.AT_TIME);
+            return new AccessOperations(new LinkedList<>(List.of(RegAllocUtil.createMoveFromRegisterToRegister(rr, rl.rr()))), AccessOperations.AccessTiming.AT_TIME);
         } else {
             //new
             if (context.vlt().getLastUsage(irr) <= OFFSET + NUM_OPERATIONS) {
