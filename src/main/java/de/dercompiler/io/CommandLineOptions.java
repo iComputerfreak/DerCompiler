@@ -129,7 +129,7 @@ public class CommandLineOptions {
     }
 
     public boolean optimizationsActive() {
-        return cmd.hasOption(OPTION_OPTIMIZATION_ON) || !cmd.hasOption(OPTION_OPTIMIZATION_OFF);
+        return cmd.hasOption(OPTION_OPTIMIZATION_ON); //&& !cmd.hasOption(OPTION_OPTIMIZATION_OFF);
     }
 
     public String getOptionArgument(String optionName) {

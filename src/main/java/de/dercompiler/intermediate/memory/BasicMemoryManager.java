@@ -46,12 +46,6 @@ public class BasicMemoryManager implements MemoryManager {
     }
 
     /**
-     * Pointer to the lowest entry of the current stack.
-     * Also serves as variable counter: -offset = #vars.
-     */
-    private Address stackPointer;
-
-    /**
      *  Maps node ids to the offset in the variable stack
      */
     private Map<Operand, Integer> variables;
@@ -157,5 +151,11 @@ public class BasicMemoryManager implements MemoryManager {
     @Override
     public int getStackSize() {
         return stackSize;
+    }
+
+    @Override
+    public void reset() {
+        this.stackSize = 0;
+        variables = new HashMap<>();
     }
 }

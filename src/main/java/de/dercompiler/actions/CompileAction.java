@@ -6,6 +6,7 @@ import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.generation.AtntCodeGenerator;
 import de.dercompiler.intermediate.generation.CodeGenerator;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
+import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
 import de.dercompiler.intermediate.regalloc.LifetimeOptimizedRegisterAllocator;
@@ -81,6 +82,7 @@ public class CompileAction extends Action {
                 new LifetimeOptimizedRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention()) :
                 new TrivialRegisterAllocator(new BasicMemoryManager(), new AMDSystemVCallingConvention());
         for (Function function : program.getFunctions()) {
+            VirtualRegister.resetNextID();
             Graph graph = function.getFirmGraph();
             if (basicOptimizationsActive) {
                 opts.forEach(opt -> opt.runOnGraph(graph));
@@ -97,7 +99,7 @@ public class CompileAction extends Action {
             // with flatMap, firmBlocks went missing - strange.
             List<Operation> operations = firmBlocks.stream().flatMap((FirmBlock firmBlock) -> firmBlock.getOperations().stream()).toList();
             function.setOperations(operations);
-
+            function.setVrCount(VirtualRegister.getNextID());
             allocator.allocateRegisters(function);
         }
 

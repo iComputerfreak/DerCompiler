@@ -38,7 +38,11 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
     public List<Operation> substitute() {
         Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
-        setDefinition(inc.getDefinition());
+        if (getDefinition() == null) {
+            setDefinition(inc.getDefinition());
+        } else {
+            inc.setDefinition(getDefinition());
+        }
         return List.of(inc);
     }
 
@@ -49,7 +53,8 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
     }
 
     private Load getLoad() {
-        return getProj().getPred() instanceof Load load ? load : null;
+        if (getProj().getPred() instanceof Load load) return load;
+        throw new RuntimeException();
     }
 
 
