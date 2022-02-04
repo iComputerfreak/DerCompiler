@@ -64,10 +64,6 @@ public class ArrayAccessRule extends AddRule {
 
         // Load eff. address into vReg
         Operand targetAddr = getDefinition();
-        if (targetAddr == null) {
-           targetAddr = new VirtualRegister();
-           setDefinition(targetAddr);
-        }
 
         List<Operation> ops;
 
@@ -91,13 +87,21 @@ public class ArrayAccessRule extends AddRule {
             // Hack: save index register in Mul node
             Operand indexAddr = getAnnotation(getOffset()).getDefinition();
             if (indexAddr == null) {
-                indexAddr = new VirtualRegister();
+                indexAddr = getIndex().getDefinition();
                 getAnnotation(getOffset()).setDefinition(indexAddr);
             }
 
             target = arrayAddr.setIndex(index, getScale());
 
 
+        }
+
+        if (targetAddr == null) {
+            targetAddr = new VirtualRegister();
+            setDefinition(Address.ofOperand(targetAddr));
+        } else {
+            // Undo indirection
+            targetAddr = ((Address) targetAddr).getBase();
         }
 
         ops.add(new Lea(targetAddr, target));

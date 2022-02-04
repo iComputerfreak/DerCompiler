@@ -13,6 +13,7 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.GraphUtil;
 import firm.BlockWalker;
+import firm.Mode;
 import firm.nodes.*;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -48,6 +49,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
     private final HashMap<String, FirmBlock> firmBlocks = new HashMap<>();
     private final Map<Node, String> jmpTargets = new HashMap<>();
     private int nextIntermediateID = -1;
+    private Node memSuccessor;
 
     /**
      * Creates a new CodeSelector with the given Graph and SubstitutionRules
@@ -402,7 +404,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         for (Node n : rule.getRequiredNodes(graph)) {
             assert annotations.containsKey(n.getNr());
             annotations.get(n.getNr()).setVisited(true);
-
+            firm.Mode mode = n.getMode();
+            if (mode.equals(firm.Mode.getM()) || mode.equals(firm.Mode.getT())) {
+                annotations.get(n.getNr()).clearRule();
+            }
         }
 
         // Initialize targets
@@ -416,7 +421,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         }
         for (Node pred : a.getRootNode().getPreds()) {
             if (a.getRootNode() instanceof Phi && a.getRootNode().getNr() < pred.getNr() && a.getRootNode().getBlock().equals(pred.getBlock())) {
-                System.out.printf("Achtung Gefahr: %s liegt auf einem in-Block-Zyklus!%n", a.getRootNode());
+                logger.printInfo("Attention: %s is part of an intra-block cycle!%n".formatted(a.getRootNode()));
                 continue;
             }
             addDependency(a, pred);
@@ -495,12 +500,16 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             // If we have a predecessor that we did not transform yet, do it now, recursively
             if (!codeGraphLookup.containsKey(predNr)) {
                 // node gets handled elsewhere and gets no own code
-                boolean visited = annotations.get(predNr).getVisited();
+                boolean visited = p.getVisited();
                 if (!visited) {
-                    //System.out.print("->");
-                    transformAnnotation(annotations.get(predNr));
+                    transformAnnotation(p);
+                } else if (p.getRootNode().getMode().equals(firm.Mode.getM()) || p.getRootNode().getMode().equals(firm.Mode.getT())) {
+                    // M nodes need to be traversed either way
+                    transformAnnotation(p);
+                    if (!(a.getRule() instanceof EmptyRule<T>))
+                        codeGraph.addEdge(codeGraphLookup.get(memSuccessor.getNr()), codeNode);
                 }
-                int actualCmp = annotations.get(predNr).getComponent();
+                int actualCmp = p.getComponent();
                 codeNode.setComponent(actualCmp);
                 a.setComponent(actualCmp);
                 if (visited) continue;
@@ -515,9 +524,17 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         a.setTransformed(true);
         rule.setNode(rootNode);
         for (Node n : rule.getRequiredNodes(graph)) {
+            // M-Nodes must be traversed either way.
+            if (n.getMode().equals(firm.Mode.getM())) {
+                continue;
+            }
             annotations.get(n.getNr()).setTransformed(true);
         }
         rule.clear();
+
+        firm.Mode mode = a.getRootNode().getMode();
+        if ((mode.equals(firm.Mode.getM()) || mode.equals(firm.Mode.getT()))  && !(a.getRule() instanceof EmptyRule<T>))
+            memSuccessor = a.getRootNode();
     }
 
     /**
