@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.Address;
+import de.dercompiler.intermediate.operand.IRRegister;
 import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
@@ -41,14 +42,14 @@ public class SimpleMemoryManager {
             return new RegisterLocation(pr, convention.getArgumentRegister(pr.getId()));
         }
         int numStackArgument = pr.getId() - convention.getNumberOfArgumentsRegisters() + 2;
-        return new StackLocation(new Address(numStackArgument * STACK_ALIGNMENT, X86Register.RBP));
+        return new StackLocation(pr, new Address(numStackArgument * STACK_ALIGNMENT, X86Register.RBP));
     }
 
-    public Location getStackLocation(int numStackEntry) {
+    public Address getStackLocation(int numStackEntry) {
         if (numStackEntry < 0) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("invalid StackEntry for Local Variable: " + numStackEntry);
         }
-        return new StackLocation(new Address(-(numStackEntry + 1) * STACK_ALIGNMENT, X86Register.RBP));
+        return new Address(-(numStackEntry + 1) * STACK_ALIGNMENT, X86Register.RBP);
     }
 
     public int getNextStackLocation() {

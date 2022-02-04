@@ -7,6 +7,7 @@ import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionShard;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
@@ -75,6 +76,7 @@ public class IRLocationOrganizer {
 
         //2. set to next shard
         shardID++;
+        context.spillRegisters().addAll(slc.getPossibleSpillRegisters());
         slc.apply(locationMap);
         shard = fsv.getShard(shardID);
         slc = new ShardLocationChanges(shard.getStart(), shard.getNumOperations(), locationMap, context);
@@ -83,7 +85,16 @@ public class IRLocationOrganizer {
         return true;
     }
 
+    public FunctionShard getShard() {
+        return shard;
+    }
+
     public AccessOperations makeAvailable(Operation op) {
+
+        if (op instanceof Call call) {
+
+        }
+
         List<IRRegister> needed = RegAllocUtil.collectIRRegisters(op.getArgs());
 
 

@@ -62,9 +62,23 @@ public class FunctionSplitView  {
 
     public FunctionShard getShard(int idx) {
         if (idx < 0 || idx >= shards.size()) {
-            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Shard is non existens ony allowed 0 <= index < " + shards.size() + "!" );
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Shard is non existens only allowed in [0, " + shards.size() + "]!" );
         }
         return shards.get(idx);
+    }
+
+    public FunctionShard getShardOfOperation(int opNum) {
+        if (opNum < 0 || opNum >= func.getOperations().size()) {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Operation Number is out of bounds,only allowed in [0, " + func.getOperations().size() + "]!");
+            return null; //we never return
+        }
+        for (FunctionShard shard : shards) {
+            if (shard.getStart() <= opNum && opNum <= shard.getEnd()) {
+                return shard;
+            }
+        }
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Operation Number is out of bounds,only allowed in [0, " + func.getOperations().size() + "]!");
+        return null; //we never return
     }
 
     public void print() {

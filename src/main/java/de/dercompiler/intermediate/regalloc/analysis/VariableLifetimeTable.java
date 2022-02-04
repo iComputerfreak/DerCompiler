@@ -165,19 +165,17 @@ public class VariableLifetimeTable {
 
     public int getLastUsage(IRRegister irr) {
         if (irr instanceof VirtualRegister vr) {
-            return getLastUsage(vr.getId(), false);
+            return getLastUsage(vr.getId());
         } else if (irr instanceof ParameterRegister pr) {
-            return getLastUsage(pr.getId(), true);
+            return getLastUsage(pr.getId() + CALL_ABI_NUM_ARGUMENTS);
         } else {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Irr is not VirtualRegister or ParameterRegister! It is: " + irr.getClass().getName());
             return 0; //we never return
         }
     }
 
-    private int getLastUsage(int id, boolean parameter) {
-        int effectiveID = id;
-        if (!parameter) effectiveID += CALL_ABI_NUM_ARGUMENTS;
-        return rlt[effectiveID].max;
+    private int getLastUsage(int id) {
+        return rlt[id].max;
     }
 
     public int getNumRegistersMaximallyActive() {

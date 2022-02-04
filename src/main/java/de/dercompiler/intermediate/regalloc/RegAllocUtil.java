@@ -6,6 +6,8 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.regalloc.analysis.FunctionShard;
+import de.dercompiler.intermediate.regalloc.analysis.VariableLifetimeTable;
 import de.dercompiler.intermediate.regalloc.location.StackLocation;
 
 import java.util.LinkedList;
@@ -47,5 +49,13 @@ public class RegAllocUtil {
 
     public static Operation createMoveFromRegisterToRegister(X86Register to, X86Register from) {
         return new Mov(to, from);
+    }
+
+    public IRRegister findBestSpillRegister(IRRegister needed, FunctionShard shard, VariableLifetimeTable vlt) {
+        int startNeeded = vlt.getDefinition(needed);
+        int endNeeded = vlt.getLastUsage(needed);
+
+        //TODO implement
+        return null;
     }
 }

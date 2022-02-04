@@ -28,8 +28,13 @@ public class Function {
         IntStream.range(0, opCount).forEach(i -> ops.get(i).setIndex(i));
         operations = new LinkedList<>(ops);
     }
+
     public LinkedList<Operation> getOperations() {
         return operations;
+    }
+
+    public Operation getOperation(int index) {
+        return operations.get(index);
     }
 
     public String getName() { return graph.getEntity().getName(); }
