@@ -321,6 +321,13 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
             if (bo instanceof Cmp cmp && destReg == null) {
                 destReg = opTgt;
+
+                //der rechte Operand in der Atnt syntax darf kein constantvalue sein
+                if (cmp.getTarget() instanceof ConstantValue){
+                    Operand temp = destReg;
+                    destReg = srcReg;
+                    srcReg = temp;
+                }
             }
 
             // add operation code
