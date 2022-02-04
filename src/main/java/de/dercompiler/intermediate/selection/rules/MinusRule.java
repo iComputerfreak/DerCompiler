@@ -14,22 +14,26 @@ public class MinusRule extends SubstitutionRule<Minus> {
 
     @Override
     public int getCost() {
-        return 1 + getOperator().getCost();
+        return 1 + getOperand().getCost();
     }
 
     private Minus getMinus() {
         return getRootNode();
     }
     
-    private NodeAnnotation<Node> getOperator() {
+    private NodeAnnotation<Node> getOperand() {
         return getTypedAnnotation(getMinus().getOp());
     }
 
     @Override
     public List<Operation> substitute() {
-        Operation minus = new Neg(getOperator().getDefinition(), isMemoryOperation());
-        minus.setMode(getOperator().getRootNode().getMode());
-        setDefinition(minus.getDefinition());
+        Operation minus = new Neg(getOperand().getDefinition(), isMemoryOperation());
+        minus.setMode(getOperand().getRootNode().getMode());
+        if (hasDefinition()) {
+            setDefinition(minus.getDefinition());
+        } else {
+            minus.setDefinition(getDefinition());
+        }
         return List.of(minus);
     }
 

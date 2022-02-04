@@ -108,9 +108,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (op instanceof JumpOperation jo) {
                 ops.add(jo);
             } else if (op instanceof UnaryArithmeticOperation uao) {
-                Operand operand = uao.getArgs()[0];
-                Operand operandAddr = getOperand(operand, uao.getMode(), true);
-                ops.add(uao.allocate(operandAddr));
+                handleUnaryArithmeticOperation(op, uao);
             } else {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("Could not handle  " + op.toString());
             }
@@ -125,6 +123,16 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         ops.addAll(0, setupOps);
         function.setOperations(ops);
+    }
+
+    private void handleUnaryArithmeticOperation(Operation op, UnaryArithmeticOperation uao) {
+        Operand operand = uao.getArgs()[0];
+        Operand operandAddr = getOperand(operand, uao.getMode(), !op.needsDefinition());
+        ops.add(uao.allocate(operandAddr));
+        // write back
+        if (op.needsDefinition()) {
+            storeInVirtualRegister(((VirtualRegister) op.getDefinition()).getId(), operandAddr, op.getMode(), false);
+        }
     }
 
     private void resetScratchRegisters(int paramCount) {

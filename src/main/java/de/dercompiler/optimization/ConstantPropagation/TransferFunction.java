@@ -48,6 +48,16 @@ public class TransferFunction implements ITransferFunction {
         return null;
     }
 
+    private TargetValue checkUnaryOp(TargetValue inner) {
+        if (inner.equals(UNKNOWN)) {
+            return UNKNOWN;
+        }
+        if (inner.equals(BAD)) {
+            return BAD;
+        }
+        return null;
+    }
+
     private boolean areEqual(Node n1, TargetValue t2) {
         return areEqual(getInternal(n1), t2);
     }
@@ -187,7 +197,8 @@ public class TransferFunction implements ITransferFunction {
 
     @Override
     public TargetValue getTargetValue(Minus node) {
-        return getInternal(node.getPred(0)).neg();
+        TargetValue inner = getInternal(node.getPred(0));
+        return checkUnaryOp(inner) == null ? inner.neg() : inner;
     }
 
     @Override
@@ -242,7 +253,8 @@ public class TransferFunction implements ITransferFunction {
 
     @Override
     public TargetValue getTargetValue(Not node) {
-        return getInternal(node.getPred(1)).not();
+        TargetValue inner = getInternal(node.getPred(0));
+        return checkUnaryOp(inner) == null ? inner.not() : inner;
     }
 
     @Override
