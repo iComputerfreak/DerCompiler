@@ -29,7 +29,6 @@ public class IRLocationOrganizer {
     private final BasicRegisterManager registers;
     private final CallingConvention convention;
     private final Map<IRRegister, Location> locationMap;
-    private final VariableLifetimeTable vlt;
     private final FunctionSplitView fsv;
     private int shardID;
     private FunctionShard shard;
@@ -48,7 +47,7 @@ public class IRLocationOrganizer {
         }
         shardID = 0;
         shard = fsv.getShard(0);
-        rsc = new ShardLocationChanges(shard.getStart(), shard.getNumOperations(), locationMap, context);
+        slc = new ShardLocationChanges(shard.getStart(), shard.getNumOperations(), locationMap, context);
         this.context = context;
     }
 
@@ -103,7 +102,7 @@ public class IRLocationOrganizer {
             }
         }
         //handle Everything else
-        int opNum = vlt.getDefinition(register);
+        int opNum = context.vlt().getDefinition(register);
         return slc.bindRegister(opNum, register, realRegister);
     }
 

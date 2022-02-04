@@ -38,7 +38,7 @@ public class SimpleMemoryManager {
 
     public Location getArgumentLocation(ParameterRegister pr) {
         if (pr.getId() < convention.getNumberOfArgumentsRegisters()) {
-            return new RegisterLocation(pr);
+            return new RegisterLocation(pr, convention.getArgumentRegister(pr.getId()));
         }
         int numStackArgument = pr.getId() - convention.getNumberOfArgumentsRegisters() + 2;
         return new StackLocation(new Address(numStackArgument * STACK_ALIGNMENT, X86Register.RBP));
