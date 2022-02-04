@@ -18,9 +18,6 @@ public class FunctionSplitView  {
 
     public FunctionSplitView(Function func) {
         int start = func.getOperations().getFirst().getIndex();
-
-        start--; //we remove index by -1, because of boundChecks
-
         int end = func.getOperations().getLast().getIndex();
         shards = new LinkedList<>();
         if (func.getOperations().getLast() instanceof Ret ret) {
@@ -34,7 +31,7 @@ public class FunctionSplitView  {
     public void split(int idx) {
         //reverse order, since we search top down
         for (int i = shards.size() - 1; i >= 0 ; i--) {
-            if (shards.get(i).getStart() < idx && idx <= shards.get(i).getEnd()) {
+            if (shards.get(i).getStart() <= idx && idx <= shards.get(i).getEnd()) {
                 FunctionShard tmp = shards.get(i).split(idx);
                 if (tmp == null) return; //this should never happen
                 shards.add(i + 1, tmp);
@@ -54,7 +51,7 @@ public class FunctionSplitView  {
             if (op.getIndex() > shard.getEnd()) {
                 int end = shard.getEnd();
                 shard = it.next();
-                assert (end == shard.getStart());
+                assert (end + 1 == shard.getStart());
             }
             shard.addUsage(RegAllocUtil.collectIRRegisters(op.getArgs()));
             if (op.hasDefinition()) {
@@ -77,7 +74,7 @@ public class FunctionSplitView  {
         List<Operation> ops = func.getOperations();
         out.printInfo(" --- StartShard ---");
         for (FunctionShard shard : shards) {
-            for (int i = shard.getStart() + 1; i <= shard.getEnd(); i++) {
+            for (int i = shard.getStart(); i <= shard.getEnd(); i++) {
                 Operation op = ops.get(i);
                 out.printInfo(op.getIndex() + " " + op.getAtntSyntax());
             }
@@ -86,5 +83,9 @@ public class FunctionSplitView  {
             }
         }
         out.printInfo(" --- EndShard ---");
+    }
+
+    public Function getFunction() {
+        return func;
     }
 }

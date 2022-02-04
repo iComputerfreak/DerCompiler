@@ -29,7 +29,7 @@ public class FunctionShard {
         this.end = index;
         List<IRRegister> rel = relevant;
         relevant = new LinkedList<>();
-        return new FunctionShard(index, end, rel);
+        return new FunctionShard(index + 1, end, rel);
     }
 
     public int getStart() {
@@ -42,5 +42,9 @@ public class FunctionShard {
 
     public void addUsage(List<IRRegister> registers) {
         used.addAll(registers);
+    }
+
+    public int getNumOperations() {
+        return end - start + 1;
     }
 }

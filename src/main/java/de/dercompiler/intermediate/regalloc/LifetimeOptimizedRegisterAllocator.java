@@ -39,7 +39,8 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
         }
         FunctionSplitView fsv = fdo.analyse(func);
         fsv.calculateInformation();
-        return new RegisterAllocationContext(avalableRegs, EnumSet.noneOf(X86Register.class), vlt, fsv);
+        //TODO: store spillregisters
+        return new RegisterAllocationContext(avalableRegs, EnumSet.noneOf(X86Register.class), vlt, fsv, callingConvention);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
         for (int i = 0; i < function.getParamCount(); i++) {
             paramRegs[i] = new ParameterRegister(i);
         }
-        IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, paramRegs, context.vlt(), context.splitview());
+        IRLocationOrganizer irloc = new IRLocationOrganizer(context.avalableRegisters(), callingConvention, paramRegs, context.splitview(),context);
 
 
     }

@@ -3,6 +3,10 @@ package de.dercompiler.intermediate.regalloc;
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.IRRegister;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.X86Register;
+import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.regalloc.location.StackLocation;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -31,5 +35,17 @@ public class RegAllocUtil {
             collectIRVFromOP(op, regs);
         }
         return regs;
+    }
+
+    public static Operation createMoveFromStackToRegister(X86Register register, StackLocation location) {
+        return new Mov(register, location.address());
+    }
+
+    public static Operation createMoveFromRegisterToStack(StackLocation location, X86Register register) {
+        return new Mov(location.address(), register);
+    }
+
+    public static Operation createMoveFromRegisterToRegister(X86Register to, X86Register from) {
+        return new Mov(to, from);
     }
 }

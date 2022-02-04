@@ -2,6 +2,10 @@ package de.dercompiler.intermediate.regalloc.analysis;
 
 import de.dercompiler.Function;
 import de.dercompiler.intermediate.operand.IRRegister;
+import de.dercompiler.intermediate.operand.ParameterRegister;
+import de.dercompiler.intermediate.operand.VirtualRegister;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,12 +122,23 @@ public class VariableLifetimeTable {
         return this;
     }
 
-    public int getDefinition(int id) {
-        return rlt[CALL_ABI_NUM_ARGUMENTS + id].min;
+    public int getDefinition(IRRegister irr) {
+        if (irr instanceof VirtualRegister vr) {
+            return getDefinition(vr);
+        } else if (irr instanceof ParameterRegister pr) {
+            return getDefinition(pr);
+        }
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Huch what went wrong, we have other IRRegisters than VRs and PRs?");
+        return 0; //we never return
     }
 
-    public int getLastUsage(int id) {
-        return getLastUsage(id, false);
+    public int getDefinition(VirtualRegister vr) {
+        return rlt[CALL_ABI_NUM_ARGUMENTS + vr.getId()].min;
+    }
+
+    public int getDefinition(ParameterRegister pr) {
+        if (pr.getId() >= CALL_ABI_NUM_ARGUMENTS) new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("ParameterRegister of id: " + pr.getId() + " is no RegisterParameter :(");
+        return rlt[pr.getId()].min;
     }
 
     public List<IRRegister> getDyingRegisters(int min, int max) {
@@ -137,9 +152,31 @@ public class VariableLifetimeTable {
         return registers;
     }
 
-    public int getLastUsage(int id, boolean parameter) {
+    public List<IRRegister> getDyingRegister(int index) {
+        List<IRRegister> registers = new LinkedList<>();
+        for (RegisterLifetime rl : rlt) {
+            if (rl == null) continue;
+            if (index == rl.max) {
+                registers.add(rl.irr);
+            }
+        }
+        return registers;
+    }
+
+    public int getLastUsage(IRRegister irr) {
+        if (irr instanceof VirtualRegister vr) {
+            return getLastUsage(vr.getId(), false);
+        } else if (irr instanceof ParameterRegister pr) {
+            return getLastUsage(pr.getId(), true);
+        } else {
+            new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Irr is not VirtualRegister or ParameterRegister! It is: " + irr.getClass().getName());
+            return 0; //we never return
+        }
+    }
+
+    private int getLastUsage(int id, boolean parameter) {
         int effectiveID = id;
-        if (parameter) effectiveID += CALL_ABI_NUM_ARGUMENTS;
+        if (!parameter) effectiveID += CALL_ABI_NUM_ARGUMENTS;
         return rlt[effectiveID].max;
     }
 
