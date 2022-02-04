@@ -96,4 +96,6 @@ public interface MemoryManager {
     Address getStackEnd();
 
     int getStackSize();
+
+    void reset();
 }

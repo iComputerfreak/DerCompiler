@@ -75,6 +75,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     public void allocateRegisters(Function function) {
         this.function = function;
         varCount = 0;
+        manager.reset();
         ops = new LinkedList<>();
 
         resetScratchRegisters();

@@ -16,4 +16,9 @@ public class Inc extends UnaryArithmeticOperation {
         inc.setMode(getMode());
         return inc;
     }
+
+    @Override
+    public boolean needsDefinition() {
+        return false;
+    }
 }

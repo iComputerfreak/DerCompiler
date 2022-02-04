@@ -12,9 +12,13 @@ public class VirtualRegister implements IRRegister {
     public VirtualRegister() {
         this.id = nextID++;
     }
-    
-    public void resetNextID() {
+
+    public static void resetNextID() {
         nextID = 0;
+    }
+
+    public static int getNextID() {
+        return nextID;
     }
 
     @Override
