@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.selection;
 
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.selection.rules.EmptyRule;
 import firm.nodes.Node;
 
 /**
@@ -10,7 +11,7 @@ public class NodeAnnotation<T extends Node> {
 
     private final int cost;
     private final T rootNode;
-    private final SubstitutionRule<T> rule;
+    private SubstitutionRule<T> rule;
     /**
      * A VirtualRegister, or a LabelOperand that acts as the target for the root Node.
      */
@@ -120,7 +121,8 @@ public class NodeAnnotation<T extends Node> {
         return component;
     }
 
-    /**
-     * Returns whether the annotated node is a memory operation (i.e. receives a projection of the current memory state)
-     */
+    public void clearRule() {
+        this.rule = new EmptyRule<>();
+    }
+
 }

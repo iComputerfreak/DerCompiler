@@ -74,6 +74,10 @@ public abstract class SubstitutionRule<T extends Node> {
         return getAnnotation(node).getDefinition();
     }
 
+    protected boolean hasDefinition() {
+        return getDefinition() == null;
+    }
+
     /**
      * Returns all nodes other than the rootNode that are part of this rule, i.e. the root node's predecessors that this
      * rule uses

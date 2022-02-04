@@ -34,11 +34,16 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
         throw new RuntimeException();
     }
 
+    private Proj getProjM() {
+        if (getRootNode().getMem() instanceof Proj proj) return proj;
+        throw new RuntimeException();
+    }
+
     @Override
     public List<Operation> substitute() {
         Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
-        if (getDefinition() == null) {
+        if (hasDefinition()) {
             setDefinition(inc.getDefinition());
         } else {
             inc.setDefinition(getDefinition());
@@ -49,14 +54,13 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
     @Override
     public List<Node> getRequiredNodes(Graph realGraph) {
         return List.of(getAdd(), getConst(), getProj(),
-                getLoad(), getLoad().getPtr());
+                getProjM(), getLoad(), getLoad().getPtr());
     }
 
     private Load getLoad() {
         if (getProj().getPred() instanceof Load load) return load;
         throw new RuntimeException();
     }
-
 
     @Override
     public boolean matches(Store inputNode) {

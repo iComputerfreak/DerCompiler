@@ -13,14 +13,12 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.*;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
-import de.dercompiler.intermediate.selection.Datatype;
+import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.Signedness;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static de.dercompiler.intermediate.operand.X86Register.*;
 
@@ -77,8 +75,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         varCount = 0;
         manager.reset();
         ops = new LinkedList<>();
-
-        resetScratchRegisters();
+        vrMap.clear();
 
 
         varCount = 0;
@@ -94,6 +91,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         manager.setOutput(ops::add);
 
         paramCount = function.getParamCount();
+        resetScratchRegisters(paramCount);
         for (Operation op : function.getOperations()) {
             if (skipNext) {
                 skipNext = false;
@@ -110,13 +108,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (op instanceof JumpOperation jo) {
                 ops.add(jo);
             } else if (op instanceof UnaryArithmeticOperation uao) {
-                Operand operand = uao.getArgs()[0];
-                Operand operandAddr = getOperand(operand, uao.getDatatype(), true);
-                ops.add(uao.allocate(operandAddr));
+                handleUnaryArithmeticOperation(op, uao);
             } else {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("Could not handle  " + op.toString());
             }
-            resetScratchRegisters();
+            resetScratchRegisters(paramCount);
         }
 
         // resetting bp is handled in handleRet
@@ -129,10 +125,24 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         function.setOperations(ops);
     }
 
-    private void resetScratchRegisters() {
-        freeScratchRegisters = IntStream.range(0, callingConvention.getNumberOfScratchRegisters())
-                .mapToObj(callingConvention::getScratchRegister)
-                .collect(Collectors.toList());
+    private void handleUnaryArithmeticOperation(Operation op, UnaryArithmeticOperation uao) {
+        Operand operand = uao.getArgs()[0];
+        Operand operandAddr = getOperand(operand, uao.getMode(), !op.needsDefinition());
+        ops.add(uao.allocate(operandAddr));
+        // write back
+        if (op.needsDefinition()) {
+            storeInVirtualRegister(((VirtualRegister) op.getDefinition()).getId(), operandAddr, op.getMode(), false);
+        }
+    }
+
+    private void resetScratchRegisters(int paramCount) {
+        X86Register[] args = callingConvention.getArgumentRegisters();
+        X86Register[] freeArgReg = Arrays.copyOfRange(args, paramCount, callingConvention.getNumberOfArgumentsRegisters() - 1);
+        List<X86Register> list = new ArrayList<>();
+        for (X86Register[] x86Registers : Arrays.asList(callingConvention.getScratchRegisters(), new X86Register[]{RAX}, freeArgReg)) {
+            list.addAll(Arrays.asList(x86Registers));
+        }
+        freeScratchRegisters = list;
     }
 
     @Override
@@ -154,13 +164,15 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         // write call parameters - arg[0] is method label
         for (int i = 1; i < args.length && i <= 6; i++) {
             // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
-            Operand param = getOperand(args[i], Datatype.QWORD, true);
-            handleBinaryOperation(new Mov(getParamReg(i - 1), param, true));
+            Operand param = getOperand(args[i], IRMode.PTR, true);
+            Mov mov = new Mov(getParamReg(i - 1), param, true);
+            mov.setMode(call.getArgsMode(i - 1));
+            handleBinaryOperation(mov);
 
         }
         // write even more parameters!
         for (int i = 7; i < args.length; i++) {
-            manager.pushValue(getOperand(args[i], Datatype.QWORD, true));
+            manager.pushValue(getOperand(args[i], IRMode.PTR, true));
         }
 
 
@@ -172,11 +184,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         for (int i = paramCount - 1; i >= 0; i--) {
             //   if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             String comment = "restore " + (i == 0 ? "this ptr" : ("parameter register #" + i));
-            storeInRegister(manager.getArgument(i), manager.getStackEnd().offsetPtr(8 * i), Datatype.QWORD, comment);
+            storeInRegister(manager.getArgument(i), manager.getStackEnd().offsetPtr((paramCount - i - 1) * 8), IRMode.PTR, comment);
         }
 
         // write return value to designated stack entry
-        if (call.getDatatype() != Datatype.NODATA) {
+        if (!call.getMode().equals(IRMode.NODATA)) {
             Mov mov = new Mov(call.getDefinition(), manager.getReturnValue());
             mov.setMode(call.getMode());
             mov.setComment("store call result");
@@ -195,7 +207,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             if (p.getTarget() == null) {
                 // free stack entry w/o saving the value
                 Add add = new Add(RSP, new ConstantValue(8));
-                add.setMode(Datatype.QWORD, Signedness.UNSIGNED);
+                add.setMode(IRMode.PTR);
                 add.setComment(p.getComment());
                 ops.add(add);
             } else {
@@ -207,8 +219,8 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private void handleReturn(Ret ret) {
         if (ret.getArgs().length != 0) {
-            Operand operand = getOperand(ret.getArgs()[0], ret.getDatatype(), true);
-            storeInRegister(callingConvention.getReturnRegister(), operand, ret.getDatatype());
+            Operand operand = getOperand(ret.getArgs()[0], ret.getMode(), true);
+            storeInRegister(callingConvention.getReturnRegister(), operand, ret.getMode());
         }
 
         // reset stack pointer
@@ -246,7 +258,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                     but not src = (addr) and dest = (addr) at the same time
 
              */
-            opTgt = getOperand(operands[0], bo.getDatatype(), true);
+            opTgt = getOperand(operands[0], bo.getMode(), true);
             /*
                 if next operation writes result back to target of this operation
                    <and> destination of this operation dies after next operation
@@ -269,7 +281,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (bo.needsDefinition()) {
                 // load target value into destination location
                 VirtualRegister targetVR = (VirtualRegister) bo.getDefinition();
-                Operand stackLocation = storeInVirtualRegister(targetVR.getId(), opTgt);
+                Operand stackLocation = storeInVirtualRegister(targetVR.getId(), opTgt, bo.getMode(), false);
                 destReg = stackLocation;
             } else {
                 if (bo instanceof Cmp cmp && operands[0] instanceof ConstantValue c1 && operands[1] instanceof ConstantValue c2) {
@@ -280,7 +292,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                         return;
                     } else {
                         ConstantValue zero = new ConstantValue(0);
-                        storeInRegister(R11, new ConstantValue(1), bo.getDatatype());
+                        storeInRegister(R11, new ConstantValue(1), bo.getMode());
                         Register one = R11;
                         ConstantValue two = new ConstantValue(2);
                         bo = switch (Integer.compare(c1.getValue(), c2.getValue())) {
@@ -296,7 +308,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             }
 
 
-            opSrc = getOperand(operands[1], bo.getDatatype(), true);
+            opSrc = getOperand(operands[1], bo.getMode(), true);
             // load source register, if necessary
             Operand srcReg = null;
             if (bo instanceof BinArithOperation || bo instanceof ShiftOperation) {
@@ -317,6 +329,14 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
             if (bo instanceof Cmp cmp && destReg == null) {
                 destReg = opTgt;
+
+                //der rechte Operand in der Atnt syntax darf kein constantvalue sein
+                if (destReg instanceof ConstantValue cv){
+                    X86Register register = allocateRegister();
+                    ops.add(new Mov(register, cv));
+                    destReg = register;
+                    freeRegister(register);
+                }
             }
 
             // add operation code
@@ -328,18 +348,18 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         Operand opTgt;
         Operand opSrc;
         Operand dest = operands[0];
-        opSrc = getOperand(operands[1], bo.getDatatype(), true);
+        opSrc = getOperand(operands[1], bo.getMode(), true);
         if (dest instanceof VirtualRegister vrDest) {
-            storeInVirtualRegister(vrDest.getId(), getOperand(opSrc, bo.getDatatype(), true), bo.getComment());
+            storeInVirtualRegister(vrDest.getId(), getOperand(opSrc, bo.getMode(), true), bo.getMode(), bo.getComment(), bo instanceof Lea);
             return;
         }
 
-        opTgt = getOperand(dest, bo.getDatatype(), true);
+        opTgt = getOperand(dest, bo.getMode(), true);
 
         if (opTgt.equals(opSrc)) return;
         // if both ops are relative addresses, load the source value.
         if (opSrc instanceof Address && opTgt instanceof Address) {
-            X86Register temp = storeInRegister(opSrc, bo.getDatatype());
+            X86Register temp = storeInRegister(opSrc, bo.getMode());
             ops.add(bo.allocate(opTgt, temp));
             freeRegister(temp);
         } else {
@@ -349,14 +369,14 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
 
     private void handleMul(IMul mul) {
-        Operand fctTarget = getOperand(mul.getTarget(), mul.getDatatype(), true);
-        Operand fctSource = getOperand(mul.getSource(), mul.getDatatype(), true);
+        Operand fctTarget = getOperand(mul.getTarget(), mul.getMode(), true);
+        Operand fctSource = getOperand(mul.getSource(), mul.getMode(), true);
         Operand definition = mul.getDefinition();
         Operand dest;
         if (definition instanceof VirtualRegister vreg && !vrMap.containsKey(vreg.getId())) {
             dest = definition; // gets allocated by handleBinaryOperation
         } else {
-            dest = getOperand(definition, mul.getDatatype(), true);
+            dest = getOperand(definition, mul.getMode(), true);
         }
 
         int configuration = evalMul(fctTarget, fctSource, dest);
@@ -395,7 +415,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 }
                 case 14 -> {
                     // imul reg, addr -> addr
-                    X86Register temp = storeInRegister(fctSource, mul.getDatatype());
+                    X86Register temp = storeInRegister(fctSource, mul.getMode());
                     ops.add(mul.allocate(temp, fctTarget));
                     handleBinaryOperation(new Mov(dest, temp));
                     break loop;
@@ -403,7 +423,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 case 10, 15, 26 -> {
                     // 15:    imul  reg,  reg -> addr
                     // 10/26: imul addr, addr -> addr/reg
-                    X86Register temp = storeInRegister(fctSource, mul.getDatatype());
+                    X86Register temp = storeInRegister(fctSource, mul.getMode());
                     ops.add(mul.allocate(temp, fctTarget));
                     handleBinaryOperation(new Mov(dest, temp));
                     freeRegister(temp);
@@ -458,14 +478,14 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         }
 
         // load dividend
-        storeInRegister(RAX, getOperand(dividend, Datatype.QWORD, true), Datatype.QWORD);
+        storeInRegister(RAX, getOperand(dividend, IRMode.PTR, true), IRMode.PTR);
 
         // load divisor
-        Operand dsrAddr = getOperand(divisor, Datatype.DWORD, true);
+        Operand dsrAddr = getOperand(divisor, IRMode.INT, true);
         if (dsrAddr.equals(RDX)) {
             dsrAddr = R11;
         } else if (dsrAddr instanceof ConstantValue) {
-            dsrAddr = storeInRegister(dsrAddr, Datatype.QWORD);
+            dsrAddr = storeInRegister(dsrAddr, IRMode.PTR);
         }
 
         // convert to 128 bit
@@ -476,7 +496,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         // save result
         X86Register result = op instanceof Div ? RAX : RDX;
-        storeInVirtualRegister(((VirtualRegister) op.getDefinition()).getId(), result);
+        storeInVirtualRegister(((VirtualRegister) op.getDefinition()).getId(), result, op.getMode(), false);
 
         if (paramCount >= 3) {
             // restore %rdx
@@ -497,23 +517,23 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      * Returns the given operand in a form that is better usable for the machine code.
      *
      * @param operand      IR or x86 operand
-     * @param datatype     datatype of the operation, in case any value must be loaded
+     * @param mode     mode of the operation, in case any value must be loaded
      * @param allowAddress if operand is an address and !allowAddress, the address is stored in a register.
      * @return the x86 operand
      */
-    private Operand getOperand(Operand operand, Datatype datatype, boolean allowAddress) {
+    private Operand getOperand(Operand operand, IRMode mode, boolean allowAddress) {
         if (operand == null) {
             return null;
         } else if (operand instanceof ConstantValue constant) {
             return constant;
         } else if (operand instanceof VirtualRegister vr) {
-            return getOperand(loadVirtualRegister(vr.getId()), datatype, allowAddress);
+            return getOperand(loadVirtualRegister(vr.getId(), mode), mode, allowAddress);
         } else if (operand instanceof ParameterRegister pr) {
-            return getOperand(getParamReg(pr.getId()), datatype, allowAddress);
+            return getOperand(getParamReg(pr.getId()), mode, allowAddress);
         } else if (operand instanceof Address address) {
             if (address.getBase() instanceof IRRegister || address.getBase() instanceof Address) {
-                Operand base = getOperand(address.getBase(), Datatype.QWORD, false);
-                Operand index = getOperand(address.getIndex(), Datatype.DWORD, false);
+                Operand base = getOperand(address.getBase(), IRMode.PTR, false);
+                Operand index = getOperand(address.getIndex(), IRMode.INT, false);
                 if (allowAddress && index == null && address.getOffset() == 0) return Address.ofOperand(base);
                 address = address.allocate((X86Register) base, (X86Register) index);
             }
@@ -521,7 +541,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             if (allowAddress) {
                 return address;
             } else {
-                X86Register regOperand = storeInRegister(address, datatype);
+                X86Register regOperand = storeInRegister(address, mode);
                 return regOperand;
             }
         } else {
@@ -535,52 +555,52 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     }
 
     private void freeRegister(X86Register reg) {
-        // TODO: What if reg is not the "last" register? Chaos ensues!
         if (!freeScratchRegisters.contains(reg)) {
             freeScratchRegisters.add(reg);
         }
     }
 
-    private X86Register storeInRegister(Operand operand, Datatype datatype) {
+    private X86Register storeInRegister(Operand operand, IRMode mode) {
         X86Register reg = allocateRegister();
         Mov mov = new Mov(reg, operand);
-        mov.setMode(datatype, datatype == Datatype.BYTE ? Signedness.UNSIGNED : Signedness.SIGNED);
+        mov.setMode(mode);
         ops.add(mov);
 
         return reg;
     }
 
-    private void storeInRegister(X86Register dest, Operand source, Datatype datatype) {
-        storeInRegister(dest, source, datatype, null);
+    private void storeInRegister(X86Register dest, Operand source, IRMode mode) {
+        storeInRegister(dest, source, mode, null);
     }
 
-    private void storeInRegister(X86Register dest, Operand source, Datatype datatype, String comment) {
+    private void storeInRegister(X86Register dest, Operand source, IRMode mode, String comment) {
         Mov mov = new Mov(dest, source);
-        mov.setMode(datatype, datatype == Datatype.BYTE ? Signedness.UNSIGNED : Signedness.SIGNED);
+        mov.setMode(mode);
         mov.setComment(comment);
         ops.add(mov);
 
     }
 
-    private Operand loadVirtualRegister(int id) {
+    private Operand loadVirtualRegister(int id, IRMode mode) {
         if (!vrMap.containsKey(id)) {
-            return storeInVirtualRegister(id, null); // increment stack size, no instructions
+            return storeInVirtualRegister(id, null, mode, false); // increment stack size, no instructions
         }
         return vrMap.get(id);
     }
 
-    private Operand storeInVirtualRegister(int id, Operand value) {
-        return storeInVirtualRegister(id, value, null);
+    private Operand storeInVirtualRegister(int id, Operand value, IRMode mode, boolean storeAddress) {
+        return storeInVirtualRegister(id, value, mode, "", storeAddress);
     }
 
-    private Operand storeInVirtualRegister(int id, Operand value, String comment) {
+    private Operand storeInVirtualRegister(int id, Operand value, IRMode mode, String comment, boolean storeAddress) {
         if (value instanceof Address) {
             if (Objects.equals(vrMap.get(id), value)) {
-                return loadVirtualRegister(id);
+                return loadVirtualRegister(id, mode);
             }
             X86Register temp = callingConvention.getScratchRegister(0);
-            Mov push = new Mov(temp, value);
-            ops.add(push);
+            BinaryOperation bop = storeAddress ? new Lea(temp, value) : new Mov(temp, value);
+            bop.setMode(mode);
+            ops.add(bop);
             value = temp;
         }
 
@@ -588,10 +608,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             vrMap.put(id, manager.pushValue(value, comment));
         } else {
             Mov mov = new Mov(vrMap.get(id), value);
+            mov.setMode(mode);
             mov.setComment(comment);
             ops.add(mov);
         }
-        return loadVirtualRegister(id);
+        return loadVirtualRegister(id, mode);
     }
 
 }

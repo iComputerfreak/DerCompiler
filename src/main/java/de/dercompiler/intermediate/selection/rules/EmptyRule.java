@@ -10,11 +10,11 @@ import firm.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmptyRule extends SubstitutionRule<Node> {
+public class EmptyRule<T extends Node> extends SubstitutionRule<T> {
     
     @Override
     public int getCost() {
-        return 1;
+        return 0;
     }
     
     @Override
@@ -28,7 +28,7 @@ public class EmptyRule extends SubstitutionRule<Node> {
     }
 
     @Override
-    public boolean matches(Node inputNode) {
+    public boolean matches(T inputNode) {
         return true;
     }
 }
