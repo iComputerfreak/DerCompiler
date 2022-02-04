@@ -10,6 +10,13 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
+
 // Lock all dependencies for reproducible builds
 dependencyLocking {
     lockAllConfigurations()

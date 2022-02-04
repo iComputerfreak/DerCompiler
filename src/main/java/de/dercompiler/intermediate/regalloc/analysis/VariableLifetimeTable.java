@@ -52,6 +52,11 @@ public class VariableLifetimeTable {
             }
             addInOrder(operationIndex);
         }
+
+        @Override
+        public String toString() {
+            return "{ [" + min + ", " + max + "] " + irr + " }";
+        }
     }
 
     private static class RegisterNeeds {
@@ -103,7 +108,9 @@ public class VariableLifetimeTable {
     }
 
     public VariableLifetimeTable generate() {
+        System.out.println(Arrays.toString(rlt));
         for (RegisterLifetime rl : rlt) {
+            if (rl == null) continue;
             for (int i = rl.min; i <= rl.max; i++) {
                 max_registers_active = max(max_registers_active, usage[i].addRegister(rl.irr));
             }
@@ -122,6 +129,7 @@ public class VariableLifetimeTable {
     public List<IRRegister> getDyingRegisters(int min, int max) {
         List<IRRegister> registers = new LinkedList<>();
         for (RegisterLifetime rl : rlt) {
+            if (rl == null) continue;
             if (min <= rl.max && rl.max < max) {
                 registers.add(rl.irr);
             }

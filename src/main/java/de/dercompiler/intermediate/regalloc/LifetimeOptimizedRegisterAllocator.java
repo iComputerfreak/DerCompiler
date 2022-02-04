@@ -4,6 +4,7 @@ import de.dercompiler.Function;
 import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operand.X86Register;
+import de.dercompiler.intermediate.regalloc.analysis.FunctionDensityOptimizer;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
 import de.dercompiler.intermediate.regalloc.analysis.LifetimeAnalysis;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
@@ -16,11 +17,13 @@ import java.util.List;
 public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
 
     private final LifetimeAnalysis la;
+    private final FunctionDensityOptimizer fdo;
     private static final int EXCEED_NUMBER_OF_SPILL_REGISTERS = 2;
 
     public LifetimeOptimizedRegisterAllocator(MemoryManager manager, CallingConvention convention) {
         super(manager, convention);
         la = new LifetimeAnalysis(convention.getNumberOfArgumentsRegisters());
+        fdo = new FunctionDensityOptimizer();
     }
 
     public RegisterAllocationContext createContext(Function func) {
@@ -34,7 +37,7 @@ public class LifetimeOptimizedRegisterAllocator extends RegisterAllocator {
         if (!(vlt.getNumRegistersMaximallyActive() < callingConvention.getNumberOfScratchRegisters() + EXCEED_NUMBER_OF_SPILL_REGISTERS)) {
             avalableRegs.addAll(List.of(callingConvention.getSaveRegisters()));
         }
-        FunctionSplitView fsv = new FunctionSplitView(func);
+        FunctionSplitView fsv = fdo.analyse(func);
         fsv.calculateInformation();
         return new RegisterAllocationContext(avalableRegs, EnumSet.noneOf(X86Register.class), vlt, fsv);
     }

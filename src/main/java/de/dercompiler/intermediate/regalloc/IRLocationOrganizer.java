@@ -1,13 +1,12 @@
 package de.dercompiler.intermediate.regalloc;
 
-import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.memory.BasicRegisterManager;
 import de.dercompiler.intermediate.memory.SimpleMemoryManager;
-import de.dercompiler.intermediate.operand.IRLocation;
 import de.dercompiler.intermediate.operand.IRRegister;
 import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.Operation;
+import de.dercompiler.intermediate.regalloc.analysis.FunctionShard;
 import de.dercompiler.intermediate.regalloc.analysis.FunctionSplitView;
 import de.dercompiler.intermediate.regalloc.analysis.VariableLifetimeTable;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
@@ -32,6 +31,7 @@ public class IRLocationOrganizer {
     private final VariableLifetimeTable vlt;
     private final FunctionSplitView fsv;
     private int shardID;
+    private FunctionShard shard;
 
     public IRLocationOrganizer(EnumSet<X86Register> avalable, CallingConvention callingConvention, ParameterRegister[] params, VariableLifetimeTable varTimes, FunctionSplitView splitView) {
         stack = new SimpleMemoryManager(callingConvention);
@@ -45,6 +45,7 @@ public class IRLocationOrganizer {
             locationMap.put(p, stack.getArgumentLocation(p));
         }
         shardID = 0;
+        shard = fsv.getShard(0);
     }
 
     public boolean nextSection() {
@@ -59,6 +60,7 @@ public class IRLocationOrganizer {
         }
         //2. set to next shard
         shardID++;
+
         //3. bindNeeded values to registers
         return true;
     }
