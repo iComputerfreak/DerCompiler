@@ -81,8 +81,8 @@ public class VariableLifetimeTable {
     private int max_registers_active;
 
     public VariableLifetimeTable(Function func, int CallAbiNumArguments) {
-        rlt = new RegisterLifetime[func.getNumVirtualRegisters()];
-        usage = new RegisterNeeds[func.getNumVirtualRegisters()];
+        rlt = new RegisterLifetime[func.getNumVirtualRegisters() + CallAbiNumArguments + 1];
+        usage = new RegisterNeeds[func.getNumVirtualRegisters() + CallAbiNumArguments + 1];
         Arrays.fill(rlt, null);
         for (int i = 0; i < usage.length; i++) {
             usage[i] = new RegisterNeeds();
@@ -100,7 +100,7 @@ public class VariableLifetimeTable {
     }
 
     public void updateTarget(IRRegister vr, int operation) {
-        update(vr,operation - 1);
+        update(vr,max(operation - 1, 0));
     }
 
     public void updateDefinition(IRRegister vr, int operation) {

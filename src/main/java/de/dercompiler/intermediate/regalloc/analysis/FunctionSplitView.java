@@ -32,7 +32,6 @@ public class FunctionSplitView  {
     }
 
     public void split(int idx) {
-        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("split");
         //reverse order, since we search top down
         for (int i = shards.size() - 1; i >= 0 ; i--) {
             if (shards.get(i).getStart() < idx && idx <= shards.get(i).getEnd()) {
