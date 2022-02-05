@@ -78,7 +78,6 @@ public class OperationListBuilder {
         Iterator<Operation> it = processed.iterator();
         while (it.hasNext()) {
             Operation op = it.next();
-            //TODO change to Leave (currently not implemented)
             if (op instanceof Leave) {
                 append(result, stackToRegister);
             }
