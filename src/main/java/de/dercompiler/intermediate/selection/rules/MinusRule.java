@@ -29,11 +29,7 @@ public class MinusRule extends SubstitutionRule<Minus> {
     public List<Operation> substitute() {
         Operation minus = new Neg(getOperand().getDefinition(), isMemoryOperation());
         minus.setMode(getOperand().getRootNode().getMode());
-        if (hasDefinition()) {
-            setDefinition(minus.getDefinition());
-        } else {
-            minus.setDefinition(getDefinition());
-        }
+        autosetDefinitions(minus);
         return List.of(minus);
     }
 

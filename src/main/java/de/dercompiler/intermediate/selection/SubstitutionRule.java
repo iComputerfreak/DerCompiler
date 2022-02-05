@@ -75,7 +75,21 @@ public abstract class SubstitutionRule<T extends Node> {
     }
 
     protected boolean hasDefinition() {
-        return getDefinition() == null;
+        return getDefinition() != null;
+    }
+    
+    /**
+     * Automatically sets the correct register for the given operation in this substitution rule.
+     *
+     * If this rule already has a valid definition, it is used. Otherwise, the definition of the operation will be used.
+     * @param op The operation
+     */
+    protected void autosetDefinitions(Operation op) {
+        if (hasDefinition()) {
+            op.setDefinition(getDefinition());
+        } else {
+            setDefinition(op.getDefinition());
+        }
     }
 
     /**

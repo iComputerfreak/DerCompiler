@@ -48,11 +48,7 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
     public List<Operation> substitute() {
         Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
-        if (hasDefinition()) {
-            setDefinition(inc.getDefinition());
-        } else {
-            inc.setDefinition(getDefinition());
-        }
+        autosetDefinitions(inc);
         return List.of(inc);
     }
 

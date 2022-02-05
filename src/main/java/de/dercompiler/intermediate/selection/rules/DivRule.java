@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -34,12 +33,7 @@ public class DivRule extends SubstitutionRule<Div> {
         Operation div = new de.dercompiler.intermediate.operation.BinaryOperations.Div(getLeft().getDefinition(), getRight().getDefinition());
         div.setMode(getRootNode().getMode());
         setMode(getRootNode().getMode());
-        Operand target = getAnnotation(getRootNode()).getDefinition();
-        if (target != null) {
-            div.setDefinition(target);
-        } else {
-            setDefinition(div.getDefinition());
-        }
+        autosetDefinitions(div);
         return List.of(div);
     }
 

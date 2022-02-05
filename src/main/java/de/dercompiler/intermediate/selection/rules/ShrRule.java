@@ -32,7 +32,7 @@ public class ShrRule extends SubstitutionRule<Shr> {
     public List<Operation> substitute() {
         Operation shr = new de.dercompiler.intermediate.operation.BinaryOperations.Shr(getLeft().getDefinition(), getRight().getDefinition());
         shr.setMode(getLeft().getRootNode().getMode());
-        setDefinition(shr.getDefinition());
+        autosetDefinitions(shr);
         return List.of(shr);
     }
 

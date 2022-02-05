@@ -3,7 +3,6 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.MethodReference;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
-import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
@@ -36,15 +35,12 @@ public class CallRule extends SubstitutionRule<Call> {
                 true,
                 argsModes,
                 getArgRegister());
-        Operand target = getDefinition();
         call.setMode(getResultMode());
         if (call.getMode().equals(NODATA)) {
             call.setDefinition(null);
             setDefinition(null);
-        } else if (target != null) {
-            call.setDefinition(target);
         } else {
-            setDefinition(call.getDefinition());
+            autosetDefinitions(call);
         }
 
         return List.of(call);

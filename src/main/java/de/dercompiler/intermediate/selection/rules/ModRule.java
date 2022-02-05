@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.selection.rules;
 
-import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -33,12 +32,7 @@ public class ModRule extends SubstitutionRule<Mod> {
     public List<Operation> substitute() {
         Operation mod = new de.dercompiler.intermediate.operation.BinaryOperations.Mod(getLeft().getDefinition(), getRight().getDefinition());
         mod.setMode(getRootNode().getMode());
-        Operand target = getDefinition();
-        if (target == null) {
-            setDefinition(mod.getDefinition());
-        } else {
-            mod.setDefinition(target);
-        }
+        autosetDefinitions(mod);
         return List.of(mod);
     }
 

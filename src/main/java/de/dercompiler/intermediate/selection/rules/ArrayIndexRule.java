@@ -19,7 +19,7 @@ public class ArrayIndexRule extends MulRule {
     public List<Operation> substitute() {
         Operation add = new Add(getLeft().getDefinition(), getRight().getDefinition());
         add.setMode(getRootNode().getMode());
-        setDefinition(add.getDefinition());
+        autosetDefinitions(add);
         return List.of(add);
     }
 

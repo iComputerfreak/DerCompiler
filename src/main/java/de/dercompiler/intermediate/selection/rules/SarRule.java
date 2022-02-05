@@ -33,11 +33,7 @@ public class SarRule extends SubstitutionRule<Shrs> {
     public List<Operation> substitute() {
         Operation sar = new Sar(getLeft().getDefinition(), getRight().getDefinition());
         sar.setMode(getLeft().getRootNode().getMode());
-        if (hasDefinition())
-            setDefinition(sar.getDefinition());
-        else {
-            sar.setDefinition(getDefinition());
-        }
+        autosetDefinitions(sar);
         return List.of(sar);
     }
 
