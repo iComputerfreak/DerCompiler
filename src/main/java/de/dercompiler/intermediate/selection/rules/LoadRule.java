@@ -1,5 +1,11 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Address;
+import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.VirtualRegister;
+import de.dercompiler.intermediate.operation.BinaryOperations.Lea;
+import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
+import de.dercompiler.intermediate.operation.ConstantOperations.Cqto;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -26,8 +32,17 @@ public class LoadRule extends SubstitutionRule<Load> {
 
     @Override
     public List<Operation> substitute() {
-        setDefinition(getOperand().getDefinition());
-        return List.of();
+        //setDefinition(getOperand().getDefinition());
+        //return List.of();
+        List<Operation> ops = List.of();
+
+        Operand target = new VirtualRegister();
+        setDefinition(target);
+        Operand definition = getOperand().getDefinition();
+
+
+        return List.of(new Mov(target, new Address(0,getOperand().getDefinition())));
+
     }
 
     @Override
