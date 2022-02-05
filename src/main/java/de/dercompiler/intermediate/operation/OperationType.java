@@ -57,13 +57,14 @@ public enum OperationType {
     CWTL("CWTL"),
     CLTQ("CLTQ"),
     CQTO("CQTO"),
-    LEAVE("LEAVE");
+    LEAVE("LEAVE"),
+    COMMENT("");
 
     private final String syntax;
     private final boolean appendDatatype;
 
     OperationType(String syntax){
-        this.syntax = syntax.toLowerCase(); this.appendDatatype = false;
+        this(syntax, false);
     }
 
     OperationType(String syntax, boolean appendDatatype){
