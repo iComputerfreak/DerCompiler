@@ -22,8 +22,8 @@ public class IMul extends BinArithOperation {
         return mul;
     }
 
-    public IMul3 allocateIMul3(ConstantValue constant, Operand source, Operand target){
-        IMul3 mul = new IMul3(constant, source, target);
+    public IMul3 allocateIMul3(Operand target, Operand source, ConstantValue constant){
+        IMul3 mul = new IMul3(target, source, constant);
         mul.setMode(getMode());
         return mul;
     }

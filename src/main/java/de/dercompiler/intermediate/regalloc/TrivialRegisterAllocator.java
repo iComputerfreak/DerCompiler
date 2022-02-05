@@ -406,7 +406,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 case 9, 13 -> {
                     // imul addr/reg, const -> addr
                     X86Register target = allocateRegister();
-                    ops.add(mul.allocateIMul3((ConstantValue) fctSource, fctTarget, target));
+                    ops.add(mul.allocateIMul3(target, fctTarget, (ConstantValue) fctSource));
                     handleBinaryOperation(new Mov(dest, target));
                     freeRegister(target);
                     break loop;
@@ -429,7 +429,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 }
                 case 25, 29 -> {
                     // 25/29: imul addr/reg, const -> reg
-                    ops.add(mul.allocateIMul3((ConstantValue) fctSource, fctTarget, dest));
+                    ops.add(mul.allocateIMul3(dest,  fctTarget, (ConstantValue) fctSource));
                     break loop;
                 }
 

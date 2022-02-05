@@ -9,7 +9,7 @@ import firm.Mode;
 
 import java.util.Objects;
 
-public sealed abstract class Operation permits BinaryOperation, ConstantOperation, NaryOperation, UnaryOperation {
+public sealed abstract class Operation permits BinaryOperation, ConstantOperation, NaryOperation, TenaryOperation, UnaryOperation {
 
     private Operand definition = null;
     protected IRMode mode;
