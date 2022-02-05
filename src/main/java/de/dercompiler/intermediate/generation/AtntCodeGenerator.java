@@ -3,6 +3,7 @@ package de.dercompiler.intermediate.generation;
 import de.dercompiler.Function;
 import de.dercompiler.Program;
 import de.dercompiler.intermediate.CodeGenerationErrorIds;
+import de.dercompiler.intermediate.operation.ConstantOperations.CommentOperation;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
 import de.dercompiler.io.FileResolver;
@@ -69,6 +70,13 @@ public class AtntCodeGenerator implements CodeGenerator {
             writeLine(bw, SPACING, op.getAtntSyntax());
     }
 
+    private void createComment(BufferedWriter bw, CommentOperation comment) throws IOException {
+        String com = comment.getAtntSyntax();
+        for (String line : com.split("\n")) {
+            writeLine(bw, SPACING, line);
+        }
+    }
+
     private void createLabel(BufferedWriter bw, LabelOperation labelOp) throws IOException {
         if (labelOp.getComment() != null)
             writeLineAndComment(bw, labelOp.getComment(), labelOp.getAtntSyntax());
@@ -80,6 +88,8 @@ public class AtntCodeGenerator implements CodeGenerator {
         for (Operation operation : func.getOperations()) {
             if (operation instanceof LabelOperation lo) {
                 createLabel(bw, lo);
+            } else if (operation instanceof CommentOperation co) {
+
             } else {
                 createInstruction(bw, operation);
             }

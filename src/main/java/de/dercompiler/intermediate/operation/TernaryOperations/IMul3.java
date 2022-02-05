@@ -11,4 +11,8 @@ public class IMul3 extends TenaryOperation {
         super(OperationType.IMUL3,  destination, factor, constant, false);
     }
 
+    @Override
+    public Operand getDefinition() {
+        return getTarget();
+    }
 }
