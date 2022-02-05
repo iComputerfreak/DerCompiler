@@ -1,6 +1,7 @@
 package de.dercompiler.intermediate.operand;
 
 import de.dercompiler.intermediate.selection.Datatype;
+import firm.nodes.Node;
 
 public class CondTarget implements Operand {
 
@@ -39,5 +40,6 @@ public class CondTarget implements Operand {
     public String getIdentifier(Datatype datatype) {
         return getIdentifier();
     }
+
 
 }

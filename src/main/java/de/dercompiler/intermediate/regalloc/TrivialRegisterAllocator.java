@@ -14,7 +14,6 @@ import de.dercompiler.intermediate.operation.UnaryOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.*;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
 import de.dercompiler.intermediate.selection.IRMode;
-import de.dercompiler.intermediate.selection.Signedness;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
 
@@ -35,7 +34,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private LinkedList<Integer> saveStates = new LinkedList<>();
 
-    private  X86Register[] parameterRegister;
+    private X86Register[] parameterRegister;
 
     /**
      * The number of parameters of the current Function.
@@ -283,32 +282,42 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 VirtualRegister targetVR = (VirtualRegister) bo.getDefinition();
                 Operand stackLocation = storeInVirtualRegister(targetVR.getId(), opTgt, bo.getMode(), false);
                 destReg = stackLocation;
-            } else {
-                if (bo instanceof Cmp cmp && operands[0] instanceof ConstantValue c1 && operands[1] instanceof ConstantValue c2) {
-                    /* TODO Cmp instructions with two constants are not allowed. If optimization is active, we can just omit this instruction. */
-                    Operation next = function.getOperations().get(bo.getIndex() + 1);
-                    if (next instanceof Jmp || !(next instanceof JumpOperation)) {
-                        // No cmp necessary, jump is already unconditional / optimized away.
-                        return;
+            } else if (bo instanceof Cmp cmp) {
+                if (operands[0] instanceof ConstantValue cTgt) {
+                    if (operands[1] instanceof ConstantValue cSrc) {
+
+                        Operation next = function.getOperations().get(cmp.getIndex() + 1);
+                        if (next instanceof Jmp || !(next instanceof JumpOperation)) {
+                            // No cmp necessary, jump is already unconditional / optimized away.
+                            return;
+                        } else {
+                            ConstantValue zero = new ConstantValue(0);
+                            storeInRegister(R11, new ConstantValue(1), cmp.getMode());
+                            Register one = R11;
+                            ConstantValue two = new ConstantValue(2);
+                            cmp = switch (Integer.compare(cTgt.getValue(), cSrc.getValue())) {
+                                case -1 -> cmp.allocate(one, two);
+                                case 0 -> cmp.allocate(one, one);
+                                default -> cmp.allocate(one, zero);
+                            };
+                            cmp.addComment("dummy cmp to replace cmp /w two constants");
+                            ops.add(cmp);
+                            return;
+                        }
                     } else {
-                        ConstantValue zero = new ConstantValue(0);
-                        storeInRegister(R11, new ConstantValue(1), bo.getMode());
-                        Register one = R11;
-                        ConstantValue two = new ConstantValue(2);
-                        bo = switch (Integer.compare(c1.getValue(), c2.getValue())) {
-                            case -1 -> bo.allocate(one, two);
-                            case 0 -> bo.allocate(one, one);
-                            default -> bo.allocate(one, zero);
-                        };
-                        bo.addComment("dummy cmp to replace cmp /w two constants");
-                        ops.add(bo);
-                        return;
+                        // destination register must not be constant value
+                        X86Register register = allocateRegister();
+                        ops.add(new Mov(register, opTgt));
+                        destReg = opTgt = register;
+                        freeRegister(register);
                     }
+                } else {
+                    destReg = opTgt;
                 }
             }
 
-
             opSrc = getOperand(operands[1], bo.getMode(), true);
+
             // load source register, if necessary
             Operand srcReg = null;
             if (bo instanceof BinArithOperation || bo instanceof ShiftOperation) {
@@ -327,17 +336,6 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 srcReg = R11;
             }
 
-            if (bo instanceof Cmp cmp && destReg == null) {
-                destReg = opTgt;
-
-                //der rechte Operand in der Atnt syntax darf kein constantvalue sein
-                if (destReg instanceof ConstantValue cv){
-                    X86Register register = allocateRegister();
-                    ops.add(new Mov(register, cv));
-                    destReg = register;
-                    freeRegister(register);
-                }
-            }
 
             // add operation code
             ops.add(bo.allocate(destReg, srcReg));
@@ -517,7 +515,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
      * Returns the given operand in a form that is better usable for the machine code.
      *
      * @param operand      IR or x86 operand
-     * @param mode     mode of the operation, in case any value must be loaded
+     * @param mode         mode of the operation, in case any value must be loaded
      * @param allowAddress if operand is an address and !allowAddress, the address is stored in a register.
      * @return the x86 operand
      */

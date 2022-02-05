@@ -24,6 +24,7 @@ public abstract non-sealed class UnaryOperation extends Operation {
         return new Operand[]{operand};
     }
 
+
     public OperationType getOperationType() {
         return operationType;
     }
@@ -36,5 +37,9 @@ public abstract non-sealed class UnaryOperation extends Operation {
     @Override
     public String getAtntSyntax() {
         return operationType.getAtntSyntax(getDatatype()) + (Objects.isNull(getDatatype()) ? "" :  " " + operand.getIdentifier(getDatatype()));
+    }
+
+    public Operand getArg() {
+        return operand;
     }
 }

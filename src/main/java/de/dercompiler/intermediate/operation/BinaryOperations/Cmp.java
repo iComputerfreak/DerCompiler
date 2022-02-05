@@ -16,7 +16,7 @@ public class Cmp extends BinArithOperation {
     }
 
     @Override
-    public BinaryOperation allocate(Operand left, Operand right){
+    public Cmp allocate(Operand left, Operand right){
         Cmp cmp = new Cmp(left, right);
         cmp.setMode(getMode());
         return cmp;

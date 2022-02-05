@@ -31,9 +31,9 @@ public class CondRule extends SubstitutionRule<Cond> {
         Node sel = getRootNode().getSelector();
         if (sel instanceof Cmp cmp) {
 
-            Operation op;
+            Operation jmpIf;
 
-            op = switch (cmp.getRelation()) {
+            jmpIf = switch (cmp.getRelation()) {
                 case True -> new Jmp(getTarget().getTrueTarget());
                 case False -> new Jmp(getTarget().getFalseTarget());
                 case Equal -> new Je(getTarget().getTrueTarget());
@@ -41,9 +41,9 @@ public class CondRule extends SubstitutionRule<Cond> {
                 default -> null;
             };
 
-            if (op == null) {
+            if (jmpIf == null) {
                 if (getOperandMode().isSigned()) {
-                    op = switch (cmp.getRelation()) {
+                    jmpIf = switch (cmp.getRelation()) {
                         case Less, UnorderedLess -> new Jl(getTarget().getTrueTarget());
                         case Greater, UnorderedGreater -> new Jg(getTarget().getTrueTarget());
                         case LessEqual, UnorderedLessEqual -> new Jle(getTarget().getTrueTarget());
@@ -52,7 +52,7 @@ public class CondRule extends SubstitutionRule<Cond> {
                     };
                 } else {
                     // unsigned
-                    op = switch (cmp.getRelation()) {
+                    jmpIf = switch (cmp.getRelation()) {
                         case Less, UnorderedLess -> new Jb(getTarget().getTrueTarget());
                         case Greater, UnorderedGreater -> new Ja(getTarget().getTrueTarget());
                         case LessEqual, UnorderedLessEqual -> new Jbe(getTarget().getTrueTarget());
@@ -61,16 +61,16 @@ public class CondRule extends SubstitutionRule<Cond> {
                     };
                 }
             }
-            if (op == null) {
+            if (jmpIf == null) {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Unexpected Cmp relation: " + cmp.getRelation().toString());
                 throw new RuntimeException();
             }
             // If the jump is conditional, the "else"-case is necessary
-            op.setMode(Mode.getX());
-            if (op instanceof Jmp) return List.of(op);
+            jmpIf.setMode(Mode.getX());
+            if (jmpIf instanceof Jmp) return List.of(jmpIf);
             Jmp jmpElse = new Jmp(getTarget().getFalseTarget());
             jmpElse.setMode(Mode.getX());
-            return List.of(op, jmpElse);
+            return List.of(jmpIf, jmpElse);
         }
         return null;
     }

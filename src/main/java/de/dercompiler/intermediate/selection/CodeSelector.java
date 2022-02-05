@@ -13,7 +13,6 @@ import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.util.GraphUtil;
 import firm.BlockWalker;
-import firm.Mode;
 import firm.nodes.*;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -174,13 +173,43 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         List<DefaultWeightedEdge> addEdges = new ArrayList<>();
         // remove, they are not needed anymore
         List<FirmBlock> removeBlocks = blocksGraph.vertexSet().stream().filter(b -> b.getId().startsWith("-")).toList();
-
         removeBlocks.forEach(b -> {
             FirmBlock succ = GraphUtil.getSuccessors(b, blocksGraph).get(0);
             FirmBlock pred = GraphUtil.getPredecessors(b, blocksGraph).get(0);
             blocksGraph.removeVertex(b);
             blocksGraph.addEdge(pred, succ);
         });
+
+        // Remove unreachable blocks
+        firmBlocks.values().forEach(v -> {
+            if (!blocksGraph.containsVertex(v)) return;
+            List<FirmBlock> jumpTargets = v.getJumpTargets().map(LabelOperand::getTarget).map(key -> {
+                if (firmBlocks.containsKey(key)) return firmBlocks.get(key);
+                else return firmBlocks.get(key.split("_")[0]);
+            }).toList();
+            List<DefaultWeightedEdge> edges = blocksGraph.incomingEdgesOf(v).stream().toList();
+
+            for (DefaultWeightedEdge e : edges) {
+                FirmBlock edgeSource = blocksGraph.getEdgeSource(e);
+                if (!jumpTargets.contains(edgeSource)) {
+                    blocksGraph.removeEdge(e);
+                    if (blocksGraph.outDegreeOf(edgeSource) == 0) {
+                        blocksGraph.removeVertex(edgeSource);
+                    }
+                }
+            }
+        });
+
+        boolean progress;
+        do {
+            // remove unreachable blocks
+            List<FirmBlock> trailingBlocks = firmBlocks.values().stream()
+                    .filter(blocksGraph::containsVertex)
+                    .filter(b -> blocksGraph.outDegreeOf(b) == 0)
+                    .filter(b -> !b.getId().equals("" + graph.getStartBlock().getNr())).toList();
+            progress = !trailingBlocks.isEmpty();
+            blocksGraph.removeAllVertices(trailingBlocks);
+        } while (progress);
 
         return new BasicBlockGraph(blocksGraph, graph.getEntity().getName());
     }
@@ -533,7 +562,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         rule.clear();
 
         firm.Mode mode = a.getRootNode().getMode();
-        if ((mode.equals(firm.Mode.getM()) || mode.equals(firm.Mode.getT()))  && !(a.getRule() instanceof EmptyRule<T>))
+        if ((mode.equals(firm.Mode.getM()) || mode.equals(firm.Mode.getT())) && !(a.getRule() instanceof EmptyRule<T>))
             memSuccessor = a.getRootNode();
     }
 
@@ -602,6 +631,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         if (node.isPhi()) {
             //PhiNode contains code for left and right branch
             firmBlock.insertPhi((PhiNode) node);
+        } else if (node.isCondition()) {
+            firmBlock.setComparison(node);
         } else if (node.isJump()) {
             firmBlock.setJump(node);
         } else {

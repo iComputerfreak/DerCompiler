@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection;
 
+import de.dercompiler.intermediate.operation.BinaryOperations.Cmp;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Jmp;
@@ -70,4 +71,10 @@ public class CodeNode {
     public int getComponent() {
         return component;
     }
+
+    public boolean isCondition() {
+        List<Operation> operations = getOperations();
+        return operations != null && !operations.isEmpty() && operations.get(0) instanceof Cmp;
+    }
+
 }

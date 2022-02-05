@@ -9,14 +9,15 @@ import de.dercompiler.intermediate.selection.FirmBlock;
 import de.dercompiler.util.GraphUtil;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.traverse.*;
+import org.jgrapht.traverse.DepthFirstIterator;
+import org.jgrapht.traverse.GraphIterator;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class MyBlockSorter implements BlockSorter {
-    private List<ArrayList<FirmBlock>> chains;
+    private List<LinkedList<FirmBlock>> chains;
 
     private Graph<FirmBlock, DefaultWeightedEdge> graph;
     private Map<String, FirmBlock> blocks;
@@ -37,7 +38,7 @@ public class MyBlockSorter implements BlockSorter {
 
         graph.getGraph().vertexSet().forEach(b -> {
             blocks.put(b.getId(), b);
-            chains.add(new ArrayList<>(List.of(b)));
+            chains.add(new LinkedList<>(List.of(b)));
         });
 
 
@@ -58,14 +59,14 @@ public class MyBlockSorter implements BlockSorter {
                 .map(LabelOperand::getTarget).anyMatch(b -> b.equals(block.getId()));
     }
 
-    private List<FirmBlock> chainsToList(List<ArrayList<FirmBlock>> chains) {
-        LinkedList<ArrayList<FirmBlock>> candidates = new LinkedList<>();
+    private List<FirmBlock> chainsToList(List<LinkedList<FirmBlock>> chains) {
+        LinkedList<List<FirmBlock>> candidates = new LinkedList<>();
         getLoopHeads().forEach(cond -> candidates.add(getChain(cond)));
         candidates.add(getChain(getGraphData().getStart()));
 
         int noSuccess = 0;
         boolean hard = false;
-        ArrayList<FirmBlock> chain = candidates.remove();
+        List<FirmBlock> chain = candidates.remove();
         outer:
         while (chains.size() > 1) {
             boolean success = false;
@@ -73,11 +74,10 @@ public class MyBlockSorter implements BlockSorter {
             FirmBlock last = chain.get(chain.size() - 1);
             List<FirmBlock> predecessors = GraphUtil.getPredecessors(last, graph);
             for (FirmBlock pred : predecessors) {
-                ArrayList<FirmBlock> predChain = getChain(pred);
+                List<FirmBlock> predChain = getChain(pred);
                 candidates.remove(predChain);
                 success = unify(last, pred, hard);
                 if (success) {
-                    //System.out.printf("Unified %s-%s%n", last, pred);
                     noSuccess = 0;
                     candidates.remove(predChain);
                     continue outer;
@@ -95,7 +95,7 @@ public class MyBlockSorter implements BlockSorter {
                     continue outer;
                 }
             }
-            for (ArrayList<FirmBlock> firmBlocks : chains) {
+            for (List<FirmBlock> firmBlocks : chains) {
                 if (!candidates.contains(firmBlocks) && !firmBlocks.equals(chain)) {
                     candidates.add(0, firmBlocks);
                     break;
@@ -106,7 +106,6 @@ public class MyBlockSorter implements BlockSorter {
             //no success :c
             noSuccess++;
             if (noSuccess > chains.size()) hard = true;
-
             if (!candidates.contains(chain))
                 candidates.add(chain);
             chain = candidates.remove();
@@ -118,14 +117,15 @@ public class MyBlockSorter implements BlockSorter {
     }
 
     private boolean unify(FirmBlock from, FirmBlock to, boolean hard) {
-        ArrayList<FirmBlock> chainFrom = getChain(from);
-        ArrayList<FirmBlock> chainTo = getChain(to);
+        List<FirmBlock> chainFrom = getChain(from);
+        List<FirmBlock> chainTo = getChain(to);
+
+        // !hard: try to chain only successive graphs, saving one jump instruction per link
 
         // hard: links chains even if that creates an unconditional jump
-        if (chainFrom == null || chainTo == null
-                || chainFrom.equals(chainTo)
-                || !hard && (!Objects.equals(chainFrom.get(chainFrom.size() - 1), from)
-                || !Objects.equals(chainTo.get(0), to))) {
+        if (chainFrom == null || chainTo == null || chainFrom.equals(chainTo)) return false;
+            // this is the succession test
+        else if (!hard && (!Objects.equals(chainFrom.get(chainFrom.size() - 1), from) || !Objects.equals(chainTo.get(0), to))) {
             return false;
         }
 
@@ -135,7 +135,7 @@ public class MyBlockSorter implements BlockSorter {
             to = from;
             from = temp;
 
-            ArrayList<FirmBlock> chainTemp = chainTo;
+            List<FirmBlock> chainTemp = chainTo;
             chainTo = chainFrom;
             chainFrom = chainTemp;
 
@@ -152,7 +152,7 @@ public class MyBlockSorter implements BlockSorter {
         chains.remove(chainTo);
 
         to.setIsJumpTarget(isJmpTarget(to));
-
+        System.out.printf("Unified %s-%s%n", from, to);
         return true;
     }
 
@@ -160,7 +160,7 @@ public class MyBlockSorter implements BlockSorter {
         return unify(from, to, false);
     }
 
-    private ArrayList<FirmBlock> getChain(FirmBlock block) {
+    private LinkedList<FirmBlock> getChain(FirmBlock block) {
         return chains.stream().filter(c -> c.contains(block)).findFirst().orElse(null);
     }
 
@@ -194,8 +194,6 @@ public class MyBlockSorter implements BlockSorter {
         else if (preds > 1) bClass = BlockClass.SINK;
         bProps.setBlockClass(bClass);
 
-        //System.out.printf("FirmBlock %s seems to be a %s%n", block.getId(), bClass);
-
         if (bClass == BlockClass.IF_HEAD_AND_SINK) {
             possibleLoopHeads.push(block);
         }
@@ -212,8 +210,7 @@ public class MyBlockSorter implements BlockSorter {
                     handleWhileCondition(block, pred);
                 } else if (props.getBlockClass() == BlockClass.STRING) {
                     handleString(block, pred);
-                }
-                else if (props.getBlockClass().isBranchHead()) {
+                } else if (props.getBlockClass().isBranchHead()) {
                     handleIfSimple(pred);
                 }
                 if (props.getBlockClass().isSink()) {
@@ -221,7 +218,8 @@ public class MyBlockSorter implements BlockSorter {
                 }
             }
         }
-
+        if (bProps.getBlockClass() == BlockClass.WHILE_HEAD && bClass == BlockClass.WHILE_HEAD)
+            return;
         bProps.setVisited(true);
     }
 
@@ -230,18 +228,26 @@ public class MyBlockSorter implements BlockSorter {
         if (checkWhileConditionExtension(block)) return;
 
         List<FirmBlock> predecessors = GraphUtil.getPredecessors(block, graph);
-        FirmBlock startOfTrueBranch = predecessors.get(1);
-        FirmBlock startOfFalseBranch = predecessors.get(0);
+
+        JumpOperation trueJump = (JumpOperation) block.getJumps().get(0);
+        LabelOperand target = (LabelOperand) trueJump.getArg();
+
+        FirmBlock startOfTrueBranch = blocks.get(target.getTarget());
+        FirmBlock startOfFalseBranch = GraphUtil.getOtherPred(block, startOfTrueBranch, graph);
 
         unify(block, startOfTrueBranch);
         unify(startOfTrueBranch, startOfFalseBranch, true);
     }
 
     private void handleSinkSimple(FirmBlock block) {
-        FirmBlock endOfFalseBranch = GraphUtil.getSuccessors(block, graph).get(0);
+        // successor with highest edge weight might do the trick
+        List<DefaultWeightedEdge> defaultWeightedEdges = graph.outgoingEdgesOf(block).stream().toList();
+        DefaultWeightedEdge nthEdge = defaultWeightedEdges.get(defaultWeightedEdges.size() - 1);
+
+        FirmBlock nthSuccessor = graph.getEdgeTarget(nthEdge);
         // cannot have been visited yet
-        if (endOfFalseBranch.getVisited()) return;
-        unify(endOfFalseBranch, block);
+        if (nthSuccessor.getVisited()) return;
+        unify(nthSuccessor, block);
     }
 
 
@@ -300,6 +306,7 @@ public class MyBlockSorter implements BlockSorter {
         }
         return false;
     }
+
     private boolean checkIfConditionExtension(FirmBlock block) {
         // Maybe the if condition is chained by AND or OR. In this case, their sink is all the same.
         List<FirmBlock> successors = GraphUtil.getSuccessors(block, graph);
@@ -343,13 +350,17 @@ public class MyBlockSorter implements BlockSorter {
     }
 
 
-
     private void handleString(FirmBlock block, FirmBlock pred) {
         //Unify chains of Strings
-        if (getProps(block).getBlockClass().hasOneSuccessor()) unify(block, pred);
+        BlockClass blockClass = getProps(block).getBlockClass();
+        if (blockClass.hasOneSuccessor()) {
+            unify(block, pred, false);
+        } else if (blockClass == BlockClass.WHILE_HEAD) {
+            unify(block, pred, true);
+        }
 
-            // If without else: unify condition with then block to enforce topological order
-        else if (getProps(block).getBlockClass().isBranchHead()) {
+        // If without else: unify condition with then block to enforce topological order
+        else if (blockClass.isBranchHead()) {
             FirmBlock sinkBlock = GraphUtil.getOtherPred(block, pred, graph);
             FirmBlock thenBlock = sinkBlock == null ? null : GraphUtil.getOtherSucc(sinkBlock, block, graph);
 
@@ -364,13 +375,14 @@ public class MyBlockSorter implements BlockSorter {
     private void handleWhileCondition(FirmBlock block, FirmBlock cond) {
         // This returns true iff block->cond is the edge out of the loop back to the condition.
         // This edge should be unified whenever possible.
-        if (!unify(block, cond)) {
+        if (!unify(block, cond) && !unify(block, cond, true)) {
             return;
         }
 
         ifSinks.remove(cond);
 
         FirmBlock top;
+        if (!possibleLoopHeads.contains(cond)) return;
         while ((top = possibleLoopHeads.peek()) != cond) {
             BlockProperties topProps = getProps(top);
             if (topProps.getBlockClass() == BlockClass.WHILE_HEAD) {
@@ -479,7 +491,7 @@ public class MyBlockSorter implements BlockSorter {
             for (FirmBlock innerLoop : innerLoops) {
                 get(innerLoop).setDepth(depth + 1);
             }
-            //System.out.printf("Depth of %s is now %d.%n", id, depth);
+            System.out.printf("Depth of %s is now %d.%n", id, depth);
         }
 
         public FirmBlock getBlock() {

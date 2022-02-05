@@ -10,6 +10,8 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Jmp;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import firm.nodes.Block;
 
 import java.util.*;
@@ -30,6 +32,7 @@ public class FirmBlock {
     private int predCount;
     private boolean isJumpTarget;
     private FirmBlock mainNode;
+    private CodeNode comparison;
 
     public FirmBlock(String id) {
         this.id = id;
@@ -65,6 +68,10 @@ public class FirmBlock {
         operations.addAll(components.values().stream().filter(component -> !component.isEmpty()).flatMap(cmp ->
                 cmp.getOperations().stream()).toList());
 
+        //new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("%s: %d cond, %d jumps".formatted(this, comparison == null ? 0 : comparison.getOperations().size(), jumps == null ? 0 : jumps.getOperations().size()));
+        if (comparison != null && jumps != null && jumps.getOperations().size() >= 1) {
+            operations.addAll(comparison.getOperations());
+        }
         if (jumps != null) {
             operations.addAll(jumps.getOperations());
         }
@@ -87,7 +94,6 @@ public class FirmBlock {
 
     private void finish() {
         if (hasPhis()) {
-            //System.out.println("Here!");
             for (FirmBlock phi : getPhis()) {
                 List<Operation> linearization = eliminatePhi(phi);
                 phi.components = Map.of(0, new Component(linearization));
@@ -293,6 +299,14 @@ public class FirmBlock {
 
     public void setMainNode(FirmBlock mainNode) {
         this.mainNode = mainNode;
+    }
+
+    public CodeNode getComparison() {
+        return comparison;
+    }
+
+    public void setComparison(CodeNode comparison) {
+        this.comparison = comparison;
     }
 
     record Component(List<Operation> operations) {
