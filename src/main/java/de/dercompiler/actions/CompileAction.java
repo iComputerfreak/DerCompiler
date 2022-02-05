@@ -98,7 +98,6 @@ public class CompileAction extends Action {
             //Step 4: Block ordering
 
             List<FirmBlock> firmBlocks = sorter.sortBlocks(blocksGraph);
-            // with flatMap, firmBlocks went missing - strange.
             List<Operation> operations = firmBlocks.stream().flatMap((FirmBlock firmBlock) -> firmBlock.getOperations().stream()).toList();
             function.setOperations(operations);
             function.setVrCount(VirtualRegister.getNextID());

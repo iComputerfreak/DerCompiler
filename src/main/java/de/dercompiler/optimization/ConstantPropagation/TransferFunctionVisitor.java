@@ -171,7 +171,7 @@ public class TransferFunctionVisitor implements NodeVisitor {
 
     @Override
     public void visit(Minus node) {
-        System.out.println(node);
+        //System.out.println(node);
         doAlways(node, transferFunction.getTargetValue(node));
     }
 

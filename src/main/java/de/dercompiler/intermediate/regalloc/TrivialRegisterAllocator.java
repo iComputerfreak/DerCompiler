@@ -136,7 +136,12 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private void resetScratchRegisters(int paramCount) {
         X86Register[] args = callingConvention.getArgumentRegisters();
-        X86Register[] freeArgReg = Arrays.copyOfRange(args, paramCount, callingConvention.getNumberOfArgumentsRegisters() - 1);
+        X86Register[] freeArgReg;
+        if (paramCount >= callingConvention.getNumberOfArgumentsRegisters()) {
+            freeArgReg = new X86Register[0];
+        } else {
+            freeArgReg = Arrays.copyOfRange(args, paramCount, callingConvention.getNumberOfArgumentsRegisters() - 1);
+        }
         List<X86Register> list = new ArrayList<>();
         for (X86Register[] x86Registers : Arrays.asList(callingConvention.getScratchRegisters(), new X86Register[]{RAX}, freeArgReg)) {
             list.addAll(Arrays.asList(x86Registers));
@@ -154,7 +159,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         Operand[] args = call.getArgs();
 
         // save current parameters
-        for (int i = 0; i < paramCount; i++) {
+        for (int i = 0; i < paramCount && i < 6; i++) {
             // if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             manager.pushValue(manager.getArgument(i), " - save " + (i == 0 && !function.isStatic() ? "this ptr" : "parameter register #" + i));
         }
@@ -183,7 +188,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         for (int i = paramCount - 1; i >= 0; i--) {
             //   if (i < args.length && args[i] instanceof ParameterRegister oldParam && oldParam.getId() == i - 1) continue;
             String comment = "restore " + (i == 0 ? "this ptr" : ("parameter register #" + i));
-            storeInRegister(manager.getArgument(i), manager.getStackEnd().offsetPtr((paramCount - i - 1) * 8), IRMode.PTR, comment);
+            store(manager.getArgument(i), manager.getStackEnd().offsetPtr((paramCount - i - 1) * 8), IRMode.PTR, comment);
         }
 
         // write return value to designated stack entry
@@ -192,6 +197,18 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             mov.setMode(call.getMode());
             mov.setComment("store call result");
             handleBinaryOperation(mov);
+        }
+    }
+
+    private void store(Operand dest, Operand source, IRMode mode, String comment) {
+        Operand srcVal = getOperand(source, mode, dest instanceof X86Register);
+        if (dest instanceof X86Register reg) {
+            storeInRegister(reg, srcVal, mode, comment);
+        } else if (dest instanceof Address) {
+            Mov mov = new Mov(getOperand(dest, mode, true), srcVal, false);
+            mov.setComment(comment);
+            mov.setMode(mode);
+            ops.add(mov);
         }
     }
 
@@ -532,7 +549,9 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             if (address.getBase() instanceof IRRegister || address.getBase() instanceof Address) {
                 Operand base = getOperand(address.getBase(), IRMode.PTR, false);
                 Operand index = getOperand(address.getIndex(), IRMode.INT, false);
-                if (allowAddress && index == null && address.getOffset() == 0) return Address.ofOperand(base);
+                if (allowAddress && index == null && address.getOffset() == 0) {
+                    return Address.ofOperand(base);
+                }
                 address = address.allocate((X86Register) base, (X86Register) index);
             }
 

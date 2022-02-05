@@ -438,7 +438,7 @@ public class ArithmeticOptimization extends GraphOptimization {
                     predecessor = data.memory;
                     for (int i = 0; i < node.getPredCount(); i++) {
                         if (node.getPred(i).equals(divNode)) {
-                            System.out.println("Replace %d-th predecessor %s of %s by %s".formatted(i, node.getPred(i), node, predecessor));
+                            logger.printInfo("Replace %d-th predecessor %s of %s by %s".formatted(i, node.getPred(i), node, predecessor));
                             node.setPred(i, predecessor);
                         }
                     }

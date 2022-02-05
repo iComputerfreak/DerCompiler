@@ -20,7 +20,7 @@ public enum CodeGenerationErrorIds implements IErrorIds {
     UNKNOWN_ASM_STYLE(1010),
     UNSUPPORTED_ASM_STYLE(1020),
 
-    UNDEFINED_OPERAND_CONFIGURATION(1030);
+    UNDEFINED_OPERAND_CONFIGURATION(1030), BLOCK_ORDER_FAIL(1040);
 
     private int id;
 

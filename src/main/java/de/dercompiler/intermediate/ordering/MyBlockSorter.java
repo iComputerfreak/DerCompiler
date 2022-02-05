@@ -1,11 +1,15 @@
 package de.dercompiler.intermediate.ordering;
 
+import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.operand.LabelOperand;
+import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeNode;
 import de.dercompiler.intermediate.selection.FirmBlock;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.util.GraphUtil;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -50,6 +54,7 @@ public class MyBlockSorter implements BlockSorter {
         }
 
         List<FirmBlock> sorted = chainsToList(chains);
+        sorted.forEach(b -> b.setIsJumpTarget(isJmpTarget(b)));
         return sorted;
     }
 
@@ -106,14 +111,18 @@ public class MyBlockSorter implements BlockSorter {
             //no success :c
             noSuccess++;
             if (noSuccess > chains.size()) hard = true;
+            if (noSuccess > chains.size()*3) fail();
             if (!candidates.contains(chain))
                 candidates.add(chain);
             chain = candidates.remove();
-            //System.out.println("Try " + chain.get(0));
 
         }
 
         return getChain(getGraphData().getStart());
+    }
+
+    private void fail() {
+        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.BLOCK_ORDER_FAIL, "The BlockSorter failed at the task of sorting the blocks. There must be a wacked chain");
     }
 
     private boolean unify(FirmBlock from, FirmBlock to, boolean hard) {
@@ -148,11 +157,11 @@ public class MyBlockSorter implements BlockSorter {
             to = chainTo.get(0);
         }
 
+        from = chainFrom.get(chainFrom.size()-1);
         chainFrom.addAll(chainTo);
         chains.remove(chainTo);
 
-        to.setIsJumpTarget(isJmpTarget(to));
-        System.out.printf("Unified %s-%s%n", from, to);
+        System.out.printf("Unified %s-%s %s%n", from, to, hard ? " [x]" : "");
         return true;
     }
 
@@ -175,7 +184,7 @@ public class MyBlockSorter implements BlockSorter {
 
         BlockProperties bProps = getProps(block);
         if (bProps != null) {
-            if (bProps.isVisited()) return;
+            if (bProps.getVisited()) return;
         } else {
             bProps = new BlockProperties(block);
         }
@@ -201,7 +210,7 @@ public class MyBlockSorter implements BlockSorter {
         if (!bProps.isSeen()) {
             bProps.setSeen(true);
             for (FirmBlock pred : GraphUtil.getPredecessors(block, graph)) {
-                if (getProps(pred) != null && getProps(pred).isVisited())
+                if (getProps(pred) != null && getProps(pred).getVisited())
                     continue;
                 classify(pred);
 
@@ -218,14 +227,19 @@ public class MyBlockSorter implements BlockSorter {
                 }
             }
         }
-        if (bProps.getBlockClass() == BlockClass.WHILE_HEAD && bClass == BlockClass.WHILE_HEAD)
+        // Return nodes and while heads need to be visited one more time to set the chains right
+        if (bProps.getBlockClass() == BlockClass.SINK && succs == 0) {
+            handleSinkSimple(block);
+        } else if (bProps.getBlockClass() == BlockClass.WHILE_HEAD && bClass == BlockClass.WHILE_HEAD)
             return;
+
         bProps.setVisited(true);
     }
 
     private void handleIfSimple(FirmBlock block) {
         // Desired order: Cond (cj True) False (j EndIf) True EndIf
         if (checkWhileConditionExtension(block)) return;
+        if (checkIfConditionExtension(block)) return;
 
         List<FirmBlock> predecessors = GraphUtil.getPredecessors(block, graph);
 
@@ -236,7 +250,12 @@ public class MyBlockSorter implements BlockSorter {
         FirmBlock startOfFalseBranch = GraphUtil.getOtherPred(block, startOfTrueBranch, graph);
 
         unify(block, startOfTrueBranch);
-        unify(startOfTrueBranch, startOfFalseBranch, true);
+        List<Operation> elseOperations = getChain(startOfFalseBranch).getLast().getOperations();
+        if (elseOperations.get(elseOperations.size() - 1) instanceof Ret) {
+            // branches dont join anymore, no need to unify
+        } else {
+            unify(startOfTrueBranch, startOfFalseBranch, true);
+        }
     }
 
     private void handleSinkSimple(FirmBlock block) {
@@ -246,7 +265,7 @@ public class MyBlockSorter implements BlockSorter {
 
         FirmBlock nthSuccessor = graph.getEdgeTarget(nthEdge);
         // cannot have been visited yet
-        if (nthSuccessor.getVisited()) return;
+        if (getProps(nthSuccessor) == null || getProps(nthSuccessor).getVisited()) return;
         unify(nthSuccessor, block);
     }
 
@@ -288,40 +307,55 @@ public class MyBlockSorter implements BlockSorter {
     }
 
     private boolean checkWhileConditionExtension(FirmBlock block) {
-        // Maybe the loop condition is chained by AND or OR. In this case, detect more while-heads
+        // Maybe this loop condition is chained by AND or OR. In this case, detect more while-heads
         // If not found, they ruin the treatment of if-heads.
         List<FirmBlock> successors = GraphUtil.getSuccessors(block, graph);
-        if (successors.size() != 1 || getProps(successors.get(0)).getBlockClass() != BlockClass.WHILE_HEAD)
+
+        // if getProps(b) == null, that cannot be a while loop
+        if (!successors.stream().allMatch(b -> getProps(b) != null && getProps(b).getBlockClass() == BlockClass.WHILE_HEAD))
             return false;
         FirmBlock loopCondition = successors.get(0);
 
-        FirmBlock beginOfLoop = GraphUtil.getOtherPred(loopCondition, block, graph);
-        if (GraphUtil.getPredecessors(block, graph).contains(beginOfLoop)) {
-            //-> block is a condition extension
+        FirmBlock endOfCond = GraphUtil.getOtherPred(loopCondition, block, graph);
+        if (GraphUtil.getPredecessors(block, graph).contains(endOfCond)) {
+            //-> block is a condition extension, as in the 'b' of 'a && b' or 'a || b'
+            getProps(block).setExtension(true);
             unify(loopCondition, block);
             getProps(block).setBlockClass(BlockClass.WHILE_HEAD);
             ifSinks.remove(block);
-            ifSinks.remove(beginOfLoop);
+            ifSinks.remove(endOfCond);
             return true;
+        } else if (getProps(endOfCond) != null && getProps(endOfCond).isExtension()) {
+            unify(block, endOfCond);
         }
         return false;
     }
 
     private boolean checkIfConditionExtension(FirmBlock block) {
-        // Maybe the if condition is chained by AND or OR. In this case, their sink is all the same.
+        // Maybe the if condition is chained by AND or OR. In this case,
         List<FirmBlock> successors = GraphUtil.getSuccessors(block, graph);
-        BlockProperties succProps = getProps(successors.get(0));
-        if (succProps == null || succProps.getBlockClass() != BlockClass.IF_HEAD)
-            return false;
-        FirmBlock extdCond = successors.get(0);
 
-        FirmBlock beginOfCond = GraphUtil.getOtherPred(extdCond, block, graph);
-        if (GraphUtil.getPredecessors(block, graph).contains(beginOfCond)) {
+        //if successors are null, they are no branch heads
+        if (!getProps(block).getBlockClass().isBranchHead() || !successors.stream().allMatch(p -> getProps(p) != null && getProps(p).bClass.isBranchHead())) {
+            return false;
+        }
+
+        FirmBlock predInExtension = successors.get(0);
+
+        FirmBlock commonSink = GraphUtil.getOtherPred(predInExtension, block, graph);
+        if (commonSink != null && GraphUtil.getPredecessors(block, graph).contains(commonSink)) {
             //-> block is a condition extension
-            unify(extdCond, block);
-            getProps(block).setBlockClass(BlockClass.WHILE_HEAD);
+            //System.out.println("Es sieht ein bisschen so aus, als wäre %s eine if-Extension".formatted(block));
+            unify(predInExtension, block);
+            getProps(block).setExtension(true);
             ifSinks.remove(block);
-            ifSinks.remove(beginOfCond);
+            ifSinks.remove(commonSink);
+
+            FirmBlock elseSink = GraphUtil.getOtherPred(block, commonSink, graph);
+            if (!getProps(elseSink).getBlockClass().isBranchHead()) {
+                unify(block, commonSink);
+            }
+
             return true;
         }
         return false;
@@ -437,6 +471,7 @@ public class MyBlockSorter implements BlockSorter {
         private boolean visited;
         private boolean seen;
         private int depth = 0;
+        private boolean extension;
 
         public BlockProperties(FirmBlock block) {
             props.put(block, this);
@@ -466,7 +501,7 @@ public class MyBlockSorter implements BlockSorter {
             get(loop).setDepth(depth + 1);
         }
 
-        public boolean isVisited() {
+        public boolean getVisited() {
             return visited;
         }
 
@@ -491,11 +526,19 @@ public class MyBlockSorter implements BlockSorter {
             for (FirmBlock innerLoop : innerLoops) {
                 get(innerLoop).setDepth(depth + 1);
             }
-            System.out.printf("Depth of %s is now %d.%n", id, depth);
+            //System.out.printf("Depth of %s is now %d.%n", id, depth);
         }
 
         public FirmBlock getBlock() {
             return blocks.get(id);
+        }
+
+        public boolean isExtension() {
+            return extension;
+        }
+
+        public void setExtension(boolean extension) {
+            this.extension = extension;
         }
     }
 }

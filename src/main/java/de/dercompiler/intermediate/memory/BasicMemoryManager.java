@@ -16,13 +16,12 @@ public class BasicMemoryManager implements MemoryManager {
     /*
      *  AR layout:
      *  ,-------------,
-     *  |  arg_n     | n+3     - each entry 8 bytes in size
+     *  |  arg_n     | n-4     - each entry 8 bytes in size
      *  |   ...      |
-     *  |  arg_1     | 4
-     *  |  this      | 3
-     *  |  ret_val   | 2
+     *  |  arg_7     | 3
+     *  |  arg_6     | 2
      *  |  dyn_link  | 1
-     *  |  ret_addr  | 0     __ bp
+     *  |  ret_addr  | 0     <- bp
      *  |  var_0     | -1
      *  |  ...       |
      *  |  var_m     | -m-1  __ sp
@@ -66,8 +65,9 @@ public class BasicMemoryManager implements MemoryManager {
     }
 
     @Override
-    public X86Register getArgument(int n) {
-        return callingConvention.getArgumentRegister(n);
+    public Operand getArgument(int n) {
+        return n < 6 ? callingConvention.getArgumentRegister(n)
+                : Address.loadWithOffset(getBasePointer(), 8*(n-4));
     }
 
     private X86Register getBasePointer() {

@@ -2,7 +2,6 @@ package de.dercompiler.intermediate.memory;
 
 import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
-import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import de.dercompiler.intermediate.regalloc.calling.CallingConvention;
@@ -31,7 +30,7 @@ public interface MemoryManager {
      * @param n the index of the argument
      * @return the location of the n-th argument
      */
-    X86Register getArgument(int n);
+    Operand getArgument(int n);
 
     /**
      * Returns the memory location of the local value given by its id.
