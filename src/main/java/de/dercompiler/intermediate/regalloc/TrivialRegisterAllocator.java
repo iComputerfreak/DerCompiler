@@ -6,6 +6,7 @@ import de.dercompiler.intermediate.memory.MemoryManager;
 import de.dercompiler.intermediate.operand.*;
 import de.dercompiler.intermediate.operation.BinaryOperation;
 import de.dercompiler.intermediate.operation.BinaryOperations.*;
+import de.dercompiler.intermediate.operation.ConstantOperations.CommentOperation;
 import de.dercompiler.intermediate.operation.ConstantOperations.Cqto;
 import de.dercompiler.intermediate.operation.NaryOperations.Call;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
@@ -92,6 +93,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         paramCount = function.getParamCount();
         resetScratchRegisters(paramCount);
         for (Operation op : function.getOperations()) {
+            ops.add(new CommentOperation("\t\t"+op.toString()));
             if (skipNext) {
                 skipNext = false;
                 continue;

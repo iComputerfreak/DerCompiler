@@ -89,7 +89,7 @@ public class AtntCodeGenerator implements CodeGenerator {
             if (operation instanceof LabelOperation lo) {
                 createLabel(bw, lo);
             } else if (operation instanceof CommentOperation co) {
-
+                createComment(bw, co);
             } else {
                 createInstruction(bw, operation);
             }

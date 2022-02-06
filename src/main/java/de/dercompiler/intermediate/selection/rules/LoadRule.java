@@ -21,6 +21,10 @@ public class LoadRule extends SubstitutionRule<Load> {
         return 1 + getOperand().getCost();
     }
 
+    /*
+        Do not load the address, let the Node attached do it.
+
+     */
 
     private Load getLoad() {
       return getRootNode();
@@ -32,16 +36,8 @@ public class LoadRule extends SubstitutionRule<Load> {
 
     @Override
     public List<Operation> substitute() {
-        //setDefinition(getOperand().getDefinition());
-        //return List.of();
-        List<Operation> ops = List.of();
-
-        Operand target = new VirtualRegister();
-        setDefinition(target);
-        Operand definition = getOperand().getDefinition();
-
-
-        return List.of(new Mov(target, new Address(0,getOperand().getDefinition())));
+        setDefinition(getOperand().getDefinition());
+        return List.of();
 
     }
 

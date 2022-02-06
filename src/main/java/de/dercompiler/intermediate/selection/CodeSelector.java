@@ -388,7 +388,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             // TODO: When all rules are specified this should not happen anymore!
             //  Every node needs at least one rule
             // Dummy annotation:
-            NodeAnnotation<Node> a = this.createAnnotation(Node.class, node, new EmptyRule());
+            NodeAnnotation<Node> a = this.createAnnotation(Node.class, node, new EmptyRule<>());
             annotations.put(node.getNr(), a);
 
             // Print a warning that there was no matching rule for the node
@@ -465,6 +465,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             }
         }
 
+        for (NodeAnnotation<?> newArgs : rule.getReplacementArgs())
+            addDependency(a, newArgs.getRootNode());
 
         rule.clear();
     }

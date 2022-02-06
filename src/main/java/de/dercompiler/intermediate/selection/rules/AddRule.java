@@ -9,7 +9,7 @@ import firm.nodes.Node;
 
 import java.util.List;
 
-public class AddRule extends SubstitutionRule<Add> {
+public  class AddRule extends SubstitutionRule<Add> {
 
     @Override
     public int getCost() {
@@ -41,6 +41,7 @@ public class AddRule extends SubstitutionRule<Add> {
     public List<Node> getRequiredNodes(Graph realGraph) {
         return List.of();
     }
+
 
     @Override
     public boolean matches(Add inputNode) {

@@ -34,6 +34,7 @@ public class ArithmeticOptimization extends GraphOptimization {
     public void visit(Add node) {
         Node summand1 = node.getLeft();
         Node summand2 = node.getRight();
+        if (node.getMode().equals(firm.Mode.getP())) return;
         boolean success = symmetric(summand1, summand2, (a, b) -> {
             if (a instanceof Const constA) {
                 // 0 + x -> x
@@ -65,7 +66,6 @@ public class ArithmeticOptimization extends GraphOptimization {
             Construction construction = getConstruction();
             replaceNode(node, construction.newShl(summand1, construction.newConst(1, Mode.getIu())), true);
             logger.printInfo("Apply arith/AddSameArg to %s and %s".formatted(summand1.toString(), summand2.toString()));
-            return;
         }
     }
 

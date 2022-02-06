@@ -24,8 +24,10 @@ public class ArrayAccessRule extends AddRule {
     }
 
 
-    private Operand getArray() {
-        return getLeft().getDefinition();
+    private NodeAnnotation<Proj> getArray() {
+        if (getLeft().getRootNode() instanceof Proj arrayNode)
+        return getTypedAnnotation(arrayNode);
+        throw new RuntimeException();
     }
 
     private NodeAnnotation<Node> getIndex() {
@@ -67,10 +69,10 @@ public class ArrayAccessRule extends AddRule {
 
         List<Operation> ops;
 
-        if (getArray() == null) {
+        if (getArray().getDefinition() == null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Node %s has no target yet, so better implement a basic rule for it.".formatted(getLeft().getRootNode().toString()));
         }
-        Address arrayAddr = Address.ofOperand(getArray());
+        Address arrayAddr = Address.ofOperand(getArray().getDefinition());
 
         // There is nowhere to save the relative address, so calculate it again
 
@@ -115,9 +117,14 @@ public class ArrayAccessRule extends AddRule {
         List<Node> nodes = new ArrayList<>();
         nodes.add(getOffset()); // Const
         nodes.add(getOffset().getLeft()); // Mul
-        if (getOffset().getRight() instanceof Conv conv) nodes.add(conv);
 
         return nodes;
+    }
+
+    @Override
+    public List<NodeAnnotation<?>> getReplacementArgs() {
+        // Mul subtree is replaced by index node.
+        return List.of(getIndex());
     }
 
     @Override
