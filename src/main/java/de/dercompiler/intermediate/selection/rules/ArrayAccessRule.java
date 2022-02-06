@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class ArrayAccessRule extends AddRule {
+public class ArrayAccessRule extends LoadRule {
 
     @Override
     public int getCost() {
@@ -25,8 +25,22 @@ public class ArrayAccessRule extends AddRule {
 
 
     private Operand getArray() {
-        return getLeft().getDefinition();
+        return getAnnotation(getAddnode().getLeft()).getDefinition();
     }
+
+
+    private Add getAddnode(){
+        return (Add) getRootNode().getPred(1);
+    }
+
+    private NodeAnnotation<?> getLeft(){
+        return getAnnotation(getAddnode().getLeft());
+    }
+
+    private NodeAnnotation<?> getRight(){
+        return getAnnotation(getAddnode().getRight());
+    }
+
 
     private NodeAnnotation<Node> getIndex() {
         return getTypedAnnotation(getOffset().getRight());
@@ -121,11 +135,14 @@ public class ArrayAccessRule extends AddRule {
     }
 
     @Override
-    public boolean matches(Add add) {
-        return add != null
+    public boolean matches(Load load) {
+        return load != null
+                && load.getPred(1) instanceof Add add
                 && Objects.equals(add.getMode(), Mode.getP())
                 && add.getLeft() instanceof Proj array
                 && add.getRight() instanceof Mul offset
                 && (offset.getLeft() instanceof Conv conv || offset.getLeft() instanceof Const constant);
     }
+
+
 }
