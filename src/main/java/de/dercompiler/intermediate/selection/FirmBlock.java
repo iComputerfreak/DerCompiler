@@ -65,7 +65,9 @@ public class FirmBlock {
         if (isJumpTarget())
             operations.add(new LabelOperation(this.getId()));
 
-        operations.addAll(components.values().stream().filter(component -> !component.isEmpty()).flatMap(cmp ->
+        Stream<Component> stream = components.values().stream().sorted(Comparator.comparingInt(component -> component.getOperations().stream().anyMatch(Operation::isMemoryOperation) ? -1 : 1));
+
+        operations.addAll(stream.filter(component -> !component.isEmpty()).flatMap(cmp ->
                 cmp.getOperations().stream()).toList());
 
         //new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printInfo("%s: %d cond, %d jumps".formatted(this, comparison == null ? 0 : comparison.getOperations().size(), jumps == null ? 0 : jumps.getOperations().size()));

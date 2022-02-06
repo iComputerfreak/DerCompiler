@@ -533,6 +533,9 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 // node gets handled elsewhere and gets no own code
                 boolean visited = p.getVisited();
                 if (!visited) {
+                    if (!p.getRootNode().getBlock().equals(a.getRootNode().getBlock())) {
+                        p.setComponent(getOrCreateFirmBlock(p.getRootNode().getBlock().getNr()).newComponent());
+                    }
                     transformAnnotation(p);
                 } else if (p.getRootNode().getMode().equals(firm.Mode.getM()) || p.getRootNode().getMode().equals(firm.Mode.getT())) {
                     // M nodes need to be traversed either way

@@ -32,8 +32,6 @@ public class CodeNode {
     private final FirmBlock firmBlock;
     private final List<Operation> operations;
 
-    private static CodeSelector selector;
-
     public CodeNode(List<Operation> operations, FirmBlock block, int id) {
         this.id = id; //CodeNode.nextID();
         this.operations = operations;
@@ -60,10 +58,6 @@ public class CodeNode {
         return getOperations().stream().anyMatch(op -> op instanceof Jmp || op instanceof Ret);
     }
 
-    private static FirmBlock getOrCreateFirmBlock(int id) {
-        return selector.getOrCreateFirmBlock(id);
-    }
-
     public void setComponent(int component) {
         this.component = component;
     }
@@ -77,4 +71,8 @@ public class CodeNode {
         return operations != null && !operations.isEmpty() && operations.get(0) instanceof Cmp;
     }
 
+    @Override
+    public String toString() {
+        return "CodeNode<%d:%s/%d>".formatted(id, firmBlock.getId(), component);
+    }
 }
