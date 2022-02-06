@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
@@ -22,9 +23,8 @@ public class UnknownRule extends SubstitutionRule<Unknown> {
 
     @Override
     public List<Operation> substitute() {
-        ConstantValue target = new ConstantValue(-1);
         setMode(node.getMode());
-        setDefinition(target);
+        setDefinition(Address.NULL_PTR);
         return List.of();
     }
 

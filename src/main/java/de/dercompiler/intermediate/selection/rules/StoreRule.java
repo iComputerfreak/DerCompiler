@@ -36,7 +36,7 @@ public class StoreRule extends SubstitutionRule<Store> {
     public List<Operation> substitute() {
         Operand targetReg = getAnnotation(getTarget()).getDefinition();
         if (targetReg instanceof Address address && address.equals(Address.NULL_PTR)) {
-            new OutputMessageHandler(MessageOrigin.TRANSFORM).printWarning(TransformationWarrningIds.NULL_REFERENCE, "This program references a static null pointer reference at node " + node);
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).printWarning(TransformationWarrningIds.NULL_REFERENCE, "This program references a static null pointer at node " + node);
         }
         Operation mov = new Mov(
                 targetReg,

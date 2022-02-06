@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class Address implements IRLocation {
 
-    public static final Address NULL_PTR = new Address(-1, null);
+    public static final Address NULL_PTR = new Address(0, new Address(0, null));
     // %bp or heap/object pointer
     private final Operand base;
     private final Operand index;
@@ -95,6 +95,7 @@ public class Address implements IRLocation {
     }
 
     public static Address loadWithOffset(Operand base, int offset) {
+        if (base.equals(NULL_PTR)) return NULL_PTR;
         if (base instanceof Address addr) {
             return new Address(offset, addr);
         } else if (base instanceof ConstantValue constant) {
