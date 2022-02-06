@@ -561,6 +561,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 return address;
             } else {
                 X86Register regOperand = storeInRegister(address, mode);
+                freeRegister(regOperand);
                 return regOperand;
             }
         } else {
