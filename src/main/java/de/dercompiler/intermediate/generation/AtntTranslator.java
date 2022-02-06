@@ -40,7 +40,7 @@ public class AtntTranslator implements OperandTranslator {
             case 15 -> "%1$d(%2$s,%3$s,%4$d)";  // constant + base + index * scale
             default -> "???";
         };
-        return format.formatted(offset, base != null ? base.acceptTranslator(this, dt) : null, index != null? index.acceptTranslator(this, dt) : null, scale);
+        return format.formatted(offset, base != null ? base.acceptTranslator(this, Datatype.QWORD) : null, index != null? index.acceptTranslator(this, Datatype.QWORD) : null, scale);
     }
 
     @Override

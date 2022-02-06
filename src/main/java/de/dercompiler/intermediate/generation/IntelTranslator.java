@@ -42,7 +42,7 @@ public class IntelTranslator implements OperandTranslator {
             case 15 -> "[%2$s + %3$s*%4$d + %1$d]";     // base + index*scale + offset
             default -> "???";
         };
-        return dt.getLong() + (usePtr ? " ptr " : " ") + format.formatted(offset, base != null ? base.acceptTranslator(this, dt) : null, index != null? index.acceptTranslator(this, dt) : null, scale)
+        return dt.getLong() + (usePtr ? " ptr " : " ") + format.formatted(offset, base != null ? base.acceptTranslator(this, Datatype.QWORD) : null, index != null? index.acceptTranslator(this, Datatype.QWORD) : null, scale)
                 //remove + if unessessary
                 .replace("+-", "-").replace("+  -", " -");
     }
