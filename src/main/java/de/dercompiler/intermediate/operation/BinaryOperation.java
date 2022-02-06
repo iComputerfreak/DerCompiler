@@ -43,7 +43,7 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     @Override
     public String getAtntSyntax(){
-        return operationType.getAtntSyntax(getDatatype()) +  " " + source.acceptTranslator(AtntTranslator.getInstance(), getDatatype()) + "," + target.getIdentifier(getDatatype());
+        return operationType.getAtntSyntax(getDatatype()) +  " " + source.acceptTranslator(AtntTranslator.getInstance(), getDatatype()) + "," + target.acceptTranslator(AtntTranslator.getInstance(), getDatatype());
     }
 
     public abstract BinaryOperation allocate(Operand target, Operand source);
