@@ -122,12 +122,6 @@ public class ArrayAccessRule extends AddRule {
     }
 
     @Override
-    public List<NodeAnnotation<?>> getReplacementArgs() {
-        // Mul subtree is replaced by index node.
-        return List.of(getIndex());
-    }
-
-    @Override
     public boolean matches(Add add) {
         return add != null
                 && Objects.equals(add.getMode(), Mode.getP())

@@ -465,9 +465,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 addDependency(a, n);
             }
         }
-
-        for (NodeAnnotation<?> newArgs : rule.getReplacementArgs())
-            addDependency(a, newArgs.getRootNode());
+        
 
         rule.clear();
     }
@@ -524,11 +522,26 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
         // Keep a map of the node ids for lookup
         codeGraphLookup.put(rootNode.getNr(), codeNode);
-        rule.clear();
 
         // Get the predecessors (graph nodes that point to this node)
         List<? extends NodeAnnotation<?>> predecessors = GraphUtil.getPredecessors(a, nodeAnnotationGraph);
+        a.getRule().getRequiredNodes(graph)
+                .stream()
+                .map(n -> annotations.get(n.getNr()))
+                .flatMap(n -> GraphUtil.getPredecessors(n, nodeAnnotationGraph).stream())
+                .distinct()
+                // Transform the predecessors to its CodeNodes
+                .map(pred -> {
+                    if (!pred.getTransformed()) {
+                        transformAnnotation(pred);
+                    }
+                    return codeGraphLookup.get(pred.getRootNode().getNr());
+                })
+                // Recreate the dependencies between the predecessors and the new CodeNode
+                .forEach(pred -> codeGraph.addEdge(pred, codeNode));
 
+        rule.clear();
+        
         for (NodeAnnotation<?> p : predecessors) {
             int predNr = p.getRootNode().getNr();
             // If we have a predecessor that we did not transform yet, do it now, recursively
@@ -557,12 +570,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                     if (!(a.getRule() instanceof EmptyRule<T>))
                         codeGraph.addEdge(codeGraphLookup.get(memSuccessor.getNr()), codeNode);
                 }
-
-                if (visited) continue;
             }
-            CodeNode predNode = codeGraphLookup.get(predNr);
-            // Recreate the dependency
-            codeGraph.addEdge(predNode, codeNode);
         }
 
         // Mark all nodes that are covered by this rule as "transformed"

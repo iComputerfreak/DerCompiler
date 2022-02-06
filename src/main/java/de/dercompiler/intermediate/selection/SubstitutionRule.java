@@ -101,11 +101,7 @@ public abstract class SubstitutionRule<T extends Node> {
      */
     // Overwritten in subclass
     public abstract List<Node> getRequiredNodes(Graph realGraph);
-
-    public List<NodeAnnotation<?>> getReplacementArgs() {
-        return List.of();
-    }
-
+    
     /**
      * Checks whether the given input node matches this rule
      * @param inputNode The input node
