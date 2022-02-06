@@ -75,6 +75,6 @@ public class AtntTranslator implements OperandTranslator {
 
     @Override
     public String translate(X86Register rr, Datatype dt) {
-        return "%" + rr.getIdentifier();
+        return "%" + rr.getIdentifier(dt);
     }
 }
