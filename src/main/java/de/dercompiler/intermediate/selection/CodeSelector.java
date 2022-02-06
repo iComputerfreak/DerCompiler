@@ -525,7 +525,10 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
 
         // Get the predecessors (graph nodes that point to this node)
         List<? extends NodeAnnotation<?>> predecessors = GraphUtil.getPredecessors(a, nodeAnnotationGraph);
-        a.getRule().getRequiredNodes(graph)
+        List<Node> requiredNodes = a.getRule().getRequiredNodes(graph);
+        rule.clear();
+        
+        requiredNodes
                 .stream()
                 .map(n -> annotations.get(n.getNr()))
                 .flatMap(n -> GraphUtil.getPredecessors(n, nodeAnnotationGraph).stream())
@@ -539,8 +542,6 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 })
                 // Recreate the dependencies between the predecessors and the new CodeNode
                 .forEach(pred -> codeGraph.addEdge(pred, codeNode));
-
-        rule.clear();
         
         for (NodeAnnotation<?> p : predecessors) {
             int predNr = p.getRootNode().getNr();
