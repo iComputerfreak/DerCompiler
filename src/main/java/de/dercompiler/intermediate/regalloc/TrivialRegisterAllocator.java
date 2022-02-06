@@ -111,7 +111,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (op instanceof UnaryArithmeticOperation uao) {
                 handleUnaryArithmeticOperation(op, uao);
             } else {
-                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("Could not handle  " + op.toString());
+                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("Could not handle  " + op);
             }
             resetScratchRegisters(paramCount);
         }
@@ -375,12 +375,18 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         if (opTgt.equals(opSrc)) return;
         // if both ops are relative addresses, load the source value.
-        if (opSrc instanceof Address && opTgt instanceof Address) {
-            X86Register temp = storeInRegister(opSrc, bo.getMode());
-            ops.add(bo.allocate(opTgt, temp));
-            freeRegister(temp);
+        if (opSrc instanceof Address) {
+            if (opTgt instanceof Address) {
+                X86Register temp = storeInRegister(opSrc, bo.getMode());
+                ops.add(bo.allocate(opTgt, temp));
+                freeRegister(temp);
+                return;
+            }
+        }
+        if (opTgt instanceof X86Register reg) {
+            storeInRegister(reg, opSrc, bo.getMode());
         } else {
-            ops.add(bo.allocate(opTgt, opSrc));
+            store(opTgt, opSrc, bo.getMode(), "");
         }
     }
 
@@ -583,7 +589,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     private X86Register storeInRegister(Operand operand, IRMode mode) {
         X86Register reg = allocateRegister();
         Mov mov = new Mov(reg, operand);
-        mov.setMode(mode);
+        mov.setMode(IRMode.PTR); // not suitable to write only part of registers
         ops.add(mov);
 
         return reg;
@@ -595,7 +601,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private void storeInRegister(X86Register dest, Operand source, IRMode mode, String comment) {
         Mov mov = new Mov(dest, source);
-        mov.setMode(mode);
+        mov.setMode(IRMode.PTR); // not suitable to write only part of registers
         mov.setComment(comment);
         ops.add(mov);
 
