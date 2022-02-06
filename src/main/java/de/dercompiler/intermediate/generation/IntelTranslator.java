@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public class IntelTranslator implements OperandTranslator {
 
+    private boolean usePtr = true;
+
     private static IntelTranslator translator;
 
     public static OperandTranslator getInstance() {
@@ -40,7 +42,7 @@ public class IntelTranslator implements OperandTranslator {
             case 15 -> "[%2$s + %3$s*%4$d + %1$d]";     // base + index*scale + offset
             default -> "???";
         };
-        return format.formatted(offset, base != null ? base.acceptTranslator(this, dt) : null, index != null? index.acceptTranslator(this, dt) : null, scale)
+        return dt.getLong() + (usePtr ? " ptr " : " ") + format.formatted(offset, base != null ? base.acceptTranslator(this, dt) : null, index != null? index.acceptTranslator(this, dt) : null, scale)
                 //remove + if unessessary
                 .replace("+-", "-").replace("+  -", " -");
     }
@@ -60,6 +62,8 @@ public class IntelTranslator implements OperandTranslator {
         return "L" + operand.getTarget();
     }
 
+
+
     @Override
     public String translate(MethodReference mr, Datatype dt) {
         return mr.getTarget();
@@ -78,5 +82,13 @@ public class IntelTranslator implements OperandTranslator {
     @Override
     public String translate(X86Register rr, Datatype dt) {
         return rr.getIdentifier(dt);
+    }
+
+    public boolean isUsePtr() {
+        return usePtr;
+    }
+
+    public void setUsePtr(boolean usePtr) {
+        this.usePtr = usePtr;
     }
 }

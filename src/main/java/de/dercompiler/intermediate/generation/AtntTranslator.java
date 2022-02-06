@@ -7,8 +7,6 @@ import java.util.Objects;
 
 public class AtntTranslator implements OperandTranslator {
 
-    private boolean usePtr = true;
-
     private static AtntTranslator translator;
 
     public static AtntTranslator getInstance() {
@@ -42,7 +40,7 @@ public class AtntTranslator implements OperandTranslator {
             case 15 -> "%1$d(%2$s,%3$s,%4$d)";  // constant + base + index * scale
             default -> "???";
         };
-        return dt.getLong() + (usePtr ? " ptr " : " ") + format.formatted(offset, base != null ? base.acceptTranslator(this, dt) : null, index != null? index.acceptTranslator(this, dt) : null, scale);
+        return format.formatted(offset, base != null ? base.acceptTranslator(this, dt) : null, index != null? index.acceptTranslator(this, dt) : null, scale);
     }
 
     @Override
@@ -78,13 +76,5 @@ public class AtntTranslator implements OperandTranslator {
     @Override
     public String translate(X86Register rr, Datatype dt) {
         return "%" + rr.getIdentifier();
-    }
-
-    public boolean isUsePtr() {
-        return usePtr;
-    }
-
-    public void setUsePtr(boolean usePtr) {
-        this.usePtr = usePtr;
     }
 }

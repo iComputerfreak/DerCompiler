@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.generation.OperandTranslator;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.IRMode;
 import firm.Entity;
@@ -20,5 +21,10 @@ public class MethodReference extends LabelOperand {
     @Override
     public String getIdentifier(Datatype datatype) {
         return getTarget(); // no 'L'!
+    }
+
+    @Override
+    public String acceptTranslator(OperandTranslator translator, Datatype dt) {
+        return translator.translate(this, dt);
     }
 }
