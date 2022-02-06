@@ -1,9 +1,13 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.Address;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
+import de.dercompiler.io.OutputMessageHandler;
+import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.transformation.TransformationWarrningIds;
 import firm.Graph;
 import firm.nodes.Node;
 import firm.nodes.Store;
@@ -31,6 +35,9 @@ public class StoreRule extends SubstitutionRule<Store> {
     @Override
     public List<Operation> substitute() {
         Operand targetReg = getAnnotation(getTarget()).getDefinition();
+        if (targetReg instanceof Address address && address.equals(Address.NULL_PTR)) {
+            new OutputMessageHandler(MessageOrigin.TRANSFORM).printWarning(TransformationWarrningIds.NULL_REFERENCE, "This program references a static null pointer reference at node " + node);
+        }
         Operation mov = new Mov(
                 targetReg,
                 getAnnotation(getValue()).getDefinition(), true

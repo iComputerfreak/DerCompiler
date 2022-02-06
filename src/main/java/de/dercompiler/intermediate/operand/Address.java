@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class Address implements IRLocation {
 
+    public static final Address NULL_PTR = new Address(-1, null);
     // %bp or heap/object pointer
     private final Operand base;
     private final Operand index;

@@ -4,12 +4,14 @@ import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.ConstantOperation;
 import de.dercompiler.intermediate.operation.OperationType;
 
+import java.util.StringJoiner;
+
 public class CommentOperation extends ConstantOperation {
 
     private String comment;
     private final String NEWLINE = "\n";
     private final String COMMENT_INTEL = "; ";
-    private final String COMMENT_Atnt_START = "/*\n";
+    private final String COMMENT_Atnt_START = "/*";
     private final String COMMENT_Atnt       = "* ";
     private final String COMMENT_Atnt_END   = "*/";
 
@@ -30,6 +32,9 @@ public class CommentOperation extends ConstantOperation {
 
     @Override
     public String getAtntSyntax() {
-        return COMMENT_Atnt_START + comment.replace(NEWLINE, NEWLINE + COMMENT_Atnt) + COMMENT_Atnt_END;
+        StringJoiner joiner = new StringJoiner("\n"+COMMENT_Atnt, COMMENT_Atnt_START, COMMENT_Atnt_END);
+        for (String line : comment.split("\n")) joiner.add(line);
+        return joiner.toString();
+
     }
 }
