@@ -14,7 +14,7 @@ import java.util.List;
 public class CodeNode {
 
     private static int nextID = 0;
-    private int component;
+    private int component = -1;
 
     public CodeNode(List<Operation> operations, FirmBlock block) {
         this(operations, block, nextID());

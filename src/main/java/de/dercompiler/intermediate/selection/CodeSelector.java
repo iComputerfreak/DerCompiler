@@ -140,6 +140,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         while (nodeAnnotationGraphIterator.hasNext()) {
             NodeAnnotation<?> next = nodeAnnotationGraphIterator.next();
             if (!next.getTransformed()) {
+                System.out.println("New component of " + next.getRootNode().getBlock() + " starts at " + next.getRootNode());
                 int compIdx = getFirmBlock(next.getRootNode().getBlock().getNr()).newComponent();
                 next.setComponent(compIdx);
             }
@@ -498,6 +499,8 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         if (a.getTransformed()) {
             return;
         }
+
+        a.setVisited(true);
         //System.out.println("tr " + a.getRootNode().toString());
         // Apply the rule in this annotation
         SubstitutionRule<T> rule = a.getRule();
@@ -529,11 +532,22 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         for (NodeAnnotation<?> p : predecessors) {
             int predNr = p.getRootNode().getNr();
             // If we have a predecessor that we did not transform yet, do it now, recursively
+            if (p.getVisited()) {
+                if (a.getRootNode().getBlock().equals(p.getRootNode().getBlock())) {
+                    // Backpropagate component number
+                    int actualCmp = p.getComponent();
+                    codeNode.setComponent(actualCmp);
+                    a.setComponent(actualCmp);
+                }
+            }
+
             if (!codeGraphLookup.containsKey(predNr)) {
                 // node gets handled elsewhere and gets no own code
                 boolean visited = p.getVisited();
                 if (!visited) {
+                    p.setComponent(a.getComponent());
                     if (!p.getRootNode().getBlock().equals(a.getRootNode().getBlock())) {
+                        System.out.println("New component of " + p.getRootNode().getBlock() + " starts at " + p.getRootNode());
                         p.setComponent(getOrCreateFirmBlock(p.getRootNode().getBlock().getNr()).newComponent());
                     }
                     transformAnnotation(p);
@@ -543,9 +557,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                     if (!(a.getRule() instanceof EmptyRule<T>))
                         codeGraph.addEdge(codeGraphLookup.get(memSuccessor.getNr()), codeNode);
                 }
-                int actualCmp = p.getComponent();
-                codeNode.setComponent(actualCmp);
-                a.setComponent(actualCmp);
+
                 if (visited) continue;
             }
             CodeNode predNode = codeGraphLookup.get(predNr);
@@ -641,7 +653,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         } else if (node.isJump()) {
             firmBlock.setJump(node);
         } else {
-            //System.out.println("lin " + node.getId());
+            if (node.getFirmBlock().getId().equals("111")) System.out.println("lin " + node);
             firmBlock.insertOperations(node);
         }
     }
