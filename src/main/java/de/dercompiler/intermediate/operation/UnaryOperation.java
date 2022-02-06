@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
+import de.dercompiler.intermediate.generation.AtntTranslator;
+import de.dercompiler.intermediate.generation.IntelTranslator;
 import de.dercompiler.intermediate.operand.Operand;
 
 import java.util.Objects;
@@ -31,12 +33,12 @@ public abstract non-sealed class UnaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + (Objects.isNull(operand) ? "" :  " " + operand.getIdentifier());
+        return operationType.getSyntax() + (Objects.isNull(operand) ? "" :  " " + operand.acceptTranslator(IntelTranslator.getInstance(), getDatatype()));
     }
 
     @Override
     public String getAtntSyntax() {
-        return operationType.getAtntSyntax(getDatatype()) + (Objects.isNull(getDatatype()) ? "" :  " " + operand.getIdentifier(getDatatype()));
+        return operationType.getAtntSyntax(getDatatype()) + (Objects.isNull(getDatatype()) ? "" :  " " + operand.acceptTranslator(AtntTranslator.getInstance(), getDatatype()));
     }
 
     public Operand getArg() {

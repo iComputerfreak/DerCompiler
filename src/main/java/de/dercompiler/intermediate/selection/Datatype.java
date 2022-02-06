@@ -3,12 +3,14 @@ package de.dercompiler.intermediate.selection;
 import firm.Mode;
 
 public enum Datatype implements Comparable<Datatype> {
-    BYTE("B"), WORD("W"), DWORD("L"), QWORD("Q"), OTHER("?"), NODATA("");
+    BYTE("B", "byte"), WORD("W", "word"), DWORD("L", "dword"), QWORD("Q", "qword"), OTHER("?", "?"), NODATA("", "");
 
     private final String repr;
+    private final String longRepr;
 
-    Datatype(String repr) {
+    Datatype(String repr, String longRepr) {
         this.repr = repr;
+        this.longRepr = longRepr;
     }
 
     public static Datatype forMode(Mode mode) {
@@ -26,5 +28,9 @@ public enum Datatype implements Comparable<Datatype> {
     @Override
     public String toString() {
         return repr;
+    }
+
+    public String getLong() {
+        return longRepr;
     }
 }

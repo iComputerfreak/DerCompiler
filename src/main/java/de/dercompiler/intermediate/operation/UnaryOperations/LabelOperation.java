@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation.UnaryOperations;
 
+import de.dercompiler.intermediate.generation.AtntTranslator;
+import de.dercompiler.intermediate.generation.IntelTranslator;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.intermediate.operation.UnaryOperation;
@@ -19,7 +21,7 @@ public class LabelOperation extends UnaryOperation {
 
     @Override
     public String getIntelSyntax() {
-        return "%s:".formatted(getLabel());
+        return "%s:".formatted(getLabel().acceptTranslator(IntelTranslator.getInstance(), getDatatype()));
     }
 
     private LabelOperand getLabel() {
@@ -28,6 +30,6 @@ public class LabelOperation extends UnaryOperation {
 
     @Override
     public String getAtntSyntax() {
-        return "%s:".formatted(getLabel().getIdentifier());
+        return "%s:".formatted(getLabel().acceptTranslator(AtntTranslator.getInstance(), getDatatype()));
     }
 }

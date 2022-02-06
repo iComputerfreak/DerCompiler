@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
+import de.dercompiler.intermediate.generation.AtntTranslator;
+import de.dercompiler.intermediate.generation.IntelTranslator;
 import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.TernaryOperations.IMul3;
@@ -39,11 +41,11 @@ public abstract non-sealed class TenaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + target.getIdentifier() + "," + source.getIdentifier() + "," + constant.getIdentifier();
+        return operationType.getSyntax() + " " + target.acceptTranslator(IntelTranslator.getInstance(), getDatatype()) + "," + source.acceptTranslator(IntelTranslator.getInstance(), getDatatype()) + "," + constant.acceptTranslator(IntelTranslator.getInstance(), getDatatype());
     }
 
     @Override
     public String getAtntSyntax() {
-        return operationType.getAtntSyntax(getDatatype()) + " " + constant.getIdentifier(getDatatype()) + "," + source.getIdentifier(getDatatype()) + "," + target.getIdentifier(getDatatype());
+        return operationType.getAtntSyntax(getDatatype()) + " " + constant.acceptTranslator(AtntTranslator.getInstance(), getDatatype()) + "," + source.acceptTranslator(AtntTranslator.getInstance(), getDatatype()) + "," + target.acceptTranslator(AtntTranslator.getInstance(), getDatatype());
     }
 }

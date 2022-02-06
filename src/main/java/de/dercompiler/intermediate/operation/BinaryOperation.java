@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
+import de.dercompiler.intermediate.generation.AtntTranslator;
+import de.dercompiler.intermediate.generation.IntelTranslator;
 import de.dercompiler.intermediate.operand.Operand;
 
 
@@ -36,12 +38,12 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + target.getIdentifier() + "," + source.getIdentifier();
+        return operationType.getSyntax() + " " + target.acceptTranslator(IntelTranslator.getInstance(), getDatatype()) + "," + source.acceptTranslator(IntelTranslator.getInstance(), getDatatype());
     }
 
     @Override
     public String getAtntSyntax(){
-        return operationType.getAtntSyntax(getDatatype()) +  " " + source.getIdentifier(getDatatype()) + "," + target.getIdentifier(getDatatype());
+        return operationType.getAtntSyntax(getDatatype()) +  " " + source.acceptTranslator(AtntTranslator.getInstance(), getDatatype()) + "," + target.getIdentifier(getDatatype());
     }
 
     public abstract BinaryOperation allocate(Operand target, Operand source);

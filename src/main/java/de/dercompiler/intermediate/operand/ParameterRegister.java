@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.generation.OperandTranslator;
 import de.dercompiler.intermediate.selection.Datatype;
 
 public class ParameterRegister implements IRRegister {
@@ -17,6 +18,11 @@ public class ParameterRegister implements IRRegister {
     @Override
     public String getIdentifier(Datatype datatype) {
         return getIdentifier();
+    }
+
+    @Override
+    public String acceptTranslator(OperandTranslator translator, Datatype dt) {
+        return translator.translate(this, dt);
     }
 
     @Override

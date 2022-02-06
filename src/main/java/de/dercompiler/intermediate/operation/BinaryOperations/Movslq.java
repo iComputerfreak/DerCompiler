@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation.BinaryOperations;
 
+import de.dercompiler.intermediate.generation.AtntTranslator;
+import de.dercompiler.intermediate.generation.IntelTranslator;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operand.X86Register;
 import de.dercompiler.intermediate.operation.BinaryOperation;
@@ -23,7 +25,12 @@ public class Movslq extends BinArithOperation{
     }
 
     @Override
+    public String getIntelSyntax() {
+        return "movsxd " + target.acceptTranslator(IntelTranslator.getInstance(), Datatype.QWORD) + "," + source.acceptTranslator(IntelTranslator.getInstance(), Datatype.DWORD);
+    }
+
+    @Override
     public String getAtntSyntax(){
-        return operationType.getAtntSyntax(Datatype.DWORD) +  " " + source.getIdentifier(Datatype.WORD) + "," + target.getIdentifier(Datatype.DWORD);
+        return operationType.getAtntSyntax(Datatype.DWORD) +  " " + source.acceptTranslator(AtntTranslator.getInstance(), Datatype.DWORD) + "," + target.acceptTranslator(AtntTranslator.getInstance(), Datatype.QWORD);
     }
 }

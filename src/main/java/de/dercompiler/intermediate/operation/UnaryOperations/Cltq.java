@@ -12,11 +12,6 @@ public final class Cltq extends UnaryArithmeticOperation {
     }
 
     @Override
-    public String getIntelSyntax() {
-        return operationType.getSyntax();
-    }
-
-    @Override
     public UnaryArithmeticOperation allocate(Operand operand) {
         Cltq cltq = new Cltq(operand, false);
         cltq.setDefinition(getDefinition());

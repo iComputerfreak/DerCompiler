@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.generation.OperandTranslator;
 import de.dercompiler.intermediate.selection.Datatype;
 import de.dercompiler.intermediate.selection.FirmBlock;
 
@@ -22,6 +23,11 @@ public class LabelOperand implements Operand {
     @Override
     public String getIdentifier(Datatype datatype) {
         return "L" + target;
+    }
+
+    @Override
+    public String acceptTranslator(OperandTranslator translator, Datatype dt) {
+        return translator.translate(this, dt);
     }
 
     public String getTarget() {

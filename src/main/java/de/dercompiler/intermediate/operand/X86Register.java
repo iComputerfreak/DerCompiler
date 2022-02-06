@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.operand;
 
+import de.dercompiler.intermediate.generation.OperandTranslator;
 import de.dercompiler.intermediate.selection.Datatype;
 
 public enum X86Register implements Register {
@@ -46,17 +47,22 @@ public enum X86Register implements Register {
 
     @Override
     public String getIdentifier() {
-        return "%" + id;
+        return id;
     }
 
 
     @Override
     public String getIdentifier(Datatype datatype) {
-        return "%" + switch (datatype) {
+        return switch (datatype) {
             case BYTE -> idb;
             case WORD -> idw;
             case DWORD -> idd;
             case QWORD, OTHER, NODATA -> id;
         };
+    }
+
+    @Override
+    public String acceptTranslator(OperandTranslator translator, Datatype dt) {
+        return translator.translate(this, dt);
     }
 }

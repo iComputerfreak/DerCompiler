@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation.UnaryOperations;
 
+import de.dercompiler.intermediate.generation.AtntTranslator;
+import de.dercompiler.intermediate.generation.IntelTranslator;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.OperationType;
 import de.dercompiler.intermediate.operation.UnaryOperation;
@@ -25,11 +27,11 @@ public class IDiv extends UnaryOperation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + getDivisor().getIdentifier();
+        return operationType.getSyntax() + " " + getDivisor().acceptTranslator(IntelTranslator.getInstance(), getDatatype());
     }
 
     @Override
     public String getAtntSyntax(){
-        return operationType.getAtntSyntax(getDatatype()) + " " + getDivisor().getIdentifier();
+        return operationType.getAtntSyntax(getDatatype()) + " " + getDivisor().acceptTranslator(AtntTranslator.getInstance(), getDatatype());
     }
 }

@@ -1,5 +1,7 @@
 package de.dercompiler.intermediate.operation;
 
+import de.dercompiler.intermediate.generation.AtntTranslator;
+import de.dercompiler.intermediate.generation.IntelTranslator;
 import de.dercompiler.intermediate.operand.Operand;
 
 import java.util.Arrays;
@@ -39,13 +41,13 @@ public abstract non-sealed class NaryOperation extends Operation {
     @Override
     public String getIntelSyntax() {
         return operationType.getSyntax() + " "
-                + Arrays.stream(operands).map(Operand::getIdentifier).collect(Collectors.joining(","));
+                + Arrays.stream(operands).map(operand -> operand.acceptTranslator(IntelTranslator.getInstance(), getDatatype())).collect(Collectors.joining(","));
     }
 
     @Override
     public String getAtntSyntax() {
         return operationType.getAtntSyntax(getDatatype()) + " "
-                + Arrays.stream(operands).map(operand -> operand.getIdentifier(getDatatype())).collect(Collectors.joining(","));
+                + Arrays.stream(operands).map(operand -> operand.acceptTranslator(AtntTranslator.getInstance(), getDatatype())).collect(Collectors.joining(","));
     }
 
 }
