@@ -527,6 +527,19 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         List<? extends NodeAnnotation<?>> predecessors = GraphUtil.getPredecessors(a, nodeAnnotationGraph);
         List<Node> requiredNodes = a.getRule().getRequiredNodes(graph);
         rule.clear();
+
+        // Mark all nodes that are covered by this rule as "transformed"
+        // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
+        a.setTransformed(true);
+        rule.setNode(rootNode);
+        for (Node n : rule.getRequiredNodes(graph)) {
+            // M-Nodes must be traversed either way.
+            if (n.getMode().equals(firm.Mode.getM())) {
+                continue;
+            }
+            annotations.get(n.getNr()).setTransformed(true);
+        }
+        rule.clear();
         
         requiredNodes
                 .stream()
@@ -573,19 +586,6 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 }
             }
         }
-
-        // Mark all nodes that are covered by this rule as "transformed"
-        // Transformed nodes' rules are not applied, but can still be used by rules from non-transformed nodes
-        a.setTransformed(true);
-        rule.setNode(rootNode);
-        for (Node n : rule.getRequiredNodes(graph)) {
-            // M-Nodes must be traversed either way.
-            if (n.getMode().equals(firm.Mode.getM())) {
-                continue;
-            }
-            annotations.get(n.getNr()).setTransformed(true);
-        }
-        rule.clear();
 
         firm.Mode mode = a.getRootNode().getMode();
         if ((mode.equals(firm.Mode.getM()) || mode.equals(firm.Mode.getT())) && !(a.getRule() instanceof EmptyRule<T>))
