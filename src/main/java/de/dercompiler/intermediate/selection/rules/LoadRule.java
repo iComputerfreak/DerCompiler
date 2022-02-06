@@ -21,10 +21,6 @@ public class LoadRule extends SubstitutionRule<Load> {
         return 1 + getOperand().getCost();
     }
 
-    /*
-        Do not load the address, let the Node attached do it.
-
-     */
 
     private Load getLoad() {
       return getRootNode();

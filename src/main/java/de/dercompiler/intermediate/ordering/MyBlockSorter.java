@@ -161,7 +161,7 @@ public class MyBlockSorter implements BlockSorter {
         chainFrom.addAll(chainTo);
         chains.remove(chainTo);
 
-        System.out.printf("Unified %s-%s %s%n", from, to, hard ? " [x]" : "");
+        //System.out.printf("Unified %s-%s %s%n", from, to, hard ? " [x]" : "");
         return true;
     }
 
