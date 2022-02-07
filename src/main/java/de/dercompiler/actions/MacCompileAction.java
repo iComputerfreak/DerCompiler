@@ -5,6 +5,7 @@ import de.dercompiler.Program;
 import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.generation.AtntCodeGenerator;
 import de.dercompiler.intermediate.generation.CodeGenerator;
+import de.dercompiler.intermediate.generation.IntelCodeGenerator;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
@@ -104,7 +105,7 @@ public class MacCompileAction extends Action{
 
         ErrorStatus.exitProgramIfError();
 
-        CodeGenerator gen = new AtntCodeGenerator();
+        CodeGenerator gen = new IntelCodeGenerator();
 
         String base = ToolchainUtil.getBaseName(source.filename());
         gen.createAssembler(program, ToolchainUtil.appendAssemblerExtension(base));
