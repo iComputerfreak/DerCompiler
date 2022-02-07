@@ -42,7 +42,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
         setMode(root.getPred(0).getMode());
 
         // Try to reuse the VR of the initialization
-        Operand target = Stream.of(getAnnotation(node.getPred(0)).getDefinition(), getDefinition(), new VirtualRegister()).filter(obj -> !Objects.isNull(obj) && obj instanceof Register).findFirst().get();
+        Operand target = Stream.of(getAnnotation(node.getPred(0)).getDefinition(), getDefinition(), new VirtualRegister()).filter(obj -> !Objects.isNull(obj) && obj instanceof VirtualRegister).findFirst().get();
         setDefinition(target);
 
         for (Node pred : node.getPreds()) {
