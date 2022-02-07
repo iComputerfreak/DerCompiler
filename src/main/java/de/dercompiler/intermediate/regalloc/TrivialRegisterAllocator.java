@@ -294,7 +294,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 } else if (!operands[0].equals(operands[1])) {
                     // load address of target register
                     ops.add(new Lea(R10, opTgt));
-                    destReg = Address.ofOperand(R10);
+                    destReg = Address.loadOperand(R10);
                 }
             } else if (bo.needsDefinition()) {
                 // load target value into destination location
@@ -558,7 +558,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 Operand base = getOperand(address.getBase(), IRMode.PTR, false);
                 Operand index = getOperand(address.getIndex(), IRMode.INT, false);
                 if (allowAddress && index == null && address.getOffset() == 0) {
-                    return Address.ofOperand(base);
+                    return Address.loadOperand(base);
                 }
                 address = address.allocate((X86Register) base, (X86Register) index);
             }

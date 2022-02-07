@@ -72,7 +72,7 @@ public class ArrayAccessRule extends AddRule {
         if (getArray().getDefinition() == null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Node %s has no target yet, so better implement a basic rule for it.".formatted(getLeft().getRootNode().toString()));
         }
-        Address arrayAddr = Address.ofOperand(getArray().getDefinition());
+        Address arrayAddr = Address.loadOperand(getArray().getDefinition());
 
         // There is nowhere to save the relative address, so calculate it again
 
@@ -100,7 +100,7 @@ public class ArrayAccessRule extends AddRule {
 
         if (targetAddr == null) {
             targetAddr = new VirtualRegister();
-            setDefinition(Address.ofOperand(targetAddr));
+            setDefinition(Address.loadOperand(targetAddr));
         } else {
             // Undo indirection
             targetAddr = ((Address) targetAddr).getBase();

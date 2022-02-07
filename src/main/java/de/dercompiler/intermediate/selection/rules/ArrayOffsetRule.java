@@ -36,7 +36,7 @@ public class ArrayOffsetRule extends SubstitutionRule<Add> {
         Operand target;
         if (!hasDefinition()) {
             target = new VirtualRegister();
-            setDefinition(Address.ofOperand(target));
+            setDefinition(Address.loadOperand(target));
         }else {
             target = ((Address) getDefinition()).getBase();
         }
