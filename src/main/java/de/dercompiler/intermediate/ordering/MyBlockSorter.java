@@ -1,6 +1,5 @@
 package de.dercompiler.intermediate.ordering;
 
-import de.dercompiler.intermediate.CodeGenerationErrorIds;
 import de.dercompiler.intermediate.operand.LabelOperand;
 import de.dercompiler.intermediate.operation.NaryOperations.Ret;
 import de.dercompiler.intermediate.operation.Operation;
@@ -8,8 +7,6 @@ import de.dercompiler.intermediate.operation.UnaryOperations.JumpOperation;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeNode;
 import de.dercompiler.intermediate.selection.FirmBlock;
-import de.dercompiler.io.OutputMessageHandler;
-import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.util.GraphUtil;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -111,7 +108,7 @@ public class MyBlockSorter implements BlockSorter {
             //no success :c
             noSuccess++;
             if (noSuccess > chains.size()) hard = true;
-            if (noSuccess > chains.size()*3) fail();
+            if (noSuccess > chains.size()*3) return failStrategy();
             if (!candidates.contains(chain))
                 candidates.add(chain);
             chain = candidates.remove();
@@ -121,8 +118,13 @@ public class MyBlockSorter implements BlockSorter {
         return getChain(getGraphData().getStart());
     }
 
-    private void fail() {
-        new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.BLOCK_ORDER_FAIL, "The BlockSorter failed at the task of sorting the blocks. There must be a wacked chain");
+    private LinkedList<FirmBlock> failStrategy() {
+
+        LinkedList<FirmBlock> startChain = getChain(graphData.getStart());
+        chains.remove(startChain);
+        startChain.addAll(chains.stream().flatMap(List::stream).toList());
+        return startChain;
+        //new OutputMessageHandler(MessageOrigin.CODE_GENERATION).printErrorAndExit(CodeGenerationErrorIds.BLOCK_ORDER_FAIL, "The BlockSorter failed at the task of sorting the blocks. There must be a wacked chain");
     }
 
     private boolean unify(FirmBlock from, FirmBlock to, boolean hard) {
