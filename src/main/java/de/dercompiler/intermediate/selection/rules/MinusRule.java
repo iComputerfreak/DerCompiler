@@ -1,5 +1,6 @@
 package de.dercompiler.intermediate.selection.rules;
 
+import de.dercompiler.intermediate.operand.ParameterRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Neg;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
@@ -30,8 +31,16 @@ public class MinusRule extends SubstitutionRule<Minus> {
         // destination = operand
         Operation minus = new Neg(getOperand().getDefinition(), isMemoryOperation());
         minus.setMode(getOperand().getRootNode().getMode());
-        setDefinition(getOperand().getDefinition());
-        minus.setDefinition(getDefinition());
+        if (!hasDefinition()) {
+            if (!(getOperand().getDefinition() instanceof ParameterRegister)) {
+                setDefinition(getOperand().getDefinition());
+                minus.setDefinition(getDefinition());
+            } else {
+                setDefinition(minus.getDefinition());
+            }
+        } else {
+            minus.setDefinition(getDefinition());
+        }
         return List.of(minus);
     }
 
