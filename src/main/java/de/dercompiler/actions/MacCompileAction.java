@@ -68,8 +68,6 @@ public class MacCompileAction extends Action{
         PassManager manager = new PassManager(lexer);
         PassManagerBuilder.buildTransformationPipeline(manager);
 
-        GraphDumper.dump(true);
-
         manager.run(program);
 
         ErrorStatus.exitProgramIfError();
