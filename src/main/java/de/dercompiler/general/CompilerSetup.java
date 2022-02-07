@@ -132,7 +132,12 @@ public class CompilerSetup {
                 action.setBasicOptimizationActive(true);
                 action.setOptimizationActive(options.optimizationsActive());
                 setAction(action);
-            } else {
+            } else if (TargetTriple.isMacOS()) {
+                MacCompileAction action = new MacCompileAction(src);
+                action.setBasicOptimizationActive(true);
+                action.setOptimizationActive(options.optimizationsActive());
+                setAction(action);
+            }else {
                 CompileAction action = new CompileAction(src);
                 action.setBasicOptimizationActive(true);
                 action.setOptimizationActive(options.optimizationsActive());
