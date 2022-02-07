@@ -123,18 +123,18 @@ public class FirmBlock {
             if (safeToWrite.isEmpty()) {
                 // Introduce temp register to save one of the registers to
                 VirtualRegister temp = new VirtualRegister();
-                Operand source = allMoves.get(0).getTarget();
-                Mov mov = new Mov(temp, source, false);
+                Operand target = allMoves.get(0).getTarget();
+                Mov mov = new Mov(temp, target, false);
                 mov.setMode(allMoves.get(0).getMode());
                 linearization.add(mov);
                 allMoves.replaceAll(op -> {
-                    if (op.getTarget() == source) {
-                        Mov repl = new Mov(temp, op.getSource(), false);
+                    if (op.getSource() == target) {
+                        Mov repl = new Mov(op.getTarget(), temp, false);
                         repl.setMode(op.getMode());
                         return repl;
                     } else return op;
                 });
-                safeToWrite.add(temp);
+                safeToWrite.add(target);
             }
 
             Operand target = safeToWrite.remove(0);
