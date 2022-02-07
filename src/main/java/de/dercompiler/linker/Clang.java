@@ -55,7 +55,7 @@ public final class Clang implements Compiler {
 
     @Override
     public void compileAndLink(String base) {
-        boolean c = false;
+        boolean c = true;
         String runtime;
         if (c) {
             runtime = ToolchainUtil.prepareRuntimeCompile();
