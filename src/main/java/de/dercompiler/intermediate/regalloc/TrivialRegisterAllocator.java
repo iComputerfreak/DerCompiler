@@ -20,6 +20,7 @@ import de.dercompiler.io.message.MessageOrigin;
 
 import java.util.*;
 
+import static de.dercompiler.intermediate.operand.Address.NULL_PTR;
 import static de.dercompiler.intermediate.operand.X86Register.*;
 
 
@@ -93,7 +94,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         paramCount = function.getParamCount();
         resetScratchRegisters(paramCount);
         for (Operation op : function.getOperations()) {
-            ops.add(new CommentOperation("\t\t"+op.toString()));
+            ops.add(new CommentOperation("\t\t" + op.toString()));
             if (skipNext) {
                 skipNext = false;
                 continue;
@@ -454,7 +455,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 }
                 case 25, 29 -> {
                     // 25/29: imul addr/reg, const -> reg
-                    ops.add(mul.allocateIMul3(dest,  fctTarget, (ConstantValue) fctSource));
+                    ops.add(mul.allocateIMul3(dest, fctTarget, (ConstantValue) fctSource));
                     break loop;
                 }
 
@@ -553,7 +554,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             return getOperand(loadVirtualRegister(vr.getId(), mode), mode, allowAddress);
         } else if (operand instanceof ParameterRegister pr) {
             return getOperand(getParamReg(pr.getId()), mode, allowAddress);
+        } else if (operand.equals(NULL_PTR)) {
+            return allowAddress ? NULL_PTR : new ConstantValue(0);
         } else if (operand instanceof Address address) {
+            // index or base might be null, so do not flip
+            if (NULL_PTR.equals(address.getBase()) || NULL_PTR.equals(address.getIndex())) return NULL_PTR;
             if (address.getBase() instanceof IRRegister || address.getBase() instanceof Address) {
                 Operand base = getOperand(address.getBase(), IRMode.PTR, false);
                 Operand index = getOperand(address.getIndex(), IRMode.INT, false);

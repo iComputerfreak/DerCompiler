@@ -140,7 +140,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         while (nodeAnnotationGraphIterator.hasNext()) {
             NodeAnnotation<?> next = nodeAnnotationGraphIterator.next();
             if (!next.getTransformed()) {
-                System.out.println("New component of " + next.getRootNode().getBlock() + " starts at " + next.getRootNode());
+                //System.out.println("New component of " + next.getRootNode().getBlock() + " starts at " + next.getRootNode());
                 int compIdx = getFirmBlock(next.getRootNode().getBlock().getNr()).newComponent();
                 next.setComponent(compIdx);
             }
@@ -549,7 +549,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                 if (!visited) {
                     p.setComponent(a.getComponent());
                     if (!p.getRootNode().getBlock().equals(a.getRootNode().getBlock())) {
-                        System.out.println("New component of " + p.getRootNode().getBlock() + " starts at " + p.getRootNode());
+                        //System.out.println("New component of " + p.getRootNode().getBlock() + " starts at " + p.getRootNode());
                         p.setComponent(getOrCreateFirmBlock(p.getRootNode().getBlock().getNr()).newComponent());
                     }
                     transformAnnotation(p);
