@@ -99,7 +99,7 @@ public class IntelCodeGenerator implements CodeGenerator {
 
     private void createFunctionFooter(BufferedWriter bw, Function func) throws IOException {
         writeLine(bw, COMMENT_FUNC_END, SEPARATOR, func.getName());
-        if (!TargetTriple.isWindows()) {
+        if (TargetTriple.isLinux()) {
             writeLine(bw, FUNC_END_LABEL, ("" + counter), COLON);
             writeLine(bw, SEPARATOR, SIZE, SEPARATOR, func.getName(), ", ", FUNC_END_LABEL, ("" + counter++), "-", func.getName());
         }

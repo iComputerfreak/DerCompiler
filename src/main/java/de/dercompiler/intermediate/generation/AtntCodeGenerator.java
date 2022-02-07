@@ -9,6 +9,7 @@ import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
 import de.dercompiler.io.FileResolver;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.transformation.TargetTriple;
 
 import java.io.*;
 
@@ -97,7 +98,9 @@ public class AtntCodeGenerator implements CodeGenerator {
     }
 
     private void createFunctionFooter(BufferedWriter bw, Function func) throws IOException {
-        writeLine(bw, SIZE, SEPARATOR, func.getName(), SIZE_MINUS, func.getName());
+        if (TargetTriple.isLinux()) {
+            writeLine(bw, SIZE, SEPARATOR, func.getName(), SIZE_MINUS, func.getName());
+        }
         writeLine(bw, COMMENT_FUNC_END, SEPARATOR, func.getName());
     }
 
