@@ -231,6 +231,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                     NodeAnnotation<Phi> a = new NodeAnnotation<>(1, phi, new PhiRule(), !inRow, false);
                     VirtualRegister target = new VirtualRegister();
                     target.setPhiVariable(true);
+                    //reset by phi rule
                     a.setDefinition(target);
                     annotations.put(phi.getNr(), a);
 
