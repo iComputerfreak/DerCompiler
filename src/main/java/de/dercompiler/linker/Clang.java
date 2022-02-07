@@ -70,6 +70,7 @@ public final class Clang implements Compiler {
             runner.append(ToolchainUtil.appendCFileExtension(runtime));
         } else {
             runner.append(ToolchainUtil.appendCppFileExtension(runtime));
+            runner.append("-lstdc++");
         }
         runner.append(output);
         runner.append(outputFile);

@@ -18,12 +18,17 @@ public class LibraryMethods {
     static {
         OWNER = new firm.ClassType("Internals");
 
-        print_int = new Entity(OWNER, "print_int", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
-        print_byte = new Entity(OWNER, "print_byte", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
-        read_int = new Entity(OWNER, "read_int", new MethodType(new Type[]{}, new Type[]{FirmTypes.intFirmType}));
-        flush_out = new Entity(OWNER, "flush_out", new MethodType(new Type[]{}, new Type[]{}));
+        String prefix = "";
+        if (TargetTriple.isMacOS()) {
+            prefix = "_";
+        }
 
-        allocate = new Entity(OWNER, "allocate", new MethodType(new Type[]{FirmTypes.longFirmType, FirmTypes.longFirmType}, new Type[]{FirmTypes.pointerFirmType}));
+        print_int = new Entity(OWNER, prefix + "print_int", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
+        print_byte = new Entity(OWNER, prefix + "print_byte", new MethodType(new Type[]{FirmTypes.intFirmType}, new Type[]{}));
+        read_int = new Entity(OWNER, prefix + "read_int", new MethodType(new Type[]{}, new Type[]{FirmTypes.intFirmType}));
+        flush_out = new Entity(OWNER, prefix + "flush_out", new MethodType(new Type[]{}, new Type[]{}));
+
+        allocate = new Entity(OWNER, prefix + "allocate", new MethodType(new Type[]{FirmTypes.longFirmType, FirmTypes.longFirmType}, new Type[]{FirmTypes.pointerFirmType}));
 
         map = new HashMap<>(5);
         map.put("println", print_int);
