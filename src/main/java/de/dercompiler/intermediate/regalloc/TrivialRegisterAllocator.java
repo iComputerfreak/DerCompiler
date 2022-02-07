@@ -110,7 +110,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (op instanceof JumpOperation jo) {
                 ops.add(jo);
             } else if (op instanceof UnaryArithmeticOperation uao) {
-                handleUnaryArithmeticOperation(op, uao);
+                handleUnaryArithmeticOperation(uao);
             } else {
                 new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("Could not handle  " + op);
             }
@@ -131,13 +131,21 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         function.setOperations(ops);
     }
 
-    private void handleUnaryArithmeticOperation(Operation op, UnaryArithmeticOperation uao) {
+    private void handleUnaryArithmeticOperation(UnaryArithmeticOperation uao) {
         Operand operand = uao.getArgs()[0];
-        Operand operandAddr = getOperand(operand, uao.getMode(), !op.needsDefinition());
+        Operand operandAddr = getOperand(operand, uao.getMode(), !uao.needsDefinition());
+        if (operand instanceof ParameterRegister param) {
+            VirtualRegister definition = (VirtualRegister) uao.getDefinition();
+            operandAddr = storeInVirtualRegister(definition.getId(), getOperand(param, IRMode.PTR, false), IRMode.PTR, false);
+
+            //uao.setDefinition(operandAddr);
+            ops.add(uao.allocate(operandAddr));
+            return;
+        }
         ops.add(uao.allocate(operandAddr));
         // write back
-        if (op.needsDefinition()) {
-            storeInVirtualRegister(((VirtualRegister) op.getDefinition()).getId(), operandAddr, op.getMode(), false);
+        if (uao.needsDefinition()) {
+            storeInVirtualRegister(((VirtualRegister) uao.getDefinition()).getId(), operandAddr, uao.getMode(), false);
         }
     }
 

@@ -10,4 +10,5 @@ public abstract class UnaryArithmeticOperation extends UnaryOperation {
     }
 
     public abstract UnaryArithmeticOperation allocate(Operand operand);
+
 }
