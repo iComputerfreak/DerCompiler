@@ -8,7 +8,9 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.Mode;
+import firm.nodes.Minus;
 import firm.nodes.Node;
+import firm.nodes.Not;
 import firm.nodes.Phi;
 
 import java.util.List;
@@ -44,7 +46,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
             setDefinition(target);
         }
         for (Node pred : node.getPreds()) {
-            if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue || pred instanceof Phi)) {
+            if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue || !(pred instanceof Minus || pred instanceof Not || pred instanceof Phi))) {
                 getAnnotation(pred).setDefinition(target);
             }
         }

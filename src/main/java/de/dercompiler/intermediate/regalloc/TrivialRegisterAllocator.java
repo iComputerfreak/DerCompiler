@@ -386,7 +386,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         if (opTgt instanceof X86Register reg) {
             storeInRegister(reg, opSrc, bo.getMode());
         } else {
-            store(opTgt, opSrc, bo.getMode(), "");
+            store(opTgt, opSrc, bo.getMode(), null);
         }
     }
 
