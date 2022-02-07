@@ -2,10 +2,7 @@ package de.dercompiler.optimization;
 
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
-import firm.Construction;
-import firm.Graph;
-import firm.Mode;
-import firm.Relation;
+import firm.*;
 import firm.nodes.*;
 
 import java.util.HashMap;
@@ -158,8 +155,14 @@ public class ArithmeticOptimization extends GraphOptimization {
 
         // case 'dividend == 0' cannot be taken advantage from unless divisor is constant as well and _not_ 0, in which case other optimizations apply.
         if (divisor instanceof Const dsrConst) {
-            int dsrValue = dsrConst.getTarval().asInt();
-            switch (dsrValue) {
+            TargetValue dsrValue = dsrConst.getTarval();
+            if (dividend instanceof Const dvdValue && dsrValue.asInt() != 0) {
+                replaceDiv(node, getConstruction().newConst(dvdValue.getTarval().div(dsrValue)));
+                return;
+            }
+
+
+            switch (dsrValue.asInt()) {
 
                 // x / -1 -> -x
                 case -1 -> {
@@ -175,7 +178,7 @@ public class ArithmeticOptimization extends GraphOptimization {
 
                 default -> {
                     // if non-negative, dsrValue is exactly a power of two
-                    int exponent = getHighestOneBit(dsrValue);
+                    int exponent = getHighestOneBit(dsrValue.asInt());
 
                     // x / (2 ** exp) -> x >> exp
                     if (exponent > 0) {
@@ -194,13 +197,13 @@ public class ArithmeticOptimization extends GraphOptimization {
     private void replaceDiv(Div divNode, Node newNode) {
         // Must replace by hand, or else the Proj nodes' predecessors will have invalid types.
         newNode.setBlock(divNode.getBlock());
-        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem(), divNode.getLeft(), divNode.getRight()));
+        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem()));
     }
 
     private void replaceMod(Mod divNode, Node newNode) {
         // Must replace by hand, or else the Proj nodes' predecessors will have invalid types.
         newNode.setBlock(divNode.getBlock());
-        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem(), divNode.getLeft(), divNode.getRight()));
+        this.divNodesData.put(divNode.getNr(), new ReplaceDivNode(newNode, divNode.getMem()));
     }
 
     @Override
@@ -429,23 +432,24 @@ public class ArithmeticOptimization extends GraphOptimization {
 
     @Override
     public void visit(Proj node) {
-        if (node.getPred() instanceof Div divNode && divNodesData.containsKey(divNode.getNr())) {
-            final ReplaceDivNode data = divNodesData.get(divNode.getNr());
+        Node pred = node.getPred();
+        if ((pred instanceof Div || pred instanceof Mod) && divNodesData.containsKey(pred.getNr())) {
+            final ReplaceDivNode data = divNodesData.get(pred.getNr());
             boolean replace = false;
-            Node predecessor;
+            Node prePred;
             switch (node.getMode().getName()) {
                 case "M" -> {
-                    predecessor = data.memory;
+                    prePred = data.memory; //Might be Phi, so multiple possible?
                     for (int i = 0; i < node.getPredCount(); i++) {
-                        if (node.getPred(i).equals(divNode)) {
-                            logger.printInfo("Replace %d-th predecessor %s of %s by %s".formatted(i, node.getPred(i), node, predecessor));
-                            node.setPred(i, predecessor);
+                        if (node.getPred(i).equals(pred)) {
+                            logger.printInfo("Replace %d-th predecessor %s of %s by %s".formatted(i, node.getPred(i), node, prePred));
+                            node.setPred(i, prePred);
                         }
                     }
                 }
                 case "Is", "Ls" -> {
-                    predecessor = data.replaceValue;
-                    replaceNode(node, predecessor, true);
+                    prePred = data.replaceValue;
+                    replaceNode(node, prePred, true);
                 }
                 default -> {
                     logger.internalError("A Proj node with a Mode different from M, Ls or Is seems to have pointed to an Integer Div node. How is that supposed to happen?");
@@ -456,10 +460,10 @@ public class ArithmeticOptimization extends GraphOptimization {
         }
     }
 
-    private void replaceNode(Node node, Node b, boolean newlyCreated) {
-        Graph.exchange(node, b);
-        if (newlyCreated) b.setBlock(node.getBlock());
-        b.accept(this);
+    private void replaceNode(Node oldNode, Node newNode, boolean newlyCreated) {
+        Graph.exchange(oldNode, newNode);
+        if (newlyCreated) newNode.setBlock(oldNode.getBlock());
+        newNode.accept(this);
     }
 
     private static int getHighestOneBit(int value) {
@@ -483,7 +487,7 @@ public class ArithmeticOptimization extends GraphOptimization {
         return success;
     }
 
-    record ReplaceDivNode(Node replaceValue, Node memory, Node left, Node right) {
+    record ReplaceDivNode(Node replaceValue, Node memory) {
         // no methods, just data c:
     }
 

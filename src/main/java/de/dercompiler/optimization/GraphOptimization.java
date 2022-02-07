@@ -1,5 +1,6 @@
 package de.dercompiler.optimization;
 
+import de.dercompiler.transformation.GraphDumper;
 import de.dercompiler.transformation.LazyFirmNodeVisitor;
 import de.dercompiler.transformation.TransformationState;
 import firm.Construction;
