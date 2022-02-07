@@ -20,10 +20,7 @@ public final class MainMethod extends Method {
      * Returns the mangled identifier to use in firm
      */
     public String getMangledIdentifier() {
-        if (TargetTriple.isLinux()) {
-            return "main_func";
-        }
-        return "_main_func";
+        return "main_func";
     }
 
     @Override

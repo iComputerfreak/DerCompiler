@@ -23,6 +23,8 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
+import de.dercompiler.linker.AssemblerStyle;
+import de.dercompiler.linker.ExternalToolchain;
 import de.dercompiler.linker.Gcc;
 import de.dercompiler.linker.ToolchainUtil;
 import de.dercompiler.optimization.ArithmeticOptimization;
@@ -103,6 +105,8 @@ public class WindowsCompileAction extends Action {
         }
 
         ErrorStatus.exitProgramIfError();
+
+        ExternalToolchain.setAssemblerStyle(AssemblerStyle.Intel);
 
         CodeGenerator gen = new IntelCodeGenerator();
 

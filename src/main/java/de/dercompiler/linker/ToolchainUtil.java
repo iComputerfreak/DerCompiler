@@ -102,10 +102,6 @@ public class ToolchainUtil {
         return null; //We never return
     }
 
-    public static String appendAssembleFileExtension(String filename) {
-        return appendExtensionToFilename(filename, getAssembleExtension());
-    }
-
     public static String getAssembleExtension() {
         if (ExternalToolchain.getAssemblerStyle().isIntel()) return "asm";
         if (ExternalToolchain.getAssemblerStyle().isAtAndT()) return "S";

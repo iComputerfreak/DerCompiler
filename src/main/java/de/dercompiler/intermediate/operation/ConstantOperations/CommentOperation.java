@@ -10,7 +10,7 @@ public class CommentOperation extends ConstantOperation {
 
     private String comment;
     private final String NEWLINE = "\n";
-    private final String COMMENT_INTEL = "; ";
+    private final String COMMENT_INTEL = "#";
     private final String COMMENT_Atnt_START = "/*";
     private final String COMMENT_Atnt       = "* ";
     private final String COMMENT_Atnt_END   = "*/";

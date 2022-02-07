@@ -42,7 +42,7 @@ public final class NASM implements Assembler {
         }
         runner.append(ToolchainUtil.appendAssemblerExtension(testFile));    // input
         runner.append(output);                                              // -o
-        String outputFile = ToolchainUtil.appendAssembleFileExtension(testFile);
+        String outputFile = ToolchainUtil.appendAssemblerExtension(testFile);
         runner.append(outputFile);                                          // output
 
         if (!runner.run()) return false;

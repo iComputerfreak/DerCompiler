@@ -47,7 +47,7 @@ public final class Gcc implements Compiler, Assembler {
         } else {
             runtime = ToolchainUtil.prepareRuntimeCppCompile();
         }
-        String inputFile = ToolchainUtil.appendAssembleFileExtension(base);
+        String inputFile = ToolchainUtil.appendAssemblerExtension(base);
         String outputFile = "a.out";
         Runner runner = new Runner(gcc_path);
         runner.append(inputFile);
