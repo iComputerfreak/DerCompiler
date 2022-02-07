@@ -17,4 +17,9 @@ public class Cqto extends ConstantOperation {
         super(OperationType.CQTO, true);
         setMode(Datatype.QWORD, Signedness.UNSIGNED);
     }
+
+    @Override
+    public String getIntelSyntax() {
+        return "cqo";
+    }
 }
