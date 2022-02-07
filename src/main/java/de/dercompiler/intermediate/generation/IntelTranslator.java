@@ -44,7 +44,7 @@ public class IntelTranslator implements OperandTranslator {
         };
         return dt.getLong() + (usePtr ? " ptr " : " ") + format.formatted(offset, base != null ? base.acceptTranslator(this, Datatype.QWORD) : null, index != null? index.acceptTranslator(this, Datatype.QWORD) : null, scale)
                 //remove + if unessessary
-                .replace("+-", "-").replace("+  -", " -");
+                .replace("+-", "- ").replace("+ -", "- ");
     }
 
     @Override

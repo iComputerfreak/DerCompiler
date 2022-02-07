@@ -12,6 +12,7 @@ import de.dercompiler.linker.Runner;
 import de.dercompiler.pass.PassManager;
 import de.dercompiler.pass.passes.SpecificationConformityPass;
 import de.dercompiler.transformation.GraphDumper;
+import de.dercompiler.transformation.TargetTriple;
 import de.dercompiler.util.ErrorStatus;
 
 import java.io.File;
@@ -126,10 +127,17 @@ public class CompilerSetup {
 
         if (Objects.isNull(action)) {
             Source src = getSourceFromArgs(options);
-            CompileAction action = new CompileAction(src);
-            action.setBasicOptimizationActive(true);
-            action.setOptimizationActive(options.optimizationsActive());
-            setAction(action);
+            if (TargetTriple.isWindows()) {
+                WindowsCompileAction action = new WindowsCompileAction(src);
+                action.setBasicOptimizationActive(true);
+                action.setOptimizationActive(options.optimizationsActive());
+                setAction(action);
+            } else {
+                CompileAction action = new CompileAction(src);
+                action.setBasicOptimizationActive(true);
+                action.setOptimizationActive(options.optimizationsActive());
+                setAction(action);
+            }
         }
 
         return action;

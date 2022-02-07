@@ -9,6 +9,7 @@ import de.dercompiler.intermediate.operation.UnaryOperations.LabelOperation;
 import de.dercompiler.io.FileResolver;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.transformation.TargetTriple;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,7 +20,18 @@ public class IntelCodeGenerator implements CodeGenerator {
 
     private static final String SPACING = "\t";
     private static final String SEPARATOR = " ";
-    private static final String COMMENT_SYMBOL = ";";
+    private static final String COLON = ":";
+
+    private static final String COMMENT_FUNC_START = "# -- Begin";
+    private static final String COMMENT_FUNC_END = "# -- End  ";
+    private static final String COMMENT_SYMBOL = "#";
+
+    private static final String TEXT = ".text";
+    private static final String PREFIX = ".intel_syntax noprefix";
+    private static final String GLOBL = ".globl";
+    private static final String ALIGN = ".p2align    4, 0x90";
+    private static final String SIZE = ".size";
+    private static final String FUNC_END_LABEL = ".Lfunc_end";
 
     private static final int COMMENT_OFFSET = 40;
 
@@ -41,11 +53,15 @@ public class IntelCodeGenerator implements CodeGenerator {
     }
 
     private void assemblerInit(BufferedWriter bw) throws IOException {
-
+        writeLine(bw, SPACING, TEXT);
+        writeLine(bw, SPACING, PREFIX);
     }
 
     private void createFunctionHead(BufferedWriter bw, Function func) throws IOException {
-
+        writeLine(bw, COMMENT_FUNC_START, SEPARATOR, func.getName());
+        writeLine(bw, SPACING, GLOBL, SEPARATOR, func.getName());
+        writeLine(bw, SPACING, ALIGN);
+        writeLine(bw, func.getName(), COLON);
     }
 
     private void createInstruction(BufferedWriter bw, Operation op) throws IOException {
@@ -82,12 +98,18 @@ public class IntelCodeGenerator implements CodeGenerator {
     }
 
     private void createFunctionFooter(BufferedWriter bw, Function func) throws IOException {
-
+        writeLine(bw, COMMENT_FUNC_END, SEPARATOR, func.getName());
+        if (!TargetTriple.isWindows()) {
+            writeLine(bw, FUNC_END_LABEL, ("" + counter), COLON);
+            writeLine(bw, SEPARATOR, SIZE, SEPARATOR, func.getName(), ", ", FUNC_END_LABEL, ("" + counter++), "-", func.getName());
+        }
     }
+
+    private int counter = 0;
 
     @Override
     public void createAssembler(Program program, String filename) {
-
+        counter = 0;
         FileResolver fileResolver = new FileResolver();
         File out = fileResolver.resolve(filename);
         try (FileWriter writer = new FileWriter(out); BufferedWriter bw = new BufferedWriter(writer)) {

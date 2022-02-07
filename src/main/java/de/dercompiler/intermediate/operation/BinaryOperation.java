@@ -38,7 +38,7 @@ public abstract non-sealed class BinaryOperation extends Operation {
 
     @Override
     public String getIntelSyntax() {
-        return operationType.getSyntax() + " " + target.acceptTranslator(IntelTranslator.getInstance(), getDatatype()) + "," + source.acceptTranslator(IntelTranslator.getInstance(), getDatatype());
+        return operationType.getSyntax() + " " + target.acceptTranslator(IntelTranslator.getInstance(), getDatatype()) + ", " + source.acceptTranslator(IntelTranslator.getInstance(), getDatatype());
     }
 
     @Override
