@@ -46,7 +46,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
             setDefinition(target);
         }
         for (Node pred : node.getPreds()) {
-            if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue || !(pred instanceof Minus || pred instanceof Not || pred instanceof Phi))) {
+            if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue) && !(pred instanceof Minus || pred instanceof Not || pred instanceof Phi)) {
                 getAnnotation(pred).setDefinition(target);
             }
         }
