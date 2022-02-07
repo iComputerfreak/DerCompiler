@@ -2,16 +2,18 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.Register;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.Mode;
-import firm.nodes.Node;
-import firm.nodes.Phi;
+import firm.nodes.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public class PhiRule extends SubstitutionRule<Phi> {
     @Override
@@ -38,13 +40,17 @@ public class PhiRule extends SubstitutionRule<Phi> {
 
         /* The code for the different Phi blocks is supposed to be created in getCodeForPred(int) */
         setMode(root.getPred(0).getMode());
-        Operand target = getDefinition();
-        if (target == null) {
-            target = new VirtualRegister();
-            setDefinition(target);
-        }
+
+        // Try to reuse the VR of the initialization
+        Operand target = Stream.of(getAnnotation(node.getPred(0)).getDefinition(), getDefinition(), new VirtualRegister()).filter(obj -> !Objects.isNull(obj) && obj instanceof VirtualRegister).findFirst().get();
+        setDefinition(target);
+
         for (Node pred : node.getPreds()) {
-            if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue || pred instanceof Phi)) {
+            if (!(getAnnotation(pred).getDefinition() instanceof ConstantValue
+                    || pred instanceof Minus
+                            || pred instanceof Not
+                            || pred instanceof Phi
+                            || pred instanceof Proj)) {
                 getAnnotation(pred).setDefinition(target);
             }
         }

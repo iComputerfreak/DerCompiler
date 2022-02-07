@@ -78,7 +78,7 @@ public class ThomasArrayAccess extends LoadRule {
 
         if (targetAddr == null) {
             targetAddr = new VirtualRegister();
-            setDefinition(Address.ofOperand(targetAddr));
+            setDefinition(Address.loadOperand(targetAddr));
         } else {
             // Undo indirection
             targetAddr = ((Address) targetAddr).getBase();

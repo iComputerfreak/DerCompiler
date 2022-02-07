@@ -66,7 +66,7 @@ public class ArrayConstantAccessRule extends AddRule {
 
         if (targetAddr == null) {
             targetAddr = new VirtualRegister();
-            setDefinition(Address.ofOperand(targetAddr));
+            setDefinition(Address.loadOperand(targetAddr));
         } else {
             // Undo indirection
             targetAddr = ((Address) targetAddr).getBase();

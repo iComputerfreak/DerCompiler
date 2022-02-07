@@ -71,7 +71,7 @@ public class ArrayAccessShlLRule extends AddRule {
         if (getArray() == null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Node %s has no target yet, so better implement a basic rule for it.".formatted(getLeft().getRootNode().toString()));
         }
-        Address address = Address.ofOperand(getArray());
+        Address address = Address.loadOperand(getArray());
 
         if (index instanceof Register idxReg) {
             // index is already a register, so no operation needed

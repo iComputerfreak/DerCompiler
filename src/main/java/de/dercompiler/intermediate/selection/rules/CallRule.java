@@ -29,7 +29,10 @@ public class CallRule extends SubstitutionRule<Call> {
 
     @Override
     public List<Operation> substitute() {
-        List<IRMode> argsModes = IntStream.range(2, getCall().getPredCount()).mapToObj(getCall()::getPred).map(Node::getMode).map(IRMode::forMode).toList();
+        List<IRMode> argsModes = IntStream.range(2, getCall().getPredCount())
+                .mapToObj(getCall()::getPred)
+                .map(Node::getMode)
+                .map(IRMode::forMode).toList();
         de.dercompiler.intermediate.operation.NaryOperations.Call call = new de.dercompiler.intermediate.operation.NaryOperations.Call(
                 getMethod(),
                 true,

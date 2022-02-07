@@ -112,7 +112,7 @@ public class Address implements IRLocation {
         else throw new RuntimeException("Whoops, this operand is not supposed to be able to be offset");
     }
 
-    public static Address ofOperand(Operand target) {
+    public static Address loadOperand(Operand target) {
         return loadWithOffset(target, 0);
     }
 

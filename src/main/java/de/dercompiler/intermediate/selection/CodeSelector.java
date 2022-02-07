@@ -140,7 +140,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
         while (nodeAnnotationGraphIterator.hasNext()) {
             NodeAnnotation<?> next = nodeAnnotationGraphIterator.next();
             if (!next.getTransformed()) {
-                System.out.println("New component of " + next.getRootNode().getBlock() + " starts at " + next.getRootNode());
+                //System.out.println("New component of " + next.getRootNode().getBlock() + " starts at " + next.getRootNode());
                 int compIdx = getFirmBlock(next.getRootNode().getBlock().getNr()).newComponent();
                 next.setComponent(compIdx);
             }
@@ -231,6 +231,7 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
                     NodeAnnotation<Phi> a = new NodeAnnotation<>(1, phi, new PhiRule(), !inRow, false);
                     VirtualRegister target = new VirtualRegister();
                     target.setPhiVariable(true);
+                    //reset by phi rule
                     a.setDefinition(target);
                     annotations.put(phi.getNr(), a);
 
@@ -544,13 +545,20 @@ public class CodeSelector extends LazyNodeWalker implements BlockWalker {
             if (!codeGraphLookup.containsKey(predNr)) {
                 // node gets handled elsewhere and gets no own code
                 boolean visited = p.getVisited();
+                // Pass down component number
                 if (!visited) {
                     p.setComponent(a.getComponent());
                     if (!p.getRootNode().getBlock().equals(a.getRootNode().getBlock())) {
-                        System.out.println("New component of " + p.getRootNode().getBlock() + " starts at " + p.getRootNode());
+                        //System.out.println("New component of " + p.getRootNode().getBlock() + " starts at " + p.getRootNode());
                         p.setComponent(getOrCreateFirmBlock(p.getRootNode().getBlock().getNr()).newComponent());
                     }
                     transformAnnotation(p);
+                    if (a.getRootNode().getBlock().equals(p.getRootNode().getBlock())) {
+                        // Backpropagate component number
+                        int actualCmp = p.getComponent();
+                        codeNode.setComponent(actualCmp);
+                        a.setComponent(actualCmp);
+                    }
                 } else if (p.getRootNode().getMode().equals(firm.Mode.getM()) || p.getRootNode().getMode().equals(firm.Mode.getT())) {
                     // M nodes need to be traversed either way
                     transformAnnotation(p);

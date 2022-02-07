@@ -9,7 +9,7 @@ import firm.nodes.Node;
 
 import java.util.List;
 
-public  class AddRule extends SubstitutionRule<Add> {
+public class AddRule extends SubstitutionRule<Add> {
 
     @Override
     public int getCost() {
@@ -44,9 +44,9 @@ public  class AddRule extends SubstitutionRule<Add> {
 
 
     @Override
-    public boolean matches(Add inputNode) {
+    public boolean matches(Add add) {
         // any Add node matches
-        return true;
+        return !add.getMode().equals(firm.Mode.getP());
     }
 
 }

@@ -7,6 +7,7 @@ import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.message.MessageOrigin;
+import de.dercompiler.transformation.TransformationWarrningIds;
 import firm.Graph;
 import firm.Mode;
 import firm.nodes.*;
@@ -71,8 +72,11 @@ public class ArrayAccessRule extends AddRule {
 
         if (getArray().getDefinition() == null) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("Node %s has no target yet, so better implement a basic rule for it.".formatted(getLeft().getRootNode().toString()));
+        } else if (getArray().getDefinition() == Address.NULL_PTR) {
+                new OutputMessageHandler(MessageOrigin.TRANSFORM).printWarning(TransformationWarrningIds.NULL_REFERENCE, "This program references a static null pointer at node" + node);
+                setDefinition(Address.NULL_PTR);
         }
-        Address arrayAddr = Address.ofOperand(getArray().getDefinition());
+        Address arrayAddr = Address.loadOperand(getArray().getDefinition());
 
         // There is nowhere to save the relative address, so calculate it again
 
@@ -100,7 +104,7 @@ public class ArrayAccessRule extends AddRule {
 
         if (targetAddr == null) {
             targetAddr = new VirtualRegister();
-            setDefinition(Address.ofOperand(targetAddr));
+            setDefinition(Address.loadOperand(targetAddr));
         } else {
             // Undo indirection
             targetAddr = ((Address) targetAddr).getBase();

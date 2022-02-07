@@ -55,4 +55,11 @@ public class Function {
         this.vrCount = vrCount;
     }
 
+    @Override
+    public String toString() {
+        return "Function{" +
+                "method=" + method +
+                ", opCount=" + opCount +
+                '}';
+    }
 }

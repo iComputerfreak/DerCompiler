@@ -20,6 +20,7 @@ import de.dercompiler.io.message.MessageOrigin;
 
 import java.util.*;
 
+import static de.dercompiler.intermediate.operand.Address.NULL_PTR;
 import static de.dercompiler.intermediate.operand.X86Register.*;
 
 
@@ -93,7 +94,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         paramCount = function.getParamCount();
         resetScratchRegisters(paramCount);
         for (Operation op : function.getOperations()) {
-            ops.add(new CommentOperation("\t\t"+op.toString()));
+            ops.add(new CommentOperation("\t\t" + op.toString()));
             if (skipNext) {
                 skipNext = false;
                 continue;
@@ -111,7 +112,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             } else if (op instanceof UnaryArithmeticOperation uao) {
                 handleUnaryArithmeticOperation(op, uao);
             } else {
-                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("Could not handle  " + op.toString());
+                new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("Could not handle  " + op);
             }
             resetScratchRegisters(paramCount);
         }
@@ -119,7 +120,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         // resetting bp is handled in handleRet
 
         Lea setupStack = new Lea(RSP, manager.getStackEnd());
-        setupStack.setComment("set up stack frame -- %d entries".formatted(manager.getStackSize()));
+
+        // Make stack size an odd number for 64-bit support on MacOS
+        int stackSize = manager.getStackSize();
+        stackSize = stackSize % 2 == 0 ? stackSize + 1 : stackSize;
+        setupStack.setComment("set up stack frame -- %d entries".formatted(stackSize));
         setupOps.add(setupStack);
 
         ops.addAll(0, setupOps);
@@ -294,7 +299,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 } else if (!operands[0].equals(operands[1])) {
                     // load address of target register
                     ops.add(new Lea(R10, opTgt));
-                    destReg = Address.ofOperand(R10);
+                    destReg = Address.loadOperand(R10);
                 }
             } else if (bo.needsDefinition()) {
                 // load target value into destination location
@@ -375,12 +380,18 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
         if (opTgt.equals(opSrc)) return;
         // if both ops are relative addresses, load the source value.
-        if (opSrc instanceof Address && opTgt instanceof Address) {
-            X86Register temp = storeInRegister(opSrc, bo.getMode());
-            ops.add(bo.allocate(opTgt, temp));
-            freeRegister(temp);
+        if (opSrc instanceof Address) {
+            if (opTgt instanceof Address) {
+                X86Register temp = storeInRegister(opSrc, bo.getMode());
+                ops.add(bo.allocate(opTgt, temp));
+                freeRegister(temp);
+                return;
+            }
+        }
+        if (opTgt instanceof X86Register reg) {
+            storeInRegister(reg, opSrc, bo.getMode());
         } else {
-            ops.add(bo.allocate(opTgt, opSrc));
+            store(opTgt, opSrc, bo.getMode(), null);
         }
     }
 
@@ -448,7 +459,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
                 }
                 case 25, 29 -> {
                     // 25/29: imul addr/reg, const -> reg
-                    ops.add(mul.allocateIMul3(dest,  fctTarget, (ConstantValue) fctSource));
+                    ops.add(mul.allocateIMul3(dest, fctTarget, (ConstantValue) fctSource));
                     break loop;
                 }
 
@@ -547,12 +558,16 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
             return getOperand(loadVirtualRegister(vr.getId(), mode), mode, allowAddress);
         } else if (operand instanceof ParameterRegister pr) {
             return getOperand(getParamReg(pr.getId()), mode, allowAddress);
+        } else if (operand.equals(NULL_PTR)) {
+            return allowAddress ? NULL_PTR : new ConstantValue(0);
         } else if (operand instanceof Address address) {
+            // index or base might be null, so do not flip
+            if (NULL_PTR.equals(address.getBase()) || NULL_PTR.equals(address.getIndex())) return NULL_PTR;
             if (address.getBase() instanceof IRRegister || address.getBase() instanceof Address) {
                 Operand base = getOperand(address.getBase(), IRMode.PTR, false);
                 Operand index = getOperand(address.getIndex(), IRMode.INT, false);
                 if (allowAddress && index == null && address.getOffset() == 0) {
-                    return Address.ofOperand(base);
+                    return Address.loadOperand(base);
                 }
                 address = address.allocate((X86Register) base, (X86Register) index);
             }
@@ -583,7 +598,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
     private X86Register storeInRegister(Operand operand, IRMode mode) {
         X86Register reg = allocateRegister();
         Mov mov = new Mov(reg, operand);
-        mov.setMode(mode);
+        mov.setMode(IRMode.PTR); // not suitable to write only part of registers
         ops.add(mov);
 
         return reg;
@@ -595,7 +610,7 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
 
     private void storeInRegister(X86Register dest, Operand source, IRMode mode, String comment) {
         Mov mov = new Mov(dest, source);
-        mov.setMode(mode);
+        mov.setMode(IRMode.PTR); // not suitable to write only part of registers
         mov.setComment(comment);
         ops.add(mov);
 

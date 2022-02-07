@@ -16,7 +16,11 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
     }
 
     private Operand getTarget() {
-        return getAnnotation(getAdd().getLeft()).getDefinition();
+        return getAnnotation(getSurvivingMember()).getDefinition();
+    }
+
+    private Node getSurvivingMember() {
+        return getRootNode().getPtr();
     }
 
     private Add getAdd() {
@@ -33,6 +37,15 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
         if (getAdd().getLeft() instanceof Proj proj) return proj;
         throw new RuntimeException();
     }
+    private Proj getSurvivingProj() {
+        if (getRootNode().getPred(0) instanceof Proj proj) return proj;
+        throw new RuntimeException();
+    }
+
+    private Load getLoad() {
+        if (getProj().getPred() instanceof Load load) return load;
+        throw new RuntimeException();
+    }
 
     private Proj getProjM() {
         if (getRootNode().getMem() instanceof Proj proj) return proj;
@@ -43,7 +56,8 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
     public List<Operation> substitute() {
         Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
-        autosetDefinitions(inc);
+        setDefinition(getAnnotation(getSurvivingProj()).getDefinition());
+        inc.setDefinition(getDefinition());
         return List.of(inc);
     }
 
@@ -53,10 +67,7 @@ public class IncRMemberRule extends SubstitutionRule<Store> {
                 getProjM(), getLoad(), getLoad().getPtr());
     }
 
-    private Load getLoad() {
-        if (getProj().getPred() instanceof Load load) return load;
-        throw new RuntimeException();
-    }
+
 
     @Override
     public boolean matches(Store inputNode) {

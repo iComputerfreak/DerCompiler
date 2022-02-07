@@ -3,6 +3,7 @@ package de.dercompiler.intermediate.selection.rules;
 import de.dercompiler.intermediate.operand.Operand;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.operation.UnaryOperations.Inc;
+import de.dercompiler.intermediate.selection.NodeAnnotation;
 import de.dercompiler.intermediate.selection.SubstitutionRule;
 import firm.Graph;
 import firm.nodes.*;
@@ -16,7 +17,11 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
     }
 
     private Operand getTarget() {
-        return getAnnotation(getAdd().getRight()).getDefinition();
+        return getAnnotation(getSurvivingMember()).getDefinition();
+    }
+
+    private Node getSurvivingMember() {
+        return getRootNode().getPtr();
     }
 
     private Add getAdd() {
@@ -34,6 +39,12 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
         throw new RuntimeException();
     }
 
+    private Proj getSurvivingProj() {
+        if (getRootNode().getPred(1) instanceof Proj proj) return proj;
+        throw new RuntimeException();
+    }
+
+
     private Load getLoad() {
         if (getProj().getPred() instanceof Load load) return load;
         throw new RuntimeException();
@@ -48,7 +59,8 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
     public List<Operation> substitute() {
         Inc inc = new Inc(getTarget(), isMemoryOperation());
         inc.setMode(getAdd().getMode());
-        autosetDefinitions(inc);
+        setDefinition(getAnnotation(getSurvivingProj()).getDefinition());
+        inc.setDefinition(getDefinition());
         return List.of(inc);
     }
 
@@ -56,6 +68,11 @@ public class IncLMemberRule extends SubstitutionRule<Store> {
     public List<Node> getRequiredNodes(Graph realGraph) {
         return List.of(getAdd(), getConst(), getProj(),
                getProjM(), getLoad(), getLoad().getPtr());
+    }
+
+    @Override
+    public List<NodeAnnotation<?>> getReplacementArgs() {
+        return List.of();
     }
 
     @Override
