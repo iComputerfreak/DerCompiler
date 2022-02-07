@@ -183,4 +183,9 @@ public class ToolchainUtil {
         }
         return s;
     }
+
+    public static String makeExecutioble(String filename) {
+        if (TargetTriple.isWindows()) return filename;
+        return "./" + filename;
+    }
 }

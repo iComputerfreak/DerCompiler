@@ -31,7 +31,7 @@ public final class Gcc implements Compiler, Assembler {
 
         if (!testCompile.run()) return failCompile(testCompile);
 
-        Runner exeProcess = new LocalProgramRunner(exe);
+        Runner exeProcess = new LocalProgramRunner(ToolchainUtil.makeExecutioble(exe));
         if (!exeProcess.run()) {
             new OutputMessageHandler(MessageOrigin.CODE_GENERATION).debugPrint("failed to run ./test");
             return false;

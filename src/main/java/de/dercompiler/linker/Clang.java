@@ -29,7 +29,7 @@ public final class Clang implements Compiler {
 
         if (!testCompile.run()) return false;
 
-        Runner exeProcess = new Runner(exe);
+        Runner exeProcess = new Runner(ToolchainUtil.makeExecutioble(exe));
         if (!exeProcess.run()) return false;
 
         return ToolchainUtil.checkTestCompile(exeProcess.getStdOut());
