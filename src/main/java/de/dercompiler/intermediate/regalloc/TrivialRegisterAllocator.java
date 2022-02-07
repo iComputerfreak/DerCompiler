@@ -120,7 +120,11 @@ public class TrivialRegisterAllocator extends RegisterAllocator {
         // resetting bp is handled in handleRet
 
         Lea setupStack = new Lea(RSP, manager.getStackEnd());
-        setupStack.setComment("set up stack frame -- %d entries".formatted(manager.getStackSize()));
+
+        // Make stack size an odd number for 64-bit support on MacOS
+        int stackSize = manager.getStackSize();
+        stackSize = stackSize % 2 == 0 ? stackSize + 1 : stackSize;
+        setupStack.setComment("set up stack frame -- %d entries".formatted(stackSize));
         setupOps.add(setupStack);
 
         ops.addAll(0, setupOps);
