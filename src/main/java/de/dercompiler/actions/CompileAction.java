@@ -116,7 +116,7 @@ public class CompileAction extends Action {
             compilerError();
             return; //we never return
         }
-        gcc.compileFirm(base);
+        gcc.compileAndLink(base);
     }
 
     public void help() {

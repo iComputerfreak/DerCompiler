@@ -6,4 +6,6 @@ public sealed interface Compiler permits Gcc, Clang, MSVC_CL {
 
     void compile(CompilerCall call);
 
+    void compileAndLink(String base);
+
 }

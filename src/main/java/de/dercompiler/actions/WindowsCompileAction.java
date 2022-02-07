@@ -3,17 +3,14 @@ package de.dercompiler.actions;
 import de.dercompiler.Function;
 import de.dercompiler.Program;
 import de.dercompiler.intermediate.CodeGenerationErrorIds;
-import de.dercompiler.intermediate.generation.AtntCodeGenerator;
 import de.dercompiler.intermediate.generation.CodeGenerator;
 import de.dercompiler.intermediate.generation.IntelCodeGenerator;
 import de.dercompiler.intermediate.memory.BasicMemoryManager;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.Operation;
 import de.dercompiler.intermediate.ordering.MyBlockSorter;
-import de.dercompiler.intermediate.regalloc.LifetimeOptimizedRegisterAllocator;
 import de.dercompiler.intermediate.regalloc.RegisterAllocator;
 import de.dercompiler.intermediate.regalloc.TrivialRegisterAllocator;
-import de.dercompiler.intermediate.regalloc.calling.AMDSystemVCallingConvention;
 import de.dercompiler.intermediate.regalloc.calling.MicrosoftX86CallingConvention;
 import de.dercompiler.intermediate.selection.BasicBlockGraph;
 import de.dercompiler.intermediate.selection.CodeSelector;
@@ -23,10 +20,7 @@ import de.dercompiler.io.OutputMessageHandler;
 import de.dercompiler.io.Source;
 import de.dercompiler.io.message.MessageOrigin;
 import de.dercompiler.lexer.Lexer;
-import de.dercompiler.linker.AssemblerStyle;
-import de.dercompiler.linker.ExternalToolchain;
-import de.dercompiler.linker.Gcc;
-import de.dercompiler.linker.ToolchainUtil;
+import de.dercompiler.linker.*;
 import de.dercompiler.optimization.ArithmeticOptimization;
 import de.dercompiler.optimization.ConstantPropagation.TransferFunction;
 import de.dercompiler.optimization.ConstantPropagation.Worklist;
@@ -113,12 +107,12 @@ public class WindowsCompileAction extends Action {
         String base = ToolchainUtil.getBaseName(source.filename());
         gen.createAssembler(program, ToolchainUtil.appendAssemblerExtension(base));
 
-        Gcc gcc = new Gcc("gcc");
-        if (!gcc.checkCompiler()) {
+        Clang clang = new Clang("clang");
+        if (!clang.checkCompiler()) {
             compilerError();
             return; //we never return
         }
-        gcc.compileFirm(base);
+        clang.compileAndLink(base);
     }
 
     public void help() {

@@ -78,7 +78,7 @@ public class FirmCompileAction extends Action {
             compilerError();
             return; //we never return
         }
-        gcc.compileFirm(base);
+        gcc.compileAndLink(base);
     }
 
     private void compilerError() {

@@ -39,7 +39,8 @@ public final class Gcc implements Compiler, Assembler {
         return ToolchainUtil.checkTestCompile(exeProcess.getStdOut());
     }
 
-    public void compileFirm(String base) {
+    @Override
+    public void compileAndLink(String base) {
         boolean c = false;
         String runtime;
         if (c) {

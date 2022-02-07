@@ -23,6 +23,11 @@ public final class MSVC_CL implements Compiler, Linker {
     }
 
     @Override
+    public void compileAndLink(String base) {
+
+    }
+
+    @Override
     public boolean checkLinker() {
         new OutputMessageHandler(MessageOrigin.CODE_GENERATION).internalError("not implemented yet.");
         return false;

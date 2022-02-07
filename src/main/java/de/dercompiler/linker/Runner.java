@@ -8,6 +8,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Runner {
 
@@ -37,6 +38,7 @@ public class Runner {
     public boolean run() {
         //ProcessBuilder proc = new ProcessBuilder(command.toArray(new String[0]));
         try {
+            //System.out.println(Arrays.toString(command.toArray(new String[0])));
             Process proc = Runtime.getRuntime().exec(command.toArray(new String[0]), null ,cwd);
             proc.waitFor();
             out = new BufferedInputStream(proc.getInputStream());
