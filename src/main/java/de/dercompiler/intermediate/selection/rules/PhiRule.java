@@ -2,6 +2,7 @@ package de.dercompiler.intermediate.selection.rules;
 
 import de.dercompiler.intermediate.operand.ConstantValue;
 import de.dercompiler.intermediate.operand.Operand;
+import de.dercompiler.intermediate.operand.Register;
 import de.dercompiler.intermediate.operand.VirtualRegister;
 import de.dercompiler.intermediate.operation.BinaryOperations.Mov;
 import de.dercompiler.intermediate.operation.Operation;
@@ -41,7 +42,7 @@ public class PhiRule extends SubstitutionRule<Phi> {
         setMode(root.getPred(0).getMode());
 
         // Try to reuse the VR of the initialization
-        Operand target = Stream.of(getAnnotation(node.getPred(0)).getDefinition(), getDefinition(), new VirtualRegister()).filter(obj -> !Objects.isNull(obj)).findFirst().get();
+        Operand target = Stream.of(getAnnotation(node.getPred(0)).getDefinition(), getDefinition(), new VirtualRegister()).filter(obj -> !Objects.isNull(obj) && obj instanceof Register).findFirst().get();
         setDefinition(target);
 
         for (Node pred : node.getPreds()) {
