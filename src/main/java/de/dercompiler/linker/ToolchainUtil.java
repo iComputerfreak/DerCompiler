@@ -115,7 +115,8 @@ public class ToolchainUtil {
 
     public static String getExecutableExtension() {
         if (TargetTriple.isWindows()) return "exe";
-        if (TargetTriple.isMacOS() || TargetTriple.isLinux()) return null;
+        if (TargetTriple.isMacOS()) return "out";
+        if (TargetTriple.isLinux()) return "out";
         utilsTargetError();
         return null; //we never return
     }

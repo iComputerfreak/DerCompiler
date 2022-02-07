@@ -63,7 +63,7 @@ public final class Clang implements Compiler {
             runtime = ToolchainUtil.prepareRuntimeCppCompile();
         }
         String inputFile = ToolchainUtil.appendAssemblerExtension(base);
-        String outputFile = "a.out";
+        String outputFile = ToolchainUtil.appendExecutableExtension("a");
         Runner runner = new Runner(clang_path);
         runner.append(inputFile);
         if (c) {

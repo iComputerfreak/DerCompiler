@@ -49,7 +49,7 @@ public final class Gcc implements Compiler, Assembler {
             runtime = ToolchainUtil.prepareRuntimeCppCompile();
         }
         String inputFile = ToolchainUtil.appendAssemblerExtension(base);
-        String outputFile = "a.out";
+        String outputFile = ToolchainUtil.appendExecutableExtension("a");
         Runner runner = new Runner(gcc_path);
         runner.append(inputFile);
         runner.append("-g");
